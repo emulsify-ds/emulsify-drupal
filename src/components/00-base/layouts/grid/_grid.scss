@@ -1,0 +1,8 @@
+@mixin grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid {
+  @include grid;
+}
