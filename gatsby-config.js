@@ -1,3 +1,8 @@
 module.exports = {
-  __experimentalThemes: ["gatsby-theme-emulsify"],
+  plugins: [
+    {
+      resolve: "gatsby-theme-emulsify",
+      options: {},
+    },
+  ],
 }
