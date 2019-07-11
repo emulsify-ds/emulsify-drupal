@@ -1,0 +1,16 @@
+.button {
+  background-color: #093646;
+  border: none;
+  color: white;
+  cursor: pointer;
+  line-height: 1.4;
+  padding: 0.5em 1em;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.button:hover {
+  background-color: #cde9f4;
+}

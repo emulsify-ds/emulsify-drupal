@@ -2,3 +2,7 @@ button_content:
   "Default Button"
 button_url:
   "#"
+
+button_attributes:
+  class:
+    button
