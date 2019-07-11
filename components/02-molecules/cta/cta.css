@@ -1,0 +1,14 @@
+.cta {
+  background-color: #cde9f4;
+  transform: scale(1);
+  transition: transform .5s ease;
+  padding: 3em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.cta:hover {
+  transform: scale(1.2);
+  background-color: #093646;
+  transition: transform .5s ease;
+}
