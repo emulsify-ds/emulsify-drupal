@@ -16,8 +16,6 @@
 {% set button_base_class = button_base_class|default('button') %}
 
 <button
-  {#  @TODO bem function is loaded as an extention and is written in PHP #}
-  {# {{ bem(button_base_class, (button_modifiers), button_blockname) }} #}
   {% for attribute,value in button_attributes %}
     {{ attribute }}="{{ value }}"
   {% endfor %}
