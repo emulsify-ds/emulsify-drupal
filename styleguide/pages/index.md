@@ -1,6 +1,7 @@
 ---
 title: "Home"
 description: "This is the Homepage and it has some information."
+publishToStyleGuide: true
 ---
 
 # Welcome to Emulsify Design Guide
