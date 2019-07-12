@@ -21,5 +21,9 @@ module.exports = ({ config }) => {
    // Prefer Gatsby ES6 entrypoint (module) over commonjs (main) entrypoint
   config.resolve.mainFields = ["browser", "module", "main"]
 
+  config.module.rules[1].test = [/\.twig$/]
+
+  config.module.rules[1].use[0].loader = require.resolve("twig-loader")
+
    return config
 }

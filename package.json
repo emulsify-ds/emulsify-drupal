@@ -13,7 +13,8 @@
     "gatsby": "^2.13.15",
     "gatsby-theme-emulsify": "^0.0.5",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "twig-loader": "^0.5.1"
   },
   "scripts": {
     "develop": "gatsby develop",
