@@ -11,6 +11,10 @@
   "devDependencies": {
     "@babel/core": "^7.5.4",
     "@babel/preset-env": "^7.5.4",
+    "@storybook/addon-actions": "^5.1.9",
+    "@storybook/addon-links": "^5.1.9",
+    "@storybook/addons": "^5.1.9",
+    "@storybook/react": "^5.1.9",
     "autoprefixer": "^9.6.1",
     "babel-loader": "^8.0.6",
     "babel-preset-minify": "^0.5.0",
@@ -19,6 +23,7 @@
     "imagemin-jpegtran": "^6.0.0",
     "imagemin-optipng": "^7.0.0",
     "imagemin-svgo": "^7.0.0",
+    "mini-css-extract-plugin": "^0.7.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-import": "^12.0.1",
     "postcss-import-ext-glob": "^1.1.0",
@@ -33,6 +38,8 @@
     "cross-env": "5.0.5",
     "gatsby": "^2.13.15",
     "gatsby-theme-emulsify": "^0.0.5",
+    "imagemin-webpack": "^5.0.0",
+    "mini-css-extract-plugin": "^0.7.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "twig-loader": "^0.5.1"
@@ -43,13 +50,5 @@
     "deploy": "gatsby build --prefix-paths && gh-pages -d public",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.5.4",
-    "@storybook/addon-actions": "^5.1.9",
-    "@storybook/addon-links": "^5.1.9",
-    "@storybook/addons": "^5.1.9",
-    "@storybook/react": "^5.1.9",
-    "babel-loader": "^8.0.6"
   }
 }
