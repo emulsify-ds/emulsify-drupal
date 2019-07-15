@@ -31,8 +31,11 @@
     "postcss-mixins": "^6.2.1",
     "postcss-nested": "^4.1.2",
     "postcss-simple-vars": "^5.0.2",
+    "stylelint": "^10.1.0",
     "stylelint-config-standard": "^18.3.0",
-    "stylelint-webpack-plugin": "^0.10.5"
+    "stylelint-webpack-plugin": "^0.10.5",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.6"
   },
   "dependencies": {
     "cross-env": "5.0.5",
@@ -45,10 +48,12 @@
     "twig-loader": "^0.5.1"
   },
   "scripts": {
-    "develop": "gatsby develop",
-    "build": "gatsby build",
-    "deploy": "gatsby build --prefix-paths && gh-pages -d public",
+    "develop-gatsby": "gatsby develop",
+    "build-gatsby": "gatsby build",
+    "deploy-gatsby": "gatsby build --prefix-paths && gh-pages -d public",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
+    "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details"
   }
 }

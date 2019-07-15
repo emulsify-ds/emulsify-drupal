@@ -1,5 +1,3 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-
 module.exports = async ({ config }) => {
   // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
   config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/]
@@ -27,35 +25,5 @@ module.exports = async ({ config }) => {
   config.module.rules[1].test = [/\.twig$/]
   config.module.rules[1].use[0].loader = require.resolve("twig-loader")
 
-  // CSS
-  config.module.rules.push({
-    test: /\.css$/,
-    use: [
-      MiniCssExtractPlugin.loader,
-      'style-loader',
-      { loader: 'css-loader', options: { importLoaders: 1 } },
-      'postcss-loader'
-    ]
-  });
-  
-  config.optimization = {
-    splitChunks: {
-      cacheGroups: {
-        styles: {
-          name: 'styles',
-          test: /\.css$/,
-          chunks: 'all',
-          enforce: true,
-        },
-      },
-    },
-  }
-
-  config.plugins.push(
-    new MiniCssExtractPlugin({
-      filename: "bundle.css"
-    })
-  )
-
-   return config
+  return config
 }
