@@ -7,4 +7,6 @@ publishToStyleGuide: true
 
 # This is a CTA
 
+<ComponentViewer />
+
 What a CTA it is! Holy cow. I would like to see a CTA like this.
