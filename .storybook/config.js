@@ -4,6 +4,9 @@ import { action } from "@storybook/addon-actions"
 // GLOBAL CSS
 import '../dist/styles.css';
 
+// GLOBAL JS
+import '../dist/js/main.bundle.js';
+
  // automatically import all files ending in *.stories.js
 const req = require.context("../components", true, /.stories.js$/)
 function loadStories() {
