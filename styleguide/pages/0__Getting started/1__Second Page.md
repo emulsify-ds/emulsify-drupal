@@ -6,4 +6,4 @@ publishToStyleGuide: true
 
 # Second Page Contents
 
-We hope you enjoy reading through this!
+Secondary page under getting started.
