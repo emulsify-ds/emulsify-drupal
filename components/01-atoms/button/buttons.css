@@ -1,8 +1,10 @@
 .button {
-  background-color: #093646;
+  background-color: #3f3f3f;
   border: none;
   color: white;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
   line-height: 1.4;
   padding: 0.5em 1em;
   display: inline-block;
@@ -12,5 +14,5 @@
 }
 
 .button:hover {
-  background-color: #cde9f4;
+  background-color: #000;
 }

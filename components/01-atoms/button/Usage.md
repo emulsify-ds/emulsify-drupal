@@ -8,4 +8,4 @@ tabOrder: 3
 
 # This is about Button Usage
 
-What a button it is! Holy cow. I would like to see a button like this.
+When and how to use buttons appropriately.
