@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const JSLoader = {
   test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
   include: [
-    path.resolve(__dirname, "components/02-molecules")
+    path.resolve(__dirname, "components")
   ],
   use: {
     loader: 'babel-loader',
