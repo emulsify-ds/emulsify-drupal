@@ -1,8 +1,4 @@
 button_content:
-  "Default Button"
+  "Click here"
 button_url:
   "#"
-
-button_attributes:
-  class:
-    button

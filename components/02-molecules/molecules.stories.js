@@ -1,12 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+
+import './cta/cta.css';
 
 import cta from './cta/cta.twig'
 const ctaTwig = (
   cta({
-    cta__heading: "CTA Heading Text",
-    cta__button_text: "CTA Button Text"
+    cta__heading: "This is a reason to act",
+    cta__button_text: "Click here"
   })
 )
 

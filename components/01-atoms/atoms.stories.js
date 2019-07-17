@@ -6,7 +6,7 @@ import Button from './button-react/Button.component';
 
 import button from './button/button.twig'
 const buttonTwig = (
-  button({ button_content: "Click Me I'm Twig" })
+  button({ button_content: "Twig Button" })
 )
 
 /**
@@ -14,7 +14,7 @@ const buttonTwig = (
  */
 storiesOf('Atoms/Button', module)
   .add('React button', () => (
-    <Button onClick={action('button-clicked')}>Click Here</Button>
+    <Button onClick={action('button-clicked')}>React Button</Button>
   ))
   .add('Twig button', () => 
     <div dangerouslySetInnerHTML={{__html: buttonTwig}}></div>

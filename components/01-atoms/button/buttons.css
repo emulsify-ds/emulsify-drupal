@@ -13,6 +13,10 @@
   text-transform: uppercase;
 }
 
+.button--small {
+  font-size: 0.7rem;
+}
+
 .button:hover {
   background-color: #000;
 }
