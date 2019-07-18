@@ -12,10 +12,10 @@ Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens
 
 ## 🔧 Develop
 
-### Design System
+### Storybook/Build
 
 `yarn develop` or `npm develop`
 
-### Pattern Library
+### Generate Design System
 
-`yarn storybook` or `npm storybook`
+`yarn develop-gatsby` or `npm develop-gatsby`
