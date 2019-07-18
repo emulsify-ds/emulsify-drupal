@@ -53,7 +53,7 @@
     "deploy-gatsby": "gatsby build --prefix-paths && gh-pages -d public",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "develop": "start-storybook -p 6006 && webpack -p --config ./webpack/webpack.config.js --display-error-details",
+    "develop": "webpack -p --config ./webpack/webpack.config.js --display-error-details && start-storybook -p 6006",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details"
   }
 }
