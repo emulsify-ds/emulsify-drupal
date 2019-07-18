@@ -1,6 +1,6 @@
 {
   "name": "gatsby-starter-emulsify-drupal",
-  "version": "0.0.1",
+  "version": "1.0.0-alpha.1",
   "description": "Emulsify Gatsby Starter using Emulsify Gatsby Theme for Drupal projects",
   "main": "index.js",
   "keywords": [
