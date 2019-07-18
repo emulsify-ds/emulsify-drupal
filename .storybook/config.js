@@ -2,7 +2,10 @@ import { configure } from "@storybook/react"
 import { action } from "@storybook/addon-actions"
 
 // GLOBAL CSS
-// import '../src/components/Templates/layout.css';
+import '../dist/styles.css';
+
+// GLOBAL JS
+import '../dist/js/main.bundle.js';
 
  // automatically import all files ending in *.stories.js
 const req = require.context("../components", true, /.stories.js$/)
