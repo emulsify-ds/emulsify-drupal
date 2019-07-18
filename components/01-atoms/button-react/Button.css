@@ -1,9 +1,10 @@
-.btn {
-  background-color: #093646;
+.button {
+  background-color: #3f3f3f;
   border: none;
   color: white;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: bold;
   line-height: 1.4;
   padding: 0.5em 1em;
   display: inline-block;
@@ -12,6 +13,10 @@
   text-transform: uppercase;
 }
 
-.btn:hover {
-  background-color: #cde9f4;
+.button--small {
+  font-size: 0.7rem;
+}
+
+.button:hover {
+  background-color: #000;
 }

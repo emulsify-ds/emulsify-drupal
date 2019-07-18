@@ -6,4 +6,4 @@ publishToStyleGuide: true
 
 # If you need help, you've come to the right place
 
-We hope you enjoy reading through this!
+TODO - this will contain content on how to find help in developing using the Emulsify project.

@@ -1,9 +1,16 @@
 ---
 title: "Welcome"
-description: "This is the Welcome Page and it has some information."
+description: "Welcome to the Emulsify Gatsby Starter for Drupal"
 publishToStyleGuide: true
 ---
 
-# Welcome to Emulsify Design Guide
+# Welcome to the Emulsify Gatsby Starter for Drupal
 
-We hope you enjoy reading through this!
+This is the default design system for the [Emulsify Gatsby Starter Drupal edition](https://github.com/fourkitchens/gatsby-starter-emulsify). The starter provides a few key benefits:
+
+1. Design System (what you are viewing now!) based on the [Emulsify Gatsby Theme](https://github.com/fourkitchens/gatsby-theme-emulsify)
+1. Pre-filled `components` directory for getting started quickly on development
+1. Twig support in components!
+1. Pre-filled styleguide pages (like this one) in `styleguide/pages`. Feel free to edit/remove/add to the styleguide pages as required by your project.
+1. [Storybook](https://storybook.js.org/) pattern library including Twig support
+1. Drupal 8 theme including templates

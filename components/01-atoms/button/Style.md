@@ -8,4 +8,4 @@ publishToStyleGuide: true
 
 # This is about Button Styles
 
-What a button it is! Holy cow. I would like to see a button like this!!!
+How to write styles for the button.
