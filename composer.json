@@ -1,0 +1,14 @@
+{
+    "name": "fourkitchens/gatsby-starter-emulsify-drupal",
+    "description": "Gatsby Starter using the Emulsify Gatsby Theme for a Design System, Storybook for a Pattern Library and serves as a starterkit Drupal 8 theme.",
+    "type": "drupal-theme",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evan Willhite",
+            "email": "evan@fourkitchens.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}

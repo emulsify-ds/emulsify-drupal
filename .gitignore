@@ -5,3 +5,5 @@ public
 .cache/
 yarn.lock
 dist
+
+/vendor/
