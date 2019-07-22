@@ -8,6 +8,8 @@ Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens
 
 ## 🚀 Install
 
+`composer install`
+
 `yarn` or `npm install`
 
 ## 🔧 Develop
