@@ -4,6 +4,7 @@ public
 .DS_Store
 .cache/
 yarn.lock
+composer.lock
 dist
 
 /vendor/
