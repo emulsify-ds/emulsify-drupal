@@ -2,7 +2,7 @@
   Emulsify Gatsby - Drupal Starter
 </h1>
 
-**Design System + Pattern Library + Drupal 8**
+<h4 align="center">Design System + Pattern Library + Drupal 8</h4>
 
 Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens/gatsby-theme-emulsify) for a Design System, [Storybook](https://storybook.js.org/) for a Pattern Library and serves as a starterkit Drupal 8 theme.
 
@@ -12,10 +12,10 @@ Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens
 
 ## 🔧 Develop
 
-### Design System
+### Storybook/Build
 
 `yarn develop` or `npm develop`
 
-### Pattern Library
+### Generate Design System
 
-`yarn storybook` or `npm storybook`
+`yarn develop-gatsby` or `npm develop-gatsby`
