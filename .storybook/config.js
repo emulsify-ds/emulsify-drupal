@@ -7,11 +7,20 @@ import '../dist/styles.css';
 // GLOBAL JS
 import '../dist/js/main.bundle.js';
 
+const twigDrupal = require('twig-drupal-filters')
+const twigBEM = require('bem-twig-extension');
+const twigAddAttributes = require('add-attributes-twig-extension');
+
  // automatically import all files ending in *.stories.js
 const req = require.context("../components", true, /.stories.js$/)
 function loadStories() {
   req.keys().forEach(filename => req(filename))
 }
+
+// twigDrupal(Twig);
+twigBEM(Twig);
+// twigAddAttributes(Twig);
+
 
  // Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
