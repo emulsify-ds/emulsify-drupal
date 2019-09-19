@@ -9,7 +9,13 @@
  */
 #}
 
-<button class="button">
+{% set additional_attributes = {
+  class: bem('button'),
+  id: 'testId',
+  "aria-label": 'button',
+} %}
+
+<button {{ add_attributes(additional_attributes) }}>
   {% block button_content %}
     {{ button_content }}
   {% endblock %}
