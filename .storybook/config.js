@@ -29,16 +29,13 @@ context.keys().forEach(key => {
   var template = context(key);
   const rootPath = path.join(__dirname);
   Twig.twig({
-    base: rootPath,
+    base: rootPath, // Possibly can set a base directory for everything to work from?
     namespaces: {
-      // 'base': 'components/00-base',
       'atoms': 'components/01-atoms',
-      // 'molecules': 'components/02-molecules',
-      // 'organisms': 'components/03-organisms',
     },
     id: key,
     data: template.tokens,
-    allowInlineIncludes: true,
+    allowInlineIncludes: true, // This seems to be an alternative to namespacing which allows relative paths.
     rethrow: true
   }).render();
 });
