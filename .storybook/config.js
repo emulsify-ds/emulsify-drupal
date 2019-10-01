@@ -35,7 +35,7 @@ context.keys().forEach(key => {
     },
     id: key,
     data: template.tokens,
-    allowInlineIncludes: true, // This seems to be an alternative to namespacing which allows relative paths.
+    // allowInlineIncludes: true, // This seems to be an alternative to namespacing which allows relative paths.
     rethrow: true
   }).render();
 });
