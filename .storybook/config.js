@@ -27,17 +27,19 @@ function loadStories() {
 const context = require.context('../components', true, /\.twig$/)
 context.keys().forEach(key => {
   var template = context(key);
+  const rootPath = path.join(__dirname);
   Twig.twig({
+    base: rootPath,
     namespaces: {
-      'base': 'components/00-base',
-      'atoms': path.join(__dirname, '/components/01-atoms/'),
-      'molecules': 'components/02-molecules',
-      'organisms': 'components/03-organisms',
+      // 'base': 'components/00-base',
+      'atoms': 'components/01-atoms',
+      // 'molecules': 'components/02-molecules',
+      // 'organisms': 'components/03-organisms',
     },
     id: key,
     data: template.tokens,
-    // allowInlineIncludes: true,
-    // rethrow: true
+    allowInlineIncludes: true,
+    rethrow: true
   }).render();
 });
 
