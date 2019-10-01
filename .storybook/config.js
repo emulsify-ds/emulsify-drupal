@@ -1,3 +1,5 @@
+var path = require('path')
+
 import { configure } from "@storybook/react"
 import { action } from "@storybook/addon-actions"
 
@@ -26,11 +28,17 @@ const context = require.context('../components', true, /\.twig$/)
 context.keys().forEach(key => {
   var template = context(key);
   Twig.twig({
+    namespaces: {
+      'base': 'components/00-base',
+      'atoms': path.join(__dirname, '/components/01-atoms/'),
+      'molecules': 'components/02-molecules',
+      'organisms': 'components/03-organisms',
+    },
     id: key,
     data: template.tokens,
-    allowInlineIncludes: true,
-    rethrow: true
-  });
+    // allowInlineIncludes: true,
+    // rethrow: true
+  }).render();
 });
 
 // Gatsby's Link overrides:
