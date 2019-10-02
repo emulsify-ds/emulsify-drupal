@@ -20,7 +20,8 @@ module.exports = {
   module: {
     rules: [
       loaders.JSLoader,
-      loaders.CSSLoader
+      loaders.CSSLoader,
+      loaders.FileLoader
     ]
   },
   plugins: [
