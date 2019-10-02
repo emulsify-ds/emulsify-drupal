@@ -1,9 +1,6 @@
-module.exports = async ({ config }) => {
-  // Commented code below makes directory set to `./storybook`.
-  // config.node = {
-  //   __dirname: true
-  // }
+const path = require('path')
 
+module.exports = async ({ config }) => {
   // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
   config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/]
 
@@ -27,8 +24,22 @@ module.exports = async ({ config }) => {
   config.resolve.mainFields = ["browser", "module", "main"]
 
   // Twig
-  config.module.rules[1].test = [/\.twig$/]
-  config.module.rules[1].use[0].loader = require.resolve("twig-loader")
+  config.module.rules.push({
+    test: /\.twig$/,
+    use: [
+      {
+        loader: 'twig-loader',
+        options: {
+          twigOptions: {
+            namespaces: {
+              atoms: path.resolve(__dirname, '../', 'components/01-atoms'),
+              molecules: path.resolve(__dirname, '../', 'components/02-molecules'),
+            },
+          },
+        },
+      },
+    ],
+  });
 
   return config
 }

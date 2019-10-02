@@ -1,5 +1,3 @@
-var path = require('path')
-
 import { configure } from "@storybook/react"
 import { action } from "@storybook/addon-actions"
 
@@ -19,26 +17,10 @@ twigBEM(Twig);
 twigAddAttributes(Twig);
 
  // automatically import all files ending in *.stories.js
-const req = require.context("../components", true, /.stories.js$/)
+const req = require.context('../components', true, /.stories.js$/)
 function loadStories() {
   req.keys().forEach(filename => req(filename))
 }
-
-const context = require.context('../components', true, /\.twig$/)
-context.keys().forEach(key => {
-  var template = context(key);
-  const rootPath = path.join(__dirname);
-  Twig.twig({
-    base: rootPath, // Possibly can set a base directory for everything to work from?
-    namespaces: {
-      'atoms': 'components/01-atoms',
-    },
-    id: key,
-    data: template.tokens,
-    // allowInlineIncludes: true, // This seems to be an alternative to namespacing which allows relative paths.
-    rethrow: true
-  }).render();
-});
 
 // Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
