@@ -23,7 +23,7 @@ const ImageminPlugin = new _ImageminPlugin({
   // disable: process.env.NODE_ENV !== 'production', // Disable during development
   externalImages: {
     context: imagePath,
-    sources: glob.sync(path.resolve(imagePath, '**/*')),
+    sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif,svg}')),
     destination: imagePath,
   }
 });
