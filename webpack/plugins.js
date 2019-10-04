@@ -1,6 +1,10 @@
 const path = require('path');
 const _MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
+const _ImageminPlugin = require('imagemin-webpack-plugin').default
+const glob = require('glob')
+
+const imagePath = path.resolve(__dirname, '../images');
 
 const MiniCssExtractPlugin = new _MiniCssExtractPlugin({
   filename: '[name].css',
@@ -14,7 +18,17 @@ const StyleLintPlugin = new _StyleLintPlugin({
   quiet: false,
 });
 
+const ImageminPlugin = new _ImageminPlugin({
+  // disable: process.env.NODE_ENV !== 'production', // Disable during development
+  externalImages: {
+    context: imagePath,
+    sources: glob.sync(path.resolve(imagePath, '**/*')),
+    destination: imagePath,
+  }
+});
+
 module.exports = {
   MiniCssExtractPlugin: MiniCssExtractPlugin,
-  StyleLintPlugin: StyleLintPlugin
+  StyleLintPlugin: StyleLintPlugin,
+  ImageminPlugin: ImageminPlugin
 };

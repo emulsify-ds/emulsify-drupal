@@ -21,12 +21,12 @@ module.exports = {
     rules: [
       loaders.JSLoader,
       loaders.CSSLoader,
-      loaders.FileLoader
     ]
   },
   plugins: [
     plugins.StyleLintPlugin,
     plugins.MiniCssExtractPlugin,
+    plugins.ImageminPlugin,
   ],
   output: {
     path: path.resolve("./dist"),

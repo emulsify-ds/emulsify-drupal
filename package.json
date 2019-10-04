@@ -19,10 +19,6 @@
     "babel-loader": "^8.0.6",
     "babel-preset-minify": "^0.5.0",
     "cssnano": "^4.1.10",
-    "imagemin-gifsicle": "^6.0.1",
-    "imagemin-jpegtran": "^6.0.0",
-    "imagemin-optipng": "^7.0.0",
-    "imagemin-svgo": "^7.0.0",
     "mini-css-extract-plugin": "^0.7.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-import": "^12.0.1",
@@ -41,11 +37,10 @@
     "add-attributes-twig-extension": "^0.1.0",
     "bem-twig-extension": "^0.1.0",
     "cross-env": "5.0.5",
-    "file-loader": "^4.2.0",
     "gatsby": "^2.13.15",
     "gatsby-theme-emulsify": "^1.0.0-alpha.5",
-    "image-webpack-loader": "^6.0.0",
-    "imagemin-webpack": "^5.0.0",
+    "glob": "^7.1.4",
+    "imagemin-webpack-plugin": "^2.4.2",
     "mini-css-extract-plugin": "^0.7.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -60,6 +55,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "develop": "webpack -p --config ./webpack/webpack.config.js --display-error-details && start-storybook -p 6006",
-    "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details"
+    "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
+    "webpack-build": "webpack -p --config ./webpack/webpack.config.js --display-error-details"
   }
 }

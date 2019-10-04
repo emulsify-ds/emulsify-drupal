@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const JSLoader = {
   test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
   include: [
-    path.resolve(__dirname, "components")
+    path.join(__dirname, '../', 'components')
   ],
   use: {
     loader: 'babel-loader',
@@ -32,24 +32,7 @@ const CSSLoader = {
   ],
 };
 
-const FileLoader = {
-  test: /\.(gif|png|jpe?g|svg)$/i,
-  include: [
-    path.resolve(__dirname, "images")
-  ],
-  use: [
-    'file-loader',
-    {
-      loader: 'image-webpack-loader',
-      options: {
-        disable: true, // webpack@2.x and newer
-      },
-    },
-  ],
-};
-
 module.exports = {
   JSLoader: JSLoader,
   CSSLoader: CSSLoader,
-  FileLoader: FileLoader,
 };
