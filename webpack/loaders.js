@@ -32,7 +32,17 @@ const CSSLoader = {
   ],
 };
 
+const SVGSpriteLoader = {
+  test: /icons\/.*\.svg$/, // your icons directory
+  loader: 'svg-sprite-loader',
+  options: {
+    extract: true,
+    spriteFilename: '../dist/icons.svg',
+  }
+};
+
 module.exports = {
   JSLoader: JSLoader,
   CSSLoader: CSSLoader,
+  SVGSpriteLoader: SVGSpriteLoader,
 };

@@ -2,6 +2,7 @@ const path = require('path');
 const _MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
 const _ImageminPlugin = require('imagemin-webpack-plugin').default
+const _SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 const glob = require('glob')
 
 const imagePath = path.resolve(__dirname, '../images');
@@ -27,8 +28,13 @@ const ImageminPlugin = new _ImageminPlugin({
   }
 });
 
+const SpriteLoaderPlugin = new _SpriteLoaderPlugin({
+  plainSprite: true
+});
+
 module.exports = {
   MiniCssExtractPlugin: MiniCssExtractPlugin,
   StyleLintPlugin: StyleLintPlugin,
-  ImageminPlugin: ImageminPlugin
+  ImageminPlugin: ImageminPlugin,
+  SpriteLoaderPlugin: SpriteLoaderPlugin,
 };
