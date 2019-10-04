@@ -17,21 +17,10 @@ twigBEM(Twig);
 twigAddAttributes(Twig);
 
  // automatically import all files ending in *.stories.js
-const req = require.context("../components", true, /.stories.js$/)
+const req = require.context('../components', true, /.stories.js$/)
 function loadStories() {
   req.keys().forEach(filename => req(filename))
 }
-
-const context = require.context('../components', true, /\.twig$/)
-context.keys().forEach(key => {
-  var template = context(key);
-  Twig.twig({
-    id: key,
-    data: template.tokens,
-    allowInlineIncludes: true,
-    rethrow: true
-  });
-});
 
 // Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
