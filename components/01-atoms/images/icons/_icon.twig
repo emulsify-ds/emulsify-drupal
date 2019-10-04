@@ -11,7 +11,7 @@
  */
 #}
 {% set icon_base_class = icon_base_class|default('icon') %}
-{% set icon_url = icon_url|default('./dist/icons.svg#') %}
+{% set icon_url = icon_url|default('icons.svg#') %}
 
 <svg {{ bem(icon_base_class, (icon_modifiers), icon_blockname, (icon_js_class)) }}
 
