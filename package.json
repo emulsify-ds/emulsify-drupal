@@ -47,7 +47,7 @@
     "svg-sprite-loader": "^4.1.6",
     "twig": "^1.13.3",
     "twig-drupal-filters": "^2.0.0",
-    "twig-loader": "^0.5.1"
+    "twig-loader": "https://github.com/AmazeeLabs/twig-loader"
   },
   "scripts": {
     "develop-gatsby": "gatsby develop",
