@@ -50,13 +50,13 @@
     "twig-loader": "https://github.com/AmazeeLabs/twig-loader"
   },
   "scripts": {
-    "develop-gatsby": "gatsby develop",
-    "build-gatsby": "gatsby build",
-    "deploy-gatsby": "gatsby build --prefix-paths && gh-pages -d public",
+    "styleguide": "gatsby develop",
+    "build-styleguide": "gatsby build",
+    "deploy-styleguide": "gatsby build --prefix-paths && gh-pages -d public",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "develop": "webpack -p --config ./webpack/webpack.config.js --display-error-details && start-storybook -s ./dist -p 6006",
+    "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
-    "webpack-build": "webpack -p --config ./webpack/webpack.config.js --display-error-details"
+    "develop": "yarn build && start-storybook -s ./dist -p 6006"
   }
 }

@@ -1,6 +1,6 @@
-<h1 align="center">
-  Emulsify Gatsby - Drupal Starter
-</h1>
+<img src="./hero.png" />
+
+[![Four Kitchens](https://img.shields.io/badge/4K-Four%20Kitchens-35AA4E.svg)](https://fourkitchens.com/)
 
 <h4 align="center">Design System + Pattern Library + Drupal 8</h4>
 
@@ -18,4 +18,5 @@ Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens
 
 ### Generate Design System
 
-`yarn develop-gatsby` or `npm develop-gatsby`
+`yarn styleguide` or `npm styleguide`
+
