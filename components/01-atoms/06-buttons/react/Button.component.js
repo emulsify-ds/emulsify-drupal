@@ -5,7 +5,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import './Button.css';
 
 /**
  * Component that renders a button with a click handler.

@@ -2,9 +2,9 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import Button from './button-react/Button.component';
+import Button from './06-buttons/react/Button.component';
 
-import button from './button/button.twig'
+import button from './06-buttons/twig/button.twig'
 const buttonTwig = (
   button({ button_content: "Twig Button" })
 )
@@ -12,7 +12,7 @@ const buttonTwig = (
 /**
  * Add storybook definition for Button.
  */
-storiesOf('Atoms/Button', module)
+storiesOf('Atoms/Buttons', module)
   .add('React button', () => (
     <Button onClick={action('button-clicked')}>React Button</Button>
   ))
