@@ -5,10 +5,6 @@ import { action } from '@storybook/addon-actions';
 import link from './01-links/link/link.twig'
 const linkComponent = (
   link({
-    link_modifiers: {
-      1: 'alt',
-      2: 'more-link'
-    },
     link_attributes: {
       target: '_blank'
     },
@@ -23,6 +19,17 @@ const linkComponent = (
 storiesOf('Atoms/Links', module)
   .add('Links', () => (
     <div dangerouslySetInnerHTML={{__html: linkComponent}}></div>
+  ))
+
+
+import headings from './02-text/00-headings/headings.twig'
+  
+/**
+ * Add storybook definition for Links.
+ */
+storiesOf('Atoms/Headings', module)
+  .add('Headings', () => (
+    <div dangerouslySetInnerHTML={{__html: headings({})}}></div>
   ))
 
 
