@@ -1,0 +1,14 @@
+<ul class="sg-colors">
+  {% for item in items %}
+    <li class="sg-colors__list">
+      <div class="sg-colors__color sg-colors__color--{{ item.value }}"></div>
+      <div class="sg-info">
+        <span>{{ item.name }}</span> <br/>
+        <code>${{ item.value }}</code>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+{% if meta %}
+  <p> <small>{{ meta.description }}</small> </p>
+{% endif %}
