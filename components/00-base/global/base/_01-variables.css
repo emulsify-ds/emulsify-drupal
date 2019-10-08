@@ -1,9 +1,9 @@
-/* Grayscale
+/*
  * General Variables
  * Note: colors should go into
- * components/_patterns/00-base/global/01-colors/_color-vars.scss
+ * components/00-base/global/01-colors/_color-vars.css
  * and breakpoint related vars into
- * components/_patterns/00-base/_breakpoints.scss
+ * components/00-base/global/base/_breakpoints.css
 */
 
 /* Fonts */
