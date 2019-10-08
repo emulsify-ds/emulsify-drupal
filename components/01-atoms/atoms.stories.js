@@ -58,7 +58,7 @@ const buttonAlt2 = (
  */
 storiesOf('Atoms/Buttons', module)
   .add('React button', () => (
-    <Button onClick={action('button-clicked')}>React Button</Button>
+    <Button>React Button</Button>
   ))
   .add('Twig button', () => 
     <div dangerouslySetInnerHTML={{__html: buttonTwig}}></div>
