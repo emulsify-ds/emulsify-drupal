@@ -12,7 +12,7 @@ const ctaTwig = (
 )
 
 /**
- * Add storybook definition for Button.
+ * Add storybook definition for CTA.
  */
 storiesOf('Molecules/CTA', module)
   .add('cta', () =>
