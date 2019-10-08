@@ -1,0 +1,32 @@
+$columns: '';
+
+@define-mixin grid-item $columns {
+  flex-grow: 1;
+  margin-bottom: 1em;
+  width: 100%;
+
+  @media (--large) {
+    margin: 0 3% 3% 0;
+    width: auto;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.grid__item {
+  @mixin grid-item;
+
+  background-color: $gray-lighter;
+  padding: $space-quadruple;
+
+  /* With Columns */
+  .grid--columns-2 & {
+    @mixin grid-item 2;
+  }
+
+  .grid--columns-3 & {
+    @mixin grid-item 3;
+  }
+}

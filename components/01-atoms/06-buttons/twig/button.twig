@@ -9,8 +9,10 @@
  */
 #}
 
+{% set button_base_class = button_base_class|default('button') %}
+
 {% set additional_attributes = {
-  class: bem('button'),
+  class: bem(button_base_class, button_modifiers, button_blockname),
   id: 'testId',
   "aria-label": 'button',
 } %}

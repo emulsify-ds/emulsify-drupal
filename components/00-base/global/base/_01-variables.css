@@ -1,0 +1,31 @@
+/*
+ * General Variables
+ * Note: colors should go into
+ * components/00-base/global/01-colors/_color-vars.css
+ * and breakpoint related vars into
+ * components/00-base/global/base/_breakpoints.css
+*/
+
+/* Fonts */
+$font-body: Georgia, Times, "Times New Roman", serif;
+$font-heading: "HelveticaNeue", "Helvetica", "Arial", sans-serif;
+
+/* Spacing */
+$space: 1rem;
+
+/* Times */
+$space-double: calc($space*2);
+$space-triple: calc($space*3);
+$space-quadruple: calc($space*4);
+$space-quintuple: calc($space*5);
+$space-sextuple: calc($space*6);
+$space-septuple: calc($space*7);
+
+/* Divided */
+$space-one-half: calc($space/2);
+$space-one-third: calc($space/3);
+$space-one-fourth: calc($space/4);
+$space-one-fifth: calc($space/5);
+$space-one-sixth: calc($space/6);
+$space-one-seventh: calc($space/7);
+$space-one-eighth: calc($space/8);
