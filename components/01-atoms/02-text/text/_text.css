@@ -1,10 +1,11 @@
-// Create a mixin for paragraph styles that can be implemented
-// in components with other classnames.
-@mixin paragraph($margin: 0 0 1em) {
-  margin: #{$margin};
+/* Create a mixin for paragraph styles that can be implemented
+ * in components with other classnames.
+*/
+@define-mixin paragraph $margin: 0 0 1em {
+  margin: $margin;
 }
 
-@mixin body-copy {
+@define-mixin body-copy {
   font-family: $font-body;
   font-size: 0.9rem;
   line-height: 1.6em;
@@ -13,11 +14,11 @@
 body {
   color: $gray;
 
-  @include body-copy;
+  @mixin body-copy;
 }
 
 .paragraph {
-  @include paragraph;
+  @mixin paragraph;
 }
 
 .blockquote {
@@ -33,7 +34,7 @@ body {
   color: currentColor;
 }
 
-// TODO: BEM selectors should be applied to wysiwyg-created content
+/* TODO: BEM selectors should be applied to wysiwyg-created content */
 
 .text-long {
   p {

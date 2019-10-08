@@ -12,6 +12,8 @@ const twigDrupal = require('twig-drupal-filters')
 const twigBEM = require('bem-twig-extension');
 const twigAddAttributes = require('add-attributes-twig-extension');
 
+Twig.cache();
+
 twigDrupal(Twig);
 twigBEM(Twig);
 twigAddAttributes(Twig);
