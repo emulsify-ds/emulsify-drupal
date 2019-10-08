@@ -15,16 +15,20 @@
   }
 }
 
+$outer-container-break: $small;
+
+@custom-media --outer-container-break (min-width: $outer-container-break);
+
 /* Mixin - Wrapper
  * Outer container mixin for large screens
 */
-@define-mixin wrapper $container-max-width: $max-width, $outer-container-break: $small, $v-margin: 0, $v-padding: 0, $h-padding: $space, $h-padding-large: $h-padding {
+@define-mixin wrapper $container-max-width: $max-width, $outer-container-break, $v-margin: 0, $v-padding: 0, $h-padding: $space, $h-padding-large: $h-padding {
   max-width: $container-max-width;
   width: 100%;
   margin: $v-margin auto;
   padding: $v-padding $h-padding;
 
-  @custom-media --outer-container-break ($outer-container-break) {
+  @media (--outer-container-break) {
     padding: $v-padding $h-padding-large;
   }
 }

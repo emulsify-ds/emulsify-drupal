@@ -1,9 +1,3 @@
-/**
- * Breakpoint Configuration
- * @see https://github.com/Team-Sass/breakpoint/wiki
- *
- */
-
 /*
  * Global Breakpoints
 */
@@ -29,42 +23,3 @@ $max-width: $xl;
 @custom-media --large (min-width: $large);
 @custom-media --xl (min-width: $xl);
 @custom-media --max-width (min-width: $max-width);
-
-/* Mixin - xs Breakpoint
- * Allows easier @mixin SIZE {} syntax
-*/
-@define-mixin xs {
-  @media (--xs) {
-    @content;
-  }
-}
-
-@define-mixin small {
-  @media (--small) {
-    @content;
-  }
-}
-
-@define-mixin medium {
-  @media (--medium) {
-    @content;
-  }
-}
-
-@define-mixin large {
-  @media (--large) {
-    @content;
-  }
-}
-
-@define-mixin xl {
-  @media (--xl) {
-    @content;
-  }
-}
-
-@define-mixin max-width {
-  @media (--max-width) {
-    @content;
-  }
-}
