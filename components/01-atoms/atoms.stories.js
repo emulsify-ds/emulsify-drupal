@@ -1,16 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import headings from './02-text/00-headings/headings.twig'
-
-/**
- * Add storybook definition for Links.
- */
-storiesOf('Atoms/Headings', module)
-  .add('Headings', () => (
-    <div dangerouslySetInnerHTML={{__html: headings({})}}></div>
-  ))
-
 import paragraph from './02-text/text/03-inline-elements.twig'
 
 import blockquote from './02-text/text/02-blockquote.twig'
