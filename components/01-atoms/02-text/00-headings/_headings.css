@@ -4,16 +4,8 @@
 */
 
 $color-heading: $gray-darker;
-$font-family: $font-heading;
-$font-size: 2rem;
-$line-height: 1.4;
-$color: $color-heading;
-$color-link: inherit;
-$color-link-hover: inherit;
-$font-weight: 700;
-$margin: 0 0 0.5em;
 
-@define-mixin heading-xl($font-family: $font-heading, $font-size: 2rem, $line-height: 1.4, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em) {
+@define-mixin heading-xl $font-family: $font-heading, $font-size: 2rem, $line-height: 1.4, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em {
   color: $color;
   font-family: $font-family;
   font-weight: $font-weight;
@@ -32,7 +24,7 @@ $margin: 0 0 0.5em;
   }
 }
 
-@define-mixin heading-large($font-family: $font-heading, $font-size: 1.8rem, $line-height: 1.4, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em) {
+@define-mixin heading-large $font-family: $font-heading, $font-size: 1.8rem, $line-height: 1.4, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em {
   color: $color;
   font-family: $font-family;
   font-weight: $font-weight;
@@ -51,7 +43,7 @@ $margin: 0 0 0.5em;
   }
 }
 
-@define-mixin heading-medium($font-family: $font-heading, $font-size: 1.4rem, $line-height: 1.6, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em) {
+@define-mixin heading-medium $font-family: $font-heading, $font-size: 1.4rem, $line-height: 1.6, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 700, $margin: 0 0 0.5em {
   color: $color;
   font-family: $font-family;
   font-weight: $font-weight;
@@ -70,7 +62,7 @@ $margin: 0 0 0.5em;
   }
 }
 
-@define-mixin heading-small($font-family: $font-heading, $font-size: 1.2rem, $line-height: 1.6, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 600, $margin: 0 0 0.5em) {
+@define-mixin heading-small $font-family: $font-heading, $font-size: 1.2rem, $line-height: 1.6, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 600, $margin: 0 0 0.5em {
   color: $color;
   font-family: $font-family;
   font-weight: $font-weight;
@@ -89,7 +81,7 @@ $margin: 0 0 0.5em;
   }
 }
 
-@define-mixin heading-xs($font-family: $font-heading, $font-size: 1.1rem, $line-height: 2, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 600, $margin: 0 0 0.5em) {
+@define-mixin heading-xs $font-family: $font-heading, $font-size: 1.1rem, $line-height: 2, $color: $color-heading, $color-link: inherit, $color-link-hover: inherit, $font-weight: 600, $margin: 0 0 0.5em {
   color: $color;
   font-family: $font-family;
   font-weight: $font-weight;
@@ -109,24 +101,24 @@ $margin: 0 0 0.5em;
 }
 
 .h1 {
-  @mixin heading-xl();
+  @mixin heading-xl;
 }
 
 .h2 {
-  @mixin heading-large();
+  @mixin heading-large;
 }
 
 .h3 {
-  @mixin heading-medium();
+  @mixin heading-medium;
 }
 
 .h4 {
-  @mixin heading-small();
+  @mixin heading-small;
 }
 
 .h5,
 .h6 {
-  @mixin heading-xs();
+  @mixin heading-xs;
 }
 
 /* TODO: BEM selectors should be applied to wysiwyg-created content */

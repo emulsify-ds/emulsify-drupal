@@ -23,41 +23,48 @@ $xl: 1224px;
 */
 $max-width: $xl;
 
+@custom-media --xs (min-width: $xs);
+@custom-media --small (min-width: $small);
+@custom-media --medium (min-width: $medium);
+@custom-media --large (min-width: $large);
+@custom-media --xl (min-width: $xl);
+@custom-media --max-width (min-width: $max-width);
+
 /* Mixin - xs Breakpoint
- * Allows easier @include SIZE {} syntax
+ * Allows easier @mixin SIZE {} syntax
 */
 @define-mixin xs {
-  @mixin breakpoint($xs) {
+  @media (--xs) {
     @content;
   }
 }
 
 @define-mixin small {
-  @mixin breakpoint($small) {
+  @media (--small) {
     @content;
   }
 }
 
 @define-mixin medium {
-  @mixin breakpoint($medium) {
+  @media (--medium) {
     @content;
   }
 }
 
 @define-mixin large {
-  @mixin breakpoint($large) {
+  @media (--large) {
     @content;
   }
 }
 
 @define-mixin xl {
-  @mixin breakpoint($xl) {
+  @media (--xl) {
     @content;
   }
 }
 
 @define-mixin max-width {
-  @mixin breakpoint($max-width) {
+  @media (--max-width) {
     @content;
   }
 }

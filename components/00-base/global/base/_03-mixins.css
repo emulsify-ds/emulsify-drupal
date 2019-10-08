@@ -2,13 +2,6 @@
  * General Mixins (put specific ones in component files where applicable)
 */
 
-$container-max-width: '';
-$outer-container-break: '';
-$v-margin: '';
-$v-padding: '';
-$h-padding: '';
-$h-padding-large: '';
-
 /* Mixin - Clearfix.
  * Adds clearfix based on http://bourbon.io/docs/#clearfix
  * use example =   @include cleafix
@@ -25,13 +18,13 @@ $h-padding-large: '';
 /* Mixin - Wrapper
  * Outer container mixin for large screens
 */
-@define-mixin wrapper($container-max-width: $max-width, $outer-container-break: $small, $v-margin: 0, $v-padding: 0, $h-padding: $space, $h-padding-large: $h-padding) {
+@define-mixin wrapper $container-max-width: $max-width, $outer-container-break: $small, $v-margin: 0, $v-padding: 0, $h-padding: $space, $h-padding-large: $h-padding {
   max-width: $container-max-width;
   width: 100%;
   margin: $v-margin auto;
   padding: $v-padding $h-padding;
 
-  @mixin breakpoint($outer-container-break) {
+  @custom-media --outer-container-break ($outer-container-break) {
     padding: $v-padding $h-padding-large;
   }
 }

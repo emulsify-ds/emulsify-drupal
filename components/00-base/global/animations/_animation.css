@@ -1,9 +1,9 @@
-$transition-property: all;
+/* $transition-property: all;
 $transition-time: 0.3s;
-$method: ease-in-out;
+$method: ease-in-out; */
 
 /* Mixin - Transition */
-@define-mixin transition($transition-property, $transition-time, $method) {
+@define-mixin transition $transition-property, $transition-time, $method {
   -webkit-transition: $transition-property $transition-time $method;
   -moz-transition: $transition-property $transition-time $method;
   -ms-transition: $transition-property $transition-time $method;
@@ -12,7 +12,7 @@ $method: ease-in-out;
 }
 
 .animate-fade {
-  @mixin transition;
+  @mixin transition all 0.3s ease-in-out;
 
   &:hover {
     opacity: 0.75;
@@ -20,7 +20,7 @@ $method: ease-in-out;
 }
 
 .demo-animate {
-  background-color: $gray-lighter;
+  background-color: #eee;
   border-radius: 2px;
   cursor: pointer;
   padding: 1rem;

@@ -43,6 +43,7 @@
     "gatsby-theme-emulsify": "^1.0.0-alpha.5",
     "imagemin-webpack": "^5.0.0",
     "mini-css-extract-plugin": "^0.7.0",
+    "postcss-custom-media": "^7.0.8",
     "postcss-mixins": "^6.2.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
