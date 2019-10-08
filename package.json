@@ -54,10 +54,10 @@
     "styleguide": "gatsby develop",
     "build-styleguide": "gatsby build",
     "deploy-styleguide": "gatsby build --prefix-paths && gh-pages -d public",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "start-storybook -s ./dist -p 6006",
     "build-storybook": "build-storybook",
     "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
-    "develop": "concurrently --raw \"yarn watch\" \"start-storybook -s ./dist -p 6006\""
+    "develop": "concurrently --raw \"yarn watch\" \"yarn storybook\""
   }
 }
