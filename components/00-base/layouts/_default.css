@@ -20,7 +20,7 @@ $main-width: calc(100% - ($sidebar-width + $gutter));
 */
 
 .main {
-  @mixin large {
+  @media (--large) {
     display: flex;
   }
 }
@@ -28,7 +28,7 @@ $main-width: calc(100% - ($sidebar-width + $gutter));
 .main-sidebar {
   margin-bottom: $space-double;
 
-  @mixin large {
+  @media (--large) {
     order: 2;
     width: $sidebar-width;
     margin-bottom: 0;
@@ -38,7 +38,7 @@ $main-width: calc(100% - ($sidebar-width + $gutter));
 .main-content {
   width: 100%;
 
-  @mixin large {
+  @media (--large) {
     &--with-sidebar {
       margin-right: $gutter;
       width: $main-width;
@@ -53,7 +53,7 @@ $main-width: calc(100% - ($sidebar-width + $gutter));
 
 /* .main {
   &--with-sidebar {
-    @include large {
+    @media (--large) {
       display: grid;
       grid-gap: $gutter;
       grid-template-areas: "content sidebar";
