@@ -1,7 +1,3 @@
-/* $transition-property: all;
-$transition-time: 0.3s;
-$method: ease-in-out; */
-
 /* Mixin - Transition */
 @define-mixin transition $transition-property, $transition-time, $method {
   -webkit-transition: $transition-property $transition-time $method;
