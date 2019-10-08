@@ -1,9 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import Button from './buttons/react/Button.component';
+import Button from './react/Button.component';
 
-import button from './buttons/twig/button.twig'
+import button from './twig/button.twig'
 const buttonTwig = (
   button({ button_content: "Twig Button" })
 )
