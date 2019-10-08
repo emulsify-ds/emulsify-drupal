@@ -59,6 +59,6 @@
     "build-storybook": "build-storybook",
     "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
-    "develop": "yarn build && start-storybook -p 6006"
+    "develop": "yarn watch & start-storybook -p 6006"
   }
 }

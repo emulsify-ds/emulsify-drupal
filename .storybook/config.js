@@ -7,8 +7,6 @@ import '../dist/styles.css';
 // GLOBAL JS
 import '../dist/js/main.bundle.js';
 
-import '../dist/styles.css';
-
 const Twig = require('twig')
 const twigDrupal = require('twig-drupal-filters')
 const twigBEM = require('bem-twig-extension');
