@@ -2,11 +2,49 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
+import link from './01-links/link/link.twig'
+const linkComponent = (
+  link({
+    link_modifiers: {
+      1: 'alt',
+      2: 'more-link'
+    },
+    link_attributes: {
+      target: '_blank'
+    },
+    link_url: 'https://github.com/fourkitchens/gatsby-starter-emulsify-drupal',
+    link_content: "This is my link text"
+  })
+)
+
+/**
+ * Add storybook definition for Links.
+ */
+storiesOf('Atoms/Links', module)
+  .add('Links', () => (
+    <div dangerouslySetInnerHTML={{__html: linkComponent}}></div>
+  ))
+
+
 import Button from './06-buttons/react/Button.component';
 
 import button from './06-buttons/twig/button.twig'
 const buttonTwig = (
   button({ button_content: "Twig Button" })
+)
+
+const buttonAlt = (
+  button({
+    button_content: "Button Alternative",
+    button_modifiers: ['alt']
+  })
+)
+
+const buttonAlt2 = (
+  button({
+    button_content: "Button Alternative",
+    button_modifiers: ['alt-2']
+  })
 )
 
 /**
@@ -18,4 +56,10 @@ storiesOf('Atoms/Buttons', module)
   ))
   .add('Twig button', () => 
     <div dangerouslySetInnerHTML={{__html: buttonTwig}}></div>
+  )
+  .add('Button Alternative', () => 
+    <div dangerouslySetInnerHTML={{__html: buttonAlt}}></div>
+  )
+  .add('Button Alternative 2', () => 
+    <div dangerouslySetInnerHTML={{__html: buttonAlt2}}></div>
   )
