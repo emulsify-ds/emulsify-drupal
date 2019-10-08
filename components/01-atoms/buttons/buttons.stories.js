@@ -23,7 +23,7 @@ const buttonAlt2 = (
 )
 
 /**
- * Add storybook definition for Button.
+ * Add storybook definition for Buttons.
  */
 storiesOf('Atoms/Buttons', module)
   .add('React button', () => (

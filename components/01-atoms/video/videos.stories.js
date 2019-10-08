@@ -19,7 +19,7 @@ const videoFull = (
 )
 
 /**
- * Add storybook definition from Video
+ * Add storybook definition for Videos.
  */
 storiesOf('Atoms/Video', module)
   .add('Wide', () =>
