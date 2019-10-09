@@ -20,7 +20,7 @@
 
 <h{{ heading_level }} {{ bem(heading_base_class, heading_modifiers, heading_blockname) }}>
   {% if heading_url %}
-    {% include "@atoms/01-links/link/link.twig" with {
+    {% include "@atoms/links/link/link.twig" with {
       "link_content": heading,
       "link_url": heading_url,
       "link_attributes": heading_link_attributes,
