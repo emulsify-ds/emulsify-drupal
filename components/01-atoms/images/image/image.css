@@ -1,4 +1,4 @@
-@mixin img {
+@define-mixin image {
   display: block;
   height: auto;
   max-width: 100%;
@@ -6,11 +6,11 @@
 
 img,
 picture {
-  @include img;
+  @mixin image;
 }
 
 figure {
-  margin: 0; //override normalize
+  margin: 0; /* override normalize */
 }
 
 .figure__caption {

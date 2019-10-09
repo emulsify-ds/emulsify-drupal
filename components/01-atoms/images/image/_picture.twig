@@ -1,7 +1,7 @@
 {% set picture_base_class = picture_base_class|default('picture') %}
 
 <picture
-  {{ bem(picture_base_class, (picture_modifiers), picture_blockname) }}
+  {{ bem(picture_base_class, picture_modifiers, picture_blockname) }}
 >
   {% if sources %}
     {#
@@ -15,7 +15,7 @@
     <!--[if IE 9]></video><![endif]-->
   {% endif %}
   {# The controlling image, with the fallback image in srcset. #}
-  {% include "@atoms/04-images/00-image/_image.twig" with {
+  {% include "@atoms/images/image/_image.twig" with {
     image_blockname: picture_image_blockname|default(picture_blockname),
   } %}
 </picture>
