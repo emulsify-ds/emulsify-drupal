@@ -94,3 +94,28 @@ storiesOf('Atoms/Buttons', module)
   .add('Button Alternative 2', () => 
     <div dangerouslySetInnerHTML={{__html: buttonAlt2}}></div>
   )
+
+
+import icons from './images/icons/icons.twig'
+const iconTwig = (
+  icons({
+    items: {
+      1: {
+        name: "Menu",
+        value: "menu"
+      },
+      2: {
+        name: "Twitter",
+        value: "twitter"
+      }
+    }
+  })
+)
+
+/**
+ * Add storybook definition for Icon.
+ */
+storiesOf('Atoms/Icons', module)
+  .add('Icons', () => (
+    <div dangerouslySetInnerHTML={{__html: iconTwig}}></div>
+  ))
