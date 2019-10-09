@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const JSLoader = {
   test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
   include: [
-    path.resolve(__dirname, "components")
+    path.join(__dirname, '..', path.sep , 'components')
   ],
   use: {
     loader: 'babel-loader',
@@ -32,7 +32,17 @@ const CSSLoader = {
   ],
 };
 
+const SVGSpriteLoader = {
+  test: /icons\/.*\.svg$/, // your icons directory
+  loader: 'svg-sprite-loader',
+  options: {
+    extract: true,
+    spriteFilename: '../dist/icons.svg',
+  }
+};
+
 module.exports = {
   JSLoader: JSLoader,
   CSSLoader: CSSLoader,
+  SVGSpriteLoader: SVGSpriteLoader,
 };

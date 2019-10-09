@@ -20,12 +20,15 @@ module.exports = {
   module: {
     rules: [
       loaders.JSLoader,
-      loaders.CSSLoader
+      loaders.CSSLoader,
+      loaders.SVGSpriteLoader,
     ]
   },
   plugins: [
     plugins.StyleLintPlugin,
     plugins.MiniCssExtractPlugin,
+    plugins.ImageminPlugin,
+    plugins.SpriteLoaderPlugin,
   ],
   output: {
     path: path.resolve("./dist"),
