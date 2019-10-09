@@ -13,17 +13,17 @@
 #}
 
 {# Drupal Specific #}
-{# {% if primary %}
+{% if primary %}
   <h2 class="visually-hidden">{{ 'Primary tabs'|t }}</h2>
   <ul class="tabs__nav tabs__nav--local-tasks">{{ primary }}</ul>
 {% endif %}
 {% if secondary %}
   <h2 class="visually-hidden">{{ 'Secondary tabs'|t }}</h2>
   <ul>{{ secondary }}</ul>
-{% endif %} #}
+{% endif %}
 
 {# Pattern Library Specific (javascript version) #}
-{# {% if not primary %} #}
+{% if not primary %}
 {{ attach_library('emulsify/tabs') }}
   <div id="tabs" class="tabs no-js">
     <ul class="tabs__nav">
@@ -42,4 +42,4 @@
       </div>
     {% endfor %}
   </div>
-{# {% endif %} #}
+{% endif %}
