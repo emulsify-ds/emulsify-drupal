@@ -41,3 +41,9 @@ $outer-container-break: $small;
 @define-mixin no-bottom {
   margin-bottom: 0;
 }
+
+@define-mixin list-reset {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
