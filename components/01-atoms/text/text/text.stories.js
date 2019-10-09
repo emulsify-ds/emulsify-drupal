@@ -13,7 +13,7 @@ const blockquoteComponent = (
 import pre from './05-pre.twig'
 
 /**
- * Add storybook definition for Links.
+ * Add storybook definition for Text.
  */
 storiesOf('Atoms/Text', module)
   .add('Various', () => (

@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react';
 import headings from './headings.twig'
 
 /**
- * Add storybook definition for Links.
+ * Add storybook definition for Headings.
  */
 storiesOf('Atoms/Headings', module)
   .add('Headings', () => (
