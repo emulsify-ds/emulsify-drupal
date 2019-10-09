@@ -1,0 +1,24 @@
+{% set image_figure_base_class = image_figure_base_class|default('figure') %}
+{% set image_link_base_class = image_link_base_class|default('link') %}
+
+<figure
+  {{ bem(image_figure_base_class, image_figure_modifiers, image_figure_blockname) }}
+>
+  {% if image_url %}
+    <a {{ bem(image_link_base_class, image_link_modifiers, image_link_blockname|default(image_figure_base_class)) }} href="{{ image_url }}">
+  {% endif %}
+    {% block figure_content %}
+      {% include "@atoms/images/image/responsive-image.twig" with {
+        responsive_image_blockname: responsive_image_blockname|default(image_figure_base_class),
+      } %}
+    {% endblock %}
+  {% if image_url %}
+    </a>
+  {% endif %}
+
+  {% if image_caption %}
+    <figcaption {{ bem('caption', figcaption_modifiers, figcaption_blockname|default(image_figure_base_class)) }}>
+      {{ image_caption }}
+    </figcaption>
+  {% endif %}
+</figure>
