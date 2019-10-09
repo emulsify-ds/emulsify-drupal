@@ -1,9 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 
-import colors from './global/01-colors/colors.twig'
-const Default = (
+import colors from './colors.twig'
+const Grayscale = (
   colors({
     items: {
       1: {
@@ -46,7 +45,7 @@ const Default = (
   })
 )
 
-const Project = (
+const Branding = (
   colors({
     items: {
       1: {
@@ -61,44 +60,13 @@ const Project = (
   })
 )
 
-import animations from './global/animations/animations.twig'
-
-import grid from './layouts/grid/grid.twig'
-
-const Grid = (
-  grid({
-    grid_label: "Default",
-    items: {
-      1: "",
-      2: "",
-      3: ""
-    }
-  })
-)
-
 /**
  * Add storybook definition for Colors.
  */
 storiesOf('Base/Colors', module)
-  .add('Default', () => (
-    <div dangerouslySetInnerHTML={{__html: Default}}></div>
+  .add('Grayscale', () => (
+    <div dangerouslySetInnerHTML={{__html: Grayscale}}></div>
   ))
-  .add('Project', () => (
-    <div dangerouslySetInnerHTML={{__html: Project}}></div>
-  ))
-
-/**
- * Add storybook definition for Animations.
- */
-storiesOf('Base/Animations', module)
-  .add('Default', () => (
-    <div dangerouslySetInnerHTML={{__html: animations({ animation_name: 'Fade' }) }}></div>
-  ))
-
-/**
- * Add storybook definition for Grids.
- */
-storiesOf('Base/Grids', module)
-  .add('Default', () => (
-    <div dangerouslySetInnerHTML={{__html: Grid }}></div>
+  .add('Branding', () => (
+    <div dangerouslySetInnerHTML={{__html: Branding}}></div>
   ))

@@ -1,8 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import './cta.css';
-
 import cta from './cta.twig'
 const ctaTwig = (
   cta({
