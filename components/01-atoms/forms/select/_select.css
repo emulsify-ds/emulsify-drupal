@@ -1,4 +1,4 @@
-// CSS-only select styling (from https://github.com/filamentgroup/select-css)
+/* CSS-only select styling (from https://github.com/filamentgroup/select-css) */
 
 .form-item__dropdown {
   border: 1px solid $gray-lightest;
@@ -27,7 +27,7 @@
 
 .form-item__select {
   border: 1px solid $gray-lightest;
-  height: 41px; // set height required for discrepancy between .form-item__dropdown border and the select :focus border
+  height: 41px; /* set height required for discrepancy between .form-item__dropdown border and the select :focus border */
   font-size: 16px;
   margin: 0;
   outline: none;
