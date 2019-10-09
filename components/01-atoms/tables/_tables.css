@@ -34,7 +34,7 @@ $table-border: $gray-lightest;
     background-color: $white;
   }
 
-  // Top Row - Non-BEM but always contained
+  /* Top Row - Non-BEM but always contained */
   &:first-child {
     th:first-child,
     td:first-child {
@@ -47,7 +47,7 @@ $table-border: $gray-lightest;
     }
   }
 
-  // Bottom Row - Non-BEM but always contained
+  /* Bottom Row - Non-BEM but always contained */
   &:last-child {
     tbody & {
       th,
@@ -72,7 +72,7 @@ $table-border: $gray-lightest;
   border-top: 1px solid $table-border;
 }
 
-// TODO: BEM selectors should be applied to wysiwyg-created content
+/* TODO: BEM selectors should be applied to wysiwyg-created content */
 
 .text-long {
   table {
