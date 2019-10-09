@@ -1,9 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import './cta/cta.css';
+import './cta.css';
 
-import cta from './cta/cta.twig'
+import cta from './cta.twig'
 const ctaTwig = (
   cta({
     cta__heading: "This is a reason to act",
@@ -15,6 +15,6 @@ const ctaTwig = (
  * Add storybook definition for Button.
  */
 storiesOf('Molecules/CTA', module)
-  .add('cta', () => 
+  .add('cta', () =>
     <div dangerouslySetInnerHTML={{__html: ctaTwig}}></div>
   )
