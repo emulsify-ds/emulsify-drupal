@@ -1,9 +1,9 @@
-$color-breadcrumb: $gray-light
-$color-breadcrumb-hover: $gray
-$color-breadcrumb-active: $gray-lighter
+$color-breadcrumb: $gray-light;
+$color-breadcrumb-hover: $gray;
+$color-breadcrumb-active: $gray-lighter;
 
 .breadcrumb {
-  @mxin list-reset;
+  @mixin list-reset;
 }
 
 .breadcrumb__item,
