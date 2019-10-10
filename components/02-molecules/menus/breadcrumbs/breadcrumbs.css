@@ -1,7 +1,7 @@
 $breadcrumb-active: #bbb;
 
 .breadcrumb {
-  @include list-reset;
+  @mxin list-reset;
 }
 
 .breadcrumb__item,
