@@ -14,12 +14,12 @@
  * @see template_preprocess_menu_local_task()
  */
 #}
-{# {%
+{%
   set link_classes = [
-    is_active ? 'is-active',
+    is_active ? 'is-active' : '',
     'tabs__link--local-tasks'
   ]
-%} #}
+%}
 
 {# if Pattern Lab atoms example, add ul wrapper #}
 {% if example %}
