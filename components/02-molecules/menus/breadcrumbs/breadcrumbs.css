@@ -1,4 +1,6 @@
-$breadcrumb-active: #bbb;
+$color-breadcrumb: $gray-light
+$color-breadcrumb-hover: $gray
+$color-breadcrumb-active: $gray-lighter
 
 .breadcrumb {
   @mxin list-reset;
@@ -9,12 +11,12 @@ $breadcrumb-active: #bbb;
 .breadcrumb__link:link,
 .breadcrumb__link:visited,
 .breadcrumb__link:focus {
-  color: $gray-light;
+  color: $color-breadcrumb;
   text-decoration: none;
 }
 
 .breadcrumb__link:hover {
-  color: $gray;
+  color: $color-breadcrumb-hover;
 }
 
 .breadcrumb__item {
@@ -26,7 +28,7 @@ $breadcrumb-active: #bbb;
   }
 
   &:last-child {
-    color: $breadcrumb-active;
+    color: $color-breadcrumb-active;
 
     &::after {
       content: "";
@@ -35,5 +37,5 @@ $breadcrumb-active: #bbb;
 }
 
 .breadcrumb_link:active {
-  color: $breadcrumb-active;
+  color: $color-breadcrumb-active;
 }
