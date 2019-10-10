@@ -26,7 +26,7 @@ const tabsPrimaryTwig = (
 /**
  * Add storybook definition for Lists.
  */
-storiesOf('Molecules/TabsPrimary', module)
+storiesOf('Molecules/Menus', module)
   .add('Primary Tabs', () => {
     useEffect(() => {
       require('./tabs.js');
