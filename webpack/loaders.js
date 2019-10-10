@@ -2,10 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const JSLoader = {
-  test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
-  include: [
-    path.join(__dirname, '..', path.sep , 'components')
-  ],
+  test: /\.js/,
   use: {
     loader: 'babel-loader',
     options: {
