@@ -7,8 +7,6 @@
   var tabContentContainers = document.querySelectorAll('.tabs__tab');
   var activeIndex = 0;
 
-  console.log(tabNavigationLinks)
-
   /**
    * handleClick
    * @description Handles click event listeners on each of the links in the
