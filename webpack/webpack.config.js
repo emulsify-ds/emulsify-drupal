@@ -12,7 +12,8 @@ const componentJS = glob.sync(`${componentsDir}/**/*.js`, {ignore: ['**/*.storie
 const entry = {};
   
 componentJS.forEach((match) => {
-  entry[match] = match;
+  const fileName = path.basename(match);
+  entry[fileName] = match;
 });
 
 const getFilePath = (filePath) => {
@@ -22,8 +23,16 @@ const getFilePath = (filePath) => {
   return newFilePath;
 };
 
-module.exports = {
+var config = {
+  module: {},
+};
+
+const jsConfig = Object.assign({}, config, {
   entry: entry,
+  target: () => undefined,
+  optimization: {
+    runtimeChunk: true,
+  },
   module: {
     rules: [
       loaders.JSLoader,
@@ -31,22 +40,11 @@ module.exports = {
   },
   output: {
     path: distDir,
-    filename(object) {
-      const filePath = object.chunk.name;
-      let newFilePath;
-  
-      if (filePath.indexOf(themewebpackDirPath) !== -1) {
-        newFilePath = getFilePath(filePath);
-      }
-      else {
-        newFilePath = getFilePath(filePath);
-      }
-      return newFilePath;
-    },
+    filename: 'js/[name]',
   },
-};
+});
 
-module.exports = {
+const nonJsConfig = Object.assign({}, config, {
   optimization: {
     splitChunks: {
       cacheGroups: {
@@ -61,7 +59,6 @@ module.exports = {
     runtimeChunk: true,
   },
   entry: {
-    // js: componentJS,
     svgSprite: path.resolve(webpackDir, 'svgSprite.js'),
     css: path.resolve(webpackDir, 'css.js')
   },
@@ -81,4 +78,8 @@ module.exports = {
     path: distDir,
     filename: 'remove/[name].js',
   },
-};
+});
+
+module.exports = [
+  jsConfig, nonJsConfig,       
+];
