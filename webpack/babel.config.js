@@ -10,5 +10,7 @@ module.exports = (api) => {
     'minify',
   ];
 
-  return { presets };
+  const comments = false
+
+  return { presets, comments };
 };
