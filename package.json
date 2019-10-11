@@ -32,7 +32,9 @@
     "webpack-cli": "^3.3.6"
   },
   "dependencies": {
+    "@babel/cli": "^7.6.4",
     "add-attributes-twig-extension": "^0.1.0",
+    "babel-plugin-drupal-behaviors": "^0.0.2",
     "bem-twig-extension": "^0.1.0",
     "concurrently": "^5.0.0",
     "cross-env": "5.0.5",
@@ -56,6 +58,7 @@
     "deploy-styleguide": "gatsby build --prefix-paths && gh-pages -d public",
     "storybook": "start-storybook -s ./dist -p 6006",
     "build-storybook": "build-storybook",
+    "babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js' --presets=@babel/preset-env,babel-preset-minify --plugins=babel-plugin-drupal-behaviors",
     "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
     "develop": "concurrently --raw \"yarn watch\" \"yarn storybook\""

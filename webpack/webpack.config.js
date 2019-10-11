@@ -12,25 +12,25 @@ const componentJs = glob.sync(
 );
 
 module.exports = [
-  {
-    entry: componentJs.reduce(
-      (acc, cur) => ({
-        ...acc,
-        [path.basename(cur)]: cur
-      }),
-      {}
-    ),
-    optimization: {
-      runtimeChunk: true
-    },
-    module: {
-      rules: [loaders.JSLoader]
-    },
-    output: {
-      path: distDir,
-      filename: 'js/[name]'
-    }
-  },
+  // {
+  //   entry: componentJs.reduce(
+  //     (acc, cur) => ({
+  //       ...acc,
+  //       [path.basename(cur)]: cur
+  //     }),
+  //     {}
+  //   ),
+  //   optimization: {
+  //     runtimeChunk: true
+  //   },
+  //   module: {
+  //     rules: [loaders.JSLoader]
+  //   },
+  //   output: {
+  //     path: distDir,
+  //     filename: 'js/[name]',
+  //   }
+  // },
   {
     optimization: {
       splitChunks: {
