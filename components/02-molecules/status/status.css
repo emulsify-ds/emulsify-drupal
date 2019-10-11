@@ -1,7 +1,7 @@
 .status__list {
   @mixin list-reset;
 
-  margin-bottom: 1rem;
+  margin-bottom: $space;
 }
 
 .status {
