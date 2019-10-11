@@ -59,7 +59,7 @@
     "storybook": "start-storybook -s ./dist -p 6006",
     "build-storybook": "build-storybook",
     "babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js' --presets=@babel/preset-env,babel-preset-minify --plugins=babel-plugin-drupal-behaviors",
-    "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
+    "build": "webpack -p --config ./webpack/webpack.config.js --display-error-details && yarn babel",
     "watch": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
     "develop": "concurrently --raw \"yarn watch\" \"yarn storybook\""
   }
