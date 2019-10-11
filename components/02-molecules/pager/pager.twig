@@ -29,34 +29,33 @@
  * @see template_preprocess_pager()
  */
 #}
+{% set pager__base_class = 'pager' %}
+
 {% if items %}
-  <nav class="pager" role="navigation" aria-labelledby="pagination-heading">
-    <h4 id="pagination-heading" class="visually-hidden">{{ 'Pagination'|t }}</h4>
-    <ul class="pager__items js-pager__items">
+  <nav {{ bem(pager__base_class) }} role="navigation" aria-labelledby="pagination-heading">
+    <h4 id="pagination-heading" {{ bem('visually-hidden') }}>{{ 'Pagination'|t }}</h4>
+  <ul {{ bem('items', [], pager__base_class, ['js-pager__items']) }}>
       {# Print previous item if we are not on the first page. #}
       {% if items.previous %}
-        <li class="pager__item pager__item--previous">
-          <a class="pager__link pager__link--prev"  href="{{ items.previous.href }}" title="{{ 'Go to previous page'|t }}" rel="prev"{{ items.previous.attributes|without('href', 'title', 'rel') }}>
-            <span class="visually-hidden">{{ 'Previous page'|t }}</span>
+        <li {{ bem('item', ['prev'], pager__base_class) }}>
+          <a {{ bem('link', ['prev'], pager__base_class) }} href="{{ items.previous.href }}" title="{{ 'Go to previous page'|t }}" rel="prev"{{ items.previous.attributes|without('href', 'title', 'rel') }}>
+            <span {{ bem('visually-hidden') }}>{{ 'Previous page'|t }}</span>
             <span aria-hidden="true">{{ items.previous.text|default('‹ Previous'|t) }}</span>
           </a>
         </li>
       {% endif %}
       {# Add an ellipsis if there are further previous pages. #}
       {% if ellipses.previous %}
-        <li class="pager__item pager__item--ellipsis" role="presentation">&hellip;</li>
+        <li {{ bem('item', ['ellipsis'], pager__base_class) }} role="presentation">&hellip;</li>
       {% endif %}
       {# Now generate the actual pager piece. #}
       {% for key, item in items.pages %}
-        <li class="pager__item{{ current == key ? ' is-active' : '' }}">
-          {% if current == key %}
-            {% set title = 'Current page'|t %}
-          {% else %}
-            {% set title = 'Go to page @key'|t({'@key': key}) %}
-          {% endif %}
-          <a class="pager__link{{ current == key ? ' is-active' : '' }}" href="{{ item.href }}" title="{{ title }}"{{ item.attributes|without('href', 'title') }}>
-            <span class="visually-hidden">
-              {{ current == key ? 'Current page'|t : 'Page'|t }}
+        {% set current_class = current == key ? ' is-active' : '' %}
+        <li {{ bem('item', [], pager__base_class, [current_class]) }}>
+          {% set title = current == key ? 'Current page'|t : 'Go to page @key'|t({'@key': key}) %}
+          <a {{ bem('link', [], pager__base_class, [current_class]) }} href="{{ item.href }}" title="{{ title }}"{{ item.attributes|without('href', 'title') }}>
+            <span {{ bem('visually-hidden') }}>
+              {{ current == key ? 'Current page'|t : 'Page '|t }}
             </span>
             {{- key -}}
           </a>
@@ -64,13 +63,13 @@
       {% endfor %}
       {# Add an ellipsis if there are further next pages. #}
       {% if ellipses.next %}
-        <li class="pager__item pager__item--ellipsis" role="presentation">&hellip;</li>
+        <li {{ bem('item', ['ellipsis'], pager__base_class) }} role="presentation">&hellip;</li>
       {% endif %}
       {# Print next item if we are not on the last page. #}
       {% if items.next %}
-        <li class="pager__item pager__item--next">
-          <a class="pager__link pager__link--next" href="{{ items.next.href }}" title="{{ 'Go to next page'|t }}" rel="next"{{ items.next.attributes|without('href', 'title', 'rel') }}>
-            <span class="visually-hidden">{{ 'Next page'|t }}</span>
+        <li {{ bem('item', ['next'], pager__base_class) }}>
+          <a {{ bem('link', ['next'], pager__base_class) }} href="{{ items.next.href }}" title="{{ 'Go to next page'|t }}" rel="next"{{ items.next.attributes|without('href', 'title', 'rel') }}>
+            <span {{ bem('visually-hidden') }}>{{ 'Next page'|t }}</span>
             <span aria-hidden="true">{{ items.next.text|default('Next ›'|t) }}</span>
           </a>
         </li>
