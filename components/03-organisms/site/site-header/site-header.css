@@ -4,5 +4,13 @@
 
   @media (--large) {
     flex-direction: row;
+
+    &__branding {
+      flex: 1 0 200px;
+    }
+
+    &__menu {
+      flex: 1 1 100%;
+    }
   }
 }
