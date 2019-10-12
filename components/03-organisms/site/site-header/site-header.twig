@@ -1,0 +1,22 @@
+<header {{ bem('header') }}>
+  {% block header__logo %}
+    {% embed "@atoms/links/link/link.twig" with {
+      link_base_class: 'logo-link',
+      link_url: logo_link__url|default('/'),
+    } %}
+      {% block link_content %}
+        {% include "@atoms/images/image/responsive-image.twig" with {
+          output_image_tag: true,
+          image_src: '../../../../images/logo.png',
+          image_alt: 'Logo',
+          responsive_image_blockname: 'logo',
+        } %}
+      {% endblock %}
+    {% endembed %}
+    {% block header__menu %}
+      {% include "@templates/placeholder/placeholder.twig" with {
+        place_holder: 'Main Menu',
+      } %}
+    {% endblock %}
+  {% endblock %}
+</header>
