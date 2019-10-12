@@ -13,7 +13,7 @@ const imageComponent = (
     image_src: 'https://placeimg.com/320/180/any',
     image_alt: 'A 16 by 9 image',
   })
-)
+);
 
 const figureComponent = (
   figure({
@@ -23,15 +23,15 @@ const figureComponent = (
     image_alt: 'This is the alt text',
     image_caption: 'This is an image caption.',
   })
-)
+);
 
 /**
  * Add storybook definition for images.
  */
 storiesOf('Atoms/Images', module)
   .add('Images', () => (
-    <div dangerouslySetInnerHTML={{__html: imageComponent}}></div>
+    <div dangerouslySetInnerHTML={{ __html: imageComponent }} />
   ))
   .add('Figure', () => (
-    <div dangerouslySetInnerHTML={{__html: figureComponent}}></div>
-  ))
+    <div dangerouslySetInnerHTML={{ __html: figureComponent }} />
+  ));
