@@ -34,6 +34,8 @@ module.exports = async ({ config }) => {
             namespaces: {
               atoms: path.resolve(__dirname, '../', 'components/01-atoms'),
               molecules: path.resolve(__dirname, '../', 'components/02-molecules'),
+              organisms: path.resolve(__dirname, '../', 'components/03-organisms'),
+              templates: path.resolve(__dirname, '../', 'components/04-templates'),
             },
           },
         },
