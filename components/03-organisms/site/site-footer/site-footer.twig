@@ -1,0 +1,18 @@
+{% set footer__base_class = 'footer' %}
+
+<footer {{ bem(footer__base_class) }}>
+  <div {{ bem('social', [], footer__base_class) }}>
+    {% block footer__branding %}
+      {% include "@templates/placeholder/place-holder.twig" with {
+        place_holder: 'Social Media',
+      } %}
+    {% endblock %}
+  </div>
+  <div {{ bem('menu', [], footer__base_class) }}>
+    {% block footer__menu %}
+      {% include "@templates/placeholder/place-holder.twig" with {
+        place_holder: 'Footer Menu',
+      } %}
+    {% endblock %}
+  </div>
+</footer>

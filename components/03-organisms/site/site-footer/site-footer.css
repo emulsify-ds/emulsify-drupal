@@ -1,0 +1,16 @@
+.footer {
+  display: flex;
+  flex-flow: column nowrap;
+
+  @media (--large) {
+    flex-direction: row;
+
+    &__social {
+      flex: 1 0 200px;
+    }
+
+    &__menu {
+      flex: 1 1 100%;
+    }
+  }
+}
