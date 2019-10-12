@@ -1,0 +1,8 @@
+.header {
+  display: flex;
+  flex-flow: column nowrap;
+
+  @media (--large) {
+    flex-direction: row;
+  }
+}
