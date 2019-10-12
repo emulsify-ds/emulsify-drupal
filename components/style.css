@@ -1,3 +1,4 @@
 @import-glob "00-base/**/*.css"
 @import-glob "01-atoms/**/*.css"
 @import-glob "02-molecules/**/*.css"
+@import-glob "04-templates/**/*.css"
