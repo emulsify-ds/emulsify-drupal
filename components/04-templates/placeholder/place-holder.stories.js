@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import placeHolder from './_place-holder.twig'
+import placeHolder from './place-holder.twig'
 const placeHolderTwig = (
   placeHolder({})
 )
