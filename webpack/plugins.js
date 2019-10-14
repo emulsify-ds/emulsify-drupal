@@ -22,10 +22,10 @@ const StyleLintPlugin = new _StyleLintPlugin({
 });
 
 const ImageminPlugin = new _ImageminPlugin({
-  // disable: process.env.NODE_ENV !== 'production', // Disable during development
+  disable: process.env.NODE_ENV !== 'production',
   externalImages: {
     context: imagePath,
-    sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif}')),
+    sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif,svg}')),
     destination: imagePath,
   }
 });
