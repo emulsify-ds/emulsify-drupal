@@ -17,6 +17,7 @@ const Grid = (
 const cardGrid = (
   grid({
     grid_label: "Card Grid",
+    grid_type: "card",
     item_type: "card",
     items: {
       1: {

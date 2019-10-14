@@ -1,11 +1,11 @@
 .inline-menu {
-  @include list-reset;
+  @mixin list-reset;
 }
 
 .inline-menu__item {
   margin: 0 1em 0.5em 0;
 
-  @include large {
+  @media (--large) {
     display: inline;
     margin-bottom: 1em;
   }
@@ -16,7 +16,7 @@
 }
 
 .inline-menu__link {
-  @include link;
+  @mixin link;
 
   font-size: 0.75rem;
   font-weight: 600;
