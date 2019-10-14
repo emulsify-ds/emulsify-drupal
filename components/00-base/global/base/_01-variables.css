@@ -29,3 +29,11 @@ $space-one-fifth: calc($space/5);
 $space-one-sixth: calc($space/6);
 $space-one-seventh: calc($space/7);
 $space-one-eighth: calc($space/8);
+
+/*
+ * Use this on the outer wrapper of page-level elements.
+ * It ensures consistent spacing between elements on the page.
+ */
+@define-mixin space-stack-page {
+  margin-bottom: $space-double;
+}
