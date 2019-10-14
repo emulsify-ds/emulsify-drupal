@@ -69,7 +69,7 @@ const olTwig = (
 );
 
 /**
- * Add storybook definition for Links.
+ * Add storybook definition for Lists.
  */
 storiesOf('Atoms/Lists', module)
   .add('Definition List', () => (
