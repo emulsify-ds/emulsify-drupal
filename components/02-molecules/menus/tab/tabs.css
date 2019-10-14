@@ -1,16 +1,16 @@
-// Tab Navigation
+/* Tab Navigation */
 .tabs__nav {
-  @include list-reset;
+  @mixin list-reset;
 
   border-bottom: 1px solid $gray-lightest;
 
-  @include large {
+  @media (--large) {
     border-left: 1px solid $gray-lightest;
     display: flex;
   }
 }
 
-// Tab Content (hidden only in full #tabs js version)
+/* Tab Content (hidden only in full #tabs js version) */
 .tabs__tab {
   display: none;
 
@@ -23,14 +23,14 @@
   padding: 1.5rem;
 }
 
-// No-js fallback
+/* No-js fallback */
 .tabs.no-js {
   .tabs__tab.is-active {
     display: block;
   }
 }
 
-// Drupal Local Tasks variant
+/* Drupal Local Tasks variant */
 .tabs__nav--local-tasks {
   margin: 1em 0 0.5em;
   padding: 0;
