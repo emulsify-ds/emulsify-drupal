@@ -28,7 +28,8 @@
     "stylelint-config-standard": "^19.0.0",
     "stylelint-webpack-plugin": "^1.0.2",
     "webpack": "^4.41.1",
-    "webpack-cli": "^3.3.6"
+    "webpack-cli": "^3.3.6",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "@babel/cli": "^7.6.4",
@@ -62,8 +63,8 @@
     "build-storybook": "build-storybook",
     "babel": "npx babel components -w -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js' --presets=@babel/preset-env,babel-preset-minify --plugins=babel-plugin-drupal-behaviors",
     "build-babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js' --presets=@babel/preset-env,babel-preset-minify --plugins=babel-plugin-drupal-behaviors",
-    "webpack": "webpack -d --watch --config ./webpack/webpack.config.js --display-error-details",
-    "build-webpack": "webpack -p --config ./webpack/webpack.config.js --display-error-details",
+    "webpack": "webpack -d --watch --config ./webpack/webpack.dev.js --display-error-details",
+    "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
     "postinstall": "yarn build-webpack",
     "develop": "concurrently --raw \"yarn webpack\" \"yarn babel\" \"yarn storybook\""
   }
