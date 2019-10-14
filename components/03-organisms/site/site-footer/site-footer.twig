@@ -5,43 +5,14 @@
     <div {{ bem('social', [], footer__base_class) }}>
       {% block footer__branding %}
         {% include "@molecules/menus/social/social-menu.twig" with {
-          items: {
-            1: {
-              title: 'Twitter',
-              url: '#',
-              icon: 'twitter'
-            },
-            2: {
-              title: 'Facebook',
-              url: '#',
-              icon: 'facebook'
-            },
-            3: {
-              title: 'Instagram',
-              url: '#',
-              icon: 'instagram'
-            }
-          }
+          items: social_menu__items,
         } %}
       {% endblock %}
     </div>
     <div {{ bem('menu', [], footer__base_class) }}>
       {% block footer__menu %}
         {% include "@molecules/menus/inline/inline-menu.twig" with {
-          items: {
-            1: {
-              title: 'Item 1',
-              url: '#'
-            },
-            2: {
-              title: 'Item 2',
-              url: '#'
-            },
-            3: {
-              title: 'Item 3',
-              url: '#'
-            }
-          }
+          items: footer_menu__items,
         } %}
       {% endblock %}
     </div>
