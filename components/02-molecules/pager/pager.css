@@ -3,7 +3,7 @@
 }
 
 .pager__items {
-  @include list-reset;
+  @mixin list-reset;
 
   text-align: center;
 }
@@ -12,7 +12,7 @@
   display: inline-block;
   margin: 0 0.7em;
 
-  @include large {
+  @media (--large) {
     margin: 0 1em;
   }
 }
