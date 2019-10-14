@@ -6,6 +6,8 @@ import Button from './react/Button.component';
 
 import button from './twig/button.twig';
 
+import { buttonLog } from './twig/button';
+
 const buttonTwig = (
   button({ button_content: 'Twig Button' })
 );
@@ -33,7 +35,7 @@ storiesOf('Atoms/Buttons', module)
   ))
   .add('Twig button', () => {
     useEffect(() => {
-      require('./twig/button.js');
+      buttonLog();
     }, []);
     return <div dangerouslySetInnerHTML={{ __html: buttonTwig }} />;
   })

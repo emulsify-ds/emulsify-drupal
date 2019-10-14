@@ -21,3 +21,8 @@ rules:
         some:
           - nesting
           - id
+overrides:
+  - files:
+    - "*.stories.js"
+    rules:
+      react/no-danger: 0
