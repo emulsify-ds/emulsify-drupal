@@ -43,7 +43,7 @@
  #}
 {% set card__base_class = 'card' %}
 
-<div {{ bem(card__base_class, card__modifiers, card__blockname) }}>
+<div {{ bem(card__base_class, card__modifiers, card__blockname, card__extra_classes) }}>
   {# Image #}
   {% block card__img %}
     {% if card__image__src %}
