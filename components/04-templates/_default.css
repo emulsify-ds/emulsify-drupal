@@ -4,7 +4,7 @@
 
 $sidebar-width: 33%;
 $gutter: $space;
-$main-width: calc(100% - ($sidebar-width + $gutter));
+$main-width: calc(100% - (#{$sidebar-width} + $gutter));
 
 .header,
 .main,
