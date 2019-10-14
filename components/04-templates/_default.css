@@ -7,8 +7,7 @@ $gutter: $space;
 $main-width: calc(100% - ($sidebar-width + $gutter));
 
 .header,
-.main,
-.footer {
+.main {
   @mixin wrapper;
 
   margin-bottom: 4em;

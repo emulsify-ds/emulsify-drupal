@@ -1,16 +1,33 @@
 .footer {
-  display: flex;
-  flex-flow: column nowrap;
+  background-color: $gray-lightest;
+  padding: $space 0;
+
+  &__inner {
+    @mixin wrapper;
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    @media (--large) {
+      flex-direction: row;
+    }
+  }
+}
+
+.footer__social {
+  margin-bottom: $space;
 
   @media (--large) {
-    flex-direction: row;
+    flex: 0 1 30%;
+    margin-bottom: 0;
+    margin-right: $space;
+  }
+}
 
-    &__social {
-      flex: 1 0 200px;
-    }
-
-    &__menu {
-      flex: 1 1 100%;
-    }
+.footer__menu {
+  @media (--large) {
+    flex: 1 1 100%;
+    margin-left: auto;
+    text-align: right;
   }
 }
