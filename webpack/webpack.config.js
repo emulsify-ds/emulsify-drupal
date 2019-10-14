@@ -32,7 +32,9 @@ module.exports = {
     plugins.StyleLintPlugin,
     plugins.MiniCssExtractPlugin,
     plugins.ImageminPlugin,
-    plugins.SpriteLoaderPlugin
+    plugins.SpriteLoaderPlugin,
+    plugins.ProgressPlugin,
+    plugins.CleanWebpackPlugin,
   ],
   output: {
     path: distDir,

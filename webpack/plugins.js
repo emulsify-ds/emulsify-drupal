@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const _MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
 const _ImageminPlugin = require('imagemin-webpack-plugin').default
@@ -32,9 +34,15 @@ const SpriteLoaderPlugin = new _SpriteLoaderPlugin({
   plainSprite: true
 });
 
+const ProgressPlugin = new webpack.ProgressPlugin();
+
 module.exports = {
+  ProgressPlugin: ProgressPlugin,
   MiniCssExtractPlugin: MiniCssExtractPlugin,
   StyleLintPlugin: StyleLintPlugin,
   ImageminPlugin: ImageminPlugin,
   SpriteLoaderPlugin: SpriteLoaderPlugin,
+  CleanWebpackPlugin: new CleanWebpackPlugin({
+    cleanAfterEveryBuildPatterns: ['remove/**'],
+  }),
 };
