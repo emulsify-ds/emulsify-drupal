@@ -3,7 +3,7 @@
 <footer {{ bem(footer__base_class) }}>
   <dov {{ bem('inner', [], footer__base_class) }}>
     <div {{ bem('social', [], footer__base_class) }}>
-      {% block footer__branding %}
+      {% block footer__social %}
         {% include "@molecules/menus/social/social-menu.twig" with {
           items: social_menu__items,
         } %}
