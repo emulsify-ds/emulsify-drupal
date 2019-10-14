@@ -1,0 +1,12 @@
+@define-mixin grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid {
+  @mixin grid;
+
+  &--card {
+    @mixin space-stack-page;
+  }
+}
