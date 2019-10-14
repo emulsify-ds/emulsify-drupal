@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "add-attributes-twig-extension": "^0.1.0",
-    "bem-twig-extension": "^0.1.0",
+    "bem-twig-extension": "^0.1.1",
     "concurrently": "^5.0.0",
     "cross-env": "5.0.5",
     "gatsby": "^2.13.15",
