@@ -4,9 +4,6 @@ import { action } from "@storybook/addon-actions"
 // GLOBAL CSS
 import '../dist/styles.css';
 
-// GLOBAL JS
-import '../dist/js/main.bundle.js';
-
 const Twig = require('twig')
 const twigDrupal = require('twig-drupal-filters')
 const twigBEM = require('bem-twig-extension');

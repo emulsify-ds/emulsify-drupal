@@ -1,5 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { useEffect } from "@storybook/client-api";
 
 import Button from './react/Button.component';
 
@@ -29,9 +30,12 @@ storiesOf('Atoms/Buttons', module)
   .add('React button', () => (
     <Button>React Button</Button>
   ))
-  .add('Twig button', () =>
-    <div dangerouslySetInnerHTML={{__html: buttonTwig}}></div>
-  )
+  .add('Twig button', () => {
+    useEffect(() => {
+      require('./twig/button.js');
+    }, []);
+    return <div dangerouslySetInnerHTML={{__html: buttonTwig}}></div>
+  })
   .add('Button Alternative', () =>
     <div dangerouslySetInnerHTML={{__html: buttonAlt}}></div>
   )

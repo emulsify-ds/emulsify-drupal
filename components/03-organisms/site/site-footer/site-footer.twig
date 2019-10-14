@@ -1,0 +1,20 @@
+{% set footer__base_class = 'footer' %}
+
+<footer {{ bem(footer__base_class) }}>
+  <dov {{ bem('inner', [], footer__base_class) }}>
+    <div {{ bem('social', [], footer__base_class) }}>
+      {% block footer__branding %}
+        {% include "@molecules/menus/social/social-menu.twig" with {
+          items: social_menu__items,
+        } %}
+      {% endblock %}
+    </div>
+    <div {{ bem('menu', [], footer__base_class) }}>
+      {% block footer__menu %}
+        {% include "@molecules/menus/inline/inline-menu.twig" with {
+          items: footer_menu__items,
+        } %}
+      {% endblock %}
+    </div>
+  </div>
+</footer>
