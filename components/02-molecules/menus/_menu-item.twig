@@ -17,14 +17,14 @@
   {% set item_modifiers = item_modifiers|merge([modifier]) %}
 {% endfor %}
 
-{% embed "@atoms/03-lists/_list-item.twig" with {
+{% embed "@atoms/lists/_list-item.twig" with {
   "list_item_label": item_label,
   "li_base_class": item_base_class|default(menu_class ~ '__item'),
   "li_modifiers": item_modifiers,
   "li_blockname": item_blockname,
 } %}
   {% block list_item_content %}
-    {% include "@atoms/01-links/link/link.twig" with {
+    {% include "@atoms/links/link/link.twig" with {
       "link_content": item.title,
       "link_url": item.url,
       "link_base_class": item_base_class|default(menu_class ~ '__link'),
