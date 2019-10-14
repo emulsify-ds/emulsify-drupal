@@ -5,4 +5,8 @@
 
 .grid {
   @mixin grid;
+
+  &--card {
+    @mixin space-stack-page;
+  }
 }
