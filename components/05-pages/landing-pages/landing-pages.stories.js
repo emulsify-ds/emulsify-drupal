@@ -22,5 +22,5 @@ hrefTo('Pages/Content Types', 'Article').then((url) => {
         }),
       }}
       />
-    ),);
+    ));
 });
