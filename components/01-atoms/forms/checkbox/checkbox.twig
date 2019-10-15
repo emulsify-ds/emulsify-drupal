@@ -1,9 +1,9 @@
 {% if not attributes %}
-<div class="form-item form-item--checkbox">
+<fieldset class="form-item form-item--checkbox">
   <legend class="h3">Options as Checkboxes</legend>
   <ul class="form-item--checkboxes">
 {% endif %}
-      {% for checkbox in checkboxes %}
+      {% for key, checkbox in checkboxes %}
         {% include "@atoms/forms/checkbox/_checkbox-item.twig" with {
           checkbox_item: checkbox.title,
           checkbox_item_checked: checkbox.checked,
@@ -11,5 +11,5 @@
       {% endfor %}
 {% if not attributes %}
   </ul>
-</div>
+</fieldset>
 {% endif %}
