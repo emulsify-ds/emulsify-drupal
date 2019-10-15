@@ -1,7 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import colors from './colors.twig'
+import colors from './colors.twig';
+
 const Grayscale = (
   colors({
     items: {
@@ -40,10 +41,10 @@ const Grayscale = (
       9: {
         name: 'Black',
         value: 'black',
-      }
-    }
+      },
+    },
   })
-)
+);
 
 const Branding = (
   colors({
@@ -55,18 +56,18 @@ const Branding = (
       2: {
         name: 'Blue',
         value: 'blue',
-      }
-    }
+      },
+    },
   })
-)
+);
 
 /**
  * Add storybook definition for Colors.
  */
 storiesOf('Base/Colors', module)
   .add('Grayscale', () => (
-    <div dangerouslySetInnerHTML={{__html: Grayscale}}></div>
+    <div dangerouslySetInnerHTML={{ __html: Grayscale }} />
   ))
   .add('Branding', () => (
-    <div dangerouslySetInnerHTML={{__html: Branding}}></div>
-  ))
+    <div dangerouslySetInnerHTML={{ __html: Branding }} />
+  ));
