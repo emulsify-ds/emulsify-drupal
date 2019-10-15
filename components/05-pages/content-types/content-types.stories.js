@@ -1,9 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import {
-  page_layout_modifier, breadcrumb, social_menu__items, footer_menu__items,
-} from '../../../.storybook/globalData';
+import { globalData } from '../../../.storybook/globalData';
 
 import article from './article.twig';
 
@@ -14,7 +12,10 @@ storiesOf('Pages/Content Types', module)
   .add('Article', () => (
     <div dangerouslySetInnerHTML={{
       __html: article({
-        page_layout_modifier, breadcrumb, social_menu__items, footer_menu__items,
+        page_layout_modifier: globalData.page_layout_modifier,
+        breadcrumb: globalData.breadcrumb,
+        social_menu__items: globalData.social_menu__items,
+        footer_menu__items: globalData.footer_menu__items,
       }),
     }}
     />
