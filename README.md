@@ -35,3 +35,7 @@ Styleguide: `build-styleguide`
 Storybook: `build-storybook`
 Babel: `build-babel`
 Webpack: `build-webpack`
+
+### Linting
+
+`yarn lint`

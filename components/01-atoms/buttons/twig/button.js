@@ -1,1 +1,3 @@
-console.log('js works!')
+export default function buttonLog() {
+  return console.log('Twig button loaded');
+}
