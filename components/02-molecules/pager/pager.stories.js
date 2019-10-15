@@ -1,7 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import pager from './pager.twig'
+import pager from './pager.twig';
+
 const pagerTwig = (
   pager({
     current: 1,
@@ -10,21 +11,21 @@ const pagerTwig = (
       next: true,
       pages: {
         1: {
-          href: "#"
+          href: '#',
         },
         2: {
-          href: "#"
+          href: '#',
         },
         3: {
-          href: "#"
+          href: '#',
         },
         4: {
-          href: "#"
+          href: '#',
         },
       },
     },
   })
-)
+);
 
 const pagerPrevTwig = (
   pager({
@@ -37,21 +38,21 @@ const pagerPrevTwig = (
       next: true,
       pages: {
         5: {
-          href: "#"
+          href: '#',
         },
         6: {
-          href: "#"
+          href: '#',
         },
         7: {
-          href: "#"
+          href: '#',
         },
         8: {
-          href: "#"
+          href: '#',
         },
       },
     },
   })
-)
+);
 
 const pagerNextTwig = (
   pager({
@@ -64,63 +65,63 @@ const pagerNextTwig = (
       next: true,
       pages: {
         1: {
-          href: "#"
+          href: '#',
         },
         2: {
-          href: "#"
+          href: '#',
         },
         3: {
-          href: "#"
+          href: '#',
         },
         4: {
-          href: "#"
+          href: '#',
         },
       },
     },
   })
-)
+);
 
 const pagerBothTwig = (
   pager({
     current: 8,
     ellipses: {
       previous: true,
-      next: true
+      next: true,
     },
     items: {
       previous: true,
       next: true,
       pages: {
         3: {
-          href: "#"
+          href: '#',
         },
         4: {
-          href: "#"
+          href: '#',
         },
         5: {
-          href: "#"
+          href: '#',
         },
         6: {
-          href: "#"
+          href: '#',
         },
       },
     },
   })
-)
+);
 
 /**
  * Add storybook definition for CTAs.
  */
 storiesOf('Molecules/Pager', module)
-  .add('pager', () =>
+  .add('pager', () => (
     <>
       <h3>Pager:</h3>
-      <div dangerouslySetInnerHTML={{__html: pagerTwig}}></div>
+      <div dangerouslySetInnerHTML={{ __html: pagerTwig }} />
       <h3>Pager with next ellipses:</h3>
-      <div dangerouslySetInnerHTML={{__html: pagerNextTwig}}></div>
+      <div dangerouslySetInnerHTML={{ __html: pagerNextTwig }} />
       <h3>Pager with both ellipses:</h3>
-      <div dangerouslySetInnerHTML={{__html: pagerBothTwig}}></div>
+      <div dangerouslySetInnerHTML={{ __html: pagerBothTwig }} />
       <h3>Pager with previous ellipses:</h3>
-      <div dangerouslySetInnerHTML={{__html: pagerPrevTwig}}></div>
+      <div dangerouslySetInnerHTML={{ __html: pagerPrevTwig }} />
     </>
-  )
+  ));

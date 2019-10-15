@@ -6,7 +6,7 @@ import Button from './react/Button.component';
 
 import button from './twig/button.twig';
 
-import { buttonLog } from './twig/button';
+import buttonLog from './twig/button';
 
 const buttonTwig = (
   button({ button_content: 'Twig Button' })
