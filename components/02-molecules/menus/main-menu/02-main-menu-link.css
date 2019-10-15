@@ -1,4 +1,4 @@
-// A
+/* A */
 .main-menu__link {
   color: $gray-dark;
   display: block;
@@ -12,7 +12,7 @@
     width: 80%;
   }
 
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     border-bottom: none;
     color: $gray-dark;
     display: inline-block;
@@ -48,16 +48,17 @@
   }
 }
 
-//
-// Sub Navigation Links
-//
-// A (Nested)
+/*
+ * Sub Navigation Links
+ */
+
+/* A (Nested) */
 .main-menu__link--sub {
   color: $gray-dark;
   padding-left: $space-triple;
   font-weight: normal;
 
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     color: $gray-light;
     display: block;
     padding: $space-one-third $space;
