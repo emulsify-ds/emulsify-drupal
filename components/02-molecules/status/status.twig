@@ -23,12 +23,12 @@
 #}
 {% set status__base_class = 'status' %}
 {% for type, messages in message_list %}
-  <div role="contentinfo" aria-label="{{ status_headings[type] }}"{{ attributes|without('role', 'aria-label') }}>
+  <div role="contentinfo" aria-label="{{ type }}"{{ attributes|without('role', 'aria-label') }}>
     {% if type == 'error' %}
       <div role="alert">
     {% endif %}
-      {% if status_headings[type] %}
-        <h2 class="visually-hidden">{{ status_headings[type] }}</h2>
+      {% if type %}
+        <h2 class="visually-hidden">{{ type }}</h2>
       {% endif %}
       <ul {{ bem('list', [], status__base_class)}}>
         {% for message in messages %}
