@@ -1,8 +1,11 @@
-import { configure } from "@storybook/react"
+import { configure, addDecorator } from "@storybook/react"
+import { withA11y } from '@storybook/addon-a11y';
 import { action } from "@storybook/addon-actions"
 
 // GLOBAL CSS
 import '../dist/styles.css';
+
+addDecorator(withA11y)
 
 const Twig = require('twig')
 const twigDrupal = require('twig-drupal-filters')
