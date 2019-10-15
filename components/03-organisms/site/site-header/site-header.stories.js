@@ -8,6 +8,7 @@ import siteHeader from './site-header.twig';
 const siteHeaderTwig = (
   siteHeader({
     breadcrumb: globalData.breadcrumb,
+    menu_items: globalData.main_menu,
     logo_link__url: '#',
   })
 );
