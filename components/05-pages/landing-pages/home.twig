@@ -1,3 +1,5 @@
+{% set page_layout_modifier = 'full' %}
+
 {% embed "@templates/full-width.twig" %}
   {% block page_content %}
     {% include "@atoms/text/headings/_heading.twig" with {
@@ -9,6 +11,7 @@
     } %}
     {% include "@organisms/grid/grid.twig" with {
       grid_label: 'Here\'s an awesome grid',
+      grid_type: 'card',
       item_type: 'card',
       items: {
         1: {

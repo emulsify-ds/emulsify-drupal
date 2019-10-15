@@ -4,6 +4,10 @@
   {% set grid_modifiers = [] %}
 {% endif %}
 
+{% if page_layout_modifier %}
+  {% set grid_modifiers = grid_modifiers|merge([page_layout_modifier]) %}
+{% endif %}
+
 {% if grid_type %}
   {% set grid_modifiers = grid_modifiers|merge([grid_type]) %}
 {% endif %}

@@ -1,3 +1,5 @@
+export const page_layout_modifier = 'contained';
+
 export const social_menu__items = {
   1: {
     title: 'Twitter',

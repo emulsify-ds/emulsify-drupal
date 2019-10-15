@@ -1,10 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
+import { page_layout_modifier } from '../../../.storybook/globalData';
+
 import grid from './grid.twig'
 
 const Grid = (
   grid({
+    page_layout_modifier,
     grid_label: "Default",
     items: {
       1: "",
@@ -16,6 +19,7 @@ const Grid = (
 
 const cardGrid = (
   grid({
+    page_layout_modifier,
     grid_label: "Card Grid",
     grid_type: "card",
     item_type: "card",
@@ -48,6 +52,7 @@ const cardGrid = (
 
 const ctaGrid = (
   grid({
+    page_layout_modifier,
     grid_label: "CTA Grid",
     item_type: "cta",
     items: {

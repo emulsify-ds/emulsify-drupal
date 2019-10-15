@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import { social_menu__items, footer_menu__items } from '../../../.storybook/globalData';
+import { page_layout_modifier, social_menu__items, footer_menu__items } from '../../../.storybook/globalData';
 
 import home from './home.twig';
 
@@ -10,5 +10,5 @@ import home from './home.twig';
  */
 storiesOf('Pages/Landing Pages', module)
   .add('Home', () =>
-    <div dangerouslySetInnerHTML={{__html: home({ social_menu__items, footer_menu__items })}}></div>
+    <div dangerouslySetInnerHTML={{__html: home({ page_layout_modifier, social_menu__items, footer_menu__items })}}></div>
   )
