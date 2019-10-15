@@ -1,9 +1,20 @@
 .header {
+  @mixin wrapper;
+
+  margin-bottom: 4em;
   display: flex;
   flex-flow: column nowrap;
+  background-color: $gray-dark;
+
+  &__primary {
+    padding: $space 0;
+  }
 
   @media (--large) {
-    flex-direction: row;
+    &__primary {
+      display: flex;
+      flex-flow: row nowrap;
+    }
 
     &__branding {
       flex: 0 1 30%;

@@ -1,10 +1,14 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
+import { breadcrumb } from '../../../../.storybook/globalData';
+
 import siteHeader from './site-header.twig'
+
 const siteHeaderTwig = (
   siteHeader({
-    logo_link__url: "#"
+    breadcrumb,
+    logo_link__url: "#",
   })
 )
 

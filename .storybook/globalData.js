@@ -1,5 +1,19 @@
 export const page_layout_modifier = 'contained';
 
+export const breadcrumb = {
+  1: {
+    url: "#",
+    text: "Home"
+  },
+  2: {
+    url: "#",
+    text: "Parent Page"
+  },
+  3: {
+    text: "Current Page"
+  }
+}
+
 export const social_menu__items = {
   1: {
     title: 'Twitter',
