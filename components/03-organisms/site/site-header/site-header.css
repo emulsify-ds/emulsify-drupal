@@ -1,10 +1,13 @@
 .header {
-  @mixin wrapper;
-
   margin-bottom: 4em;
-  display: flex;
-  flex-flow: column nowrap;
   background-color: $gray-dark;
+
+  &__inner {
+    @mixin wrapper;
+
+    display: flex;
+    flex-flow: column nowrap;
+  }
 
   &__primary {
     padding: $space 0;
