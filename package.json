@@ -19,6 +19,7 @@
     "@storybook/addon-a11y": "^5.2.4",
     "@storybook/addon-actions": "^5.2.4",
     "@storybook/addon-links": "^5.2.4",
+    "@storybook/addon-viewport": "^5.2.4",
     "@storybook/addons": "^5.2.4",
     "@storybook/react": "^5.2.4",
     "@storybook/storybook-deployer": "^2.8.1",
