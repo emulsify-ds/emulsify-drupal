@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 /**
  * Component that renders a button with a click handler.
  */
-const Button = props => {
+const Button = (props) => {
   const { onClick, children } = props;
 
   return (

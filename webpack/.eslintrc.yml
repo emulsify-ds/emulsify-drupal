@@ -1,8 +1,0 @@
-extends: airbnb-base
-rules:
-  global-require: off
-  comma-dangle: 0
-env:
-  browser: true
-globals:
-  Drupal: true
