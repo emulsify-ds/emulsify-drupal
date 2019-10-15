@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const _MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
 const _ImageminPlugin = require('imagemin-webpack-plugin').default
@@ -20,10 +22,10 @@ const StyleLintPlugin = new _StyleLintPlugin({
 });
 
 const ImageminPlugin = new _ImageminPlugin({
-  // disable: process.env.NODE_ENV !== 'production', // Disable during development
+  disable: process.env.NODE_ENV !== 'production',
   externalImages: {
     context: imagePath,
-    sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif}')),
+    sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif,svg}')),
     destination: imagePath,
   }
 });
@@ -32,9 +34,15 @@ const SpriteLoaderPlugin = new _SpriteLoaderPlugin({
   plainSprite: true
 });
 
+const ProgressPlugin = new webpack.ProgressPlugin();
+
 module.exports = {
+  ProgressPlugin: ProgressPlugin,
   MiniCssExtractPlugin: MiniCssExtractPlugin,
   StyleLintPlugin: StyleLintPlugin,
   ImageminPlugin: ImageminPlugin,
   SpriteLoaderPlugin: SpriteLoaderPlugin,
+  CleanWebpackPlugin: new CleanWebpackPlugin({
+    cleanAfterEveryBuildPatterns: ['remove/**'],
+  }),
 };

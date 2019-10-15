@@ -1,19 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const JSLoader = {
-  test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
-  include: [
-    path.join(__dirname, '..', path.sep , 'components')
-  ],
-  use: {
-    loader: 'babel-loader',
-    options: {
-      presets: ['@babel/preset-env']
-    }
-  }
-};
-
 const CSSLoader = {
   test: /\.css$/,
   exclude: /node_modules/,
@@ -42,7 +29,6 @@ const SVGSpriteLoader = {
 };
 
 module.exports = {
-  JSLoader: JSLoader,
   CSSLoader: CSSLoader,
   SVGSpriteLoader: SVGSpriteLoader,
 };
