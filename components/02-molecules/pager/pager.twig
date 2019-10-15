@@ -32,9 +32,9 @@
 {% set pager__base_class = 'pager' %}
 
 {% if items %}
-  <nav {{ bem(pager__base_class) }} role="navigation" aria-labelledby="pagination-heading">
-    <h4 id="pagination-heading" {{ bem('visually-hidden') }}>{{ 'Pagination'|t }}</h4>
-  <ul {{ bem('items', [], pager__base_class, ['js-pager__items']) }}>
+  <nav {{ bem(pager__base_class) }} role="navigation" aria-labelledby="pagination-heading{{ pager__uid }}">
+    <h4 id="pagination-heading{{ pager__uid }}" {{ bem('visually-hidden') }}>{{ 'Pagination'|t }}</h4>
+    <ul {{ bem('items', [], pager__base_class, ['js-pager__items']) }}>
       {# Print previous item if we are not on the first page. #}
       {% if items.previous %}
         <li {{ bem('item', ['prev'], pager__base_class) }}>

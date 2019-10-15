@@ -5,6 +5,7 @@ import pager from './pager.twig';
 
 const pagerTwig = (
   pager({
+    pager__uid: 1,
     current: 1,
     items: {
       previous: true,
@@ -29,6 +30,7 @@ const pagerTwig = (
 
 const pagerPrevTwig = (
   pager({
+    pager__uid: 2,
     current: 5,
     ellipses: {
       previous: true,
@@ -56,6 +58,7 @@ const pagerPrevTwig = (
 
 const pagerNextTwig = (
   pager({
+    pager__uid: 3,
     current: 5,
     ellipses: {
       next: true,
@@ -83,6 +86,7 @@ const pagerNextTwig = (
 
 const pagerBothTwig = (
   pager({
+    pager__uid: 4,
     current: 8,
     ellipses: {
       previous: true,

@@ -1,6 +1,6 @@
-$color-breadcrumb: $gray-light;
-$color-breadcrumb-hover: $gray;
-$color-breadcrumb-active: $gray-lighter;
+$color-breadcrumb: $gray-dark;
+$color-breadcrumb-hover: $gray-darker;
+$color-breadcrumb-active: $gray;
 
 .breadcrumb {
   @mixin list-reset;
