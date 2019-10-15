@@ -1,6 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
+import { social_menu__items, footer_menu__items } from '../../../.storybook/globalData';
+
 import article from './article.twig';
 
 /**
@@ -8,5 +10,5 @@ import article from './article.twig';
  */
 storiesOf('Pages/Content Types', module)
   .add('Article', () =>
-    <div dangerouslySetInnerHTML={{__html: article({})}}></div>
+    <div dangerouslySetInnerHTML={{__html: article({ social_menu__items, footer_menu__items })}}></div>
   )
