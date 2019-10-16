@@ -1,18 +1,22 @@
 .header {
-  display: flex;
-  flex-flow: column nowrap;
+  margin-bottom: 4em;
 
-  @media (--large) {
-    flex-direction: row;
+  &__inner {
+    @mixin wrapper;
 
-    &__branding {
-      flex: 0 1 30%;
-      margin-right: $space;
-    }
+    display: flex;
+    flex-flow: column nowrap;
+  }
 
-    &__menu {
-      flex: 1 1 100%;
-      margin-left: auto;
-    }
+  &__primary {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: $space 0;
+  }
+
+  &__branding {
+    margin-right: $space;
+    max-width: 300px;
   }
 }
