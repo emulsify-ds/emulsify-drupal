@@ -1,8 +1,8 @@
-// Toggle
+/* Toggle */
 .toggle-expand {
-  @include link;
+  @mixin link;
 
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     display: none;
   }
 
@@ -11,7 +11,7 @@
   text-decoration: none;
   width: 100%;
 
-  // See main-menu.js
+  /* See main-menu.js */
   &--open {
     background-color: $gray-dark;
   }
@@ -27,7 +27,7 @@
   }
 }
 
-// SVG icon
+/* SVG icon */
 .toggle-expand__icon {
   height: 3rem;
   width: 3rem;

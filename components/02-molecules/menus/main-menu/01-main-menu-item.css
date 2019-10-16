@@ -1,15 +1,15 @@
-// LI
+/* LI */
 .main-menu__item {
   border-top: 1px solid;
   display: flex;
   flex-wrap: wrap;
   position: relative;
 
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     border-top: none;
     display: inline-block;
 
-    // Only top level
+    /* Only top level */
     &:not(.main-menu__item--sub):hover {
       background-color: $black;
       transition: all 0.2s;
@@ -27,7 +27,7 @@
   }
 }
 
-// Expand Button
+/* Expand Button */
 .expand-sub {
   background-color: $black;
   cursor: pointer;
@@ -36,11 +36,11 @@
   color: $white;
   position: relative;
 
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     display: none;
   }
 
-  // Down triangle
+  /* Down triangle */
   &::after {
     border: 15px solid;
     border-bottom-color: transparent;
@@ -56,7 +56,7 @@
     width: 0;
   }
 
-  // See main-menu.js
+  /* See main-menu.js */
   &--open {
     background-color: $black;
     color: $near-white;
@@ -69,12 +69,13 @@
   }
 }
 
-//
-// Sub Navigation
-//
-// LI (Nested)
+/*
+ * Sub Navigation
+ */
+
+/* LI (Nested) */
 .main-menu__item--sub {
-  @include breakpoint($main-menu-medium) {
+  @media (--medium) {
     display: block;
 
     &:not(:first-child) {

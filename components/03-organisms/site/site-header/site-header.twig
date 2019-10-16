@@ -22,9 +22,7 @@
       </div>
       <div {{ bem('menu', [], header__base_class) }}>
         {% block header__menu %}
-          {% include "@templates/placeholder/place-holder.twig" with {
-            place_holder: 'Main Menu',
-          } %}
+          {% include "@molecules/menus/main-menu/main-menu.twig" %}
         {% endblock %}
       </div>
     </div>
