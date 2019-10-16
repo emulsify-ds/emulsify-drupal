@@ -9,23 +9,14 @@
   }
 
   &__primary {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
     padding: $space 0;
   }
 
-  @media (--large) {
-    &__primary {
-      display: flex;
-      flex-flow: row nowrap;
-    }
-
-    &__branding {
-      flex: 0 1 30%;
-      margin-right: $space;
-    }
-
-    &__menu {
-      flex: 1 1 100%;
-      margin-left: auto;
-    }
+  &__branding {
+    margin-right: $space;
+    max-width: 300px;
   }
 }
