@@ -28,6 +28,10 @@ $blue: #4180c7;
 .sg-colors__color {
   padding: 4rem;
 
+  &--white {
+    background-color: $white;
+  }
+
   &--near-white {
     background-color: $near-white;
   }

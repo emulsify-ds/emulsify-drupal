@@ -1,6 +1,15 @@
-import { configure, addDecorator } from "@storybook/react"
+import { configure, addDecorator, addParameters } from "@storybook/react"
 import { withA11y } from '@storybook/addon-a11y';
 import { action } from "@storybook/addon-actions"
+
+// Theming
+import emulsifyTheme from './emulsifyTheme';
+
+addParameters({
+  options: {
+    theme: emulsifyTheme,
+  },
+});
 
 // GLOBAL CSS
 import '../dist/styles.css';
