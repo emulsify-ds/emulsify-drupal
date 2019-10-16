@@ -1,5 +1,4 @@
 export default function mainMenu() {
-  // Use context instead of document IF DRUPAL.
   const toggleExpand = document.getElementById('toggle-expand');
   const menu = document.getElementById('main-nav');
   const expandMenu = menu.getElementsByClassName('expand-sub');
