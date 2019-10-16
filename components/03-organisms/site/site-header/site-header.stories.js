@@ -1,10 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
+import { globalData } from '../../../../.storybook/globalData';
+
 import siteHeader from './site-header.twig';
 
 const siteHeaderTwig = (
   siteHeader({
+    breadcrumb: globalData.breadcrumb,
     logo_link__url: '#',
   })
 );

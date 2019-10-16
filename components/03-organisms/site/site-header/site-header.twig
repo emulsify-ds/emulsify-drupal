@@ -1,27 +1,37 @@
 {% set header__base_class = 'header' %}
+
 <header {{ bem(header__base_class) }}>
-  <div {{ bem('branding', [], header__base_class) }}>
-    {% block header__branding %}
-      {% embed "@atoms/links/link/link.twig" with {
-        link_base_class: 'logo-link',
-        link_url: logo_link__url|default('/'),
-      } %}
-        {% block link_content %}
-          {% include "@atoms/images/image/responsive-image.twig" with {
-            output_image_tag: true,
-            image_src: 'images/logo.png',
-            image_alt: 'Logo',
-            responsive_image_blockname: 'logo',
+  <div {{ bem('inner', [], header__base_class) }}>
+    <div {{ bem('primary', [], header__base_class) }}>
+      <div {{ bem('branding', [], header__base_class) }}>
+        {% block header__branding %}
+          {% embed "@atoms/links/link/link.twig" with {
+            link_base_class: 'logo-link',
+            link_url: logo_link__url|default('/'),
+          } %}
+            {% block link_content %}
+              {% include "@atoms/images/image/responsive-image.twig" with {
+                output_image_tag: true,
+                image_src: 'images/logo.png',
+                image_alt: 'Logo',
+                responsive_image_blockname: 'logo',
+              } %}
+            {% endblock %}
+          {% endembed %}
+        {% endblock %}
+      </div>
+      <div {{ bem('menu', [], header__base_class) }}>
+        {% block header__menu %}
+          {% include "@templates/placeholder/place-holder.twig" with {
+            place_holder: 'Main Menu',
           } %}
         {% endblock %}
-      {% endembed %}
-    {% endblock %}
-  </div>
-  <div {{ bem('menu', [], header__base_class) }}>
-    {% block header__menu %}
-      {% include "@templates/placeholder/place-holder.twig" with {
-        place_holder: 'Main Menu',
-      } %}
-    {% endblock %}
+      </div>
+    </div>
+    <div {{ bem('secondary', [], header__base_class) }}>
+      {% block header__breadcrumbs %}
+        {% include "@molecules/menus/breadcrumbs/breadcrumbs.twig" %}
+      {% endblock %}
+    </div>
   </div>
 </header>
