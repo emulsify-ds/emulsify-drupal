@@ -17,6 +17,7 @@ storiesOf('Pages/Content Types', module)
         breadcrumb: globalData.breadcrumb,
         social_menu__items: globalData.social_menu__items,
         footer_menu__items: globalData.footer_menu__items,
+        card__link__text: 'Click here',
       }),
     }}
     />

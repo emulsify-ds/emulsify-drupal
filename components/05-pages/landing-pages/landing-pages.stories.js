@@ -20,6 +20,7 @@ hrefTo('Pages/Content Types', 'Article').then((url) => {
           social_menu__items: globalData.social_menu__items,
           footer_menu__items: globalData.footer_menu__items,
           card_link_url: url,
+          card__link__text: 'Click here',
         }),
       }}
       />
