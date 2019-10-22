@@ -10,7 +10,7 @@ const glob = require('glob')
 const imagePath = path.resolve(__dirname, '../images');
 
 const MiniCssExtractPlugin = new _MiniCssExtractPlugin({
-  filename: '[name].css',
+  filename: 'styles.css',
 });
 
 const StyleLintPlugin = new _StyleLintPlugin({
@@ -27,21 +27,21 @@ const ImageminPlugin = new _ImageminPlugin({
     context: imagePath,
     sources: glob.sync(path.resolve(imagePath, '**/*.{png,jpg,gif,svg}')),
     destination: imagePath,
-  }
+  },
 });
 
 const SpriteLoaderPlugin = new _SpriteLoaderPlugin({
-  plainSprite: true
+  plainSprite: true,
 });
 
 const ProgressPlugin = new webpack.ProgressPlugin();
 
 module.exports = {
-  ProgressPlugin: ProgressPlugin,
-  MiniCssExtractPlugin: MiniCssExtractPlugin,
-  StyleLintPlugin: StyleLintPlugin,
-  ImageminPlugin: ImageminPlugin,
-  SpriteLoaderPlugin: SpriteLoaderPlugin,
+  ProgressPlugin,
+  MiniCssExtractPlugin,
+  StyleLintPlugin,
+  ImageminPlugin,
+  SpriteLoaderPlugin,
   CleanWebpackPlugin: new CleanWebpackPlugin({
     cleanAfterEveryBuildPatterns: ['remove/**'],
   }),

@@ -1,21 +1,36 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const globImporter = require('node-sass-glob-importer');
 
 const CSSLoader = {
-  test: /\.css$/,
+  test: /\.s[ac]ss$/i,
   exclude: /node_modules/,
   use: [
     MiniCssExtractPlugin.loader,
-    { loader: 'css-loader', options: {
-      importLoaders: 1,
-      sourceMap: true
-    } },
-    { loader: 'postcss-loader', options: {
-      config: {
-        path: path.resolve("./webpack/")
+    {
+      loader: 'css-loader',
+      options: {
+        sourceMap: true,
       },
-      sourceMap: true
-    } },
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sourceMap: true,
+        sassOptions: {
+          importer: globImporter(),
+        },
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        config: {
+          path: path.resolve('./webpack/'),
+        },
+        sourceMap: true,
+      },
+    },
   ],
 };
 
@@ -25,10 +40,10 @@ const SVGSpriteLoader = {
   options: {
     extract: true,
     spriteFilename: '../dist/icons.svg',
-  }
+  },
 };
 
 module.exports = {
-  CSSLoader: CSSLoader,
-  SVGSpriteLoader: SVGSpriteLoader,
+  CSSLoader,
+  SVGSpriteLoader,
 };

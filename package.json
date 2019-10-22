@@ -44,6 +44,7 @@
     "glob": "^7.1.4",
     "imagemin-webpack-plugin": "^2.4.2",
     "mini-css-extract-plugin": "^0.8.0",
+    "normalize.css": "^8.0.1",
     "postcss-custom-media": "^7.0.8",
     "postcss-import": "^12.0.1",
     "postcss-import-ext-glob": "^1.1.0",
@@ -78,5 +79,11 @@
     "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
     "postinstall": "yarn build-webpack",
     "develop": "concurrently --raw \"yarn webpack\" \"yarn babel\" \"yarn storybook\""
+  },
+  "devDependencies": {
+    "breakpoint-sass": "^2.7.1",
+    "node-sass": "^4.12.0",
+    "node-sass-glob-importer": "^5.3.2",
+    "sass-loader": "^8.0.0"
   }
 }
