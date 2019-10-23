@@ -74,7 +74,6 @@
     "build-babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js' --presets=@babel/preset-env,babel-preset-minify --plugins=babel-plugin-drupal-behaviors",
     "webpack": "webpack -d --watch --config ./webpack/webpack.dev.js --display-error-details",
     "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
-    "postinstall": "yarn build-webpack",
     "develop": "concurrently --raw \"yarn webpack\" \"yarn babel\" \"yarn storybook\""
   }
 }
