@@ -1,4 +1,6 @@
 const path = require('path')
+const globImporter = require('node-sass-glob-importer')
+const _StyleLintPlugin = require('stylelint-webpack-plugin')
 
 module.exports = async ({ config }) => {
   // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
@@ -42,6 +44,39 @@ module.exports = async ({ config }) => {
       },
     ],
   });
+
+  // SCSS
+  config.module.rules.push({
+    test: /\.s[ac]ss$/i,
+    use: [
+      'style-loader',
+      {
+        loader: 'css-loader',
+        options: {
+          sourceMap: true,
+        },
+      },
+      {
+        loader: 'sass-loader',
+        options: {
+          sourceMap: true,
+          sassOptions: {
+            importer: globImporter()
+          }
+        },
+      },
+    ],
+  });
+
+  config.plugins.push(
+    new _StyleLintPlugin({
+      configFile: path.resolve(__dirname, '../', 'webpack/.stylelintrc'),
+      context: path.resolve(__dirname, '../', 'components'),
+      files: '**/*.scss',
+      failOnError: false,
+      quiet: false,
+    })
+  )
 
   return config
 }

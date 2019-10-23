@@ -1,5 +1,5 @@
 const path = require('path');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
 
 const CSSLoader = {
@@ -14,21 +14,22 @@ const CSSLoader = {
       },
     },
     {
-      loader: 'sass-loader',
-      options: {
-        sourceMap: true,
-        sassOptions: {
-          importer: globImporter(),
-        },
-      },
-    },
-    {
       loader: 'postcss-loader',
       options: {
         config: {
           path: path.resolve('./webpack/'),
         },
         sourceMap: true,
+      },
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sourceMap: true,
+        sassOptions: {
+          importer: globImporter(),
+          outputStyle: 'compressed',
+        },
       },
     },
   ],

@@ -9,14 +9,11 @@ const distDir = path.resolve(rootDir, 'dist');
 module.exports = {
   entry: {
     svgSprite: path.resolve(webpackDir, 'svgSprite.js'),
-    css: path.resolve(webpackDir, 'css.js'),
   },
   module: {
-    rules: [loaders.CSSLoader, loaders.SVGSpriteLoader],
+    rules: [loaders.SVGSpriteLoader],
   },
   plugins: [
-    plugins.StyleLintPlugin,
-    plugins.MiniCssExtractPlugin,
     plugins.ImageminPlugin,
     plugins.SpriteLoaderPlugin,
     plugins.ProgressPlugin,
