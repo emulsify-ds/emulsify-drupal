@@ -9,9 +9,6 @@ const CSSLoader = {
     MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
-      options: {
-        sourceMap: true,
-      },
     },
     {
       loader: 'postcss-loader',
@@ -19,13 +16,11 @@ const CSSLoader = {
         config: {
           path: path.resolve('./webpack/'),
         },
-        sourceMap: true,
       },
     },
     {
       loader: 'sass-loader',
       options: {
-        sourceMap: true,
         sassOptions: {
           importer: globImporter(),
           outputStyle: 'compressed',
