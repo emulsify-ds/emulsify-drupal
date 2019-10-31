@@ -12,10 +12,9 @@ $main-menu-medium: $medium;
   &--open {
     background-color: $white;
     display: block;
-    height: 85%;
     left: 0;
     overflow-y: scroll;
-    position: fixed;
+    position: absolute;
     top: 134px;
     right: 0;
     width: 100%;
