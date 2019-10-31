@@ -3,11 +3,14 @@ import { storiesOf } from '@storybook/react';
 import { hrefTo } from '@storybook/addon-links';
 import { useEffect } from '@storybook/client-api';
 
-import { globalData } from '../../../.storybook/globalData';
-
 import mainMenu from '../../02-molecules/menus/main-menu/main-menu';
 
 import home from './home.twig';
+
+import mainMenuData from '../../02-molecules/menus/main-menu/main-menu.yml';
+import breadcrumbData from '../../02-molecules/menus/breadcrumbs/breadcrumbs.yml';
+import socialMenuData from '../../02-molecules/menus/social/social-menu.yml';
+import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
 
 /**
  * Add storybook definition for Landing Pages.
@@ -21,11 +24,11 @@ hrefTo('Pages/Content Types', 'Article').then((url) => {
       return (
         <div dangerouslySetInnerHTML={{
           __html: home({
-            page_layout_modifier: globalData.page_layout_modifier,
-            menu_items: globalData.main_menu,
-            breadcrumb: globalData.breadcrumb,
-            social_menu__items: globalData.social_menu__items,
-            footer_menu__items: globalData.footer_menu__items,
+            page_layout_modifier: 'contained',
+            ...mainMenuData,
+            ...breadcrumbData,
+            ...socialMenuData,
+            ...footerMenuData,
             card_link_url: url,
             card__link__text: 'Click here',
           }),
