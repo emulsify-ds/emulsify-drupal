@@ -3,23 +3,10 @@ import { storiesOf } from '@storybook/react';
 
 import menu from './inline-menu.twig';
 
-const menuTwig = (
-  menu({
-    items: {
-      1: {
-        title: 'Test',
-        url: '#',
-      },
-      2: {
-        title: 'Number 2',
-        url: '#',
-      },
-    },
-  })
-);
+import menuData from './inline-menu.yml';
 
 /**
  * Add storybook definition for Inline Menus.
  */
 storiesOf('Molecules/Menus', module)
-  .add('Inline', () => <div dangerouslySetInnerHTML={{ __html: menuTwig }} />);
+  .add('Inline', () => <div dangerouslySetInnerHTML={{ __html: menu(menuData) }} />);

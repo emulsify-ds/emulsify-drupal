@@ -1,0 +1,10 @@
+items:
+  - title: 'Twitter'
+    url: '#'
+    icon: 'twitter'
+  - title: 'Facebook'
+    url: '#'
+    icon: 'facebook'
+  - title: 'Instagram'
+    url: '#'
+    icon: 'instagram'
