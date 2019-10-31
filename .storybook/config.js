@@ -12,7 +12,7 @@ addParameters({
 });
 
 // GLOBAL CSS
-import '../dist/styles.css';
+import '../components/style.scss';
 
 addDecorator(withA11y)
 

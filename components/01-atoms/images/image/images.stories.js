@@ -1,7 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import './image.css';
 import image from './responsive-image.twig';
 import figure from './figure.twig';
 

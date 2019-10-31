@@ -1,0 +1,22 @@
+.header {
+  margin-bottom: 4em;
+
+  &__inner {
+    @include wrapper;
+
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  &__primary {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: $space 0;
+  }
+
+  &__branding {
+    margin-right: $space;
+    max-width: 300px;
+  }
+}
