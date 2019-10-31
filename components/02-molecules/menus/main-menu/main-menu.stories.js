@@ -6,7 +6,7 @@ import menu from './main-menu.twig';
 
 import mainMenu from './main-menu';
 
-import menuData from '../../../00-base/global/data/menu.yml';
+import menuData from './main-menu.yml';
 
 /**
  * Add storybook definition for Main Menus.

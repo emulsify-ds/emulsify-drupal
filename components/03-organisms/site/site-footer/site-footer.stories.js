@@ -3,44 +3,11 @@ import { storiesOf } from '@storybook/react';
 
 import footer from './site-footer.twig';
 
-const siteFooterTwig = (
-  footer({
-    social_menu__items: {
-      1: {
-        title: 'Twitter',
-        url: '#',
-        icon: 'twitter',
-      },
-      2: {
-        title: 'Facebook',
-        url: '#',
-        icon: 'facebook',
-      },
-      3: {
-        title: 'Instagram',
-        url: '#',
-        icon: 'instagram',
-      },
-    },
-    footer_menu__items: {
-      1: {
-        title: 'Item 1',
-        url: '#',
-      },
-      2: {
-        title: 'Item 2',
-        url: '#',
-      },
-      3: {
-        title: 'Item 3',
-        url: '#',
-      },
-    },
-  })
-);
+import footerSocial from '../../../02-molecules/menus/social/social-menu.yml';
+import footerMenu from '../../../02-molecules/menus/inline/inline-menu.yml';
 
 /**
  * Add storybook definition for footers.
  */
 storiesOf('Organisms/Site', module)
-  .add('Footer', () => <div dangerouslySetInnerHTML={{ __html: siteFooterTwig }} />);
+  .add('Footer', () => <div dangerouslySetInnerHTML={{ __html: footer({ ...footerSocial, ...footerMenu }) }} />);

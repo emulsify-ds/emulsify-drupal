@@ -1,5 +1,7 @@
-items:
+inline_menu_items:
   - title: 'Test'
     url: '#'
   - title: 'Number 2'
+    url: '#'
+  - title: 'Item Number 3'
     url: '#'
