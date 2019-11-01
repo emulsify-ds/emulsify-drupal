@@ -13,9 +13,10 @@ import socialMenuData from '../../02-molecules/menus/social/social-menu.yml';
 import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
 
 /**
- * Add storybook definition for Landing Pages.
+ * Storybook Definition.
  */
 hrefTo('Pages/Content Types', 'Article').then((url) => {
+  // TODO: Can't figure out how to link pages with hrefTo and storiesOf.
   storiesOf('Pages/Landing Pages', module)
     .add('Home', () => {
       useEffect(() => {

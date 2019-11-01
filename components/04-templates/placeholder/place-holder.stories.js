@@ -1,14 +1,10 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
-import placeHolder from './place-holder.twig';
-
-const placeHolderTwig = (
-  placeHolder({})
-);
+import placeHolderTwig from './place-holder.twig';
 
 /**
- * Add storybook definition for Place Holders.
+ * Storybook Definition.
  */
-storiesOf('Templates/Place Holder', module)
-  .add('placeHolder', () => <div dangerouslySetInnerHTML={{ __html: placeHolderTwig }} />);
+export default { title: 'Templates/Place Holder' };
+
+export const placeHolder = () => <div dangerouslySetInnerHTML={{ __html: placeHolderTwig({}) }} />;

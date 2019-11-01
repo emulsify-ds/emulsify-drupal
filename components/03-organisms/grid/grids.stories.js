@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import grid from './grid.twig';
 
@@ -8,15 +7,12 @@ import gridCardData from './grid-cards.yml';
 import gridCtaData from './grid-ctas.yml';
 
 /**
- * Add storybook definition for Grids.
+ * Storybook Definition.
  */
-storiesOf('Organisms/Grids', module)
-  .add('Default', () => (
-    <div dangerouslySetInnerHTML={{ __html: grid(gridData) }} />
-  ))
-  .add('Card Grid', () => (
-    <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCardData }) }} />
-  ))
-  .add('CTA Grid', () => (
-    <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCtaData }) }} />
-  ));
+export default { title: 'Organisms/Grids' };
+
+export const defaultGrid = () => <div dangerouslySetInnerHTML={{ __html: grid(gridData) }} />;
+export const cardGrid = () => (
+  <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCardData }) }} />);
+export const ctaGrid = () => (
+  <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCtaData }) }} />);

@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import pager from './pager.twig';
 
@@ -9,18 +8,19 @@ import pagerPrevEllipsesData from './pager-prev-ellipses.yml';
 import pagerBothEllipsesData from './pager-both-ellipses.yml';
 
 /**
- * Add storybook definition for CTAs.
+ * Storybook Definition.
  */
-storiesOf('Molecules/Pager', module)
-  .add('pager', () => (
-    <>
-      <h3>Pager:</h3>
-      <div dangerouslySetInnerHTML={{ __html: pager(pagerData) }} />
-      <h3>Pager with next ellipses:</h3>
-      <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerEllipsesData }) }} />
-      <h3>Pager with both ellipses:</h3>
-      <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerBothEllipsesData }) }} />
-      <h3>Pager with previous ellipses:</h3>
-      <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerPrevEllipsesData }) }} />
-    </>
-  ));
+export default { title: 'Molecules/Menus/Pager' };
+
+export const pagerExample = () => (
+  <>
+    <h3>Pager:</h3>
+    <div dangerouslySetInnerHTML={{ __html: pager(pagerData) }} />
+    <h3>Pager with next ellipses:</h3>
+    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerEllipsesData }) }} />
+    <h3>Pager with both ellipses:</h3>
+    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerBothEllipsesData }) }} />
+    <h3>Pager with previous ellipses:</h3>
+    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerPrevEllipsesData }) }} />
+  </>
+);

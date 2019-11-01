@@ -28,7 +28,7 @@
   <div id="tabs" class="tabs no-js">
     <ul class="tabs__nav">
       {% for key, tab in tabs %}
-        {% include "@molecules/menus/tab/_tab.twig" with {
+        {% include "@molecules/menus/tabs/_tab.twig" with {
           tab_link: "#tab-" ~ key,
           tab_text: tab.tab_text,
         } %}
