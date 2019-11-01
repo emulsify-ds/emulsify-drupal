@@ -6,7 +6,6 @@ import animations from './animations.twig';
 /**
  * Add storybook definition for Animations.
  */
-storiesOf('Base/Animations', module)
-  .add('Fade', () => (
-    <div dangerouslySetInnerHTML={{ __html: animations({ animation_name: 'Fade' }) }} />
-  ));
+export default { title: 'Base/Animations' };
+
+export const Fade = () => <div dangerouslySetInnerHTML={{ __html: animations({ animation_name: 'Fade' }) }} />;
