@@ -8,7 +8,7 @@
     ul_blockname: menu_blockname
   } %}
     {% block list_content %}
-      {% for item in items %}
+      {% for item in social_menu_items %}
         {% embed "@atoms/lists/_list-item.twig" with {
           li_base_class: 'item',
           li_modifiers: item_modifiers,

@@ -78,5 +78,11 @@ module.exports = async ({ config }) => {
     })
   )
 
+  // YAML
+  config.module.rules.push({
+    test: /\.ya?ml$/,
+    loader: 'js-yaml-loader',
+  })
+
   return config
 }

@@ -1,0 +1,11 @@
+current: 5
+ellipses:
+  next: true
+items:
+  next: true
+  pages: {
+    1: { href: '#' },
+    2: { href: '#' },
+    3: { href: '#' },
+    4: { href: '#' }
+  }

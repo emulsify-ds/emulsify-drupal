@@ -17,7 +17,7 @@
 
 <a
   {{ bem(link_base_class, link_modifiers, link_blockname) }}
-  {% for attribute,value in link_attributes %}
+  {% for attribute, value in link_attributes %}
     {{ attribute }}="{{ value }}"
   {% endfor %}
   href="{{ link_url }}"

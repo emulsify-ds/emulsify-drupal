@@ -1,10 +1,12 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import { globalData } from '../../.storybook/globalData';
-
 import fullWidth from './full-width.twig';
 import withSidebar from './with-sidebar.twig';
+
+import mainMenu from '../02-molecules/menus/main-menu/main-menu.yml';
+import socialMenu from '../02-molecules/menus/social/social-menu.yml';
+import footerMenu from '../02-molecules/menus/inline/inline-menu.yml';
 
 /**
  * Add storybook definitions for Templates.
@@ -12,21 +14,13 @@ import withSidebar from './with-sidebar.twig';
 storiesOf('Templates/Layouts', module)
   .add('Full Width', () => (
     <div dangerouslySetInnerHTML={{
-      __html: fullWidth({
-        menu_items: globalData.main_menu,
-        social_menu__items: globalData.social_menu__items,
-        footer_menu__items: globalData.footer_menu__items,
-      }),
+      __html: fullWidth({ ...mainMenu, ...socialMenu, ...footerMenu }),
     }}
     />
   ))
   .add('With Sidebar', () => (
     <div dangerouslySetInnerHTML={{
-      __html: withSidebar({
-        menu_items: globalData.main_menu,
-        social_menu__items: globalData.social_menu__items,
-        footer_menu__items: globalData.footer_menu__items,
-      }),
+      __html: withSidebar({ ...mainMenu, ...socialMenu, ...footerMenu }),
     }}
     />
   ));

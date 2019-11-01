@@ -8,23 +8,9 @@ import button from './twig/button.twig';
 
 import buttonLog from './twig/button';
 
-const buttonTwig = (
-  button({ button_content: 'Twig Button' })
-);
-
-const buttonAlt = (
-  button({
-    button_content: 'Button Alternative',
-    button_modifiers: ['alt'],
-  })
-);
-
-const buttonAlt2 = (
-  button({
-    button_content: 'Button Alternative',
-    button_modifiers: ['alt-2'],
-  })
-);
+import buttonData from './twig/button.yml';
+import buttonAltData from './twig/button-alt.yml';
+import buttonAlt2Data from './twig/button-alt2.yml';
 
 /**
  * Add storybook definition for Buttons.
@@ -37,7 +23,7 @@ storiesOf('Atoms/Buttons', module)
     useEffect(() => {
       buttonLog();
     }, []);
-    return <div dangerouslySetInnerHTML={{ __html: buttonTwig }} />;
+    return <div dangerouslySetInnerHTML={{ __html: button(buttonData) }} />;
   })
-  .add('Button Alternative', () => <div dangerouslySetInnerHTML={{ __html: buttonAlt }} />)
-  .add('Button Alternative 2', () => <div dangerouslySetInnerHTML={{ __html: buttonAlt2 }} />);
+  .add('Button Alternative', () => <div dangerouslySetInnerHTML={{ __html: button(buttonAltData) }} />)
+  .add('Button Alternative 2', () => <div dangerouslySetInnerHTML={{ __html: button(buttonAlt2Data) }} />);

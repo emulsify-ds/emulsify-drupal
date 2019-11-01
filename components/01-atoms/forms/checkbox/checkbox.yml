@@ -1,0 +1,6 @@
+checkboxes:
+  - title: 'Option 1'
+    checked: 'checked'
+  - title: 'Option 2'
+  - title: 'Option 3'
+  - title: 'Option 4'

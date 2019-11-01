@@ -1,0 +1,9 @@
+grid_label: 'CTA Grid'
+item_type: 'cta'
+items:
+  - cta__heading: 'This is an awesome CTA'
+    cta__button_text: 'Click me!'
+  - cta__heading: 'This is an even better CTA!!'
+    cta__button_text: 'No, click me!'
+  - cta__heading: 'This is a boring CTA'
+    cta__button_text: 'Click me, I guess...'
