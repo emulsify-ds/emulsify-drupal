@@ -45,4 +45,4 @@ global.__PATH_PREFIX__ = ""
 window.___navigate = pathname => {
   action("NavigateTo:")(pathname)
 }
-configure(loadStories, module)
+configure(require.context('../components', true, /\.stories\.js$/), module);
