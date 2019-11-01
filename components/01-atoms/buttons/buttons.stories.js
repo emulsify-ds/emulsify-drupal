@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { useEffect } from '@storybook/client-api';
 
 import Button from './react/Button.component';
