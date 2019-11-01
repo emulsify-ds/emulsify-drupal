@@ -19,7 +19,7 @@ storiesOf('Molecules/Pager', module)
       <h3>Pager with next ellipses:</h3>
       <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerEllipsesData }) }} />
       <h3>Pager with both ellipses:</h3>
-      <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerEllipsesData, ...pagerBothEllipsesData }) }} />
+      <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerBothEllipsesData }) }} />
       <h3>Pager with previous ellipses:</h3>
       <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerPrevEllipsesData }) }} />
     </>

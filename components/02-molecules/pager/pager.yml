@@ -1,9 +1,9 @@
 current: 1
 items:
-  previous: true
-  next: true
-  pages:
-    - href: '#'
-    - href: '#'
-    - href: '#'
-    - href: '#'
+  pages: {
+    1: { href: '#' },
+    2: { href: '#' },
+    3: { href: '#' },
+    4: { href: '#' },
+    5: { href: '#' }
+  }
