@@ -7,7 +7,7 @@ import grayscale from './colors-grayscale.yml';
 import branding from './colors-branding.yml';
 
 /**
- * Add storybook definition for Colors.
+ * Storybook Definition.
  */
 export default { title: 'Base/Colors' };
 

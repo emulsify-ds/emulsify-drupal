@@ -1,10 +1,10 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import tables from './tables.twig';
 
 /**
- * Add storybook definition for Tables.
+ * Storybook Definition.
  */
-storiesOf('Atoms/Tables', module)
-  .add('Table', () => <div dangerouslySetInnerHTML={{ __html: tables({}) }} />);
+export default { title: 'Atoms/Tables' };
+
+export const table = () => <div dangerouslySetInnerHTML={{ __html: tables({}) }} />;

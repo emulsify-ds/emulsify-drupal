@@ -1,14 +1,12 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import link from './link.twig';
 
 import linkData from './link.yml';
 
 /**
- * Add storybook definition for Links.
+ * Storybook Definition.
  */
-storiesOf('Atoms/Links', module)
-  .add('Links', () => (
-    <div dangerouslySetInnerHTML={{ __html: link(linkData) }} />
-  ));
+export default { title: 'Atoms/Links' };
+
+export const links = () => <div dangerouslySetInnerHTML={{ __html: link(linkData) }} />;

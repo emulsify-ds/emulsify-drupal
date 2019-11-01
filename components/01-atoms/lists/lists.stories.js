@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import dl from './dl.twig';
 import ul from './ul.twig';
@@ -10,15 +9,10 @@ import ulData from './ul.yml';
 import olData from './ol.yml';
 
 /**
- * Add storybook definition for Lists.
+ * Storybook Definition.
  */
-storiesOf('Atoms/Lists', module)
-  .add('Definition List', () => (
-    <div dangerouslySetInnerHTML={{ __html: dl(dlData) }} />
-  ))
-  .add('Unordered List', () => (
-    <div dangerouslySetInnerHTML={{ __html: ul(ulData) }} />
-  ))
-  .add('Ordered List', () => (
-    <div dangerouslySetInnerHTML={{ __html: ol(olData) }} />
-  ));
+export default { title: 'Atoms/Lists' };
+
+export const definitionList = () => <div dangerouslySetInnerHTML={{ __html: dl(dlData) }} />;
+export const unorderedList = () => <div dangerouslySetInnerHTML={{ __html: ul(ulData) }} />;
+export const orderedList = () => <div dangerouslySetInnerHTML={{ __html: ol(olData) }} />;
