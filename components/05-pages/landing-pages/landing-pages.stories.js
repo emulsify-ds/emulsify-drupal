@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { hrefTo } from '@storybook/addon-links';
 import { useEffect } from '@storybook/client-api';
 
-import mainMenu from '../../02-molecules/menus/main-menu/main-menu';
+import mainMenuJS from '../../02-molecules/menus/main-menu/main-menu';
 
 import home from './home.twig';
 
@@ -20,7 +20,7 @@ hrefTo('Pages/Content Types', 'Article').then((url) => {
   storiesOf('Pages/Landing Pages', module)
     .add('Home', () => {
       useEffect(() => {
-        mainMenu();
+        mainMenuJS();
       }, []);
       return (
         <div dangerouslySetInnerHTML={{

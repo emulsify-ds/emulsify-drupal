@@ -1,4 +1,4 @@
-export default function tabMenu() {
+export default function tabMenuJS() {
   const el = document.querySelectorAll('.tabs');
   const tabNavigationLinks = document.querySelectorAll('.tabs__link');
   const tabContentContainers = document.querySelectorAll('.tabs__tab');

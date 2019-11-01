@@ -1,12 +1,13 @@
-export default function mainMenu() {
+export default function mainMenuJS() {
   const toggleExpand = document.getElementById('toggle-expand');
   const menu = document.getElementById('main-nav');
   const expandMenu = menu.getElementsByClassName('expand-sub');
 
   // Mobile Menu Show/Hide.
-  toggleExpand.addEventListener('click', () => {
+  toggleExpand.addEventListener('click', (e) => {
     toggleExpand.classList.toggle('toggle-expand--open');
     menu.classList.toggle('main-nav--open');
+    e.preventDefault();
   });
 
   // Expose mobile sub menu on click.

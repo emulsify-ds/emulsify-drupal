@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from '@storybook/client-api';
 
-import mainMenu from '../../02-molecules/menus/main-menu/main-menu';
+import mainMenuJS from '../../02-molecules/menus/main-menu/main-menu';
 
 import articleTwig from './article.twig';
 
@@ -17,7 +17,7 @@ export default { title: 'Pages/Content Types' };
 
 export const article = () => {
   useEffect(() => {
-    mainMenu();
+    mainMenuJS();
   }, []);
   return (
     <div
