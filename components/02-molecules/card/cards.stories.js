@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import card from './card.twig';
 
@@ -7,8 +6,10 @@ import cardData from './card.yml';
 import cardBgData from './card-bg.yml';
 
 /**
- * Add storybook definition for Cards.
+ * Storybook Definition.
  */
-storiesOf('Molecules/Cards', module)
-  .add('card', () => <div dangerouslySetInnerHTML={{ __html: card(cardData) }} />)
-  .add('card with background', () => <div dangerouslySetInnerHTML={{ __html: card({ ...cardData, ...cardBgData }) }} />);
+export default { title: 'Molecules/Cards' };
+
+export const cardExample = () => <div dangerouslySetInnerHTML={{ __html: card(cardData) }} />;
+export const cardWithBackground = () => (
+  <div dangerouslySetInnerHTML={{ __html: card({ ...cardData, ...cardBgData }) }} />);

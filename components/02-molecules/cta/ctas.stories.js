@@ -1,12 +1,12 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import cta from './cta.twig';
 
 import ctaData from './cta.yml';
 
 /**
- * Add storybook definition for CTAs.
+ * Storybook Definition.
  */
-storiesOf('Molecules/CTA', module)
-  .add('cta', () => <div dangerouslySetInnerHTML={{ __html: cta(ctaData) }} />);
+export default { title: 'Molecules/CTA' };
+
+export const ctaExample = () => <div dangerouslySetInnerHTML={{ __html: cta(ctaData) }} />;
