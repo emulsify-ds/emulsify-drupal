@@ -9,7 +9,7 @@ import footerMenu from '../../02-molecules/menus/inline/inline-menu.yml';
 import breadcrumbData from '../../02-molecules/menus/breadcrumbs/breadcrumbs.yml';
 import mainMenubData from '../../02-molecules/menus/main-menu/main-menu.yml';
 
-import mainMenuJS from '../../02-molecules/menus/main-menu/main-menu';
+import '../../02-molecules/menus/main-menu/main-menu';
 
 /**
  * Storybook Definition.
@@ -19,9 +19,7 @@ export default { title: 'Organisms/Site' };
 export const footer = () => (
   <div dangerouslySetInnerHTML={{ __html: footerTwig({ ...footerSocial, ...footerMenu }) }} />);
 export const header = () => {
-  useEffect(() => {
-    mainMenuJS();
-  }, []);
+  useEffect(() => Drupal.attachBehaviors(), []);
   return (
     <div
       dangerouslySetInnerHTML={{ __html: siteHeader({ ...breadcrumbData, ...mainMenubData }) }}
