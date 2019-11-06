@@ -5,7 +5,7 @@ import tabs from './tabs.twig';
 
 import tabData from './tabs.yml';
 
-import('./tabs');
+import './tabs';
 
 /**
  * Storybook Definition.

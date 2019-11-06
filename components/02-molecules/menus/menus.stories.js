@@ -11,7 +11,7 @@ import inlineMenuData from './inline/inline-menu.yml';
 import mainMenuData from './main-menu/main-menu.yml';
 import socialMenuData from './social/social-menu.yml';
 
-import('./main-menu/main-menu');
+import './main-menu/main-menu';
 
 /**
  * Storybook Definition.
