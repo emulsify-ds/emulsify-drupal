@@ -1,38 +1,45 @@
 const path = require('path');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-
-const JSLoader = {
-  test: /^(?!.*\.component\.js$)(?!.*\.stories\.js$).*\.js$/,
-  include: [
-    path.resolve(__dirname, "components")
-  ],
-  use: {
-    loader: 'babel-loader',
-    options: {
-      presets: ['@babel/preset-env']
-    }
-  }
-};
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const globImporter = require('node-sass-glob-importer');
 
 const CSSLoader = {
-  test: /\.css$/,
+  test: /\.s[ac]ss$/i,
   exclude: /node_modules/,
   use: [
     MiniCssExtractPlugin.loader,
-    { loader: 'css-loader', options: {
-      importLoaders: 1,
-      sourceMap: true
-    } },
-    { loader: 'postcss-loader', options: {
-      config: {
-        path: path.resolve("./webpack/")
+    {
+      loader: 'css-loader',
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        config: {
+          path: path.resolve('./webpack/'),
+        },
       },
-      sourceMap: true
-    } },
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sassOptions: {
+          importer: globImporter(),
+          outputStyle: 'compressed',
+        },
+      },
+    },
   ],
 };
 
+const SVGSpriteLoader = {
+  test: /icons\/.*\.svg$/, // your icons directory
+  loader: 'svg-sprite-loader',
+  options: {
+    extract: true,
+    spriteFilename: '../dist/icons.svg',
+  },
+};
+
 module.exports = {
-  JSLoader: JSLoader,
-  CSSLoader: CSSLoader,
+  CSSLoader,
+  SVGSpriteLoader,
 };

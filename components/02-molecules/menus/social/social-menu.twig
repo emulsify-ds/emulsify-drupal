@@ -1,0 +1,36 @@
+  {# Set classes #}
+  {% set menu_class = 'social-menu' %}
+
+  {# List #}
+  {% embed "@atoms/lists/ul.twig" with {
+    ul_base_class: menu_class,
+    ul_modifiers: menu_modifiers,
+    ul_blockname: menu_blockname
+  } %}
+    {% block list_content %}
+      {% for item in social_menu_items %}
+        {% embed "@atoms/lists/_list-item.twig" with {
+          li_base_class: 'item',
+          li_modifiers: item_modifiers,
+          li_blockname: menu_class,
+        } %}
+          {% block list_item_content %}
+            {% embed "@atoms/links/link/link.twig" with {
+              link_url: item.url,
+              link_base_class: 'link',
+              link_modifiers: item_modifiers,
+              link_blockname: menu_class,
+            } %}
+              {% block link_content %}
+                {% include "@atoms/images/icons/_icon.twig" with {
+                  icon_name: item.icon,
+                  icon_blockname: menu_class,
+                } %}
+                <span {{ bem('text', [], menu_class) }}>{{ item.title }}</span>
+              {% endblock %}
+            {% endembed %}
+          {% endblock %}
+        {% endembed %}
+      {% endfor %}
+    {% endblock %}
+  {% endembed %}

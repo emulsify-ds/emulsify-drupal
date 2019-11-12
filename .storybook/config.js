@@ -1,19 +1,39 @@
-import { configure } from "@storybook/react"
+import { configure, addDecorator, addParameters } from "@storybook/react"
+import { withA11y } from '@storybook/addon-a11y';
 import { action } from "@storybook/addon-actions"
 
-// GLOBAL CSS
-import '../dist/styles.css';
+// Theming
+import emulsifyTheme from './emulsifyTheme';
 
-// GLOBAL JS
-import '../dist/js/main.bundle.js';
+addParameters({
+  options: {
+    theme: emulsifyTheme,
+  },
+});
+
+// GLOBAL CSS
+import '../components/style.scss';
+
+addDecorator(withA11y)
+
+const Twig = require('twig')
+const twigDrupal = require('twig-drupal-filters')
+const twigBEM = require('bem-twig-extension');
+const twigAddAttributes = require('add-attributes-twig-extension');
+
+Twig.cache();
+
+twigDrupal(Twig);
+twigBEM(Twig);
+twigAddAttributes(Twig);
 
  // automatically import all files ending in *.stories.js
-const req = require.context("../components", true, /.stories.js$/)
+const req = require.context('../components', true, /.stories.js$/)
 function loadStories() {
   req.keys().forEach(filename => req(filename))
 }
 
- // Gatsby's Link overrides:
+// Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
 global.___loader = {
   enqueue: () => {},
@@ -25,4 +45,4 @@ global.__PATH_PREFIX__ = ""
 window.___navigate = pathname => {
   action("NavigateTo:")(pathname)
 }
-configure(loadStories, module)
+configure(require.context('../components', true, /\.stories\.js$/), module);

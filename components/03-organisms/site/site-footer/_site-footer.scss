@@ -1,0 +1,33 @@
+.footer {
+  background-color: $gray-lightest;
+  padding: $space 0;
+
+  &__inner {
+    @include wrapper;
+
+    display: flex;
+    flex-flow: column nowrap;
+
+    @include large {
+      flex-direction: row;
+    }
+  }
+}
+
+.footer__social {
+  margin-bottom: $space;
+
+  @include large {
+    flex: 0 1 30%;
+    margin-bottom: 0;
+    margin-right: $space;
+  }
+}
+
+.footer__menu {
+  @include large {
+    flex: 1 1 100%;
+    margin-left: auto;
+    text-align: right;
+  }
+}

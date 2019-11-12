@@ -1,0 +1,9 @@
+items:
+  - name: 'Facebook'
+    value: 'facebook'
+  - name: 'Instagram'
+    value: 'instagram'
+  - name: 'Menu'
+    value: 'menu'
+  - name: 'Twitter'
+    value: 'twitter'

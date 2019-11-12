@@ -1,10 +1,25 @@
-node_modules/
-public
-.gatsby-context.js
-.DS_Store
-.cache/
-yarn.lock
-composer.lock
+# Ignore compiled files.
 dist
 
+# Yarn/NPM
+node_modules/
+yarn.lock
+
+# Storybook
+.out
+
+# Gatsby
+.gatsby-context.js
+public
+.cache/
+
+# System
+.DS_Store
+
+# Git deploy
+.publish
+
+# Composer
+composer.lock
 /vendor/
+

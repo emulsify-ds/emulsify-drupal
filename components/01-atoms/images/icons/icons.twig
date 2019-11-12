@@ -1,0 +1,15 @@
+<div class="icons-demo" id="icons">
+  {% for item in items %}
+    <div class="icons-demo__item">
+      {% include "@atoms/images/icons/_icon.twig" with {
+        icon_name: item.value,
+        icon_role: item.role,
+        icon_title: item.title,
+        icon_desc: item.desc,
+        icon_decorative: item.decorative,
+      } %}
+      <pre>{{ item.value }}</pre>
+    </div>
+  {% endfor %}
+</div>
+<br>

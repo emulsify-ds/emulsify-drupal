@@ -10,9 +10,10 @@
         "if",
         "each",
         "content",
-        "import-glob"
+        "import"
       ]
     }],
-    "no-descending-specificity": null
+    "no-descending-specificity": null,
+    "function-calc-no-invalid": null
   }
 }
