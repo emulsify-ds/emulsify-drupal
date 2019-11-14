@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from '@storybook/client-api';
 
-import mainMenu from '../../02-molecules/menus/main-menu/main-menu';
+import '../../02-molecules/menus/main-menu/main-menu';
 
 import articleTwig from './article.twig';
 
@@ -16,9 +16,7 @@ import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
 export default { title: 'Pages/Content Types' };
 
 export const article = () => {
-  useEffect(() => {
-    mainMenu();
-  }, []);
+  useEffect(() => Drupal.attachBehaviors(), []);
   return (
     <div
       dangerouslySetInnerHTML={{

@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { hrefTo } from '@storybook/addon-links';
 import { useEffect } from '@storybook/client-api';
 
-import mainMenu from '../../02-molecules/menus/main-menu/main-menu';
+import '../../02-molecules/menus/main-menu/main-menu';
 
 import home from './home.twig';
 
@@ -19,9 +19,7 @@ hrefTo('Pages/Content Types', 'Article').then((url) => {
   // TODO: Can't figure out how to link pages with hrefTo and storiesOf.
   storiesOf('Pages/Landing Pages', module)
     .add('Home', () => {
-      useEffect(() => {
-        mainMenu();
-      }, []);
+      useEffect(() => Drupal.attachBehaviors(), []);
       return (
         <div dangerouslySetInnerHTML={{
           __html: home({

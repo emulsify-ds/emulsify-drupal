@@ -4,13 +4,14 @@ module.exports = (api) => {
   const presets = [
     [
       '@babel/preset-env', {
-        useBuiltIns: 'entry'
+        corejs: '2',
+        useBuiltIns: 'usage',
       },
     ],
     'minify',
   ];
 
-  const comments = false
+  const comments = false;
 
   return { presets, comments };
 };

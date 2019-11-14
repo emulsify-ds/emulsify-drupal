@@ -9,6 +9,7 @@ globals:
   expect: true
   it: true
   describe: true
+  Drupal: true
 parser: babel-eslint
 rules:
   strict: 0
