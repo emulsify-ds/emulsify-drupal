@@ -1,7 +1,7 @@
 global:
   css:
     theme:
-      dist/style.css: {}
+      dist/styles.css: {}
 
 main-menu:
   js:
