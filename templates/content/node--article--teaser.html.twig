@@ -73,16 +73,16 @@
 
 
 {% embed "@molecules/card/card.twig" with {
-  card_modifiers: ["grid-item"],
-  card_title: label,
-  card_body: content.body,
-  card_link_url: url,
+  card__extra_classes: ["grid__item"],
+  card__heading: label,
+  card__body: content.body,
+  card__link__url: url,
 } %}
-  {% block card_img %}
+  {% block card__img %}
     {{ content.field_image }}
   {% endblock %}
 
-  {% block card_info %}
+  {% block card__info %}
     {% trans %}Submitted by {{ author_name }} on {{ date }}{% endtrans %}
   {% endblock %}
 {% endembed %}
