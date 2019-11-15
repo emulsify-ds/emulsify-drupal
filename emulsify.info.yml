@@ -1,6 +1,6 @@
 name: Emulsify
 type: theme
-description: Theme that uses Pattern Lab v2
+description: Theme using Storybook and component-driven development 
 base theme: stable
 core: 8.x
 

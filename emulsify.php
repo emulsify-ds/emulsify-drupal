@@ -390,7 +390,7 @@ function _emulsify_get_alterations($human_readable_name, $machine_name, $descrip
   return array(
     'Emulsify' => $human_readable_name,
     'emulsify' => $machine_name,
-    'Theme that uses Pattern Lab v2' => $description,
+    'Theme using Storybook and component-driven development' => $description,
     'hidden: true' => '',
   );
 }
@@ -457,13 +457,12 @@ function _emulsify_get_directories_to_make() {
  * This function supports both directories and individual files.
  *
  * The following directories/files will never be copied:
- * css/
  * dist/
  * node_modules/
  * github.com/
  * composer.json
- * LICENSE.txt
- * emulsify.drush.inc
+ * LICENSE
+ * emulsify.php
  *
  * @return array
  *   An array of files to copy.
@@ -471,12 +470,13 @@ function _emulsify_get_directories_to_make() {
 function _emulsify_get_files_to_copy() {
   // Slim files and directories declaration.
   $default_array = array(
+    '.storybook',
+    'webpack',
     '.editorconfig',
     '.browserslistrc',
     '.eslintrc.yml',
     '.gitignore',
     'babel.config.js',
-    '.stylelintrc',
     'emulsify.info.yml',
     'emulsify.theme',
     'emulsify.breakpoints.yml',
@@ -488,21 +488,16 @@ function _emulsify_get_files_to_copy() {
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
     return array_merge($default_array, array(
-      'components/_data',
-      'components/_macros',
-      'components/_meta',
-      'components/_twig-components',
-      'components/images',
-      'components/_patterns/style.scss',
-      'components/_patterns/00-base/global/01-colors',
+      'components/style.scss',
+      'components/00-base/global/01-colors',
     ));
   }
   else {
     return array_merge($default_array, array(
       'components',
-      'fonts',
       'images',
       'templates',
+      'styleguide',
       'README.md',
       'screenshot.png',
     ));
@@ -795,7 +790,7 @@ function _emulsify_notify_fail($path = '', $message = '') {
  */
 function _emulsify_notify_success($human_readable_name, $theme_path) {
   // Notify user of the newly created theme.
-  $message = 'Successfully created the Emulsify theme "!name" created in: !path, you can now run \'yarn\' or \'yarn install\' or \'npm install\' to install the node modules.';
+  $message = 'Successfully created the Emulsify theme "!name" created in: !path, you can now run \'yarn\' or \'npm install\' to install.';
 
   $message = dt($message, array(
     '!name' => $human_readable_name,
