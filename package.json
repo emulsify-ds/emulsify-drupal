@@ -76,6 +76,6 @@
     "build-babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js'",
     "webpack": "webpack -d --watch --config ./webpack/webpack.dev.js --display-error-details",
     "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
-    "develop": "concurrently --raw \"yarn webpack\" \"yarn babel\" \"yarn storybook\""
+    "develop": "concurrently --raw \"yarn babel\" \"yarn webpack\" \"yarn storybook\""
   }
 }
