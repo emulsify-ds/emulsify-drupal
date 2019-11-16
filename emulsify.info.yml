@@ -20,7 +20,7 @@ libraries:
 
 # CKEditor stylesheet loads in wysiwyg to give content editors a better experience
 ckeditor_stylesheets:
-  - dist/styles.css
+  - dist/style.css
 
 regions:
   header: Header
