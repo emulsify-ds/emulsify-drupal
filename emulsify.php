@@ -483,7 +483,6 @@ function _emulsify_get_files_to_copy() {
     'emulsify.libraries.yml',
     'gatsby-config.js',
     'package.json',
-    'yarn.lock',
   );
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
