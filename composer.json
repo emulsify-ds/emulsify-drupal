@@ -1,6 +1,6 @@
 {
-    "name": "fourkitchens/gatsby-starter-emulsify-drupal",
-    "description": "Gatsby Starter using the Emulsify Gatsby Theme for a Design System, Storybook for a Pattern Library and serves as a starterkit Drupal 8 theme.",
+    "name": "emulsify-ds/emulsify-design-system",
+    "description": "Gatsby Design System + Storybook Pattern Library + Drupal 8 theme",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GNU General Public License v2.0",
