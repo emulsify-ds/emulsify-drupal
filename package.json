@@ -1,7 +1,7 @@
 {
-  "name": "gatsby-starter-emulsify-drupal",
-  "version": "1.0.0-alpha.2",
-  "description": "Emulsify Gatsby Starter using Emulsify Gatsby Theme for Drupal projects",
+  "name": "emulsify-design-system",
+  "version": "1.0.0-alpha.4",
+  "description": "Gatsby Styleguide + Storybook Pattern Library + Drupal 8 Theme",
   "keywords": [
     "design system",
     "drupal",
