@@ -39,6 +39,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.16.0",
+    "file-loader": "^4.2.0",
     "fs": "^0.0.1-security",
     "gatsby": "^2.13.15",
     "gatsby-theme-emulsify": "^1.0.0-alpha.5",
