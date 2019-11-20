@@ -1,10 +1,6 @@
 {% set header__base_class = 'header' %}
 
-{% if directory %}
-  {% set header__logo_src = icon_url|default('/' ~ directory ~ '/images/logo.png') %}
-{% else %}
-  {% set header__logo_src = 'images/logo.png' %}
-{% endif %}
+{% set header__logo_src = directory ? '/' ~ directory ~ '/images/logo.png' : 'images/logo.png' %}
 
 <header {{ bem(header__base_class) }}>
   <div {{ bem('inner', [], header__base_class) }}>

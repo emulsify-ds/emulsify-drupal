@@ -11,11 +11,7 @@
  */
 #}
 {% set icon_base_class = icon_base_class|default('icon') %}
-{% if directory %}
-  {% set icon_url = icon_url|default('/' ~ directory ~ '/dist/') %}
-{% else %}
-  {% set icon_url = '' %}
-{% endif %}
+{% set icon_url = directory ? '/' ~ directory ~ '/dist/' %}
 
 {# IE 11 support for SVG use - remove if not needed. 
 ## See also emulsify.libraries.yml to remove library.
