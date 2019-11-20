@@ -66,10 +66,7 @@
     "webpack-merge": "^4.2.2"
   },
   "resolutions": {
-    "bem-twig-extension/twig": "~1.13.3",
-    "gatsby-theme-emulsify/twig": "~1.13.3",
-    "twig-drupal-filters/twig": "~1.13.3",
-    "twig-loader/twig": "~1.13.3"
+    "**/twig": "~1.13.3"
   },
   "scripts": {
     "styleguide": "gatsby develop",
