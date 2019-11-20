@@ -3,7 +3,7 @@
     "description": "Gatsby Styleguide + Storybook Pattern Library + Drupal 8 Theme",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
-    "license": "GNU General Public License v2.0",
+    "license": "GPL-2.0-only",
     "authors": [
       {
         "name": "Brian Lewis",
