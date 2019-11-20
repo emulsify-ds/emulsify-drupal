@@ -32,7 +32,7 @@
     "breakpoint-sass": "^2.7.1",
     "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.0.0",
-    "cross-env": "5.0.5",
+    "cross-env": "6.0.3",
     "css-loader": "^3.2.0",
     "eslint": "^6.5.1",
     "eslint-config-airbnb": "^18.0.1",
@@ -54,11 +54,11 @@
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "sass-loader": "^8.0.0",
-    "stylelint": "^11.1.1",
+    "stylelint": "^12.0.0",
     "stylelint-config-standard": "^19.0.0",
     "stylelint-webpack-plugin": "^1.0.2",
     "svg-sprite-loader": "^4.1.6",
-    "twig": "^1.13.3",
+    "twig": "~1.13.3",
     "twig-drupal-filters": "^2.0.0",
     "twig-loader": "https://github.com/AmazeeLabs/twig-loader",
     "webpack": "^4.41.1",
@@ -77,6 +77,6 @@
     "build-babel": "npx babel components -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js'",
     "webpack": "webpack -d --watch --config ./webpack/webpack.dev.js --display-error-details",
     "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
-    "develop": "concurrently --raw \"yarn babel\" \"yarn webpack\" \"yarn storybook\""
+    "develop": "concurrently --raw \"yarn webpack\" \"yarn babel\" \"yarn storybook\""
   }
 }
