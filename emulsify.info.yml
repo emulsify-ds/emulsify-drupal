@@ -1,6 +1,6 @@
 name: Emulsify
 type: theme
-description: Theme that uses Pattern Lab v2
+description: Theme using Storybook and component-driven development 
 base theme: stable
 core: 8.x
 
@@ -45,19 +45,19 @@ regions:
 component-libraries:
   base:
     paths:
-      - components/_patterns/00-base
+      - components/00-base
   atoms:
     paths:
-      - components/_patterns/01-atoms
+      - components/01-atoms
   molecules:
     paths:
-      - components/_patterns/02-molecules
+      - components/02-molecules
   organisms:
     paths:
-      - components/_patterns/03-organisms
+      - components/03-organisms
   templates:
     paths:
-      - components/_patterns/04-templates
+      - components/04-templates
   pages:
     paths:
-      - components/_patterns/05-pages
+      - components/05-pages

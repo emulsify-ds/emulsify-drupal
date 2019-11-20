@@ -30,11 +30,8 @@ twigAddAttributes(Twig);
 // If in a Drupal project, it's recommended to import a symlinked version of drupal.js.
 import './_drupal.js';
 
- // automatically import all files ending in *.stories.js
-const req = require.context('../components', true, /.stories.js$/)
-function loadStories() {
-  req.keys().forEach(filename => req(filename))
-}
+// automatically import all files ending in *.stories.js
+configure(require.context('../components', true, /\.stories\.js$/), module);
 
 // Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
@@ -48,4 +45,3 @@ global.__PATH_PREFIX__ = ""
 window.___navigate = pathname => {
   action("NavigateTo:")(pathname)
 }
-configure(require.context('../components', true, /\.stories\.js$/), module);

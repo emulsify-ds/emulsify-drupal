@@ -37,7 +37,7 @@
   {% set title_attributes = title_attributes.addClass('visually-hidden') %}
 {% endif %}
 {{ title_prefix }}
-{% include "@atoms/02-text/00-headings/_heading.twig" with {
+{% include "@atoms/text/headings/_heading.twig" with {
   "heading_level": 2,
   "heading": label,
 } %}

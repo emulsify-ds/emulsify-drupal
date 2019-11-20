@@ -5,18 +5,18 @@ global:
 
 main-menu:
   js:
-    dist/02-molecules/menus/main-menu/main-menu.js: {}
+    dist/js/02-molecules/menus/main-menu/main-menu.js: {}
   dependencies:
     - core/drupal
 
+# IE 11 support for SVG use - disable if not needed.
+# See also components/01-atoms/images/icons/_icon.twig to remove attach_library.
 sprite:
   js:
-    components/js/svgxuse.min.js: { attributes: { defer: true } }
-
-accordion:
-  js:
-    dist/02-molecules/accordion-item/accordion-item.js: {}
+    components/01-atoms/images/icons/svgxuse.min.js: { attributes: { defer: true } }
 
 tabs:
   js:
-    dist/02-molecules/menus/tabs/tabs.js: {}
+    dist/js/02-molecules/tabs/tabs.js: {}
+  dependencies:
+    - core/drupal
