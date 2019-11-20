@@ -1,5 +1,11 @@
 {% set header__base_class = 'header' %}
 
+{% if directory %}
+  {% set header__logo_src = icon_url|default('/' ~ directory ~ '/images/logo.png') %}
+{% else %}
+  {% set header__logo_src = 'images/logo.png' %}
+{% endif %}
+
 <header {{ bem(header__base_class) }}>
   <div {{ bem('inner', [], header__base_class) }}>
     <div {{ bem('primary', [], header__base_class) }}>
@@ -12,7 +18,7 @@
             {% block link_content %}
               {% include "@atoms/images/image/responsive-image.twig" with {
                 output_image_tag: true,
-                image_src: header__logo_src|default('/' ~ directory ~ '/images/logo.png'),
+                image_src: header__logo_src,
                 image_alt: 'Logo',
                 responsive_image_blockname: 'logo',
               } %}
