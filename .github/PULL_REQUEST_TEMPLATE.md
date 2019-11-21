@@ -1,7 +1,15 @@
-**This PR does the following:**
+**What:**
 
--
+_brief description of change_
 
-### Steps to review:
+**Why:**
 
-- [ ] `yarn develop`
+_why this change improves emulsify_
+
+**How:**
+
+_more details of changes made_
+
+**To Test:**
+- [ ] Step 1
+- [ ] Step 2

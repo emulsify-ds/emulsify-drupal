@@ -19,3 +19,19 @@ https://fourkitchens.gitbook.io/emulsify-design-system/
 
 1. [Storybook](https://emulsify-ds.github.io/emulsify-design-system)
 2. Styleguide (coming soon)
+
+## Contributing
+
+### Code of Conduct
+
+The project maintainers have adopted a Code of Conduct that we expect project participants to adhere to. Please read the full text so that you can understand what actions will and will not be tolerated.
+
+### Contribution Guide
+
+Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
+
+1. [Emulsify Design System](https://github.com/emulsify-ds/emulsify-design-system/issues)
+2. [Gatsby theme](https://github.com/emulsify-ds/gatsby-theme-emulsify/issues)
+3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
+4. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
+
