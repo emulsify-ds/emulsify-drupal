@@ -2,40 +2,17 @@
 
 [![Four Kitchens](https://img.shields.io/badge/4K-Four%20Kitchens-35AA4E.svg)](https://fourkitchens.com/)
 
-<h4 align="center">Gatsby Styleguide + Storybook Pattern Library + Drupal 8 Theme</h4>
+<h4 align="center">Customizable Styleguide + Storybook Development + Drupal 8 theme</h4>
 
-Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens/gatsby-theme-emulsify) for a Styleguide, [Storybook](https://storybook.js.org/) for a Pattern Library and serves as a starterkit Drupal 8 theme.
+Gatsby Starter using the [Emulsify Gatsby Theme](https://github.com/fourkitchens/gatsby-theme-emulsify) for a Styleguide (coming soon), [Storybook](https://storybook.js.org/) for a Pattern Library and serves as a starterkit Drupal 8 theme.
 
-## 🚀 Install
+Emulsify is a full Design System encompassing both a [Storybook](https://storybook.js.org/)/[Webpack](https://webpack.js.org/) development environment, a customizable Styleguide powered by [GatsbyJS](https://www.gatsbyjs.org/) (coming soon), and a Drupal 8 starterkit theme. It can be used as a standalone prototyping tool or inside a Drupal installation. It supports both Twig and React components!!
 
-`yarn` or `npm install`
+## Documentation
 
-## 🔧 Develop
+https://fourkitchens.gitbook.io/emulsify-design-system/
 
-### Storybook
+### Quick Links
 
-Develop: `yarn develop` or `npm develop`
-
-This combines 3 tasks:
-1. `yarn webpack` (CSS compiling/minifying/linting, SVG Sprite generation)
-2. `yarn babel` (ES6 transpiling, minification and Drupal behavior wrapping)
-3. `yarn storybook` (Storybook watch task)
-
-#### Deploy Storybook
-
-`yarn deploy-storybook`
-
-### Generate Styleguide
-
-`yarn styleguide` or `npm styleguide`
-
-### Build Tasks
-
-Styleguide: `build-styleguide`
-Storybook: `build-storybook`
-Babel: `build-babel`
-Webpack: `build-webpack`
-
-### Linting
-
-`yarn lint`
+1. [Installation](https://fourkitchens.gitbook.io/emulsify-design-system/installation/design-system)
+2. [Usage](https://fourkitchens.gitbook.io/emulsify-design-system/usage/commands)
