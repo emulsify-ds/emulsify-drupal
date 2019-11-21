@@ -7,5 +7,5 @@ export default create({
   // Branding
   brandTitle: 'Emulsify',
   brandUrl: 'https://emulsify.info',
-  brandImage: 'images/logo.png',
+  brandImage: 'https://raw.githubusercontent.com/emulsify-ds/emulsify-design-system/master/images/logo.png',
 });
