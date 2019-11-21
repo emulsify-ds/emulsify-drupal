@@ -23,7 +23,9 @@ export const header = () => {
   useEffect(() => Drupal.attachBehaviors(), []);
   return (
     <div
-      dangerouslySetInnerHTML={{ __html: siteHeader({ ...breadcrumbData, ...mainMenubData, ...siteHeaderData }) }}
+      dangerouslySetInnerHTML={{
+        __html: siteHeader({ ...breadcrumbData, ...mainMenubData, ...siteHeaderData }),
+      }}
     />
   );
 };
