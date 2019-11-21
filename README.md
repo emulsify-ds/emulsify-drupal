@@ -22,7 +22,7 @@ https://fourkitchens.gitbook.io/emulsify-design-system/
 
 ## Contributing
 
-### Code of Conduct
+### [Code of Conduct](https://github.com/emulsify-ds/emulsify-design-system/blob/master/CODE_OF_CONDUCT.md)
 
 The project maintainers have adopted a Code of Conduct that we expect project participants to adhere to. Please read the full text so that you can understand what actions will and will not be tolerated.
 
