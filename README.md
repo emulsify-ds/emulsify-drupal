@@ -17,7 +17,7 @@ https://docs.emulsify.info/
 
 ## Demo
 
-1. [Storybook](https://emulsify-ds.github.io/emulsify-design-system)
+1. [Storybook](http://demo.emulsify.info/)
 2. Styleguide (coming soon)
 
 ## Contributing
