@@ -17,7 +17,7 @@ https://docs.emulsify.info/
 
 ## Demo
 
-1. [Storybook](http://demo.emulsify.info/)
+1. [Storybook](http://storybook.emulsify.info/)
 2. Styleguide (coming soon)
 
 ## Contributing
