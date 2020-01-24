@@ -488,7 +488,7 @@ function _emulsify_get_files_to_copy() {
   if (drush_get_option('slim') === TRUE) {
     return array_merge($default_array, array(
       'components/style.scss',
-      'components/00-base/global/01-colors',
+      'components/00-base/01-colors',
     ));
   }
   else {
