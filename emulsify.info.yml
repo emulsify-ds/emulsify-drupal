@@ -28,6 +28,8 @@ regions:
   sidebar: 'Sidebar'
   footer: Footer
 
+logo: images/logo.png
+
 # Remove unwanted system stylesheets
 # stylesheets-remove:
 #   - '@stable/css/system/components/align.module.css'

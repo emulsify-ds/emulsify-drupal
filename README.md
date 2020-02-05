@@ -8,16 +8,16 @@ Emulsify is a full Design System encompassing both a [Storybook](https://storybo
 
 ## Documentation
 
-https://fourkitchens.gitbook.io/emulsify-design-system/
+https://docs.emulsify.info/
 
 ### Quick Links
 
-1. [Installation](https://fourkitchens.gitbook.io/emulsify-design-system/installation/design-system)
-2. [Usage](https://fourkitchens.gitbook.io/emulsify-design-system/usage/commands)
+1. [Installation](https://docs.emulsify.info/installation/design-system)
+2. [Usage](https://docs.emulsify.info/usage/commands)
 
 ## Demo
 
-1. [Storybook](https://emulsify-ds.github.io/emulsify-design-system)
+1. [Storybook](http://storybook.emulsify.info/)
 2. Styleguide (coming soon)
 
 ## Contributing
