@@ -11,9 +11,11 @@
  */
 #}
 {% set icon_base_class = icon_base_class|default('icon') %}
+{# If `directory` is defined, set the path relative for Drupal.
+ # Otherwise, set the path relative to the Component Library. #}
 {% set icon_url = directory ? '/' ~ directory ~ '/dist/' %}
 
-{# IE 11 support for SVG use - remove if not needed. 
+{# IE 11 support for SVG use - remove if not needed.
 ## See also emulsify.libraries.yml to remove library.
 #}
 {{ attach_library('emulsify/sprite') }}

@@ -1,5 +1,6 @@
 {% set header__base_class = 'header' %}
-
+{# If `directory` is defined, set the path relative for Drupal.
+ # Otherwise, set the path relative to the Component Library. #}
 {% set header__logo_src = directory ? '/' ~ directory ~ '/images/logo.png' : 'images/logo.png' %}
 
 <header {{ bem(header__base_class) }}>
