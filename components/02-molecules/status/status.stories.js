@@ -10,4 +10,5 @@ import statusData from './status.yml';
 export default { title: 'Molecules/Status' };
 
 export const statusExamples = () => (
-  <div dangerouslySetInnerHTML={{ __html: status(statusData) }} />);
+  <div dangerouslySetInnerHTML={{ __html: status(statusData) }} />
+);

@@ -10,5 +10,9 @@ import branding from './colors-branding.yml';
  */
 export default { title: 'Base/Colors' };
 
-export const Grayscale = () => <div dangerouslySetInnerHTML={{ __html: colors(grayscale) }} />;
-export const Branding = () => <div dangerouslySetInnerHTML={{ __html: colors(branding) }} />;
+export const Grayscale = () => (
+  <div dangerouslySetInnerHTML={{ __html: colors(grayscale) }} />
+);
+export const Branding = () => (
+  <div dangerouslySetInnerHTML={{ __html: colors(branding) }} />
+);

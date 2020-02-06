@@ -10,6 +10,11 @@ import cardBgData from './card-bg.yml';
  */
 export default { title: 'Molecules/Cards' };
 
-export const cardExample = () => <div dangerouslySetInnerHTML={{ __html: card(cardData) }} />;
+export const cardExample = () => (
+  <div dangerouslySetInnerHTML={{ __html: card(cardData) }} />
+);
 export const cardWithBackground = () => (
-  <div dangerouslySetInnerHTML={{ __html: card({ ...cardData, ...cardBgData }) }} />);
+  <div
+    dangerouslySetInnerHTML={{ __html: card({ ...cardData, ...cardBgData }) }}
+  />
+);

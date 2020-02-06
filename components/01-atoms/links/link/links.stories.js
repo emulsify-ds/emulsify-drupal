@@ -9,4 +9,6 @@ import linkData from './link.yml';
  */
 export default { title: 'Atoms/Links' };
 
-export const links = () => <div dangerouslySetInnerHTML={{ __html: link(linkData) }} />;
+export const links = () => (
+  <div dangerouslySetInnerHTML={{ __html: link(linkData) }} />
+);

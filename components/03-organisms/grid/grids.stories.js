@@ -11,8 +11,16 @@ import gridCtaData from './grid-ctas.yml';
  */
 export default { title: 'Organisms/Grids' };
 
-export const defaultGrid = () => <div dangerouslySetInnerHTML={{ __html: grid(gridData) }} />;
+export const defaultGrid = () => (
+  <div dangerouslySetInnerHTML={{ __html: grid(gridData) }} />
+);
 export const cardGrid = () => (
-  <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCardData }) }} />);
+  <div
+    dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCardData }) }}
+  />
+);
 export const ctaGrid = () => (
-  <div dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCtaData }) }} />);
+  <div
+    dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCtaData }) }}
+  />
+);

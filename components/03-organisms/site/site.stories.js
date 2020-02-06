@@ -18,13 +18,22 @@ import '../../02-molecules/menus/main-menu/main-menu';
 export default { title: 'Organisms/Site' };
 
 export const footer = () => (
-  <div dangerouslySetInnerHTML={{ __html: footerTwig({ ...footerSocial, ...footerMenu }) }} />);
+  <div
+    dangerouslySetInnerHTML={{
+      __html: footerTwig({ ...footerSocial, ...footerMenu }),
+    }}
+  />
+);
 export const header = () => {
   useEffect(() => Drupal.attachBehaviors(), []);
   return (
     <div
       dangerouslySetInnerHTML={{
-        __html: siteHeader({ ...breadcrumbData, ...mainMenubData, ...siteHeaderData }),
+        __html: siteHeader({
+          ...breadcrumbData,
+          ...mainMenubData,
+          ...siteHeaderData,
+        }),
       }}
     />
   );

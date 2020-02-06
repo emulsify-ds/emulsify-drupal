@@ -1,4 +1,9 @@
-@mixin button($bg:$black, $color:$white, $hoverBg: $gray, $hoverColor: $white) {
+@mixin button(
+  $bg: $black,
+  $color: $white,
+  $hoverBg: $gray,
+  $hoverColor: $white
+) {
   background-color: $bg;
   border: none;
   color: $color;

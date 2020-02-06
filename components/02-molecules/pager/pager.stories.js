@@ -17,10 +17,22 @@ export const pagerExample = () => (
     <h3>Pager:</h3>
     <div dangerouslySetInnerHTML={{ __html: pager(pagerData) }} />
     <h3>Pager with next ellipses:</h3>
-    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerEllipsesData }) }} />
+    <div
+      dangerouslySetInnerHTML={{
+        __html: pager({ ...pagerData, ...pagerEllipsesData }),
+      }}
+    />
     <h3>Pager with both ellipses:</h3>
-    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerBothEllipsesData }) }} />
+    <div
+      dangerouslySetInnerHTML={{
+        __html: pager({ ...pagerData, ...pagerBothEllipsesData }),
+      }}
+    />
     <h3>Pager with previous ellipses:</h3>
-    <div dangerouslySetInnerHTML={{ __html: pager({ ...pagerData, ...pagerPrevEllipsesData }) }} />
+    <div
+      dangerouslySetInnerHTML={{
+        __html: pager({ ...pagerData, ...pagerPrevEllipsesData }),
+      }}
+    />
   </>
 );

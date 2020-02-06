@@ -24,14 +24,14 @@ $color-breadcrumb-active: $gray;
   font-size: 0.75rem;
 
   &::after {
-    content: "/";
+    content: '/';
   }
 
   &:last-child {
     color: $color-breadcrumb-active;
 
     &::after {
-      content: "";
+      content: '';
     }
   }
 }
