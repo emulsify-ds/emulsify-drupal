@@ -307,12 +307,17 @@ function drush_emulsify($human_readable_name = NULL) {
 function drush_emulsify_create($human_readable_name, $machine_name, $description, $theme_path_passed) {
   $theme_dir = substr(getcwd(), 0, strpos(getcwd(), 'themes') + 6);
   if (!empty($theme_path_passed)) {
-    $theme_path = $theme_dir . DIRECTORY_SEPARATOR . $theme_path_passed . DIRECTORY_SEPARATOR . $machine_name;
+    if ($theme_path_passed === 'none') {
+      $theme_path = dirname(getcwd(), 1) . DIRECTORY_SEPARATOR . $machine_name;
+    }
+    else {
+      $theme_path = $theme_dir . DIRECTORY_SEPARATOR . $theme_path_passed . DIRECTORY_SEPARATOR . $machine_name;
 
-    // Phase: Validate theme dir with path is writeable.
-    $theme_dir_status = _emulsify_validate_path($theme_dir . DIRECTORY_SEPARATOR . $theme_path_passed);
-    if ($theme_dir_status !== TRUE) {
-      return _emulsify_notify_fail('', 'Failed on Phase: Validate theme dir is writeable.');
+      // Phase: Validate theme dir with path is writeable.
+      $theme_dir_status = _emulsify_validate_path($theme_dir . DIRECTORY_SEPARATOR . $theme_path_passed);
+      if ($theme_dir_status !== TRUE) {
+        return _emulsify_notify_fail('', 'Failed on Phase: Validate theme dir is writeable.');
+      }
     }
   }
   else {
