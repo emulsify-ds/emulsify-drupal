@@ -39,11 +39,7 @@ logo: images/logo.png
 #   - '@stable/css/system/components/position-container.module.css'
 #   - '@stable/css/system/components/reset-appearance.module.css'
 
-# MUST install `components` module: `drush dl components && drush en components -y`
-# For compatibility with Pattern Lab templates; this list must
-# always be the folders immediately under the `$sourceDir` patterns folder
-# `$sourceDir` = defined in `pattern-lab/config/config.yml` under `sourceDir
-# patterns folder = `$sourceDir` + `_patterns/`
+# MUST install `components` module: `drush dl components && drush en components -y``
 component-libraries:
   base:
     paths:
