@@ -19,12 +19,15 @@ import './main-menu/main-menu';
 export default { title: 'Molecules/Menus' };
 
 export const breadcrumbs = () => (
-  <div dangerouslySetInnerHTML={{ __html: breadcrumb(breadcrumbsData) }} />);
+  <div dangerouslySetInnerHTML={{ __html: breadcrumb(breadcrumbsData) }} />
+);
 export const inline = () => (
-  <div dangerouslySetInnerHTML={{ __html: inlineMenu(inlineMenuData) }} />);
+  <div dangerouslySetInnerHTML={{ __html: inlineMenu(inlineMenuData) }} />
+);
 export const main = () => {
   useEffect(() => Drupal.attachBehaviors(), []);
   return <div dangerouslySetInnerHTML={{ __html: mainMenu(mainMenuData) }} />;
 };
 export const social = () => (
-  <div dangerouslySetInnerHTML={{ __html: socialMenu(socialMenuData) }} />);
+  <div dangerouslySetInnerHTML={{ __html: socialMenu(socialMenuData) }} />
+);

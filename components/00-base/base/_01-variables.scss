@@ -7,19 +7,19 @@
 */
 
 // Fonts
-$font-body: Georgia, Times, "Times New Roman", serif;
-$font-heading: "HelveticaNeue", "Helvetica", "Arial", sans-serif;
+$font-body: Georgia, Times, 'Times New Roman', serif;
+$font-heading: 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
 
 // Spacing
 $space: 1rem;
 
 // Times
-$space-double: $space*2;
-$space-triple: $space*3;
-$space-quadruple: $space*4;
-$space-quintuple: $space*5;
-$space-sextuple: $space*6;
-$space-septuple: $space*7;
+$space-double: $space * 2;
+$space-triple: $space * 3;
+$space-quadruple: $space * 4;
+$space-quintuple: $space * 5;
+$space-sextuple: $space * 6;
+$space-septuple: $space * 7;
 
 // Divided
 $space-one-half: $space/2;

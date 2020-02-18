@@ -13,6 +13,12 @@ import olData from './ol.yml';
  */
 export default { title: 'Atoms/Lists' };
 
-export const definitionList = () => <div dangerouslySetInnerHTML={{ __html: dl(dlData) }} />;
-export const unorderedList = () => <div dangerouslySetInnerHTML={{ __html: ul(ulData) }} />;
-export const orderedList = () => <div dangerouslySetInnerHTML={{ __html: ol(olData) }} />;
+export const definitionList = () => (
+  <div dangerouslySetInnerHTML={{ __html: dl(dlData) }} />
+);
+export const unorderedList = () => (
+  <div dangerouslySetInnerHTML={{ __html: ul(ulData) }} />
+);
+export const orderedList = () => (
+  <div dangerouslySetInnerHTML={{ __html: ol(olData) }} />
+);

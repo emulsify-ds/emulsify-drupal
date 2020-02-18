@@ -15,9 +15,14 @@ import selectOptionsData from './select/select.yml';
 export default { title: 'Atoms/Forms' };
 
 export const checkboxes = () => (
-  <div dangerouslySetInnerHTML={{ __html: checkbox(checkboxData) }} />);
-export const radioButtons = () => <div dangerouslySetInnerHTML={{ __html: radio(radioData) }} />;
+  <div dangerouslySetInnerHTML={{ __html: checkbox(checkboxData) }} />
+);
+export const radioButtons = () => (
+  <div dangerouslySetInnerHTML={{ __html: radio(radioData) }} />
+);
 export const selectDropdowns = () => (
-  <div dangerouslySetInnerHTML={{ __html: select(selectOptionsData) }} />);
+  <div dangerouslySetInnerHTML={{ __html: select(selectOptionsData) }} />
+);
 export const textfieldsExamples = () => (
-  <div dangerouslySetInnerHTML={{ __html: textfields({}) }} />);
+  <div dangerouslySetInnerHTML={{ __html: textfields({}) }} />
+);

@@ -10,7 +10,7 @@
 @mixin clearfix {
   &::after {
     clear: both;
-    content: "";
+    content: '';
     display: table;
   }
 }
@@ -19,7 +19,14 @@ $outer-container-break: $small;
 
 /// Mixin - Wrapper
 /// Outer container mixin for large screens
-@mixin wrapper($container-max-width: $max-width, $outer-container-break: $small, $v-margin: 0, $v-padding: 0, $h-padding: $space, $h-padding-large: $h-padding) {
+@mixin wrapper(
+  $container-max-width: $max-width,
+  $outer-container-break: $small,
+  $v-margin: 0,
+  $v-padding: 0,
+  $h-padding: $space,
+  $h-padding-large: $h-padding
+) {
   max-width: #{$container-max-width};
   width: 100%;
   margin: #{$v-margin} auto;
@@ -30,8 +37,12 @@ $outer-container-break: $small;
   }
 
   @include breakpoint($container-max-width) {
-    padding-left: calc(#{$h-padding-large} + calc(-50vw + calc(#{$container-max-width} / 2)));
-    padding-right: calc(#{$h-padding-large} + calc(-50vw + calc(#{$container-max-width} / 2)));
+    padding-left: calc(
+      #{$h-padding-large} + calc(-50vw + calc(#{$container-max-width} / 2))
+    );
+    padding-right: calc(
+      #{$h-padding-large} + calc(-50vw + calc(#{$container-max-width} / 2))
+    );
   }
 }
 

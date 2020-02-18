@@ -1,29 +1,29 @@
-const path = require('path')
-const globImporter = require('node-sass-glob-importer')
-const _StyleLintPlugin = require('stylelint-webpack-plugin')
+const path = require('path');
+const globImporter = require('node-sass-glob-importer');
+const _StyleLintPlugin = require('stylelint-webpack-plugin');
 
 module.exports = async ({ config }) => {
   // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
-  config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/]
+  config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/];
 
-   // use installed babel-loader which is v8.0-beta (which is meant to work with @babel/core@7)
-  config.module.rules[0].use[0].loader = require.resolve("babel-loader")
+  // use installed babel-loader which is v8.0-beta (which is meant to work with @babel/core@7)
+  config.module.rules[0].use[0].loader = require.resolve('babel-loader');
 
-   // use @babel/preset-react for JSX and env (instead of staged presets)
+  // use @babel/preset-react for JSX and env (instead of staged presets)
   config.module.rules[0].use[0].options.presets = [
-    require.resolve("@babel/preset-react"),
-    require.resolve("@babel/preset-env"),
-  ]
+    require.resolve('@babel/preset-react'),
+    require.resolve('@babel/preset-env'),
+  ];
 
-   config.module.rules[0].use[0].options.plugins = [
+  config.module.rules[0].use[0].options.plugins = [
     // use @babel/plugin-proposal-class-properties for class arrow functions
-    require.resolve("@babel/plugin-proposal-class-properties"),
+    require.resolve('@babel/plugin-proposal-class-properties'),
     // use babel-plugin-remove-graphql-queries to remove static queries from components when rendering in storybook
-    require.resolve("babel-plugin-remove-graphql-queries"),
-  ]
+    require.resolve('babel-plugin-remove-graphql-queries'),
+  ];
 
-   // Prefer Gatsby ES6 entrypoint (module) over commonjs (main) entrypoint
-  config.resolve.mainFields = ["browser", "module", "main"]
+  // Prefer Gatsby ES6 entrypoint (module) over commonjs (main) entrypoint
+  config.resolve.mainFields = ['browser', 'module', 'main'];
 
   // Twig
   config.module.rules.push({
@@ -35,9 +35,21 @@ module.exports = async ({ config }) => {
           twigOptions: {
             namespaces: {
               atoms: path.resolve(__dirname, '../', 'components/01-atoms'),
-              molecules: path.resolve(__dirname, '../', 'components/02-molecules'),
-              organisms: path.resolve(__dirname, '../', 'components/03-organisms'),
-              templates: path.resolve(__dirname, '../', 'components/04-templates'),
+              molecules: path.resolve(
+                __dirname,
+                '../',
+                'components/02-molecules',
+              ),
+              organisms: path.resolve(
+                __dirname,
+                '../',
+                'components/03-organisms',
+              ),
+              templates: path.resolve(
+                __dirname,
+                '../',
+                'components/04-templates',
+              ),
             },
           },
         },
@@ -61,8 +73,8 @@ module.exports = async ({ config }) => {
         options: {
           sourceMap: true,
           sassOptions: {
-            importer: globImporter()
-          }
+            importer: globImporter(),
+          },
         },
       },
     ],
@@ -75,14 +87,14 @@ module.exports = async ({ config }) => {
       files: '**/*.scss',
       failOnError: false,
       quiet: false,
-    })
-  )
+    }),
+  );
 
   // YAML
   config.module.rules.push({
     test: /\.ya?ml$/,
     loader: 'js-yaml-loader',
-  })
+  });
 
   // JS
   config.module.rules.push({
@@ -92,7 +104,7 @@ module.exports = async ({ config }) => {
     options: {
       cache: true,
     },
-  })
+  });
 
-  return config
-}
+  return config;
+};

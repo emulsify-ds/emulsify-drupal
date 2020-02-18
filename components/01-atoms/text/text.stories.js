@@ -12,8 +12,15 @@ import blockquoteData from './text/blockquote.yml';
  */
 export default { title: 'Atoms/Text' };
 
-export const headingsExamples = () => <div dangerouslySetInnerHTML={{ __html: headings({}) }} />;
+export const headingsExamples = () => (
+  <div dangerouslySetInnerHTML={{ __html: headings({}) }} />
+);
 export const blockquoteExample = () => (
-  <div dangerouslySetInnerHTML={{ __html: blockquote(blockquoteData) }} />);
-export const preformatted = () => <div dangerouslySetInnerHTML={{ __html: pre({}) }} />;
-export const random = () => <div dangerouslySetInnerHTML={{ __html: paragraph({}) }} />;
+  <div dangerouslySetInnerHTML={{ __html: blockquote(blockquoteData) }} />
+);
+export const preformatted = () => (
+  <div dangerouslySetInnerHTML={{ __html: pre({}) }} />
+);
+export const random = () => (
+  <div dangerouslySetInnerHTML={{ __html: paragraph({}) }} />
+);

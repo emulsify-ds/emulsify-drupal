@@ -1,7 +1,7 @@
 module.exports = {
   plugins: [
     {
-      resolve: "gatsby-theme-emulsify",
+      resolve: 'gatsby-theme-emulsify',
       options: {
         componentLibPath: 'components', // Where your component library lives
         docPagesPath: 'styleguide', // Where your custom styleguide pages live
@@ -14,11 +14,11 @@ module.exports = {
         // ],
         // Site Metadata for style guide
         siteMetadata: {
-          title: "Drupal Starter",
-          description: "",
-          author: "",
-        }
+          title: 'Drupal Starter',
+          description: '',
+          author: '',
+        },
       },
     },
   ],
-}
+};

@@ -15,16 +15,14 @@ export default { title: 'Templates/Layouts' };
 export const fullWidth = () => (
   <div
     dangerouslySetInnerHTML={{
-      __html:
-      fullWidthTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
+      __html: fullWidthTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
     }}
   />
 );
 export const withSidebar = () => (
   <div
     dangerouslySetInnerHTML={{
-      __html:
-      withSidebarTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
+      __html: withSidebarTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
     }}
   />
 );

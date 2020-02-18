@@ -7,4 +7,8 @@ import animations from './animations.twig';
  */
 export default { title: 'Base/Animations' };
 
-export const Fade = () => <div dangerouslySetInnerHTML={{ __html: animations({ animation_name: 'Fade' }) }} />;
+export const Fade = () => (
+  <div
+    dangerouslySetInnerHTML={{ __html: animations({ animation_name: 'Fade' }) }}
+  />
+);
