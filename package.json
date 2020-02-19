@@ -59,7 +59,7 @@
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-webpack-plugin": "^1.2.3",
-    "svg-sprite-loader": "^4.1.6",
+    "svg-sprite-loader": "^4.2.1",
     "twig": "~1.13.3",
     "twig-drupal-filters": "^2.0.0",
     "twig-loader": "https://github.com/AmazeeLabs/twig-loader",
