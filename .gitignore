@@ -8,11 +8,6 @@ yarn.lock
 # Storybook
 .out
 
-# Gatsby
-.gatsby-context.js
-public
-.cache/
-
 # System
 .DS_Store
 
