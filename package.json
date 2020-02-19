@@ -63,8 +63,8 @@
     "twig": "~1.13.3",
     "twig-drupal-filters": "^2.0.0",
     "twig-loader": "https://github.com/AmazeeLabs/twig-loader",
-    "webpack": "^4.41.1",
-    "webpack-cli": "^3.3.6",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
   "resolutions": {
