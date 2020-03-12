@@ -3,7 +3,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
 
 const ImageLoader = {
-  test: /\.(svg)$/i,
+  test: /\.(png|svg|jpg|gif)$/i,
   exclude: /icons\/.*\.svg$/,
   loader: 'file-loader',
 };
