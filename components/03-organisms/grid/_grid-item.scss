@@ -15,7 +15,7 @@
 .grid__item {
   @include grid-item;
 
-  /* This is just for the pattern library example */
+  /* This is just for the component library example */
   &--example {
     background-color: $gray-lighter;
     padding: $space-quadruple;
