@@ -486,7 +486,6 @@ function _emulsify_get_files_to_copy() {
     'emulsify.theme',
     'emulsify.breakpoints.yml',
     'emulsify.libraries.yml',
-    'gatsby-config.js',
     'package.json',
   );
   // If we would like to have a bare copy we use is slim option.
@@ -501,7 +500,6 @@ function _emulsify_get_files_to_copy() {
       'components',
       'images',
       'templates',
-      'styleguide',
       'README.md',
       'screenshot.png',
     ));

@@ -3,6 +3,7 @@ const globImporter = require('node-sass-glob-importer');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
 
 module.exports = async ({ config }) => {
+  // Below is for if Emulsify Gatsby style guide is being used
   // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
   // config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/];
 

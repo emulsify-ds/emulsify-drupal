@@ -33,6 +33,7 @@ import './_drupal.js';
 // automatically import all files ending in *.stories.js
 configure(require.context('../components', true, /\.stories\.js$/), module);
 
+// Below is for if Emulsify Gatsby style guide is being used 
 // Gatsby's Link overrides:
 // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
 // global.___loader = {
