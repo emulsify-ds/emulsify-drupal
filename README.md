@@ -29,7 +29,7 @@ The project maintainers have adopted a Code of Conduct that we expect project pa
 
 Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
 
-1. [Emulsify Design System](https://github.com/emulsify-ds/emulsify-drupal/issues)
+1. [Emulsify Drupal](https://github.com/emulsify-ds/emulsify-drupal/issues)
 3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
 4. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
 
