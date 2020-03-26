@@ -1,5 +1,5 @@
 {
-    "name": "emulsify-ds/emulsify-design-system",
+    "name": "emulsify-ds/emulsify-drupal",
     "description": "Storybook development + Webpack Build + Drupal 8 theme",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
