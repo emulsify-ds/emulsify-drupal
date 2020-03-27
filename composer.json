@@ -1,6 +1,6 @@
 {
-    "name": "emulsify-ds/emulsify-design-system",
-    "description": "Gatsby Styleguide + Storybook Component Library + Drupal 8 Theme",
+    "name": "emulsify-ds/emulsify-drupal",
+    "description": "Storybook development + Webpack Build + Drupal 8 theme",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",

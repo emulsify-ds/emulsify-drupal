@@ -477,17 +477,19 @@ function _emulsify_get_files_to_copy() {
   $default_array = array(
     '.storybook',
     'webpack',
-    '.editorconfig',
     '.browserslistrc',
+    '.editorconfig',
+    '.eslintignore',
     '.eslintrc.yml',
     '.gitignore',
+    '.npmrc',
     'babel.config.js',
-    'emulsify.info.yml',
-    'emulsify.theme',
     'emulsify.breakpoints.yml',
+    'emulsify.info.yml',
     'emulsify.libraries.yml',
-    'gatsby-config.js',
+    'emulsify.theme',
     'package.json',
+    'prettier.config.js',
   );
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
@@ -501,7 +503,6 @@ function _emulsify_get_files_to_copy() {
       'components',
       'images',
       'templates',
-      'styleguide',
       'README.md',
       'screenshot.png',
     ));

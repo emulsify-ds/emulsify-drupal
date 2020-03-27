@@ -3,13 +3,14 @@ const globImporter = require('node-sass-glob-importer');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
 
 module.exports = async ({ config }) => {
-  // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
+  // Below is for if Emulsify Gatsby style guide is being used
+  // // Transpile Gatsby module because Gatsby includes un-transpiled ES6 code.
   // config.module.rules[0].exclude = [/node_modules\/(?!(gatsby)\/)/];
 
-  // use installed babel-loader which is v8.0-beta (which is meant to work with @babel/core@7)
+  // // use installed babel-loader which is v8.0-beta (which is meant to work with @babel/core@7)
   // config.module.rules[0].use[0].loader = require.resolve('babel-loader');
 
-  // use @babel/preset-react for JSX and env (instead of staged presets)
+  // // use @babel/preset-react for JSX and env (instead of staged presets)
   // config.module.rules[0].use[0].options.presets = [
   //   require.resolve('@babel/preset-react'),
   //   require.resolve('@babel/preset-env'),
@@ -22,7 +23,7 @@ module.exports = async ({ config }) => {
   //   require.resolve('babel-plugin-remove-graphql-queries'),
   // ];
 
-  // Prefer Gatsby ES6 entrypoint (module) over commonjs (main) entrypoint
+  // // Prefer Gatsby ES6 entrypoint (module) over commonjs (main) entrypoint
   // config.resolve.mainFields = ['browser', 'module', 'main'];
 
   // Twig
