@@ -2,10 +2,20 @@ ellipses:
   previous: true
   next: true
 items:
-  previous: true
-  next: true
+  previous:
+    href: '#'
+    attributes: ''
+  next:
+    href: '#'
+    attributes: ''
   pages:
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
+    - href: '#'
+      attributes: ''

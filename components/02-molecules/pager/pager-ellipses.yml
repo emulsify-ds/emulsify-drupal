@@ -2,9 +2,17 @@ current: 5
 ellipses:
   next: true
 items:
-  next: true
+  next:
+    href: '#'
+    attributes: ''
   pages:
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
     - href: '#'
+      attributes: ''
+    - href: '#'
+      attributes: ''
