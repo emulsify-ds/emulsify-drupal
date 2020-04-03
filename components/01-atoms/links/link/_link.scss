@@ -1,6 +1,6 @@
 /* Link */
-$color-link: $gray-darker;
-$color-link--hover: $gray-light;
+$color-link: clr(accent);
+$color-link--hover: clr(highlight);
 
 @mixin link {
   color: $color-link;

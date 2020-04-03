@@ -1,0 +1,48 @@
+// Styleguide
+.sg-colors {
+  padding: 1rem;
+}
+
+.sg-colors__ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+
+.sg-colors__list {
+  list-style: none;
+  padding: 8rem 4rem 1rem 2rem;
+  width: 19.5%;
+}
+
+// .sg-colors__color {
+  
+// }
+
+@function set-color($color) {  
+  @if (lightness( $color ) > 40) {
+    @return clr(accent-high);
+  }
+  @else {
+    @return clr(muted);
+  }
+}
+
+@each $scheme, $palette in $colors {
+  @each $name, $color in $palette {
+    .sg-colors__list--#{$name} {
+      background-color: clr(#{$name});
+      color: set-color(clr(#{$name}));
+    }
+  }
+}
+
+.sg-info {
+  code {
+    background-color: #eee;
+    padding: 0.15rem 0.25rem;
+    display: block;
+    margin-top: 0.25rem;
+  }
+}

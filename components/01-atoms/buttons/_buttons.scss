@@ -1,8 +1,8 @@
 @mixin button(
-  $bg: $black,
-  $color: $white,
-  $hoverBg: $gray,
-  $hoverColor: $white
+  $bg: clr(primary),
+  $color: clr(background),
+  $hoverBg: clr(highlight-high),
+  $hoverColor: clr(primary)
 ) {
   background-color: $bg;
   border: none;
@@ -21,23 +21,12 @@
 
   &:hover {
     background-color: $hoverBg;
+    color: $hoverColor;
   }
 }
 
 @mixin button-alt {
-  @include button($gray, $white, $black);
-
-  font-weight: 600;
-  font-size: 0.7rem;
-  padding: 0.4em 0.6em 0.3em;
-}
-
-@mixin button-alt-2 {
-  @include button($gray-lightest, $black, $gray-lighter);
-
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: none;
+  @include button(clr(secondary), clr(background), clr(highlight-high), clr(secondary));
 }
 
 .button {
@@ -46,10 +35,5 @@
   &--alt {
     @include button;
     @include button-alt;
-  }
-
-  &--alt-2 {
-    @include button;
-    @include button-alt-2;
   }
 }

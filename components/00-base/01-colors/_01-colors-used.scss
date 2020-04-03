@@ -1,0 +1,43 @@
+// Color Usage variables - use these rather than color variables directly.
+
+$colors: (
+  default: (
+    // Body foreground color
+    text: $gray,
+    // Body background color
+    background: $white,
+    // Primary brand color for links, buttons, etc
+    primary: $blue,
+    // A secondary brand color for alternative styling
+    secondary: $green,
+    // A contrast color for emphasizing UI
+    accent: $gray-dark,
+    // A contrast color for highly emphasizing UI
+    accent-high: $black,
+    // A background color for highlighting text
+    highlight: $gray-light,
+    // A background color for really highlighting text
+    highlight-high: $gray-lightest,
+    // A faint color for backgrounds, borders, and accents that do not require high contrast with the background color
+    muted: $near-white,
+    warning: $yellow-light,
+    error: $red-light,
+    message: $green-light, 
+  ),
+  dark: (
+    text: $white,
+    background: $gray,
+    primary: $white,
+    secondary: $white,
+    accent: $gray-light,
+    accent-high: $white,
+    highlight: $gray-dark,
+    highlight-high: $gray-darker,
+    muted: $gray-darker,
+  ),
+);
+
+@function clr($colorChoice, $base: default) {
+  $color: map-get(map-get($colors, $base), $colorChoice);
+  @return $color;
+}

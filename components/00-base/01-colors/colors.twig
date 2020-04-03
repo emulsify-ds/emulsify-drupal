@@ -1,13 +1,26 @@
 {% set colors_base_class = "sg-colors" %}
 
-<ul {{ bem(colors_base_class) }}>
-  {% for item in items %}
-    <li {{ bem("list", [], colors_base_class) }}>
-      <div {{ bem("color", [item.value], colors_base_class) }}></div>
-      <div {{ bem("sg-info") }}>
-        <span>{{ item.name }}</span> <br/>
-        <code>${{ item.value }}</code>
-      </div>
-    </li>
+<div {{ bem(colors_base_class) }}>
+  {% include "@atoms/text/headings/_heading.twig" with {
+    heading_level: 2,
+    heading: colors_heading,
+  } %}
+
+  {% for palette in palettes %}
+    {% include "@atoms/text/headings/_heading.twig" with {
+      heading_level: 3,
+      heading: palette.palette_heading,
+    } %}
+    <ul {{ bem('ul', [], colors_base_class) }}>
+      {% for color in palette.colors %}
+        {% set color_machine = color|lower|replace({' ': '-'}) %}
+        <li {{ bem("list", [color_machine], colors_base_class) }}>
+          <div {{ bem("sg-info") }}>
+            <span>{{ color }}</span> <br/>
+            {# <code>{{ color_machine }}</code> #}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
   {% endfor %}
-</ul>
+</div>

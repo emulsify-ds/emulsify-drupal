@@ -10,7 +10,7 @@ $main-menu-medium: $medium;
   }
 
   &--open {
-    background-color: $white;
+    background-color: clr(background);
     display: block;
     left: 0;
     overflow-y: scroll;
@@ -43,11 +43,11 @@ $main-menu-medium: $medium;
   border-bottom: none;
   height: 0;
   overflow: hidden;
-  background-color: $near-white;
+  background-color: clr(muted);
   width: 100%;
 
   @include medium {
-    background-color: $gray-lightest;
+    background-color: clr(highlight-high);
     display: none;
     height: auto;
     left: 0;
@@ -64,17 +64,17 @@ $main-menu-medium: $medium;
   &:hover {
     @include medium {
       opacity: 1;
-      background-color: $black;
+      background-color: clr(accent-high);
       transition: all 0.2s;
 
       .main-menu__link--sub {
-        color: $gray-light;
+        color: clr(highlight);
 
         &.active,
         &:active,
         &:hover {
-          color: $white;
-          background-color: $black;
+          color: clr(background);
+          background-color: clr(accent-high);
         }
       }
     }

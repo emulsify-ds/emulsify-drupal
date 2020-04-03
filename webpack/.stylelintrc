@@ -10,9 +10,12 @@
         "mixin",
         "extend",
         "if",
+        "else",
         "each",
         "content",
-        "import"
+        "import",
+        "function",
+        "return"
       ]
     }],
     "no-descending-specificity": null,

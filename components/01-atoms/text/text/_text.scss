@@ -5,25 +5,13 @@
   margin: $margin;
 }
 
-@mixin body-copy {
-  font-family: $font-body;
-  font-size: 0.9rem;
-  line-height: 1.6em;
-}
-
-body {
-  color: $gray;
-
-  @include body-copy;
-}
-
 .paragraph {
   @include paragraph;
 }
 
 .blockquote {
   font-style: italic;
-  border-left: solid 3px $color-border;
+  border-left: solid 3px clr(accent);
   margin-left: 1em;
   padding-left: 1em;
 }

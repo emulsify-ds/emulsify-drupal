@@ -1,5 +1,5 @@
-$table-gray: #f8f8f8;
-$table-border: $gray-lightest;
+$table-gray: clr(muted);
+$table-border: clr(highlight-high);
 
 .table {
   border: 1px solid $table-border;
@@ -23,7 +23,7 @@ $table-border: $gray-lightest;
 }
 
 .table__heading-cell {
-  color: $black;
+  color: clr(accent-high);
   font-weight: 700;
   padding: 1.2em;
   text-align: left;
@@ -31,7 +31,7 @@ $table-border: $gray-lightest;
 
 .table__row {
   &:nth-child(odd) {
-    background-color: $white;
+    background-color: clr(background);
   }
 
   /* Top Row - Non-BEM but always contained */

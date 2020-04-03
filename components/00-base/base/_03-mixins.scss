@@ -7,6 +7,12 @@
  * use example =   @include cleafix
 */
 
+@mixin body-copy {
+  font-family: $font-body;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
 @mixin clearfix {
   &::after {
     clear: both;
