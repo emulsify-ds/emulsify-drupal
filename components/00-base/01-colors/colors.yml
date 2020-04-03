@@ -14,7 +14,7 @@ palettes:
       - 'Warning'
       - 'Error'
       - 'Message'
-  - palette_heading: 'Dark Theme'
+  - palette_heading: 'Dark'
     colors:
       - 'Text'
       - 'Background'

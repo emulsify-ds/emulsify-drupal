@@ -7,17 +7,18 @@
   } %}
 
   {% for palette in palettes %}
+    {% set palette_machine = palette.palette_heading|lower %}
     {% include "@atoms/text/headings/_heading.twig" with {
       heading_level: 3,
-      heading: palette.palette_heading,
+      heading: palette.palette_heading ~ ' Theme',
     } %}
-    <ul {{ bem('ul', [], colors_base_class) }}>
+    <ul {{ bem('ul', [palette_machine], colors_base_class) }}>
       {% for color in palette.colors %}
-        {% set color_machine = color|lower|replace({' ': '-'}) %}
+        {% set color_machine = palette_machine ~ '-' ~ color|lower|replace({' ': '-'}) %}
         <li {{ bem("list", [color_machine], colors_base_class) }}>
           <div {{ bem("sg-info") }}>
             <span>{{ color }}</span> <br/>
-            {# <code>{{ color_machine }}</code> #}
+            <code>clr({{ color_machine }})</code>
           </div>
         </li>
       {% endfor %}

@@ -12,13 +12,19 @@
 
 .sg-colors__list {
   list-style: none;
-  padding: 8rem 4rem 1rem 2rem;
+  padding: 8rem 2rem 1rem 2rem;
+  transition: all 0.4s;
   width: 19.5%;
-}
 
-// .sg-colors__color {
-  
-// }
+  // &:hover {
+  //   padding: 10rem 4rem 2rem 2rem;
+  //   width: 24%;
+
+  //   code {
+  //     display: block;
+  //   }
+  // }
+}
 
 @function set-color($color) {  
   @if (lightness( $color ) > 40) {
@@ -29,20 +35,28 @@
   }
 }
 
-@each $scheme, $palette in $colors {
-  @each $name, $color in $palette {
-    .sg-colors__list--#{$name} {
-      background-color: clr(#{$name});
-      color: set-color(clr(#{$name}));
-    }
+@function set-bg-color($color) {  
+  @if (lightness( $color ) > 40) {
+    @return clr(muted);
+  }
+  @else {
+    @return clr(accent-high);
   }
 }
 
-.sg-info {
-  code {
-    background-color: #eee;
-    padding: 0.15rem 0.25rem;
-    display: block;
-    margin-top: 0.25rem;
+@each $scheme, $palette in $colors {
+  @each $name, $color in $palette {
+    .sg-colors__list--#{$scheme}-#{$name} {
+      background-color: clr(#{$name});
+      color: set-color(clr(#{$name}));
+
+      code {
+        background-color: set-color(clr(#{$name}));
+        color: set-bg-color(clr(#{$name}));
+        display: none;
+        padding: 0.15rem 0.25rem;
+        margin-top: 0.25rem;
+      }
+    }
   }
 }
