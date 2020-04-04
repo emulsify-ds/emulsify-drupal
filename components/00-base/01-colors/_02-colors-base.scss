@@ -16,6 +16,10 @@
   transition: all 0.4s;
   width: 19.5%;
 
+  code {
+    display: none;
+  }
+
   // &:hover {
   //   padding: 10rem 4rem 2rem 2rem;
   //   width: 24%;
@@ -45,17 +49,12 @@
 }
 
 @each $scheme, $palette in $colors {
-  @each $name, $color in $palette {
-    .sg-colors__list--#{$scheme}-#{$name} {
-      background-color: clr(#{$name});
-      color: set-color(clr(#{$name}));
-
-      code {
-        background-color: set-color(clr(#{$name}));
-        color: set-bg-color(clr(#{$name}));
-        display: none;
-        padding: 0.15rem 0.25rem;
-        margin-top: 0.25rem;
+  .sg-colors__list--#{$scheme} {
+    @each $name, $color in $palette {
+      $paletteColor: map-get($palette, $name);
+      &-#{$name} {
+        background-color: $paletteColor;
+        color: set-color($paletteColor);
       }
     }
   }
