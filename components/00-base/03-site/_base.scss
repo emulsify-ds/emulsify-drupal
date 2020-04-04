@@ -3,6 +3,7 @@ html {
 }
 
 body {
+  background-color: clr(background);
   color: clr(text);
 
   @include body-copy;

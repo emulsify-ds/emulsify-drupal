@@ -37,7 +37,12 @@ $colors: (
   ),
 );
 
-@function clr($colorChoice, $base: default) {
+$mode: 'default';
+@media (prefers-color-scheme: dark) {
+  $mode: 'dark';
+}
+
+@function clr($colorChoice, $base: $mode) {
   $color: map-get(map-get($colors, $base), $colorChoice);
   @return $color;
 }

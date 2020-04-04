@@ -19,15 +19,6 @@
   code {
     display: none;
   }
-
-  // &:hover {
-  //   padding: 10rem 4rem 2rem 2rem;
-  //   width: 24%;
-
-  //   code {
-  //     display: block;
-  //   }
-  // }
 }
 
 @function set-color($color) {  
@@ -36,15 +27,6 @@
   }
   @else {
     @return clr(muted);
-  }
-}
-
-@function set-bg-color($color) {  
-  @if (lightness( $color ) > 40) {
-    @return clr(muted);
-  }
-  @else {
-    @return clr(accent-high);
   }
 }
 
