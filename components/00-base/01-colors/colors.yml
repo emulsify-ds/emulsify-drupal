@@ -30,7 +30,6 @@ palettes:
       - name: 'Secondary'
         color_reverse: 1
       - name: 'Accent'
-        color_reverse: 1
       - name: 'Accent High'
       - name: 'Highlight'
         color_reverse: 1

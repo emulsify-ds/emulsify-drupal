@@ -19,6 +19,14 @@
     color: $color;
   }
 
+  @media (prefers-color-scheme: dark) {
+    color: clr(text);
+
+    &:visited {
+      color: clr(text);
+    }
+  }
+
   &:hover {
     background-color: $hoverBg;
     color: $hoverColor;
