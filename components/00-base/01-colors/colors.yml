@@ -2,26 +2,39 @@ colors_heading: 'Palettes:'
 palettes:
   - palette_heading: 'Default'
     colors:
-      - 'Text'
-      - 'Background'
-      - 'Primary'
-      - 'Secondary'
-      - 'Accent'
-      - 'Accent High'
-      - 'Highlight'
-      - 'Highlight High'
-      - 'Muted'
-      - 'Warning'
-      - 'Error'
-      - 'Message'
+      - name: 'Text'
+      - name: 'Background'
+        color_reverse: 1
+      - name: 'Primary'
+      - name: 'Secondary'
+      - name: 'Accent'
+      - name: 'Accent High'
+      - name: 'Highlight'
+      - name: 'Highlight High'
+        color_reverse: 1
+      - name: 'Muted'
+        color_reverse: 1
+      - name: 'Warning'
+        color_reverse: 1
+      - name: 'Error'
+        color_reverse: 1
+      - name: 'Message'
+        color_reverse: 1
   - palette_heading: 'Dark'
     colors:
-      - 'Text'
-      - 'Background'
-      - 'Primary'
-      - 'Secondary'
-      - 'Accent'
-      - 'Accent High'
-      - 'Highlight'
-      - 'Highlight High'
-      - 'Muted'
+      - name: 'Text'
+      - name: 'Background'
+        color_reverse: 1
+      - name: 'Primary'
+        color_reverse: 1
+      - name: 'Secondary'
+        color_reverse: 1
+      - name: 'Accent'
+        color_reverse: 1
+      - name: 'Accent High'
+      - name: 'Highlight'
+        color_reverse: 1
+      - name: 'Highlight High'
+        color_reverse: 1
+      - name: 'Muted'
+        color_reverse: 1

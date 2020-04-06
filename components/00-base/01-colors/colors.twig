@@ -12,14 +12,15 @@
       heading_level: 3,
       heading: palette.palette_heading ~ ' Theme',
     } %}
-    <ul {{ bem('ul', [palette_machine], colors_base_class) }}>
+    <ul {{ bem('ul', [palette_machine], colors_base_class) }} data-theme="{{ palette_machine }}">
       {% for color in palette.colors %}
-        {% set color_machine = palette_machine ~ '-' ~ color|lower|replace({' ': '-'}) %}
-        <li {{ bem("list", [color_machine], colors_base_class) }}>
-          <div {{ bem("sg-info") }}>
-            <span>{{ color }}</span> <br/>
-            <code>clr({{ color_machine }})</code>
-          </div>
+        {% set color_machine = color.name|lower|replace({' ': '-'}) %}
+        {% if color.color_reverse == TRUE %}
+          {% set colors_title_modifiers = ['reverse'] %}
+        {% endif %}
+        <li {{ bem("list", [palette_machine], colors_base_class) }} style="background-color: var(--{{ color_machine }})">
+          <span {{ bem("title", colors_title_modifiers, colors_base_class) }}>{{ color.name }}</span> <br/>
+          <code>clr({{ color_machine }})</code>
         </li>
       {% endfor %}
     </ul>

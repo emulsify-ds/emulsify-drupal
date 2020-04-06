@@ -21,23 +21,10 @@
   }
 }
 
-@function set-color($color) {  
-  @if (lightness( $color ) > 40) {
-    @return clr(accent-high);
-  }
-  @else {
-    @return clr(muted);
-  }
-}
+.sg-colors__title {
+  color: clr(background);
 
-@each $scheme, $palette in $colors {
-  .sg-colors__list--#{$scheme} {
-    @each $name, $color in $palette {
-      $paletteColor: map-get($palette, $name);
-      &-#{$name} {
-        background-color: $paletteColor;
-        color: set-color($paletteColor);
-      }
-    }
+  &--reverse {
+    color: clr(text);
   }
 }
