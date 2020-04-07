@@ -1,51 +1,58 @@
 // Color Usage variables - use these rather than color variables directly.
 
+$defaultColors: (
+  text: $gray,
+  background: $white,
+  primary: $blue,
+  secondary: $purple,
+  accent: $gray-dark,
+  accent-high: $black,
+  highlight: $gray-light,
+  highlight-high: $gray-lightest,
+  muted: $near-white,
+  warning: $yellow-light,
+  error: $red-light,
+  message: $green-light,
+);
+
+$darkColors: (
+  text: $white,
+  background: $gray,
+  primary: $blue,
+  secondary: $purple,
+  accent: $gray-lightest,
+  accent-high: $white,
+  highlight: $gray-dark,
+  highlight-high: $gray-darker,
+  muted: $gray-darker,
+);
+
 :root {
-  // Body foreground color
-  --text: #{$gray};
-  // Body background color
-  --background: #{$white};
-  // Primary brand color for links, buttons, etc
-  --primary: #{$blue};
-  // A secondary brand color for alternative styling
-  --secondary: #{$purple};
-  // A contrast color for emphasizing UI
-  --accent: #{$gray-dark};
-  // A contrast color for highly emphasizing UI
-  --accent-high: #{$black};
-  // A background color for highlighting text
-  --highlight: #{$gray-light};
-  // A background color for really highlighting text
-  --highlight-high: #{$gray-lightest};
-  // A faint color for backgrounds, borders, and accents that do not require high contrast with the background color
-  --muted: #{$near-white};
-  // Status Colors
-  --warning: #{$yellow-light};
-  --error: #{$red-light};
-  --message: #{$green-light};
-}
+  @each $name, $color in $defaultColors {
+    --#{$name}: #{$color};
+  }
 
-@mixin darkColors {
-  --text: #{$white};
-  --background: #{$gray};
-  --primary: #{$blue};
-  --secondary: #{$purple};
-  --accent: #{$gray-lightest};
-  --accent-high: #{$white};
-  --highlight: #{$gray-dark};
-  --highlight-high: #{$gray-darker};
-  --muted: #{$gray-darker};
-}
+  // Set dark color scheme automatically by OS selection
+  @media (prefers-color-scheme: dark) {
+    @each $name, $color in $darkColors {
+      --#{$name}: #{$color};
+    }
+  }
 
-// Dark color scheme by data attribute
-[data-theme="dark"] {
-  @include darkColors;
-}
+  // Set the default color scheme for the component library regardless of OS setting
+  // This is required to show the correct colors in the component library at all times
+  [data-theme='default'] {
+    @each $name, $color in $defaultColors {
+      --#{$name}: #{$color};
+    }
+  }
 
-// Dark color scheme automatically by OS selection
-@media (prefers-color-scheme: dark) {
-  :root {
-    @include darkColors;
+  // Set the dark color scheme for the component library regardless of OS setting
+  // This is required to show the correct colors in the component library at all times
+  [data-theme='dark'] {
+    @each $name, $color in $darkColors {
+      --#{$name}: #{$color};
+    }
   }
 }
 
