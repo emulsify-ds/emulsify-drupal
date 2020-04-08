@@ -27,6 +27,7 @@ $darkColors: (
   muted: $gray-darker,
 );
 
+// Export for CSS custom properties
 :root {
   @each $name, $color in $defaultColors {
     --#{$name}: #{$color};

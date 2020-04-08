@@ -21,10 +21,39 @@
   }
 }
 
-.sg-colors__title {
-  color: clr(background);
+@function set-color($color) {  
+  @if (lightness( $color ) > 50) {
+    @return clr(accent-high);
+  }
+  @else {
+    @return clr(muted);
+  }
+}
 
-  &--reverse {
-    color: clr(text);
+@function set-dark-color($color) {  
+  @if (lightness( $color ) > 50) {
+    @return clr(muted);
+  }
+  @else {
+    @return clr(accent-high);
+  }
+}
+
+// Create style for colors
+@each $name, $color in $defaultColors {
+  .sg-colors__list--default {
+    &-#{$name} {
+      background-color: $color;
+      color: set-color($color);
+    }
+  }
+}
+
+@each $name, $color in $darkColors {
+  .sg-colors__list--dark {
+    &-#{$name} {
+      background-color: $color;
+      color: set-dark-color($color);
+    }
   }
 }
