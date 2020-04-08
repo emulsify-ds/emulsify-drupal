@@ -1,26 +1,23 @@
-// Styleguide
-.sg-colors {
+// These styles only affect the colors "Usage" page in the component library
+.cl-colors {
   padding: 1rem;
 }
 
-.sg-colors__ul {
+.cl-colors__ul {
   display: flex;
   flex-wrap: wrap;
   margin: 0 0 2rem;
   padding: 0;
 }
 
-.sg-colors__list {
+.cl-colors__list {
   list-style: none;
   padding: 8rem 2rem 1rem 2rem;
   transition: all 0.4s;
   width: 19.5%;
-
-  code {
-    display: none;
-  }
 }
 
+// Dynamically set swatch text color based on the lightness of the background color
 @function set-color(
   $color,
   $text-primary: accent-high,
@@ -33,20 +30,21 @@
   }
 }
 
-// Create style for colors
+// Style default color swatches
 @each $name, $color in $defaultColors {
-  .sg-colors__list--default {
+  .cl-colors__list--default {
     &-#{$name} {
-      background-color: $color;
+      background-color: clr($name);
       color: set-color($color);
     }
   }
 }
 
+// Style dark color swatches
 @each $name, $color in $darkColors {
-  .sg-colors__list--dark {
+  .cl-colors__list--dark {
     &-#{$name} {
-      background-color: $color;
+      background-color: clr($name);
       color: set-color($color, muted, accent-high);
     }
   }

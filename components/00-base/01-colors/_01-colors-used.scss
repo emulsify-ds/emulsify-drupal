@@ -27,16 +27,33 @@ $darkColors: (
   muted: $gray-darker,
 );
 
+@function clr($colorChoice) {
+  @return var(--c-#{$colorChoice});
+}
+
 // Export for CSS custom properties
+// This is what really powers the built-in light/dark mode switching.
+// For each color variable above (e.g. `text` and `background`) a css custom
+// property will be created. (e.g. `--text:` and `--background:`).
+//
+// The first `@each` below will create a custom property for each item in the
+// `$defaultColors` map. So put all of your default colors here.
+//
+// The `prefers-color-scheme: dark` media query below will then create custom
+// properties for each of the colors in the `$darkColors` map only if the
+// browser supports that feature. If there is an exact match (e.g. `text`) in
+// both maps, the one from `$darkColors` will be used on machines that have
+// opted to use the 'dark mode' on their OS.
 :root {
+  // Create custom properties for default colors
   @each $name, $color in $defaultColors {
-    --#{$name}: #{$color};
+    --c-#{$name}: #{$color};
   }
 
-  // Set dark color scheme automatically by OS selection
+  // If the user's OS has dark mode enabled, create custom properties for dark colors
   @media (prefers-color-scheme: dark) {
     @each $name, $color in $darkColors {
-      --#{$name}: #{$color};
+      --c-#{$name}: #{$color};
     }
   }
 
@@ -44,7 +61,7 @@ $darkColors: (
   // This is required to show the correct colors in the component library at all times
   [data-theme='default'] {
     @each $name, $color in $defaultColors {
-      --#{$name}: #{$color};
+      --c-#{$name}: #{$color};
     }
   }
 
@@ -52,12 +69,7 @@ $darkColors: (
   // This is required to show the correct colors in the component library at all times
   [data-theme='dark'] {
     @each $name, $color in $darkColors {
-      --#{$name}: #{$color};
+      --c-#{$name}: #{$color};
     }
   }
-}
-
-@function clr($colorChoice) {
-  $color: var(--#{$colorChoice});
-  @return $color;
 }

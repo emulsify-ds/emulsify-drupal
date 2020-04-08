@@ -1,4 +1,4 @@
-{% set colors_base_class = "sg-colors" %}
+{% set colors_base_class = "cl-colors" %}
 
 <div {{ bem(colors_base_class) }}>
   {% include "@atoms/text/headings/_heading.twig" with {
@@ -20,7 +20,6 @@
         {% endif %}
         <li {{ bem("list", [palette_machine ~ '-' ~ color_machine], colors_base_class) }}>
           <span {{ bem("title", colors_title_modifiers, colors_base_class) }}>{{ color.name }}</span> <br/>
-          <code>clr({{ color_machine }})</code>
         </li>
       {% endfor %}
     </ul>
