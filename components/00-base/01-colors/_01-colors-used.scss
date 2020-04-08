@@ -1,4 +1,5 @@
-// Color Usage variables - use these rather than color variables directly.
+// Color Usage variables - use these (via the `clr` function below)
+// rather than color variables directly.
 
 $defaultColors: (
   text: $gray,
@@ -27,17 +28,30 @@ $darkColors: (
   muted: $gray-darker,
 );
 
+///////////
+// Usage //
+///////////
+// This color function makes it easy for you to call a color by it's functional
+// name anywhere you need.
+// E.g. to use the `text` color, you'd type: `color: clr(text);`
+//
+// How it works:
+// This function works in conjunction with the dynamic css custom properties
+// declarations below. The item called in the function is prefixed with
+// `var(--c-` to call the custom property for that color.
+// E.g. `color: clr(text);` will return `color: var(--c-text);`
+// Note: (The `--c-` is added via the `@each` loops below)
 @function clr($colorChoice) {
   @return var(--c-#{$colorChoice});
 }
 
-// Export for CSS custom properties
-// This is what really powers the built-in light/dark mode switching.
+// Create CSS custom properties
+// This is what powers the built-in light/dark mode switching.
 // For each color variable above (e.g. `text` and `background`) a css custom
-// property will be created. (e.g. `--text:` and `--background:`).
+// property will be created. (e.g. `--c-text:` and `--c-background:`).
 //
 // The first `@each` below will create a custom property for each item in the
-// `$defaultColors` map. So put all of your default colors here.
+// `$defaultColors` map. So put all of your default colors there.
 //
 // The `prefers-color-scheme: dark` media query below will then create custom
 // properties for each of the colors in the `$darkColors` map only if the
@@ -50,14 +64,15 @@ $darkColors: (
     --c-#{$name}: #{$color};
   }
 
-  // If the user's OS has dark mode enabled, create custom properties for dark colors
+  // Create custom properties for dark colors, an duse them if the user's OS has dark mode enabled
   @media (prefers-color-scheme: dark) {
     @each $name, $color in $darkColors {
       --c-#{$name}: #{$color};
     }
   }
 
-  // Set the default color scheme for the component library regardless of OS setting
+  // Use the default color scheme for the "Default Theme" section of the
+  // component library regardless of OS setting.
   // This is required to show the correct colors in the component library at all times
   [data-theme='default'] {
     @each $name, $color in $defaultColors {
@@ -65,7 +80,8 @@ $darkColors: (
     }
   }
 
-  // Set the dark color scheme for the component library regardless of OS setting
+  // Use the dark color scheme for the "Dark Theme" section of the  component
+  // library regardless of OS setting.
   // This is required to show the correct colors in the component library at all times
   [data-theme='dark'] {
     @each $name, $color in $darkColors {
