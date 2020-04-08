@@ -12,13 +12,13 @@
       heading_level: 3,
       heading: palette.palette_heading ~ ' Theme',
     } %}
-    <ul {{ bem('ul', [palette_machine], colors_base_class) }} data-theme="{{ palette_machine }}">
+    <ul {{ bem('list', [palette_machine], colors_base_class) }} data-theme="{{ palette_machine }}">
       {% for color in palette.colors %}
         {% set color_machine = color.name|lower|replace({' ': '-'}) %}
         {% if color.color_reverse == TRUE %}
           {% set colors_title_modifiers = ['reverse'] %}
         {% endif %}
-        <li {{ bem("list", [palette_machine ~ '-' ~ color_machine], colors_base_class) }}>
+        <li {{ bem("item", [palette_machine ~ '-' ~ color_machine], colors_base_class) }}>
           <span {{ bem("title", colors_title_modifiers, colors_base_class) }}>{{ color.name }}</span> <br/>
         </li>
       {% endfor %}

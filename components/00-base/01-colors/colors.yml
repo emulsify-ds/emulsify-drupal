@@ -25,3 +25,6 @@ palettes:
       - name: 'Highlight'
       - name: 'Highlight High'
       - name: 'Muted'
+      - name: 'Warning'
+      - name: 'Error'
+      - name: 'Message'

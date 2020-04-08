@@ -1,6 +1,5 @@
 // Color Usage variables - use these (via the `clr` function below)
 // rather than color variables directly.
-
 $defaultColors: (
   text: $gray,
   background: $white,
@@ -26,6 +25,9 @@ $darkColors: (
   highlight: $gray-dark,
   highlight-high: $gray-darker,
   muted: $gray-darker,
+  warning: $yellow-light,
+  error: $red-light,
+  message: $green-light,
 );
 
 ///////////
