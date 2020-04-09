@@ -5,7 +5,7 @@ $button-colors: (
     text: clr(background),
     bg: clr(primary),
     text-hover: clr(primary),
-    bg-hover: clr(highlight-high),
+    bg-hover: clr(highlight),
   ),
   default-dark: (
     text: clr(text),
@@ -17,7 +17,7 @@ $button-colors: (
     text: clr(background),
     bg: clr(secondary),
     text-hover: clr(secondary),
-    bg-hover: clr(highlight-high),
+    bg-hover: clr(highlight),
   ),
   purple-dark: (
     text: clr(text),
