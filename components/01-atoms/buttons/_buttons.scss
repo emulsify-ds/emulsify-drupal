@@ -1,47 +1,100 @@
-@mixin button(
-  $bg: clr(primary),
-  $color: clr(background),
-  $hoverBg: clr(highlight-high),
-  $hoverColor: clr(primary)
+// Sass map to define colors. Each set should have a "Dark" variation when required.
+// e.g. `default` and `default-dark`. Or `purple` and `purple-dark`.
+$button-colors: (
+  default: (
+    text: clr(background),
+    bg: clr(primary),
+    text-hover: clr(primary),
+    bg-hover: clr(highlight-high),
+  ),
+  default-dark: (
+    text: clr(text),
+    bg: clr(primary),
+    text-hover: clr(text),
+    bg-hover: clr(highlight-high),
+  ),
+  purple: (
+    text: clr(background),
+    bg: clr(secondary),
+    text-hover: clr(secondary),
+    bg-hover: clr(highlight-high),
+  ),
+  purple-dark: (
+    text: clr(text),
+    bg: clr(secondary),
+    text-hover: clr(text),
+    bg-hover: clr(highlight-high),
+  ),
+);
+
+// Mixin to define colors for one or more schemes.
+// Simply pass the color scheme to the mixin to get the colors defined in the map.
+// e.g. @include buttonColors(default) will get all of the colors defined in the "default" section.
+@mixin buttonColors(
+  $scheme,
+  $pallate: map-get($button-colors, $scheme),
+  $map: $button-colors
 ) {
-  background-color: $bg;
+  color: map-get($pallate, text);
+  background-color: map-get($pallate, bg);
+
+  &:visited {
+    color: map-get($pallate, text);
+  }
+
+  &:hover {
+    color: map-get($pallate, text-hover);
+    background-color: map-get($pallate, bg-hover);
+  }
+}
+
+// The button-base mixin contains styles that apply to all buttons
+// regardless of color or size.
+@mixin button-base {
   border: none;
-  color: $color;
   cursor: pointer;
-  line-height: 1.4;
-  padding: $space-one-half $space;
   display: inline-block;
   text-decoration: none;
   text-align: center;
   text-transform: uppercase;
+}
 
-  &:visited {
-    color: $color;
-  }
+// Button color variations
+// Note how we include dark mode options for each
+@mixin button-gray {
+  @include buttonColors(default);
 
   @media (prefers-color-scheme: dark) {
-    color: clr(text);
-
-    &:visited {
-      color: clr(text);
-    }
-  }
-
-  &:hover {
-    background-color: $hoverBg;
-    color: $hoverColor;
+    @include buttonColors(default-dark);
   }
 }
 
-@mixin button-alt {
-  @include button(clr(secondary), clr(background), clr(highlight-high), clr(secondary));
+@mixin button-purple {
+  @include buttonColors(purple);
+
+  @media (prefers-color-scheme: dark) {
+    @include buttonColors(purple-dark);
+  }
+}
+
+// Button size variations
+@mixin button-medium {
+  line-height: 1.4;
+  padding: $space-one-half $space;
+}
+
+@mixin button-large {
+  line-height: 2;
+  padding: $space $space-double;
 }
 
 .button {
-  @include button;
+  @include button-base;
+  @include button-gray;
+  @include button-medium;
 
   &--alt {
-    @include button;
-    @include button-alt;
+    @include button-purple;
+    @include button-large;
   }
 }

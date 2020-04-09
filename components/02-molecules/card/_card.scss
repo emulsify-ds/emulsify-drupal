@@ -23,7 +23,9 @@
 }
 
 .card__button {
-  @include button;
+  @include button-base;
+  @include button-gray;
+  @include button-medium;
 }
 
 /* Variations */
