@@ -1,10 +1,6 @@
 .cta {
-  background-color: clr(highlight-high);
+  background-color: clr(background-section);
   padding: $space-triple;
   text-align: center;
   text-transform: uppercase;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: clr(highlight);
-  }
 }

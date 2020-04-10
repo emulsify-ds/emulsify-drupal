@@ -1,25 +1,25 @@
 // Sass map to define colors. Each set should have a "Dark" variation when required.
 // e.g. `default` and `default-dark`. Or `purple` and `purple-dark`.
 $button-colors: (
-  default: (
-    text: clr(background),
+  primary: (
+    text: clr(text-inverse),
     bg: clr(primary),
     text-hover: clr(primary),
     bg-hover: clr(highlight),
   ),
-  default-dark: (
+  primary-dark: (
     text: clr(text),
     bg: clr(primary),
     text-hover: clr(text),
     bg-hover: clr(highlight-high),
   ),
-  purple: (
-    text: clr(background),
+  secondary: (
+    text: clr(text-inverse),
     bg: clr(secondary),
     text-hover: clr(secondary),
     bg-hover: clr(highlight),
   ),
-  purple-dark: (
+  secondary-dark: (
     text: clr(text),
     bg: clr(secondary),
     text-hover: clr(text),
@@ -61,19 +61,19 @@ $button-colors: (
 
 // Button color variations
 // Note how we include dark mode options for each
-@mixin button-gray {
-  @include buttonColors(default);
+@mixin button-color-primary {
+  @include buttonColors(primary);
 
   @media (prefers-color-scheme: dark) {
-    @include buttonColors(default-dark);
+    @include buttonColors(primary-dark);
   }
 }
 
-@mixin button-purple {
-  @include buttonColors(purple);
+@mixin button-color-secondary {
+  @include buttonColors(secondary);
 
   @media (prefers-color-scheme: dark) {
-    @include buttonColors(purple-dark);
+    @include buttonColors(secondary-dark);
   }
 }
 
@@ -90,11 +90,11 @@ $button-colors: (
 
 .button {
   @include button-base;
-  @include button-gray;
+  @include button-color-primary;
   @include button-medium;
 
   &--alt {
-    @include button-purple;
+    @include button-color-secondary;
     @include button-large;
   }
 }

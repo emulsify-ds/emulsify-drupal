@@ -2,7 +2,9 @@
 // rather than color variables directly.
 $defaultColors: (
   text: $gray,
+  text-inverse: $white,
   background: $white,
+  background-section: $gray-lightest,
   primary: $blue,
   secondary: $purple,
   accent: $gray-dark,
@@ -18,6 +20,7 @@ $defaultColors: (
 $darkColors: (
   text: $white,
   background: $gray,
+  background-section: $gray-dark,
   primary: $blue,
   secondary: $purple,
   accent: $gray-lightest,

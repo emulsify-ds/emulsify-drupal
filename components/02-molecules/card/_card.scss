@@ -24,7 +24,7 @@
 
 .card__button {
   @include button-base;
-  @include button-gray;
+  @include button-color-primary;
   @include button-medium;
 }
 
