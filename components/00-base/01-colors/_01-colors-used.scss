@@ -19,7 +19,9 @@ $defaultColors: (
 
 $darkColors: (
   text: $white,
+  text-inverse: $gray,
   background: $gray,
+  background-inverse: $gray-light,
   background-section: $gray-dark,
   primary: $blue,
   secondary: $purple,

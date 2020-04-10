@@ -31,14 +31,14 @@
   &.is-active {
     background-color: clr(text);
     border: 1px solid clr(text);
-    color: $white;
+    color: clr(text-inverse);
 
     @include large {
       background-color: clr(background);
       border: 1px solid clr(highlight-high);
       border-bottom: 1px solid clr(highlight-high);
       border-left: none;
-      color: $gray;
+      color: clr(text);
     }
   }
 }

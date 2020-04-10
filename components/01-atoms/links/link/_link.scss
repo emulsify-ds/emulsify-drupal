@@ -1,12 +1,8 @@
-/* Link */
-$color-link: clr(accent);
-$color-link--hover: clr(highlight);
-
 @mixin link {
-  color: $color-link;
+  color: clr(accent);
 
   &:hover {
-    color: $color-link--hover;
+    color: clr(accent-high);
   }
 }
 
