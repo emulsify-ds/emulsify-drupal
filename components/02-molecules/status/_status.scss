@@ -11,14 +11,17 @@
   text-align: center;
 
   &--warning {
-    background-color: #f9fb93;
+    color: $gray;
+    background-color: clr(warning);
   }
 
   &--error {
-    background-color: #fbe3e4;
+    color: $gray;
+    background-color: clr(error);
   }
 
   &--status {
-    background-color: #cfefc2;
+    color: $gray;
+    background-color: clr(message);
   }
 }

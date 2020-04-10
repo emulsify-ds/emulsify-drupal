@@ -11,7 +11,7 @@
 
     /* Only top level */
     &:not(.main-menu__item--sub):hover {
-      background-color: $black;
+      background-color: clr(accent-high);
       transition: all 0.2s;
 
       & > .main-menu--sub {
@@ -22,14 +22,14 @@
 
   &:hover {
     .main-menu__link::after {
-      color: $gray;
+      color: clr(text);
     }
   }
 }
 
 /* Expand Button */
 .expand-sub {
-  background-color: $black;
+  background-color: clr(accent-high);
   cursor: pointer;
   display: block;
   width: 20%;
@@ -58,8 +58,8 @@
 
   /* See main-menu.js */
   &--open {
-    background-color: $black;
-    color: $near-white;
+    background-color: clr(accent-high);
+    color: clr(muted);
 
     &::after {
       border-top-color: transparent;
@@ -79,7 +79,7 @@
     display: block;
 
     &:not(:first-child) {
-      border-top: 1px solid $gray-light;
+      border-top: 1px solid clr(highlight);
     }
   }
 }

@@ -1,6 +1,6 @@
 /* A */
 .main-menu__link {
-  color: $gray-dark;
+  color: clr(accent);
   display: block;
   font-size: 1.2rem;
   line-height: 1.5;
@@ -14,7 +14,6 @@
 
   @include medium {
     border-bottom: none;
-    color: $gray-dark;
     display: inline-block;
     font-size: 1.1rem;
     padding: $space $space-double $space $space;
@@ -25,7 +24,7 @@
     &.active,
     &:active,
     &:hover {
-      color: $gray-lighter;
+      color: clr(highlight-high);
     }
 
     &::after {
@@ -39,10 +38,10 @@
     }
 
     &:hover {
-      color: $white;
+      color: clr(background);
 
       &::after {
-        color: $gray-light;
+        color: clr(highlight);
       }
     }
   }
@@ -54,19 +53,19 @@
 
 /* A (Nested) */
 .main-menu__link--sub {
-  color: $gray-dark;
+  color: clr(accent);
   padding-left: $space-triple;
   font-weight: normal;
 
   @include medium {
-    color: $gray-light;
+    color: clr(highlight);
     display: block;
     padding: $space-one-third $space;
   }
 }
 
 .main-menu--sub-2 {
-  background-color: $gray-lightest;
+  background-color: clr(highlight-high);
 }
 
 .main-menu__link--sub-2 {

@@ -17,7 +17,7 @@
 
   /* This is just for the component library example */
   &--example {
-    background-color: $gray-lighter;
+    background-color: clr(highlight-high);
     padding: $space-quadruple;
   }
 }

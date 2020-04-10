@@ -1,5 +1,5 @@
 .form-item {
-  color: $gray;
+  color: clr(text);
   margin-bottom: 1em;
   max-width: 32em;
 
@@ -18,28 +18,28 @@
 }
 
 .form-item__textfield {
-  border: 1px solid $gray-lightest;
+  border: 1px solid clr(highlight-high);
   padding: 0.6em;
   max-width: 100%;
 
   &:focus {
-    border-color: $black;
+    border-color: clr(accent-high);
   }
 
   &::-webkit-input-placeholder {
-    color: $gray-light;
+    color: clr(highlight);
   }
 
   &:-moz-placeholder {
-    color: $gray-light;
+    color: clr(highlight);
   }
 
   &::-moz-placeholder {
-    color: $gray-light;
+    color: clr(highlight);
   }
 
   &:-ms-input-placeholder {
-    color: $gray-light;
+    color: clr(highlight);
   }
 }
 
