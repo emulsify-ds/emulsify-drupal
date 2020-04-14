@@ -1,14 +1,14 @@
-<img src="./hero.png" />
+<p align="center"><img src="./logo.png" width="400"/></p>
 
-[![Four Kitchens](https://img.shields.io/badge/4K-Four%20Kitchens-35AA4E.svg)](https://fourkitchens.com/)
+<h3 align="center">Storybook development + Webpack Build + Drupal 8 theme</h3>
 
-<h4 align="center">Storybook development + Webpack Build + Drupal 8 theme</h4>
+Emulsify is an open-source tool for creating design systems with reusable components and clear guidelines for teams. Emulsify helps organizations scale their design while reducing cost, streamlining workflows, and improving accessibility.
 
-Emulsify Drupal is a part of the [Emulsify Design System](https://github.com/emulsify-ds) and provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment and a Drupal 8 starterkit theme. It can be used as a standalone prototyping tool or inside a Drupal installation. It supports both Twig and React components!!
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal 8 starterkit theme. It can be used as a standalone prototyping tool or inside a Drupal installation. It supports both Twig and React components!
 
 ## Documentation
 
-https://docs.emulsify.info/
+[docs.emulsify.info](https://docs.emulsify.info/)
 
 ### Quick Links
 
@@ -33,3 +33,6 @@ Please also follow the issue template and pull request templates provided. See b
 3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
 4. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
 
+## Author
+
+Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https://fourkitchens.com).
