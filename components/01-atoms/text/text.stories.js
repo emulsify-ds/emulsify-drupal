@@ -13,7 +13,7 @@ import headingData from './headings/headings.yml';
  */
 export default { title: 'Atoms/Text' };
 
-// Loop over items in headingData so to show each one in the example(s) below.
+// Loop over items in headingData to show each one in the example(s) below.
 const headings = headingData.map(d => heading(d)).join('');
 
 export const headingsExamples = () => (
