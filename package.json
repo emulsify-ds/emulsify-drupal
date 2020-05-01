@@ -1,6 +1,6 @@
 {
   "name": "emulsify-design-system",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-beta.1",
   "description": "Storybook development + Webpack Build + Drupal 8 theme",
   "keywords": [
     "component library",
