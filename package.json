@@ -71,7 +71,7 @@
   },
   "scripts": {
     "lint": "eslint ./components",
-    "storybook": "start-storybook --ci -s ./dist, ./images -p 6006",
+    "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "build-storybook": "build-storybook -s ./dist,./images -o .out",
     "deploy-storybook": "storybook-to-ghpages -o .out",
     "babel": "npx babel components -w -d dist/js --ignore 'components/**/*.component.js','components/**/*.stories.js','components/**/*.min.js'",
