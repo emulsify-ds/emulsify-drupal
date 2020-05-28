@@ -16,7 +16,7 @@
     border-bottom: none;
     display: inline-block;
     font-size: 1.1rem;
-    padding: $space $space-double $space $space;
+    padding: $space;
     text-transform: none;
     position: relative;
     width: auto;
@@ -31,6 +31,7 @@
       color: $white;
       display: inline-block;
       content: '>';
+      margin-left: 0.5rem;
     }
 
     &--sub::after {

@@ -23,8 +23,7 @@
   We call a macro which calls itself to render the full tree.
   @see http://twig.sensiolabs.org/doc/tags/macro.html
 #}
-
-{% macro menu_links(items, attributes, menu_level, menu_class, menu_modifiers, menu_blockname, item_base_class, item_modifiers, item_blockname) %}
+{% macro menu_links(items, attributes, menu_level, menu_class, menu_modifiers, menu_blockname, item_base_class, item_modifiers, item_blockname, directory) %}
   {% import _self as menus %}
   {% if items %}
 
@@ -58,4 +57,4 @@
 
 {% import _self as menus %}
 
-{{ menus.menu_links(items, attributes, 0, menu_class, menu_modifiers, menu_blockname, item_base_class, item_modifiers, item_blockname) }}
+{{ menus.menu_links(items, attributes, 0, menu_class, menu_modifiers, menu_blockname, item_base_class, item_modifiers, item_blockname, directory) }}
