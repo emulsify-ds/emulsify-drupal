@@ -40,7 +40,7 @@ $darkColors: (
 ///////////
 // This color function makes it easy for you to call a color by it's functional
 // name anywhere you need.
-// E.g. to use the `text` color, you'd type: `color: clr(text);`
+// E.g. to use the `text` color, you type: `color: clr(text);`
 //
 // How it works:
 // This function works in conjunction with the dynamic css custom properties
@@ -53,7 +53,7 @@ $darkColors: (
 }
 
 // Create CSS custom properties
-// This is what powers the built-in light/dark mode switching.
+// This is what powers the built-in OS light/dark mode switching.
 // For each color variable above (e.g. `text` and `background`) a css custom
 // property will be created. (e.g. `--c-text:` and `--c-background:`).
 //

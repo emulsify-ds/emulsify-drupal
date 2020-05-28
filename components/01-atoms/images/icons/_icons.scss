@@ -6,6 +6,10 @@
     height: 100px;
     padding: $space;
     width: 100px;
+
+    @media (prefers-color-scheme: dark) {
+      fill: clr(accent-high);
+    }
   }
 
   pre {
