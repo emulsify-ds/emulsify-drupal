@@ -8,8 +8,13 @@
 const path = require('path');
 const pa11y = require('pa11y');
 const chalk = require('chalk');
+const {
+  storybookBuildDir,
+  pa11y: pa11yConfig,
+  ignore,
+} = require('../a11y.config.js');
 
-const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../.out');
+const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../', storybookBuildDir);
 const STORYBOOK_IFRAME = path.join(STORYBOOK_BUILD_DIR, 'iframe.html');
 
 // @TODO: update this so that it fetches the list dynamically
@@ -32,32 +37,13 @@ const lintComponent = async name =>
     includeNotices: true,
     includeWarnings: true,
     runners: ['axe'],
+    ...pa11yConfig,
   });
 
-const issueIsValid = ({ code, runnerExtras: { description } }) => {
-  // If the code of the issue is about documents needing
-  // a main landmark, this should be ignored, because the report
-  // is on a single component.
-  if (code === 'landmark-one-main') {
-    return false;
-  }
-
-  // If the code of the issue is about pages needing an h1, this
-  // should be ignored because the report is on a single component
-  // that won't be within it's correct context.
-  if (code === 'page-has-heading-one') {
-    return false;
-  }
-
-  // If the description indicates that the issue is about
-  // page content not being contained by a landmark, this should be ignored,
-  // because the report is on a single component.
-  if (description === 'Ensures all page content is contained by landmarks') {
-    return false;
-  }
-
-  return true;
-};
+const issueIsValid = ({ code, runnerExtras: { description } }) =>
+  ignore.codes.includes(code) || ignore.descriptions.includes(description)
+    ? false
+    : true;
 
 const logIssue = ({ type: severity, message, context, selector }) => {
   console.log(`
