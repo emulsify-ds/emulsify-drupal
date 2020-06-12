@@ -5,6 +5,7 @@
  * against the storybook build.
  */
 
+const R = require('ramda');
 const path = require('path');
 const pa11y = require('pa11y');
 const chalk = require('chalk');
@@ -12,25 +13,17 @@ const {
   storybookBuildDir,
   pa11y: pa11yConfig,
   ignore,
+  components,
 } = require('../a11y.config.js');
 
 const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../', storybookBuildDir);
 const STORYBOOK_IFRAME = path.join(STORYBOOK_BUILD_DIR, 'iframe.html');
 
-// @TODO: update this so that it fetches the list dynamically
-const getListOfComponents = () => ['molecules-cards--card-example'];
-
-const severityToColor = severity => {
-  if (severity === 'error') {
-    return 'red';
-  }
-  if (severity === 'warning') {
-    return 'yellow';
-  }
-  if (severity === 'notice') {
-    return 'blue';
-  }
-};
+const severityToColor = R.cond([
+  [R.equals('error'), R.always('red')],
+  [R.equals('warning'), R.always('yellow')],
+  [R.equals('notice'), R.always('blue')],
+]);
 
 const lintComponent = async name =>
   pa11y(`${STORYBOOK_IFRAME}?id=${name}`, {
@@ -66,6 +59,8 @@ const logReport = ({ issues, pageUrl }) => {
   }
 };
 
-Promise.all(getListOfComponents().map(lintComponent)).then(reports =>
-  reports.map(logReport),
-);
+R.pipe(
+  R.map(lintComponent),
+  p => Promise.all(p),
+  R.andThen(R.map(logReport)),
+)(components);
