@@ -15,7 +15,7 @@ import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
 /**
  * Storybook Definition.
  */
-hrefTo('Pages/Content Types', 'Article').then(url => {
+hrefTo('Pages/Content Types', 'Article').then((url) => {
   // TODO: Can't figure out how to link pages with hrefTo and storiesOf.
   storiesOf('Pages/Landing Pages', module).add('Home', () => {
     useEffect(() => Drupal.attachBehaviors(), []);
