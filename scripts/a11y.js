@@ -25,14 +25,6 @@ const severityToColor = R.cond([
   [R.equals('notice'), R.always('blue')],
 ]);
 
-const lintComponent = async name =>
-  pa11y(`${STORYBOOK_IFRAME}?id=${name}`, {
-    includeNotices: true,
-    includeWarnings: true,
-    runners: ['axe'],
-    ...pa11yConfig,
-  });
-
 const issueIsValid = ({ code, runnerExtras: { description } }) =>
   ignore.codes.includes(code) || ignore.descriptions.includes(description)
     ? false
@@ -57,10 +49,40 @@ const logReport = ({ issues, pageUrl }) => {
   } else {
     console.log(chalk.green(`No issues found in component: ${pageUrl}`));
   }
+
+  return hasIssues;
 };
 
-R.pipe(
+const lintComponent = async name =>
+  pa11y(`${STORYBOOK_IFRAME}?id=${name}`, {
+    includeNotices: true,
+    includeWarnings: true,
+    runners: ['axe'],
+    ...pa11yConfig,
+  });
+
+const lintReportAndExit = R.pipe(
   R.map(lintComponent),
   p => Promise.all(p),
-  R.andThen(R.map(logReport)),
-)(components);
+  R.andThen(
+    R.pipe(
+      R.map(logReport),
+      R.reject(R.equals(false)),
+      R.unless(R.isEmpty, () => process.exit(1)),
+    ),
+  ),
+);
+
+// Only perform linting/reporting when instructed.
+if (R.pathEq(['argv', 2], '-r')(process)) {
+  lintReportAndExit(components);
+}
+
+module.exports = {
+  severityToColor,
+  issueIsValid,
+  logIssue,
+  logReport,
+  lintComponent,
+  lintReportAndExit,
+};

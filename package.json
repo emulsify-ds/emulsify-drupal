@@ -72,7 +72,7 @@
   },
   "scripts": {
     "lint": "eslint ./components",
-    "a11y": "./scripts/a11y.js",
+    "a11y": "./scripts/a11y.js -r",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "build-storybook": "build-storybook -s ./dist,./images -o .out",
     "deploy-storybook": "storybook-to-ghpages -o .out",
@@ -81,13 +81,16 @@
     "webpack": "webpack -d --watch --config ./webpack/webpack.dev.js --display-error-details",
     "build-webpack": "webpack -p --config ./webpack/webpack.prod.js --display-error-details",
     "build": "npm run build-babel & npm run build-webpack",
-    "develop": "concurrently --raw \"npm run webpack\" \"npm run babel\" \"npm run storybook\""
+    "develop": "concurrently --raw \"npm run webpack\" \"npm run babel\" \"npm run storybook\"",
+    "test": "jest"
   },
   "devDependencies": {
+    "babel-jest": "^26.0.1",
     "chalk": "^4.0.0",
     "core-js": "2.6.10",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^26.0.1",
     "pa11y": "^5.3.0",
     "prettier": "1.19.1"
   }
