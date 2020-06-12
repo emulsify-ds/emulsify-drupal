@@ -72,7 +72,7 @@
   },
   "scripts": {
     "lint": "eslint ./components",
-    "a11y": "./scripts/a11y.js -r",
+    "a11y": "npm run build-storybook && ./scripts/a11y.js -r",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "build-storybook": "build-storybook -s ./dist,./images -o .out",
     "deploy-storybook": "storybook-to-ghpages -o .out",
