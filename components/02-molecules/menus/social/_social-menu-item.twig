@@ -1,0 +1,8 @@
+{% set li_base_class = 'item' %}
+{% set li_modifiers = item_modifiers %}
+{% set li_blockname = menu_class %}
+
+{% extends "@atoms/lists/_list-item.twig" %}
+  {% block list_item_content %}
+    {% include "@molecules/menus/social/_social-menu-link.twig" %}
+  {% endblock %}

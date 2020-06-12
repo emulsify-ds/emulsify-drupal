@@ -36,22 +36,7 @@
       {% set menu_modifiers = menu_modifiers|merge(['sub', 'sub-' ~ menu_level]) %}
     {% endif %}
 
-    {# List #}
-    {% embed "@atoms/lists/ul.twig" with {
-      ul_base_class: menu_class,
-      ul_modifiers: menu_modifiers,
-      ul_blockname: menu_blockname
-    } %}
-      {% block list_content %}
-        {% for item in items %}
-          {% include "@molecules/menus/_menu-item.twig" with {
-            li_base_class: item_base_class,
-            li_modifiers: item_modifiers,
-            li_blockname: item_blockname,
-          } %}
-        {% endfor %}
-      {% endblock %}
-    {% endembed %}
+    {% include "@molecules/menus/_menu-list.twig" %}
   {% endif %}
 {% endmacro %}
 
