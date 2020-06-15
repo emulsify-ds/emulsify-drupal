@@ -14,7 +14,7 @@ import headingData from './headings/headings.yml';
 export default { title: 'Atoms/Text' };
 
 // Loop over items in headingData to show each one in the example below.
-const headings = headingData.map(d => heading(d)).join('');
+const headings = headingData.map((d) => heading(d)).join('');
 
 export const headingsExamples = () => (
   <div dangerouslySetInnerHTML={{ __html: headings }} />

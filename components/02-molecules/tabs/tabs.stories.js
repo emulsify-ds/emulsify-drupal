@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from '@storybook/client-api';
 
 import tabs from './tabs.twig';
 
@@ -12,7 +11,6 @@ import './tabs';
  */
 export default { title: 'Molecules/Tabs' };
 
-export const JSTabs = () => {
-  useEffect(() => Drupal.attachBehaviors(), []);
-  return <div dangerouslySetInnerHTML={{ __html: tabs(tabData) }} />;
-};
+export const JSTabs = () => (
+  <div dangerouslySetInnerHTML={{ __html: tabs(tabData) }} />
+);

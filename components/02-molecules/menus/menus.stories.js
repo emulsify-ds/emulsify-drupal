@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from '@storybook/client-api';
 
 import breadcrumb from './breadcrumbs/breadcrumbs.twig';
 import inlineMenu from './inline/inline-menu.twig';
@@ -24,10 +23,9 @@ export const breadcrumbs = () => (
 export const inline = () => (
   <div dangerouslySetInnerHTML={{ __html: inlineMenu(inlineMenuData) }} />
 );
-export const main = () => {
-  useEffect(() => Drupal.attachBehaviors(), []);
-  return <div dangerouslySetInnerHTML={{ __html: mainMenu(mainMenuData) }} />;
-};
+export const main = () => (
+  <div dangerouslySetInnerHTML={{ __html: mainMenu(mainMenuData) }} />
+);
 export const social = () => (
   <div dangerouslySetInnerHTML={{ __html: socialMenu(socialMenuData) }} />
 );

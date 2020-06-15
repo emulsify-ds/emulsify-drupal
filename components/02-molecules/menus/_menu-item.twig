@@ -17,12 +17,12 @@
   {% set item_modifiers = item_modifiers|merge([modifier]) %}
 {% endfor %}
 
-{% embed "@atoms/lists/_list-item.twig" with {
-  list_item_label: item_label,
-  li_base_class: item_base_class|default(menu_class ~ '__item'),
-  li_modifiers: item_modifiers,
-  li_blockname: item_blockname,
-} %}
+{% set list_item_label = item_label %}
+{% set li_base_class = item_base_class|default(menu_class ~ '__item') %}
+{% set li_modifiers = item_modifiers %}
+{% set li_blockname = item_blockname %}
+
+{% extends "@atoms/lists/_list-item.twig" %}
   {% block list_item_content %}
     {# if drupal #}
     {% if directory %}
@@ -40,4 +40,3 @@
       {{ menus.menu_links(item.below, attributes, menu_level + 1, menu_class, menu_modifiers, menu_blockname, item_base_class, original_item_modifiers, item_blockname, directory) }}
     {% endif %}
   {% endblock %}
-{% endembed %}

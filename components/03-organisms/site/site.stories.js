@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from '@storybook/client-api';
 
 import footerTwig from './site-footer/site-footer.twig';
 import siteHeader from './site-header/site-header.twig';
@@ -23,16 +22,13 @@ export const footer = () => (
     }}
   />
 );
-export const header = () => {
-  useEffect(() => Drupal.attachBehaviors(), []);
-  return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: siteHeader({
-          ...breadcrumbData,
-          ...mainMenuData,
-        }),
-      }}
-    />
-  );
-};
+export const header = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: siteHeader({
+        ...breadcrumbData,
+        ...mainMenuData,
+      }),
+    }}
+  />
+);
