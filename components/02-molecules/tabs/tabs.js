@@ -32,7 +32,7 @@ Drupal.behaviors.tabs = {
      * @param {Number} index The index of that link
      */
     function handleClick(link, index) {
-      link.addEventListener('click', e => {
+      link.addEventListener('click', (e) => {
         e.preventDefault();
         goToTab(index);
       });

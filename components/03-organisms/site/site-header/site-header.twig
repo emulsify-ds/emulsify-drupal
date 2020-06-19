@@ -1,26 +1,14 @@
 {% set header__base_class = 'header' %}
 {# If `directory` is defined, set the path relative for Drupal.
  # Otherwise, set the path relative to the Component Library. #}
-{% set header__logo_src = directory ? '/' ~ directory ~ '/images/logo.png' : 'images/logo.png' %}
+{% set header__logo_src = directory ? '/' ~ directory ~ '/images/logo.png' : 'logo.png' %}
 
 <header {{ bem(header__base_class) }}>
   <div {{ bem('inner', [], header__base_class) }}>
     <div {{ bem('primary', [], header__base_class) }}>
       <div {{ bem('branding', [], header__base_class) }}>
         {% block header__branding %}
-          {% embed "@atoms/links/link/link.twig" with {
-            link_base_class: 'logo-link',
-            link_url: logo_link__url|default('/'),
-          } %}
-            {% block link_content %}
-              {% include "@atoms/images/image/responsive-image.twig" with {
-                output_image_tag: true,
-                image_src: header__logo_src,
-                image_alt: 'Logo',
-                responsive_image_blockname: 'logo',
-              } %}
-            {% endblock %}
-          {% endembed %}
+          {% include "@organisms/site/site-header/_site-header-branding.twig" %}
         {% endblock %}
       </div>
       <div {{ bem('menu', [], header__base_class) }}>

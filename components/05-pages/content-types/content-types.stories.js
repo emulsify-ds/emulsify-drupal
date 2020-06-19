@@ -1,5 +1,4 @@
 import React from 'react';
-import { useEffect } from '@storybook/client-api';
 
 import '../../02-molecules/menus/main-menu/main-menu';
 
@@ -15,20 +14,17 @@ import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
  */
 export default { title: 'Pages/Content Types' };
 
-export const article = () => {
-  useEffect(() => Drupal.attachBehaviors(), []);
-  return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: articleTwig({
-          page_layout_modifier: 'contained',
-          ...mainMenuData,
-          ...breadcrumbData,
-          ...socialMenuData,
-          ...footerMenuData,
-          card__link__text: 'Click here',
-        }),
-      }}
-    />
-  );
-};
+export const article = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: articleTwig({
+        page_layout_modifier: 'contained',
+        ...mainMenuData,
+        ...breadcrumbData,
+        ...socialMenuData,
+        ...footerMenuData,
+        card__link__text: 'Click here',
+      }),
+    }}
+  />
+);
