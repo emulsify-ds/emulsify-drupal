@@ -53,7 +53,7 @@ const logReport = ({ issues, pageUrl }) => {
   return hasIssues;
 };
 
-const lintComponent = async name =>
+const lintComponent = async (name) =>
   pa11y(`${STORYBOOK_IFRAME}?id=${name}`, {
     includeNotices: true,
     includeWarnings: true,
@@ -63,7 +63,7 @@ const lintComponent = async name =>
 
 const lintReportAndExit = R.pipe(
   R.map(lintComponent),
-  p => Promise.all(p),
+  (p) => Promise.all(p),
   R.andThen(
     R.pipe(
       R.map(logReport),
@@ -74,6 +74,7 @@ const lintReportAndExit = R.pipe(
 );
 
 // Only perform linting/reporting when instructed.
+/* istanbul ignore next */
 if (R.pathEq(['argv', 2], '-r')(process)) {
   lintReportAndExit(components);
 }

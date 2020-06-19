@@ -1,5 +1,8 @@
+const mockExit = jest
+  .spyOn(global.process, 'exit')
+  .mockImplementation(() => {});
 jest.mock('pa11y', () => jest.fn());
-jest.spyOn(global.console, 'log');
+jest.spyOn(global.console, 'log').mockImplementation(() => {});
 const pa11y = require('pa11y');
 const path = require('path');
 const {
@@ -24,6 +27,7 @@ pa11y.mockResolvedValue('very official report');
 describe('a11y', () => {
   beforeEach(() => {
     global.console.log.mockClear();
+    global.process.exit.mockClear();
   });
   it('can map axe issue severity to the correct chalk color', () => {
     expect.assertions(3);
@@ -130,5 +134,24 @@ describe('a11y', () => {
       `${STORYBOOK_IFRAME}?id=chicken-strips`,
       pa11yConfig,
     );
+  });
+
+  it('runs linter, reports on issues, and exits with code "1" if valid issues are found', async () => {
+    expect.assertions(1);
+    pa11y.mockResolvedValueOnce({
+      issues: [
+        {
+          type: 'error',
+          message: 'these 7 layer supreme burritos do not taste that good',
+          context: 'https://example.com',
+          selector: 'taco > bell > .burrito',
+          runnerExtras: {},
+        },
+      ],
+      pageUrl: '/path/to/taco-bell',
+    });
+
+    await lintReportAndExit(['taco-bell']);
+    expect(global.process.exit).toHaveBeenCalledWith(1);
   });
 });
