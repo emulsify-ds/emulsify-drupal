@@ -67,6 +67,7 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
+    "commit": "git-cz",
     "lint": "eslint ./components",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "build-storybook": "build-storybook -s ./dist,./images -o .out",
@@ -79,9 +80,16 @@
     "develop": "concurrently --raw \"npm run webpack\" \"npm run babel\" \"npm run storybook\""
   },
   "devDependencies": {
+    "commitizen": "^4.1.2",
     "core-js": "3.6.5",
+    "cz-conventional-changelog": "3.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "prettier": "2.0.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
