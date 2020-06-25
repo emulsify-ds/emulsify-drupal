@@ -3,6 +3,7 @@ type: theme
 description: Theme using Storybook and component-driven development 
 base theme: stable
 core: 8.x
+core_version_requirement: ^8 || ^9
 
 # Libraries (These are loaded on every page. Use https://www.drupal.org/developing/api/8/assets#twig whenever possible.)
 libraries:
