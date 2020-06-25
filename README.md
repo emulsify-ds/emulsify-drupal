@@ -32,8 +32,16 @@ The project maintainers have adopted a Code of Conduct that we expect project pa
 Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
 
 1. [Emulsify Drupal](https://github.com/emulsify-ds/emulsify-drupal/issues)
-3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
-4. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
+2. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
+3. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
+
+### Committing Changes
+
+To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure a better tomorrow.
+
+1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
+2. Run the `commit` script via `yarn commit` or `npm run commit` and follow the prompts to craft the perfect commit message.
+3. _Rejoice!_ For now your commit message will be used to create the changelog for the next version that includes that commit.
 
 ## Author
 
