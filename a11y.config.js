@@ -1,9 +1,8 @@
 module.exports = {
   storybookBuildDir: '.out',
-  components: [],
   pa11y: {
-    includeNotices: true,
-    includeWarnings: true,
+    includeNotices: false,
+    includeWarnings: false,
     runners: ['axe'],
   },
   // A11y linting is done on a component-by-component
