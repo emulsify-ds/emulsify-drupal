@@ -3,7 +3,7 @@
 $button-colors: (
   primary: (
     text: clr(text-inverse),
-    bg: clr(primary),
+    bg: clr(text-inverse,
     text-hover: clr(primary),
     bg-hover: clr(highlight),
   ),
