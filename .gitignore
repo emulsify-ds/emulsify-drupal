@@ -18,3 +18,5 @@ yarn.lock
 composer.lock
 /vendor/
 
+# Jest
+.coverage
