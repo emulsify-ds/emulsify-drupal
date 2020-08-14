@@ -1,6 +1,8 @@
 import { configure, addDecorator, addParameters } from '@storybook/react';
-import { useEffect } from "@storybook/client-api";
+import { useEffect } from '@storybook/client-api';
 import { withA11y } from '@storybook/addon-a11y';
+import Twig from 'twig';
+import setupTwig from './setupTwig';
 
 // Theming
 import emulsifyTheme from './emulsifyTheme';
@@ -14,23 +16,13 @@ addParameters({
 // GLOBAL CSS
 import '../components/style.scss';
 
-addDecorator(storyFn => {
+addDecorator((storyFn) => {
   useEffect(() => Drupal.attachBehaviors(), []);
-  return storyFn()
+  return storyFn();
 });
 
 addDecorator(withA11y);
-
-const Twig = require('twig');
-const twigDrupal = require('twig-drupal-filters');
-const twigBEM = require('bem-twig-extension');
-const twigAddAttributes = require('add-attributes-twig-extension');
-
-Twig.cache();
-
-twigDrupal(Twig);
-twigBEM(Twig);
-twigAddAttributes(Twig);
+setupTwig(Twig);
 
 // If in a Drupal project, it's recommended to import a symlinked version of drupal.js.
 import './_drupal.js';
@@ -38,7 +30,7 @@ import './_drupal.js';
 // automatically import all files ending in *.stories.js
 configure(require.context('../components', true, /\.stories\.js$/), module);
 
-// Below is for if Emulsify Gatsby style guide is being used 
+// Below is for if Emulsify Gatsby style guide is being used
 // // Gatsby's Link overrides:
 // // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
 // global.___loader = {
