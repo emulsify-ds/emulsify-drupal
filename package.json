@@ -81,7 +81,8 @@
     "develop": "concurrently --raw \"npm run webpack\" \"npm run babel\" \"npm run storybook\"",
     "test": "jest --coverage",
     "coverage": "yarn test && open-cli .coverage/lcov-report/index.html",
-    "format": "yarn lint --fix ; prettier --write \"**/*.{js,yml,scss,md}\""
+    "format": "prettier --write \"**/*.{js,yml,scss,md}\"",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
     "babel-jest": "^26.0.1",
