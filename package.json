@@ -80,6 +80,7 @@
     "build": "npm run build-babel & npm run build-webpack",
     "develop": "concurrently --raw \"npm run webpack\" \"npm run babel\" \"npm run storybook\"",
     "test": "jest --coverage",
+    "twatch": "jest --no-coverage --watch --verbose",
     "coverage": "yarn test && open-cli .coverage/lcov-report/index.html"
   },
   "devDependencies": {

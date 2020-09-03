@@ -12,15 +12,24 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button.yml')),
     );
-    expect(container.querySelector('button')).toMatchInlineSnapshot(`
-      <button
-        aria-label="button"
-        class="button"
-      >
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         
+
+
+
+
+        <button
+          aria-label="button"
+          class="button"
+        >
+          
             Twig Button
         
-      </button>
+        </button>
+        
+
+      </div>
     `);
   });
 
@@ -29,15 +38,24 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button-alt.yml')),
     );
-    expect(container.querySelector('button')).toMatchInlineSnapshot(`
-      <button
-        aria-label="button"
-        class="button button--alt"
-      >
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         
+
+
+
+
+        <button
+          aria-label="button"
+          class="button button--alt"
+        >
+          
             Alternative Button
         
-      </button>
+        </button>
+        
+
+      </div>
     `);
   });
 });
