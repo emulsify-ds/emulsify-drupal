@@ -32,6 +32,6 @@
     "prefer-stable": true,
     "require": {
         "drupal/components": "^1.0",
-        "drupal/emulsify_twig": "^1.0"
+        "drupal/emulsify_twig": "^2.0"
     }
 }
