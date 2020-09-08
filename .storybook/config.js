@@ -1,5 +1,5 @@
 import { configure, addDecorator, addParameters } from '@storybook/react';
-import { useEffect } from "@storybook/client-api";
+import { useEffect } from '@storybook/client-api';
 import { withA11y } from '@storybook/addon-a11y';
 
 // Theming
@@ -14,9 +14,9 @@ addParameters({
 // GLOBAL CSS
 import '../components/style.scss';
 
-addDecorator(storyFn => {
+addDecorator((storyFn) => {
   useEffect(() => Drupal.attachBehaviors(), []);
-  return storyFn()
+  return storyFn();
 });
 
 addDecorator(withA11y);
@@ -38,7 +38,7 @@ import './_drupal.js';
 // automatically import all files ending in *.stories.js
 configure(require.context('../components', true, /\.stories\.js$/), module);
 
-// Below is for if Emulsify Gatsby style guide is being used 
+// Below is for if Emulsify Gatsby style guide is being used
 // // Gatsby's Link overrides:
 // // Gatsby defines a global called ___loader to prevent its method calls from creating console errors you override it here
 // global.___loader = {

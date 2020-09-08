@@ -1,6 +1,6 @@
 name: Emulsify
 type: theme
-description: Theme using Storybook and component-driven development 
+description: Theme using Storybook and component-driven development
 base theme: stable
 core: 8.x
 core_version_requirement: ^8 || ^9
@@ -25,7 +25,7 @@ ckeditor_stylesheets:
 
 regions:
   header: Header
-  content: Content  # the content region is required
+  content: Content # the content region is required
   sidebar: 'Sidebar'
   footer: Footer
 
