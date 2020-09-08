@@ -1,0 +1,34 @@
+name: Semantic Release on Merge
+on:
+  push:
+    branches:
+      - 'master'
+      - 'alpha'
+      - 'beta'
+jobs:
+  release:
+    name: Attempt Semantic Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add remote SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DRUPAL_ORG_SSH_KEY }}
+          config: ${{ secrets.SSH_CONFIG }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Sync release tags to Drupal.org Project
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          git remote add drupal-org '${{ secrets.DRUPAL_REPO_URL }}'
+          git push drupal-org --tags
+          git checkout master
+          git push drupal-org master

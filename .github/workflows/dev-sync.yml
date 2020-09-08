@@ -1,0 +1,28 @@
+name: Sync Drupal Dev Branch
+on:
+  push:
+    branches:
+      - '*.x'
+jobs:
+  sync:
+    name: Sync Dev Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Add remote SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DRUPAL_ORG_SSH_KEY }}
+          config: ${{ secrets.SSH_CONFIG }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Sync dev branch to Drupal.org Project
+        run: |
+          git remote add drupal-org '${{ secrets.DRUPAL_REPO_URL }}'
+          git push drupal-org ${{ steps.extract_branch.outputs.branch }}
