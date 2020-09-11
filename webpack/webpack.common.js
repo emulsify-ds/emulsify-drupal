@@ -27,17 +27,11 @@ module.exports = {
     path.resolve(rootDir, 'components/**/!(*.stories|*.component|*.min).js'),
   ),
   module: {
-    rules: [
-      loaders.SVGSpriteLoader,
-      loaders.CSSLoader,
-      loaders.ImageLoader,
-      loaders.JSLoader,
-    ],
+    rules: [loaders.SVGSpriteLoader, loaders.ImageLoader, loaders.JSLoader],
   },
   plugins: [
     plugins.ImageminPlugin,
     plugins.SpriteLoaderPlugin,
-    plugins.MiniCssExtractPlugin,
     plugins.ProgressPlugin,
     plugins.CleanWebpackPlugin,
   ],

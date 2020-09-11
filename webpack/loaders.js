@@ -14,7 +14,39 @@ const ImageLoader = {
   loader: 'file-loader',
 };
 
-const CSSLoader = {
+const CSSDevLoader = {
+  test: /\.s[ac]ss$/i,
+  exclude: /node_modules/,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: {
+        sourceMap: true,
+      },
+    },
+    {
+      loader: 'postcss-loader',
+      options: {
+        sourceMap: true,
+        config: {
+          path: path.resolve('./webpack/'),
+        },
+      },
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sourceMap: true,
+        sassOptions: {
+          importer: globImporter(),
+        },
+      },
+    },
+  ],
+};
+
+const CSSProdLoader = {
   test: /\.s[ac]ss$/i,
   exclude: /node_modules/,
   use: [
@@ -53,7 +85,8 @@ const SVGSpriteLoader = {
 
 module.exports = {
   JSLoader,
-  CSSLoader,
+  CSSDevLoader,
+  CSSProdLoader,
   SVGSpriteLoader,
   ImageLoader,
 };
