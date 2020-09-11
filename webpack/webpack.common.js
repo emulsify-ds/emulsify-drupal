@@ -34,9 +34,6 @@ module.exports = {
       loaders.JSLoader,
     ],
   },
-  optimization: {
-    runtimeChunk: true,
-  },
   plugins: [
     plugins.ImageminPlugin,
     plugins.SpriteLoaderPlugin,
@@ -46,10 +43,6 @@ module.exports = {
   ],
   output: {
     path: distDir,
-    filename: (pathData) => {
-      return pathData.chunk.name === 'runtime~css'
-        ? 'style.[name]'
-        : 'remove/[name]';
-    },
+    filename: '[name].js',
   },
 };

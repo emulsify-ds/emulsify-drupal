@@ -6,10 +6,10 @@ module.exports = (api) => {
       '@babel/preset-env',
       {
         corejs: 3,
-        useBuiltIns: 'entry',
+        useBuiltIns: 'usage',
       },
     ],
-    // 'minify',
+    'minify',
   ];
 
   const comments = false;
