@@ -2,6 +2,12 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
 
+const JSLoader = {
+  test: /^(?!.*\.(stories|component)\.js$).*\.js$/,
+  exclude: /node_modules/,
+  loader: 'babel-loader',
+};
+
 const ImageLoader = {
   test: /\.(png|svg|jpg|gif)$/i,
   exclude: /icons\/.*\.svg$/,
@@ -46,6 +52,7 @@ const SVGSpriteLoader = {
 };
 
 module.exports = {
+  JSLoader,
   CSSLoader,
   SVGSpriteLoader,
   ImageLoader,

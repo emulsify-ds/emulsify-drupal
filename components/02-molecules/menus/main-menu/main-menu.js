@@ -13,15 +13,15 @@ Drupal.behaviors.mainMenu = {
       });
 
       // Expose mobile sub menu on click.
-      for (let i = 0; i < expandMenu.length; i += 1) {
-        expandMenu[i].addEventListener('click', (e) => {
+      Array.from(expandMenu).forEach((item) => {
+        item.addEventListener('click', (e) => {
           const menuItem = e.currentTarget;
           const subMenu = menuItem.nextElementSibling;
 
           menuItem.classList.toggle('expand-sub--open');
           subMenu.classList.toggle('main-menu--sub-open');
         });
-      }
+      });
     }
   },
 };
