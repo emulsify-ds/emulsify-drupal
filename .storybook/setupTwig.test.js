@@ -10,7 +10,7 @@ import twigDrupal from 'twig-drupal-filters';
 import twigBEM from 'bem-twig-extension';
 import twigAddAttributes from 'add-attributes-twig-extension';
 
-import setupTwig, { namespaces } from './setupTwig';
+import { namespaces, setupTwig } from './setupTwig';
 
 describe('setupTwig', () => {
   it('sets up a twig object with drupal, bem, and attribute decorations', () => {

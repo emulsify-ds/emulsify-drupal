@@ -2,7 +2,7 @@ import { configure, addDecorator, addParameters } from '@storybook/react';
 import { useEffect } from '@storybook/client-api';
 import { withA11y } from '@storybook/addon-a11y';
 import Twig from 'twig';
-import setupTwig from './setupTwig';
+import { setupTwig } from './setupTwig';
 
 // Theming
 import emulsifyTheme from './emulsifyTheme';

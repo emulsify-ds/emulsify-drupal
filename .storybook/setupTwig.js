@@ -1,9 +1,9 @@
-import { resolve } from 'path';
-import twigDrupal from 'twig-drupal-filters';
-import twigBEM from 'bem-twig-extension';
-import twigAddAttributes from 'add-attributes-twig-extension';
+const { resolve } = require('path');
+const twigDrupal = require('twig-drupal-filters');
+const twigBEM = require('bem-twig-extension');
+const twigAddAttributes = require('add-attributes-twig-extension');
 
-export const namespaces = {
+module.exports.namespaces = {
   atoms: resolve(__dirname, '../', 'components/01-atoms'),
   molecules: resolve(__dirname, '../', 'components/02-molecules'),
   organisms: resolve(__dirname, '../', 'components/03-organisms'),
@@ -17,10 +17,10 @@ export const namespaces = {
  *
  * @returns {Twig} configured twig object.
  */
-export default function setupTwig(twig) {
+module.exports.setupTwig = function setupTwig(twig) {
   twig.cache();
   twigDrupal(twig);
   twigBEM(twig);
   twigAddAttributes(twig);
   return twig;
-}
+};
