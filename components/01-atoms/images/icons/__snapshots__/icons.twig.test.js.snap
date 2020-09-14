@@ -1,0 +1,146 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`icons can render an icon 1`] = `
+<div>
+  <div
+    class="icons-demo"
+    id="icons"
+  >
+    
+      
+    <div
+      class="icons-demo__item"
+    >
+      
+      
+
+
+
+
+
+
+      <svg
+        class="icon"
+      >
+        
+      
+        <use
+          xlink:href="icons.svg#facebook"
+        />
+        
+
+      </svg>
+      
+      
+      <pre>
+        facebook
+      </pre>
+      
+    
+    </div>
+    
+      
+    <div
+      class="icons-demo__item"
+    >
+      
+      
+
+
+
+
+
+
+      <svg
+        class="icon"
+      >
+        
+      
+        <use
+          xlink:href="icons.svg#instagram"
+        />
+        
+
+      </svg>
+      
+      
+      <pre>
+        instagram
+      </pre>
+      
+    
+    </div>
+    
+      
+    <div
+      class="icons-demo__item"
+    >
+      
+      
+
+
+
+
+
+
+      <svg
+        class="icon"
+      >
+        
+      
+        <use
+          xlink:href="icons.svg#menu"
+        />
+        
+
+      </svg>
+      
+      
+      <pre>
+        menu
+      </pre>
+      
+    
+    </div>
+    
+      
+    <div
+      class="icons-demo__item"
+    >
+      
+      
+
+
+
+
+
+
+      <svg
+        class="icon"
+      >
+        
+      
+        <use
+          xlink:href="icons.svg#twitter"
+        />
+        
+
+      </svg>
+      
+      
+      <pre>
+        twitter
+      </pre>
+      
+    
+    </div>
+    
+  
+  </div>
+  
+
+  <br />
+  
+
+</div>
+`;

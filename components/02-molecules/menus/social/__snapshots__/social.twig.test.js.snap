@@ -1,0 +1,158 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`social can render a social menu 1`] = `
+<div>
+  
+
+
+  <ul
+    class="social-menu"
+  >
+    
+            
+
+
+    <li
+      class="social-menu__item"
+    >
+      
+      
+
+
+      <a
+        class="social-menu__link"
+        href="#"
+      >
+        
+      
+
+
+
+
+
+
+        <svg
+          class="social-menu__icon"
+        >
+          
+      
+          <use
+            xlink:href="icons.svg#twitter"
+          />
+          
+
+        </svg>
+        
+    
+        <span
+          class="social-menu__text"
+        >
+          Twitter
+        </span>
+        
+  
+      </a>
+      
+  
+    </li>
+    
+          
+
+
+    <li
+      class="social-menu__item"
+    >
+      
+      
+
+
+      <a
+        class="social-menu__link"
+        href="#"
+      >
+        
+      
+
+
+
+
+
+
+        <svg
+          class="social-menu__icon"
+        >
+          
+      
+          <use
+            xlink:href="icons.svg#facebook"
+          />
+          
+
+        </svg>
+        
+    
+        <span
+          class="social-menu__text"
+        >
+          Facebook
+        </span>
+        
+  
+      </a>
+      
+  
+    </li>
+    
+          
+
+
+    <li
+      class="social-menu__item"
+    >
+      
+      
+
+
+      <a
+        class="social-menu__link"
+        href="#"
+      >
+        
+      
+
+
+
+
+
+
+        <svg
+          class="social-menu__icon"
+        >
+          
+      
+          <use
+            xlink:href="icons.svg#instagram"
+          />
+          
+
+        </svg>
+        
+    
+        <span
+          class="social-menu__text"
+        >
+          Instagram
+        </span>
+        
+  
+      </a>
+      
+  
+    </li>
+    
+      
+  </ul>
+  
+
+</div>
+`;

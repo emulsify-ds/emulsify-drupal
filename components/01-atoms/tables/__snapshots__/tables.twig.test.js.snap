@@ -1,0 +1,182 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tables can render a table 1`] = `
+<div>
+  
+
+  <table
+    class="table"
+  >
+    
+	
+    <thead>
+      
+		
+      <tr>
+        
+			
+        <td
+          class="table__heading-cell"
+          colspan="4"
+        >
+          This is a heading
+        </td>
+        
+		
+      </tr>
+      
+	
+    </thead>
+    
+	
+    <tbody>
+      
+  	
+      <tr
+        class="table__row"
+      >
+        
+  		
+        <td
+          class="table__cell"
+        >
+          Row 1
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+          colspan="2"
+        >
+          Information about something
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+        >
+          And this is important
+        </td>
+        
+  	
+      </tr>
+      
+  	
+      <tr
+        class="table__row"
+      >
+        
+      
+        <td
+          class="table__cell"
+        >
+          Row 2
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+          colspan="2"
+        >
+          Information about something
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+        >
+          And this is important
+        </td>
+        
+  	
+      </tr>
+      
+  	
+      <tr
+        class="table__row"
+      >
+        
+      
+        <td
+          class="table__cell"
+        >
+          Row 3
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+          colspan="2"
+        >
+          Information about something
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+        >
+          And this is important
+        </td>
+        
+  	
+      </tr>
+      
+  	
+      <tr
+        class="table__row"
+      >
+        
+      
+        <td
+          class="table__cell"
+        >
+          Row 4
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+          colspan="2"
+        >
+          Information about something
+        </td>
+        
+  		
+        <td
+          class="table__cell"
+        >
+          And this is important
+        </td>
+        
+  	
+      </tr>
+      
+	
+    </tbody>
+    
+	
+    <tfoot>
+      
+		
+      <tr>
+        
+			
+        <td
+          class="table__heading-cell table__footer-cell"
+          colspan="4"
+        >
+          This is a table footer
+        </td>
+        
+		
+      </tr>
+      
+	
+    </tfoot>
+    
+
+  </table>
+  
+
+</div>
+`;

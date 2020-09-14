@@ -22,6 +22,7 @@ const CSSLoader = {
       loader: 'css-loader',
       options: {
         sourceMap: true,
+        url: false,
       },
     },
     {

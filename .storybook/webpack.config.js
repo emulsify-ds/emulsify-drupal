@@ -1,6 +1,7 @@
 const path = require('path');
 const globImporter = require('node-sass-glob-importer');
 const _StyleLintPlugin = require('stylelint-webpack-plugin');
+const { namespaces } = require('./setupTwig');
 
 module.exports = async ({ config }) => {
   // Twig
@@ -11,24 +12,7 @@ module.exports = async ({ config }) => {
         loader: 'twig-loader',
         options: {
           twigOptions: {
-            namespaces: {
-              atoms: path.resolve(__dirname, '../', 'components/01-atoms'),
-              molecules: path.resolve(
-                __dirname,
-                '../',
-                'components/02-molecules',
-              ),
-              organisms: path.resolve(
-                __dirname,
-                '../',
-                'components/03-organisms',
-              ),
-              templates: path.resolve(
-                __dirname,
-                '../',
-                'components/04-templates',
-              ),
-            },
+            namespaces,
           },
         },
       },
