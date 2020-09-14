@@ -1,6 +1,8 @@
 import { configure, addDecorator, addParameters } from '@storybook/react';
 import { useEffect } from '@storybook/client-api';
 import { withA11y } from '@storybook/addon-a11y';
+import Twig from 'twig';
+import { setupTwig } from './setupTwig';
 
 // Theming
 import emulsifyTheme from './emulsifyTheme';
@@ -20,17 +22,7 @@ addDecorator((storyFn) => {
 });
 
 addDecorator(withA11y);
-
-const Twig = require('twig');
-const twigDrupal = require('twig-drupal-filters');
-const twigBEM = require('bem-twig-extension');
-const twigAddAttributes = require('add-attributes-twig-extension');
-
-Twig.cache();
-
-twigDrupal(Twig);
-twigBEM(Twig);
-twigAddAttributes(Twig);
+setupTwig(Twig);
 
 // If in a Drupal project, it's recommended to import a symlinked version of drupal.js.
 import './_drupal.js';

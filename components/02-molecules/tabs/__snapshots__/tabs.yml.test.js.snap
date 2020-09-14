@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tabs can render tabs 1`] = `
+<div>
+  
+
+
+
+
+
+  
+  <div
+    class="tabs no-js"
+    id="tabs"
+  >
+    
+    
+    <ul
+      class="tabs__nav"
+    >
+      
+              
+
+
+
+      <li>
+        
+  
+      
+        <a
+          _keys="class"
+          class=" tabs__link--local-tasks"
+          href="null"
+        >
+          null
+        </a>
+        
+  
+      </li>
+      
+              
+
+
+
+      <li>
+        
+  
+      
+        <a
+          _keys="class"
+          class=" tabs__link--local-tasks"
+          href="null"
+        >
+          null
+        </a>
+        
+  
+      </li>
+      
+              
+
+
+
+      <li>
+        
+  
+      
+        <a
+          _keys="class"
+          class=" tabs__link--local-tasks"
+          href="null"
+        >
+          null
+        </a>
+        
+  
+      </li>
+      
+          
+    </ul>
+    
+          
+    <div
+      class="tabs__tab is-active"
+    >
+      
+        
+      <div
+        class="tabs__content"
+        id="tab-0"
+      >
+        
+          
+        <p>
+          Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+        </p>
+        
+        
+      </div>
+      
+      
+    </div>
+    
+          
+    <div
+      class="tabs__tab"
+    >
+      
+        
+      <div
+        class="tabs__content"
+        id="tab-1"
+      >
+        
+          
+        <p>
+          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        </p>
+        
+        
+      </div>
+      
+      
+    </div>
+    
+          
+    <div
+      class="tabs__tab"
+    >
+      
+        
+      <div
+        class="tabs__content"
+        id="tab-2"
+      >
+        
+          
+        <p>
+          Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+        </p>
+        
+        
+      </div>
+      
+      
+    </div>
+    
+      
+  </div>
+  
+
+</div>
+`;

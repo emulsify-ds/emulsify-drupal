@@ -1,5 +1,5 @@
 module.exports = {
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   coverageDirectory: '.coverage',
   // @TODO: once every file has 100% test coverage,
   // these thresholds should be updated.
@@ -11,4 +11,5 @@ module.exports = {
       statements: 0,
     },
   },
+  testPathIgnorePatterns: ['<rootDir>/dist'],
 };
