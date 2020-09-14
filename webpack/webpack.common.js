@@ -24,7 +24,10 @@ function getEntries(pattern) {
 
 module.exports = {
   entry: getEntries(
-    path.resolve(rootDir, 'components/**/!(*.stories|*.component|*.min).js'),
+    path.resolve(
+      rootDir,
+      'components/**/!(*.stories|*.component|*.min|*.test).js',
+    ),
   ),
   module: {
     rules: [
