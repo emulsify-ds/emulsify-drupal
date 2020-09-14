@@ -1,4 +1,3 @@
-const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
 
@@ -14,57 +13,27 @@ const ImageLoader = {
   loader: 'file-loader',
 };
 
-const CSSDevLoader = {
-  test: /\.s[ac]ss$/i,
-  exclude: /node_modules/,
-  use: [
-    'style-loader',
-    {
-      loader: 'css-loader',
-      options: {
-        sourceMap: true,
-      },
-    },
-    {
-      loader: 'postcss-loader',
-      options: {
-        sourceMap: true,
-        config: {
-          path: path.resolve('./webpack/'),
-        },
-      },
-    },
-    {
-      loader: 'sass-loader',
-      options: {
-        sourceMap: true,
-        sassOptions: {
-          importer: globImporter(),
-        },
-      },
-    },
-  ],
-};
-
-const CSSProdLoader = {
+const CSSLoader = {
   test: /\.s[ac]ss$/i,
   exclude: /node_modules/,
   use: [
     MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
+      options: {
+        sourceMap: true,
+      },
     },
     {
       loader: 'postcss-loader',
       options: {
-        config: {
-          path: path.resolve('./webpack/'),
-        },
+        sourceMap: true,
       },
     },
     {
       loader: 'sass-loader',
       options: {
+        sourceMap: true,
         sassOptions: {
           importer: globImporter(),
           outputStyle: 'compressed',
@@ -85,8 +54,7 @@ const SVGSpriteLoader = {
 
 module.exports = {
   JSLoader,
-  CSSDevLoader,
-  CSSProdLoader,
+  CSSLoader,
   SVGSpriteLoader,
   ImageLoader,
 };
