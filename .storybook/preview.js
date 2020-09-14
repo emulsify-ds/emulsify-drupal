@@ -1,6 +1,5 @@
-import { configure, addDecorator, addParameters } from '@storybook/react';
+import { addDecorator } from '@storybook/react';
 import { useEffect } from '@storybook/client-api';
-import { withA11y } from '@storybook/addon-a11y';
 
 // Theming
 import emulsifyTheme from './emulsifyTheme';
@@ -33,5 +32,3 @@ addDecorator((storyFn) => {
   useEffect(() => Drupal.attachBehaviors(), []);
   return storyFn();
 });
-
-addDecorator(withA11y);
