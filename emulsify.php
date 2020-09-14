@@ -147,9 +147,9 @@ function _drush_recursive_copy($src, $dest) {
 /**
  * Cross-platform compatible helper function to recursively create a directory tree.
  *
- * @param path
+ * @param string $path
  *   Path to directory to create.
- * @param required
+ * @param boolean $required
  *   If TRUE, then drush_mkdir will call drush_set_error on failure.
  *
  * Callers should *always* do their own error handling after calling drush_mkdir.
@@ -298,7 +298,7 @@ function drush_emulsify($human_readable_name = NULL) {
  *   in templates.
  * @param string $description
  *   A string that will be used as the theme description in the .info file.
- * @param string $theme_path
+ * @param string $theme_path_passed
  *   A string that will be translated into a base path for your new theme.
  *
  * @return boolean
@@ -370,7 +370,7 @@ function drush_emulsify_create($human_readable_name, $machine_name, $description
   }
 
   // Phase 7: Return success message to the user.
-  _emulsify_notify_success($human_readable_name, $theme_path);
+  return _emulsify_notify_success($human_readable_name, $theme_path);
 }
 
 /**
@@ -597,10 +597,10 @@ function _emulsify_alter_files($theme_path, array $files_to_alter = array(), arr
  * @return boolean
  *   A boolean representing the success or failure of the function.
  */
-function _emulsify_make_directories(array $directories = array(), $destination_path = '') {
+function _emulsify_make_directories(array $directories = array(), string $destination_path = '') {
 
   // Check for invalid settings and return an error.
-  if (!is_array($directories) || !is_string($destination_path) || empty($destination_path)) {
+  if (empty($destination_path)) {
     _emulsify_notify_fail('', "Invalid parameter passed to _emulsify_make_directories().");
     return FALSE;
   }
@@ -635,10 +635,10 @@ function _emulsify_make_directories(array $directories = array(), $destination_p
  * @return boolean
  *   A boolean representing the success or failure of the function.
  */
-function _emulsify_copy_files(array $files = array(), $destination_path = '') {
+function _emulsify_copy_files(array $files = array(), string $destination_path = '') {
 
   // Check for invalid settings and return an error.
-  if (!is_array($files) || !is_string($destination_path) || empty($destination_path)) {
+  if (empty($destination_path)) {
     return _emulsify_notify_fail('', "Invalid parameter passed to _emulsify_copy_files().");
   }
 
