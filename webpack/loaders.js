@@ -1,6 +1,11 @@
-const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
+
+const JSLoader = {
+  test: /^(?!.*\.(stories|component)\.js$).*\.js$/,
+  exclude: /node_modules/,
+  loader: 'babel-loader',
+};
 
 const ImageLoader = {
   test: /\.(png|svg|jpg|gif)$/i,
@@ -15,18 +20,21 @@ const CSSLoader = {
     MiniCssExtractPlugin.loader,
     {
       loader: 'css-loader',
+      options: {
+        sourceMap: true,
+        url: false,
+      },
     },
     {
       loader: 'postcss-loader',
       options: {
-        config: {
-          path: path.resolve('./webpack/'),
-        },
+        sourceMap: true,
       },
     },
     {
       loader: 'sass-loader',
       options: {
+        sourceMap: true,
         sassOptions: {
           importer: globImporter(),
           outputStyle: 'compressed',
@@ -46,6 +54,7 @@ const SVGSpriteLoader = {
 };
 
 module.exports = {
+  JSLoader,
   CSSLoader,
   SVGSpriteLoader,
   ImageLoader,
