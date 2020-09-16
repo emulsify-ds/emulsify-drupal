@@ -1,0 +1,200 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`textfields can render textfield form items 1`] = `
+<div>
+  <div
+    class="form-item"
+  >
+    
+  
+    <label
+      class="form-item__label form-item__label--required form-item__label--textfield"
+      for="edit-name"
+    >
+      Name
+    </label>
+    
+  
+    <input
+      aria-required="true"
+      autocapitalize="none"
+      autocorrect="none"
+      class="form-item__textfield form-item__textfield--required"
+      id="edit-name"
+      maxlength="60"
+      name="name"
+      placeholder="First, Middle, Last"
+      required="required"
+      size="60"
+      spellcheck="false"
+      type="text"
+      value=""
+    />
+    
+
+  </div>
+  
+
+
+  <div
+    class="form-item"
+  >
+    
+  
+    <label
+      class="form-item__label form-item__label--required form-item__label--textfield"
+      for="edit-pass"
+    >
+      Password
+    </label>
+    
+  
+    <input
+      aria-required="true"
+      class="form-item__textfield form-item__textfield--password form-item__textfield--required"
+      id="edit-pass"
+      maxlength="128"
+      name="pass"
+      required="required"
+      size="60"
+      type="password"
+    />
+    
+  
+    <div
+      class="form-item__description"
+    >
+      
+    Enter the password that accompanies your username.
+  
+    </div>
+    
+
+  </div>
+  
+
+
+  <form>
+    
+  
+    <fieldset
+      class="form-fieldset"
+    >
+      
+  
+      <legend
+        class="heading-2 with-icon"
+      >
+        Web and Email Address (fieldset example)
+      </legend>
+      
+    
+      <div
+        class="form-item"
+      >
+        
+       
+        <label
+          class="form-item__label form-item__label--textfield"
+          for="webaddress"
+        >
+          Web Address
+        </label>
+        
+       
+        <input
+          class="form-item__textfield"
+          id="webaddress"
+          placeholder="http://yoursite.com"
+          type="url"
+        />
+        
+     
+      </div>
+      
+
+     
+      <div
+        class="form-item"
+      >
+        
+       
+        <label
+          class="form-item__label form-item__label--textfield"
+          for="emailaddress"
+        >
+          Email Address
+        </label>
+        
+       
+        <input
+          class="form-item__textfield"
+          id="emailaddress"
+          placeholder="name@email.com"
+          type="email"
+        />
+        
+     
+      </div>
+      
+  
+    </fieldset>
+    
+ 
+  </form>
+  
+
+ 
+  <div
+    class="form-item"
+  >
+    
+   
+    <label
+      class="form-item__label form-item__label--textfield"
+      for="text"
+    >
+      Number Input
+    </label>
+    
+   
+    <input
+      class="form-item__textfield"
+      id="text"
+      pattern="[0-9]*"
+      placeholder="Enter a Number"
+      type="number"
+    />
+    
+ 
+  </div>
+  
+
+ 
+  <div
+    class="form-item"
+  >
+    
+   
+    <label
+      class="form-item__label form-item__label--textfield"
+      for="textarea"
+    >
+      Textarea
+    </label>
+    
+   
+    <textarea
+      class="form-item__textfield form-item__textarea"
+      cols="48"
+      id="textarea"
+      placeholder="Enter your message here"
+      rows="8"
+    />
+    
+ 
+  </div>
+  
+
+</div>
+`;
