@@ -37,7 +37,7 @@ Please also follow the issue template and pull request templates provided. See b
 
 ### Committing Changes
 
-To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure a better tomorrow.
+To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure semantic release can version correctly.
 
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
 2. Run the `commit` script via `yarn commit` or `npm run commit` and follow the prompts to craft the perfect commit message.
@@ -46,4 +46,3 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 ## Author
 
 Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https://fourkitchens.com).
-
