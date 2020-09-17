@@ -26,19 +26,7 @@
     border-color: clr(accent-high);
   }
 
-  &::-webkit-input-placeholder {
-    color: clr(highlight);
-  }
-
-  &:-moz-placeholder {
-    color: clr(highlight);
-  }
-
-  &::-moz-placeholder {
-    color: clr(highlight);
-  }
-
-  &:-ms-input-placeholder {
+  &::placeholder {
     color: clr(highlight);
   }
 }
