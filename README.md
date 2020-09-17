@@ -46,3 +46,4 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 ## Author
 
 Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https://fourkitchens.com).
+
