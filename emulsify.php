@@ -489,6 +489,7 @@ function _emulsify_get_files_to_copy() {
     'emulsify.libraries.yml',
     'emulsify.theme',
     'package.json',
+    'postcss.config.js',
     'prettier.config.js',
   );
   // If we would like to have a bare copy we use is slim option.
