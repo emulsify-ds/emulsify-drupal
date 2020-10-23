@@ -13,6 +13,7 @@ import '../components/style.scss';
 import './_drupal.js';
 
 export const parameters = {
+  layout: 'fullscreen',
   options: {
     theme: emulsifyTheme,
   },
