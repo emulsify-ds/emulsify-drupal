@@ -10,7 +10,7 @@
     {% set palette_machine = palette.palette_heading|lower %}
     {% include "@atoms/text/headings/_heading.twig" with {
       heading_level: 3,
-      heading: palette.palette_heading ~ ' Theme',
+      heading: palette.palette_heading,
     } %}
     <ul {{ bem('list', [palette_machine], colors_base_class) }} data-theme="{{ palette_machine }}">
       {% for color in palette.colors %}
