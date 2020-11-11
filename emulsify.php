@@ -422,7 +422,6 @@ function _emulsify_get_files_to_alter() {
     return array_merge($default_array, array(
       'components',
       'templates',
-      'README.md',
     ));
   }
 }
