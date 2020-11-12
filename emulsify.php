@@ -477,6 +477,8 @@ function _emulsify_get_files_to_copy() {
   $default_array = array(
     '.storybook',
     'webpack',
+    'util',
+    'scripts',
     '.browserslistrc',
     '.editorconfig',
     '.eslintignore',
