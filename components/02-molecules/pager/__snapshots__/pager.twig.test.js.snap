@@ -5,7 +5,7 @@ exports[`pager can render a pager 1`] = `
   
   
   <nav
-    aria-labelledby="pagination-heading0"
+    aria-labelledby=""
     class="pager"
     role="navigation"
   >
@@ -13,9 +13,9 @@ exports[`pager can render a pager 1`] = `
     
     <h4
       class="visually-hidden"
-      id="pagination-heading0"
+      id=""
     >
-      Pagination0
+      Pagination
     </h4>
     
     
@@ -173,7 +173,7 @@ exports[`pager can render a pager with ellipses 1`] = `
   
   
   <nav
-    aria-labelledby="pagination-heading2"
+    aria-labelledby=""
     class="pager"
     role="navigation"
   >
@@ -181,9 +181,9 @@ exports[`pager can render a pager with ellipses 1`] = `
     
     <h4
       class="visually-hidden"
-      id="pagination-heading2"
+      id=""
     >
-      Pagination2
+      Pagination
     </h4>
     
     
@@ -382,7 +382,7 @@ exports[`pager can render a pager with prev and next ellipses 1`] = `
   
   
   <nav
-    aria-labelledby="pagination-heading1"
+    aria-labelledby=""
     class="pager"
     role="navigation"
   >
@@ -390,9 +390,9 @@ exports[`pager can render a pager with prev and next ellipses 1`] = `
     
     <h4
       class="visually-hidden"
-      id="pagination-heading1"
+      id=""
     >
-      Pagination1
+      Pagination
     </h4>
     
     
@@ -632,7 +632,7 @@ exports[`pager can render a pager with prev ellipses 1`] = `
   
   
   <nav
-    aria-labelledby="pagination-heading3"
+    aria-labelledby=""
     class="pager"
     role="navigation"
   >
@@ -640,9 +640,9 @@ exports[`pager can render a pager with prev ellipses 1`] = `
     
     <h4
       class="visually-hidden"
-      id="pagination-heading3"
+      id=""
     >
-      Pagination3
+      Pagination
     </h4>
     
     

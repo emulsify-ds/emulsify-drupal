@@ -23,6 +23,9 @@ function getEntries(pattern) {
 }
 
 module.exports = {
+  stats: {
+    errorDetails: true,
+  },
   entry: getEntries(
     path.resolve(
       rootDir,
