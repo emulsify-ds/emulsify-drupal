@@ -422,7 +422,6 @@ function _emulsify_get_files_to_alter() {
     return array_merge($default_array, array(
       'components',
       'templates',
-      'README.md',
     ));
   }
 }
@@ -477,18 +476,24 @@ function _emulsify_get_files_to_copy() {
   $default_array = array(
     '.storybook',
     'webpack',
+    'util',
+    'scripts',
     '.browserslistrc',
     '.editorconfig',
     '.eslintignore',
     '.eslintrc.yml',
     '.gitignore',
     '.npmrc',
+    'a11y.config.js',
     'babel.config.js',
     'emulsify.breakpoints.yml',
     'emulsify.info.yml',
     'emulsify.libraries.yml',
     'emulsify.theme',
+    'jest.config.js',
+    'lint-staged.config.js',
     'package.json',
+    'postcss.config.js',
     'prettier.config.js',
   );
   // If we would like to have a bare copy we use is slim option.

@@ -12,7 +12,12 @@ import footerMenuData from '../../02-molecules/menus/inline/inline-menu.yml';
 /**
  * Storybook Definition.
  */
-export default { title: 'Pages/Landing Pages' };
+export default {
+  title: 'Pages/Landing Pages',
+  parameters: {
+    layout: 'fullscreen',
+  },
+};
 
 export const homePage = () => (
   <div
