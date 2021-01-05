@@ -50,6 +50,8 @@
     "postcss-custom-properties": "^10.0.0",
     "postcss-loader": "^4.0.4",
     "ramda": "^0.27.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "sass-loader": "^10.1.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.7.2",
@@ -97,8 +99,6 @@
     "open-cli": "^6.0.1",
     "pa11y": "^5.3.0",
     "prettier": "2.1.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "react-test-renderer": "^17.0.1",
     "twig-testing-library": "^1.1.1",
     "yaml": "^1.10.0"
