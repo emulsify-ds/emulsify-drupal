@@ -11,5 +11,9 @@ module.exports = {
       statements: 0,
     },
   },
-  testPathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/vendor'],
+  testPathIgnorePatterns: [
+    '<rootDir>/dist',
+    '<rootDir>/vendor',
+    '<rootDir>/.out',
+  ],
 };
