@@ -1,38 +1,57 @@
 // Color Usage variables - use these (via the `clr` function below)
 // rather than color variables directly.
-$defaultColors: (
-  text: $gray,
-  text-inverse: $white,
-  background: $white,
-  background-section: $gray-lightest,
-  primary: $blue,
-  secondary: $purple,
-  accent: $gray-dark,
-  accent-high: $black,
-  highlight: $gray-lighter,
-  highlight-high: $gray-lightest,
-  muted: $near-white,
-  warning: $yellow-light,
-  error: $red-light,
-  message: $green-light,
-);
-
-$darkColors: (
-  text: $white,
-  text-inverse: $gray,
-  background: $gray,
-  background-inverse: $gray-light,
-  background-section: $gray-dark,
-  primary: $blue,
-  secondary: $purple,
-  accent: $gray-lightest,
-  accent-high: $white,
-  highlight: $gray-dark,
-  highlight-high: $gray-darker,
-  muted: $gray-darker,
-  warning: $yellow-light,
-  error: $red-light,
-  message: $green-light,
+$color-palette: (
+  white: #FFFFFF,
+  black: #000000,
+  default-theme: (
+    message: $green-light,
+    warning: $yellow-light,
+    error: $red-light,
+    muted: $near-white,
+    primary: $blue,
+    secondary: $purple,
+    text: (
+      base: $gray,
+      inverse: $white
+    ),
+    background: (
+      base: $gray,
+      section: $white
+    ),
+    accent: (
+      base: $gray-dark,
+      high: $black
+    ),
+    highlight: (
+      base: $gray-lighter,
+      highlight-high: $gray-lightest
+    )
+  ),
+  alt-theme: (
+    message: $green-light,
+    warning: $yellow-light,
+    error: $red-light,
+    muted: $gray-darker,
+    primary: $blue,
+    secondary: $purple,
+    text: (
+      base: $white,
+      inverse: $gray
+    ),
+    background: (
+      base: $gray,
+      inverse: $gray-light,
+      section: $gray-dark
+    ),
+    accent: (
+      base: $gray-lightest,
+      inverse: $white
+    ),
+    highlight: (
+      base: $gray-dark,
+      high: $gray-darker
+    )
+  )
 );
 
 ///////////
@@ -48,6 +67,54 @@ $darkColors: (
 // `var(--c-` to call the custom property for that color.
 // E.g. `color: clr(text);` will return `color: var(--c-text);`
 // Note: (The `--c-` is added via the `@each` loops below)
+
+@function clr($name, $variant:null, $alpha: 1, $theme:default-theme) {
+  // Return variant color
+  @if ($variant != null) {
+    // Check if alpha is default value or overwritten.
+    @if ($alpha == number) {
+      // Return alpha fallback if variant is a number
+      @if (type-of($variant) == number) {
+        @if (type-of(map-get($color-palette, $theme, $name)) == color) {
+          @return rgba(map-get($color-palette, $theme, $name), $variant);
+        }
+        @else {
+          @return rgba(map-get(map-get($color-palette, $theme, $name), 'base'), $variant);
+        }
+      }
+      @else {
+        @if ($variant == default-theme or $variant == alt-theme) {
+          // Return theme specific color.
+          @if (type-of(map-get($color-palette, $variant, $name)) == color) {
+            @return rgba(map-get($color-palette, $variant, $name), $alpha);
+          }
+          @else {
+            @return rgba(map-get(map-get($color-palette, $variant, $name), 'base'), $alpha);
+          }
+        }
+        @else {
+          @return rgba(map-get(map-get($color-palette, $theme, $name), $variant), $alpha);
+        }
+      }
+    }
+    @else if ($alpha == default-theme or $alpha == alt-theme) {
+      // Return color theme specific color or base color from variants.
+      @return rgba(map-get(map-get($color-palette, $alpha, $name), $variant), 1);
+    }
+    @else {
+      @error "Property #{$alpha} must be either default-theme or alt-theme.";
+    }
+  }
+  // Return nested base color
+  @else if ($variant == null) and (type-of(map-get($color-palette, $theme, $name)) == map) {
+    @return rgba(map-get(map-get($color-palette, $theme, $name), 'base'), $alpha);
+  }
+  // Return colors without variations.
+  @else {
+    @return rgba(map-get($color-palette, $theme, $name), $alpha);
+  }
+}
+
 @function clr($colorChoice) {
   @return var(--c-#{$colorChoice});
 }
