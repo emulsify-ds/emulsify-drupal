@@ -2,7 +2,7 @@
 // e.g. `default` and `default-dark`. Or `purple` and `purple-dark`.
 $button-colors: (
   primary: (
-    text: clr(text-inverse),
+    text: clr(text, inverse),
     bg: clr(primary),
     text-hover: clr(primary),
     bg-hover: clr(highlight),
@@ -11,10 +11,10 @@ $button-colors: (
     text: clr(text),
     bg: clr(primary),
     text-hover: clr(text),
-    bg-hover: clr(highlight-high),
+    bg-hover: clr(highlight, high),
   ),
   secondary: (
-    text: clr(text-inverse),
+    text: clr(text, inverse),
     bg: clr(secondary),
     text-hover: clr(secondary),
     bg-hover: clr(highlight),
@@ -23,7 +23,7 @@ $button-colors: (
     text: clr(text),
     bg: clr(secondary),
     text-hover: clr(text),
-    bg-hover: clr(highlight-high),
+    bg-hover: clr(highlight, high),
   ),
 );
 

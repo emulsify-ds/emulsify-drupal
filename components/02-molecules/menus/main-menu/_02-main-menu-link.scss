@@ -24,7 +24,7 @@
     &.active,
     &:active,
     &:hover {
-      color: clr(highlight-high);
+      color: clr(highlight, high);
     }
 
     &::after {
@@ -66,7 +66,7 @@
 }
 
 .main-menu--sub-2 {
-  background-color: clr(highlight-high);
+  background-color: clr(highlight, high);
 }
 
 .main-menu__link--sub-2 {

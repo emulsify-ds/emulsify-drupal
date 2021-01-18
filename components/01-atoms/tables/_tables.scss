@@ -1,5 +1,5 @@
 .table {
-  border: 1px solid clr(highlight-high);
+  border: 1px solid clr(highlight, high);
   border-radius: 4px;
   border-spacing: 0;
   background-color: clr(muted);
@@ -10,8 +10,8 @@
 .table__heading-cell,
 .table__cell {
   border: none;
-  border-bottom: 1px solid clr(highlight-high);
-  border-right: 1px solid clr(highlight-high);
+  border-bottom: 1px solid clr(highlight, high);
+  border-right: 1px solid clr(highlight, high);
   padding: 1em;
 
   &:last-child {
@@ -20,7 +20,7 @@
 }
 
 .table__heading-cell {
-  color: clr(accent-high);
+  color: clr(accent, high);
   font-weight: 700;
   padding: 1.2em;
   text-align: left;
@@ -66,7 +66,7 @@
 .table__footer-cell,
 .table__footer-cell:first-child {
   border-bottom: none;
-  border-top: 1px solid clr(highlight-high);
+  border-top: 1px solid clr(highlight, high);
 }
 
 /* TODO: BEM selectors should be applied to wysiwyg-created content */
