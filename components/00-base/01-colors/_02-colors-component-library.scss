@@ -23,34 +23,38 @@
 }
 
 // Dynamically set swatch text color based on the lightness of the background color
-@function set-color(
-  $color,
-  $text-primary: accent-high,
-  $text-secondary: muted
-) {
-  @if (lightness($color) > 50) {
-    @return clr($text-primary);
+@function set-color($color) {
+  @if (lightness($color) > 45) {
+    @return clr(text);
   } @else {
-    @return clr($text-secondary);
+    @return clr(text, inverse);
   }
 }
 
-// Style default color swatches
-@each $name, $color in $defaultColors {
-  .cl-colors__item--default {
-    &-#{$name} {
-      background-color: clr($name);
-      color: set-color($color);
+// Set color swatch styles based on defined color in $color-palette.
+@each $theme, $palette in $color-palette {
+
+  .cl-colors__list--#{$theme} {
+    background-color: clr(background, $theme);
+    padding: 2rem;
+  }
+
+  @each $clrname, $color in $palette {
+
+    @if (type-of($color) == map) {
+
+      @each $variant, $value in $color {
+        .cl-colors__item--#{$theme}--#{$clrname}-#{$variant} {
+          background-color: clr($clrname, $variant, 1, $theme);
+          color: set-color($value);
+        }
+      }
     }
-  }
-}
-
-// Style dark color swatches
-@each $name, $color in $darkColors {
-  .cl-colors__item--dark {
-    &-#{$name} {
-      background-color: clr($name);
-      color: set-color($color, muted, accent-high);
+    @else {
+      .cl-colors__item--#{$theme}--#{$clrname} {
+        background-color: clr($clrname, 1, $theme);
+        color: set-color($color);
+      }
     }
   }
 }

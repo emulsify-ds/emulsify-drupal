@@ -1,9 +1,9 @@
 // Color Usage variables - use these (via the `clr` function below)
 // rather than color variables directly.
 $color-palette: (
-  white: #FFFFFF,
-  black: #000000,
   default-theme: (
+    white: #FFF,
+    black: #000,
     message: $green-light,
     warning: $yellow-light,
     error: $red-light,
@@ -11,12 +11,12 @@ $color-palette: (
     primary: $blue,
     secondary: $purple,
     text: (
-      base: $gray,
-      inverse: $white
+      base: $gray-dark,
+      inverse: $gray-lightest
     ),
     background: (
-      base: $gray,
-      section: $white
+      base: $white,
+      section: $gray-lightest
     ),
     accent: (
       base: $gray-dark,
@@ -24,13 +24,15 @@ $color-palette: (
     ),
     highlight: (
       base: $gray-lighter,
-      highlight-high: $gray-lightest
+      high: $gray-lightest
     )
   ),
   alt-theme: (
-    message: $green-light,
-    warning: $yellow-light,
-    error: $red-light,
+    white: #FFF,
+    black: #000,
+    message: #A7D129,
+    warning: #FFD700,
+    error: #C02739,
     muted: $gray-darker,
     primary: $blue,
     secondary: $purple,
@@ -39,13 +41,14 @@ $color-palette: (
       inverse: $gray
     ),
     background: (
-      base: $gray,
+      base: $gray-darker,
       inverse: $gray-light,
       section: $gray-dark
     ),
     accent: (
       base: $gray-lightest,
-      inverse: $white
+      inverse: $white,
+      high: $near-white
     ),
     highlight: (
       base: $gray-dark,
@@ -67,56 +70,62 @@ $color-palette: (
 // `var(--c-` to call the custom property for that color.
 // E.g. `color: clr(text);` will return `color: var(--c-text);`
 // Note: (The `--c-` is added via the `@each` loops below)
-
 @function clr($name, $variant:null, $alpha: 1, $theme:default-theme) {
-  // Return variant color
+
+  // Return theme specific variant.
   @if ($variant != null) {
     // Check if alpha is default value or overwritten.
-    @if ($alpha == number) {
-      // Return alpha fallback if variant is a number
+    @if (type-of($alpha) == number) {
+      // Return variant as alpha value.
       @if (type-of($variant) == number) {
-        @if (type-of(map-get($color-palette, $theme, $name)) == color) {
-          @return rgba(map-get($color-palette, $theme, $name), $variant);
+        // Return color value if it doesn't have variations or assume 
+        // the base color from multi-dimensional array.
+        @if (type-of(map-get(map-get($color-palette, $theme), $name)) == color) {
+          @return rgba(map-get(map-get($color-palette, $theme), $name), $variant);
         }
         @else {
-          @return rgba(map-get(map-get($color-palette, $theme, $name), 'base'), $variant);
+          @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $variant);
         }
       }
       @else {
-        @if ($variant == default-theme or $variant == alt-theme) {
-          // Return theme specific color.
-          @if (type-of(map-get($color-palette, $variant, $name)) == color) {
-            @return rgba(map-get($color-palette, $variant, $name), $alpha);
+        // Return theme specific color assume default-theme.
+        @if (map-has-key($color-palette, $variant)) {
+          // Return color value if it doesn't have variations or assume 
+          // the base color from multi-dimensional array.
+          @if (type-of(map-get(map-get($color-palette, $variant), $name)) == color) {
+            @return rgba(map-get(map-get($color-palette, $variant), $name), $alpha);
           }
           @else {
-            @return rgba(map-get(map-get($color-palette, $variant, $name), 'base'), $alpha);
+            @return rgba(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $alpha);
           }
         }
         @else {
-          @return rgba(map-get(map-get($color-palette, $theme, $name), $variant), $alpha);
+          @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $alpha);
         }
       }
     }
-    @else if ($alpha == default-theme or $alpha == alt-theme) {
+    // Check if the alpha matches a color palettes theme name.
+    @else if (map-has-key($color-palette, $alpha)) {
       // Return color theme specific color or base color from variants.
-      @return rgba(map-get(map-get($color-palette, $alpha, $name), $variant), 1);
+      @if (type-of(map-get(map-get($color-palette, $alpha), $name)) == map) {
+        @return rgba(map-get(map-get(map-get($color-palette, $alpha), $name), 'base'), 1);
+      }
+      @else {
+        @return rgba(map-get(map-get($color-palette, $alpha), $name), 1);
+      }
     }
     @else {
-      @error "Property #{$alpha} must be either default-theme or alt-theme.";
+      @error "Property #{$alpha} must be either an alpha number or theme name.";
     }
   }
   // Return nested base color
-  @else if ($variant == null) and (type-of(map-get($color-palette, $theme, $name)) == map) {
-    @return rgba(map-get(map-get($color-palette, $theme, $name), 'base'), $alpha);
+  @else if ($variant == null and type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+    @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $alpha);
   }
   // Return colors without variations.
   @else {
-    @return rgba(map-get($color-palette, $theme, $name), $alpha);
+    @return rgba(map-get(map-get($color-palette, $theme), $name), $alpha);
   }
-}
-
-@function clr($colorChoice) {
-  @return var(--c-#{$colorChoice});
 }
 
 // Create CSS custom properties
@@ -134,14 +143,44 @@ $color-palette: (
 // opted to use the 'dark mode' on their OS.
 :root {
   // Create custom properties for default colors
-  @each $name, $color in $defaultColors {
-    --c-#{$name}: #{$color};
+  @each $theme in $color-palette {
+
+    @if ($theme == default-theme) {
+      
+      @each $name, $color in $theme {
+
+        @if (type-of($name) == map) {
+
+          @each $clrname, $color in $name {
+            --c-#{$clrname}: #{$color};
+          }
+        }
+        @else {
+          --c-#{$name}: #{$color};
+        }
+      }
+    }
   }
 
   // Create custom properties for dark colors, an duse them if the user's OS has dark mode enabled
   @media (prefers-color-scheme: dark) {
-    @each $name, $color in $darkColors {
-      --c-#{$name}: #{$color};
+    @each $theme in $color-palette {
+
+      @if ($theme == alt-theme) {
+        
+        @each $name, $color in $theme {
+
+          @if (type-of($name) == map) {
+
+            @each $clrname, $color in $name {
+              --c-#{$clrname}: #{$color};
+            }
+          }
+          @else {
+            --c-#{$name}: #{$color};
+          }
+        }
+      }
     }
   }
 
@@ -149,8 +188,23 @@ $color-palette: (
   // component library regardless of OS setting.
   // This is required to show the correct colors in the component library at all times
   [data-theme='default'] {
-    @each $name, $color in $defaultColors {
-      --c-#{$name}: #{$color};
+    @each $theme in $color-palette {
+
+      @if ($theme == default-theme) {
+        
+        @each $name, $color in $theme {
+
+          @if (type-of($name) == map) {
+
+            @each $clrname, $color in $name {
+              --c-#{$clrname}: #{$color};
+            }
+          }
+          @else {
+            --c-#{$name}: #{$color};
+          }
+        }
+      }
     }
   }
 
@@ -158,8 +212,23 @@ $color-palette: (
   // library regardless of OS setting.
   // This is required to show the correct colors in the component library at all times
   [data-theme='dark'] {
-    @each $name, $color in $darkColors {
-      --c-#{$name}: #{$color};
+    @each $theme in $color-palette {
+
+      @if ($theme == alt-theme) {
+        
+        @each $name, $color in $theme {
+
+          @if (type-of($name) == map) {
+
+            @each $clrname, $color in $name {
+              --c-#{$clrname}: #{$color};
+            }
+          }
+          @else {
+            --c-#{$name}: #{$color};
+          }
+        }
+      }
     }
   }
 }
