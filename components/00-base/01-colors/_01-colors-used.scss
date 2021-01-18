@@ -142,17 +142,17 @@ $color-palette: (
 // both maps, the one from `$darkColors` will be used on machines that have
 // opted to use the 'dark mode' on their OS.
 :root {
-  // Create custom properties for default colors
-  @each $theme in $color-palette {
+  // Create custom properties for default-theme colors
+  @each $theme, $palette in $color-palette {
 
     @if ($theme == default-theme) {
-      
-      @each $name, $color in $theme {
 
-        @if (type-of($name) == map) {
+      @each $name, $color in $palette {
+
+        @if (type-of($color) == map) {
 
           @each $clrname, $color in $name {
-            --c-#{$clrname}: #{$color};
+            --c-#{$name}-#{$clrname}: #{$color};
           }
         }
         @else {
@@ -168,12 +168,12 @@ $color-palette: (
 
       @if ($theme == alt-theme) {
         
-        @each $name, $color in $theme {
+        @each $name, $color in $palette {
 
-          @if (type-of($name) == map) {
+          @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}: #{$color};
             }
           }
           @else {
@@ -192,12 +192,12 @@ $color-palette: (
 
       @if ($theme == default-theme) {
         
-        @each $name, $color in $theme {
+        @each $name, $color in $palette {
 
-          @if (type-of($name) == map) {
+          @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}: #{$color};
             }
           }
           @else {
@@ -216,12 +216,12 @@ $color-palette: (
 
       @if ($theme == alt-theme) {
         
-        @each $name, $color in $theme {
+        @each $name, $color in $palette {
 
-          @if (type-of($name) == map) {
+          @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}: #{$color};
             }
           }
           @else {
