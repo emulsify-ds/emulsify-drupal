@@ -71,7 +71,6 @@ $color-palette: (
 // E.g. `color: clr(text);` will return `color: var(--c-text);`
 // Note: (The `--c-` is added via the `@each` loops below)
 @function clr($name, $variant:null, $alpha: 1, $theme:default-theme) {
-
   // Return theme specific variant.
   @if ($variant != null) {
     // Check if alpha is default value or overwritten.
@@ -81,10 +80,28 @@ $color-palette: (
         // Return color value if it doesn't have variations or assume 
         // the base color from multi-dimensional array.
         @if (type-of(map-get(map-get($color-palette, $theme), $name)) == color) {
-          @return rgba(map-get(map-get($color-palette, $theme), $name), $variant);
+          $customProperty: (
+            #{$theme}: (
+              #{$name}-#{$alpha}: (
+                #{$variant}: rgba(map-get(map-get($color-palette, $theme), $name), $variant)
+              )
+            )
+          );
+          $color-palette: map-merge($color-palette, $customProperty);
+          @return var(--c-#{$name}-#{str-replace($variant, '.', '')}-#{$theme});
+          //@return rgba(map-get(map-get($color-palette, $theme), $name), $variant);
         }
         @else {
-          @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $variant);
+          $customProperty: (
+            #{$theme}: (
+              #{$name}-#{$alpha}: (
+                #{$variant}: rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $variant)
+              )
+            )
+          );
+          $color-palette: map-merge($color-palette, $customProperty);
+          @return var(--c-#{$name}-base-#{str-replace($variant, '.', '')}-#{$theme});
+          //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $variant);
         }
       }
       @else {
@@ -93,14 +110,41 @@ $color-palette: (
           // Return color value if it doesn't have variations or assume 
           // the base color from multi-dimensional array.
           @if (type-of(map-get(map-get($color-palette, $variant), $name)) == color) {
-            @return rgba(map-get(map-get($color-palette, $variant), $name), $alpha);
+            $customProperty: (
+              #{$theme}: (
+                #{$name}-#{$alpha}: (
+                  #{$variant}: rgba(map-get(map-get($color-palette, $variant), $name), $alpha)
+                )
+              )
+            );
+            $color-palette: map-merge($color-palette, $customProperty);
+            @return var(--c-#{$name}-#{str-replace($alpha, '.', '')}-#{$theme});
+            //@return rgba(map-get(map-get($color-palette, $variant), $name), $alpha);
           }
           @else {
-            @return rgba(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $alpha);
+            $customProperty: (
+              #{$theme}: (
+                #{$name}-#{$alpha}: (
+                  #{$variant}: rgba(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $alpha)
+                )
+              )
+            );
+            $color-palette: map-merge($color-palette, $customProperty);
+            @return var(--c-#{$name}-base-#{str-replace($alpha, '.', '')}-#{$theme});
+            //@return rgba(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $alpha);
           }
         }
         @else {
-          @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $alpha);
+          $customProperty: (
+            #{$theme}: (
+              #{$name}-#{$alpha}: (
+                #{$variant}: rgba(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $alpha)
+              )
+            )
+          );
+          $color-palette: map-merge($color-palette, $customProperty);
+          @return var(--c-#{$name}-#{str-replace($alpha, '.', '')}-#{$theme});
+          //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $alpha);
         }
       }
     }
@@ -108,10 +152,24 @@ $color-palette: (
     @else if (map-has-key($color-palette, $alpha)) {
       // Return color theme specific color or base color from variants.
       @if (type-of(map-get(map-get($color-palette, $alpha), $name)) == map) {
-        @return rgba(map-get(map-get(map-get($color-palette, $alpha), $name), 'base'), 1);
+        $customProperty: (
+          #{$alpha}: (
+            #{$name}-1: rgba(map-get(map-get(map-get($color-palette, $alpha), $name), 'base'), 1)
+          )
+        );
+        $color-palette: map-merge($color-palette, $customProperty);
+        @return var(--c-#{$name}-base-1-#{$alpha});
+        //@return rgba(map-get(map-get(map-get($color-palette, $alpha), $name), 'base'), 1);
       }
       @else {
-        @return rgba(map-get(map-get($color-palette, $alpha), $name), 1);
+        $customProperty: (
+          #{$alpha}: (
+            #{$name}-1: rgba(map-get(map-get($color-palette, $alpha), $name), 1)
+          )
+        );
+        $color-palette: map-merge($color-palette, $customProperty);
+        @return var(--c-#{$name}-1-#{$alpha});
+        //@return rgba(map-get(map-get($color-palette, $alpha), $name), 1);
       }
     }
     @else {
@@ -120,11 +178,25 @@ $color-palette: (
   }
   // Return nested base color
   @else if ($variant == null and type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-    @return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $alpha);
+    $customProperty: (
+      #{$theme}: (
+        #{$name}-base-#{$alpha}: rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $alpha)
+      )
+    );
+    $color-palette: map-merge($color-palette, $customProperty);
+    @return var(--c-#{$name}-#{str-replace($alpha, '.', '')}-#{$theme});
+    //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $alpha);
   }
   // Return colors without variations.
   @else {
-    @return rgba(map-get(map-get($color-palette, $theme), $name), $alpha);
+    $customProperty: (
+      #{$theme}: (
+        #{$name}-#{$alpha}: rgba(map-get(map-get($color-palette, $theme), $name), $alpha)
+      )
+    );
+    $color-palette: map-merge($color-palette, $customProperty);
+    @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
+    //@return rgba(map-get(map-get($color-palette, $theme), $name), $alpha);
   }
 }
 
@@ -152,11 +224,11 @@ $color-palette: (
         @if (type-of($color) == map) {
 
           @each $clrname, $color in $name {
-            --c-#{$name}-#{$clrname}: #{$color};
+            --c-#{$name}-#{$clrname}-#{$theme}: #{$color};
           }
         }
         @else {
-          --c-#{$name}: #{$color};
+          --c-#{$name}-#{$theme}: #{$color};
         }
       }
     }
@@ -173,11 +245,11 @@ $color-palette: (
           @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$name}-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}-#{$theme}: #{$color};
             }
           }
           @else {
-            --c-#{$name}: #{$color};
+            --c-#{$name}-#{$theme}: #{$color};
           }
         }
       }
@@ -197,11 +269,11 @@ $color-palette: (
           @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$name}-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}-#{$theme}: #{$color};
             }
           }
           @else {
-            --c-#{$name}: #{$color};
+            --c-#{$name}-#{$theme}: #{$color};
           }
         }
       }
@@ -221,11 +293,11 @@ $color-palette: (
           @if (type-of($color) == map) {
 
             @each $clrname, $color in $name {
-              --c-#{$name}-#{$clrname}: #{$color};
+              --c-#{$name}-#{$clrname}-#{$theme}: #{$color};
             }
           }
           @else {
-            --c-#{$name}: #{$color};
+            --c-#{$name}-#{$theme}: #{$color};
           }
         }
       }
