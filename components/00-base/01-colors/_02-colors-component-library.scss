@@ -23,11 +23,11 @@
 }
 
 // Dynamically set swatch text color based on the lightness of the background color
-@function set-color($color) {
-  @if (lightness($color) > 45) {
-    @return clr(text);
+@function set-color($color, $theme) {
+  @if (lightness($color) > 40) {
+    @return clr(text, $theme);
   } @else {
-    @return clr(text, inverse);
+    @return clr(text, inverse, $theme);
   }
 }
 
@@ -44,16 +44,25 @@
     @if (type-of($color) == map) {
 
       @each $variant, $value in $color {
-        .cl-colors__item--#{$theme}--#{$clrname}-#{$variant} {
-          background-color: clr($clrname, $variant, 1, $theme);
-          color: set-color($value);
+
+        @if ($variant == 'base') {
+          .cl-colors__item--#{$clrname}-#{$theme} {
+            background-color: clr($clrname, $theme);
+            color: set-color($value, $theme);
+          }
+        }
+        @else {
+          .cl-colors__item--#{$clrname}-#{$variant}-#{$theme} {
+            background-color: clr($clrname, $variant, $theme);
+            color: set-color($value, $theme);
+          }
         }
       }
     }
     @else {
-      .cl-colors__item--#{$theme}--#{$clrname} {
-        background-color: clr($clrname, 1, $theme);
-        color: set-color($color);
+      .cl-colors__item--#{$clrname}-#{$theme} {
+        background-color: clr($clrname, $theme);
+        color: set-color($color, $theme);
       }
     }
   }
