@@ -9,14 +9,19 @@
 // This function works in conjunction with the dynamic css custom properties
 // declarations below. The item called in the function is prefixed with
 // `var(--c-` to call the custom property for that color.
-// E.g. `color: clr(text);` will return `color: var(--c-text);`
+// E.g. `color: clr(text);` will return `color: rgba(var(--c-text), 1);`
 // Note: (The `--c-` is added via the `@each` loops below)
 // This function also accepts an alpha number argument that will
-// return the color value as rgba.
+// return the color value as rgba + property.
 @function clr($name, $variant:null, $alpha: 1, $theme:default) {
   // Coverage: clr(text)
   @if ($variant == null) {
-    @return rgba(var(--c-#{$name}), $alpha);
+    @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+      @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $alpha);
+    }
+    @else {
+      @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $alpha);
+    }
   }
 
   // Return variant as alpha value.
@@ -25,10 +30,20 @@
     @if (map-has-key($color-palette, $alpha)) {
       // Return color value if it doesn't have variations or assume 
       // the base color from multi-dimensional array.
-      @return rgba(var(--c-#{$name}-#{$alpha}), $variant);
+      @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+        @return rgba(var(--c-#{$name}-#{$alpha}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant);
+      }
+      @else {
+        @return rgba(var(--c-#{$name}-#{$alpha}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $variant);
+      }
     }
     @else {
-      @return rgba(var(--c-#{$name}), $variant);
+      @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+        @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant);
+      }
+      @else {
+        @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $variant);
+      }
     }
   }
 
@@ -39,7 +54,12 @@
     // Return theme specific color if it's defined.
     // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
     @if (map-has-key($color-palette, $variant)) {
-      @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
+      @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+        @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha);
+      }
+      @else {
+        @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get($color-palette, $variant), $name))), $alpha);
+      }
     }
     
     // Coverage: clr(text, inverse), clr(text, inverse, 0.5), 
@@ -49,24 +69,23 @@
       // clr(text, inverse, 0.5), clr(text, contrast, 0.5),
       // clr(text, inverse, 0.5, contrast)
       @if (type-of($alpha) == number) {
-
-        @if ($theme == default) {
-          @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
+        @if (map-has-key($color-palette, $variant) and type-of(map-get(map-get($color-palette, $variant), $name)) == map) {
+          @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha);
         }
         @else {
-          @return rgba(var(--c-#{$name}-#{$variant}-#{$theme}), $alpha);
+          @return rgba(var(--c-#{$name}-#{$variant}-#{$theme}, map-get(map-get(map-get($color-palette, $theme), $name), $variant)), $alpha);
         }
       }
       // Coverage: clr(text, inverse, contrast)
       @else if (map-has-key($color-palette, $alpha)) {
-        @return rgba(var(--c-#{$name}-#{$variant}-#{$alpha}), 1);
+        @return rgba(var(--c-#{$name}-#{$variant}-#{$alpha}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $alpha), $name), $variant))), 1);
       }
       @else {
         @error "Property #{$alpha} must be either an alpha number or theme name.";
       }
     }
     @else {
-      @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
+      @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), $variant))), $alpha);
     }
   }
 }
