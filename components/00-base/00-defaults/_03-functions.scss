@@ -15,3 +15,7 @@
   
   @return #{$string};
 }
+
+@function cnvrt-to-rgb($hex) {
+  @return red($hex), green($hex), blue($hex);
+}

@@ -1,7 +1,7 @@
-colors_heading: 'Palettes:'
+colors_heading: 'Color Palettes:'
 palettes:
   - palette_heading: 'Default Theme'
-    theme_name: 'default-theme'
+    theme_name: 'default'
     colors:
       - name: 'White'
       - name: 'Black'
@@ -19,8 +19,8 @@ palettes:
       - name: 'Accent High'
       - name: 'Highlight'
       - name: 'Highlight High'
-  - palette_heading: 'Alt Theme'
-    theme_name: 'alt-theme'
+  - palette_heading: 'Contrast Theme'
+    theme_name: 'contrast'
     colors:
       - name: 'White'
       - name: 'Black'

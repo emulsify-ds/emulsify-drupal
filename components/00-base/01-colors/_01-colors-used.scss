@@ -1,62 +1,3 @@
-// Color Usage variables - use these (via the `clr` function below)
-// rather than color variables directly.
-$color-palette: (
-  default: (
-    white: #FFF,
-    black: #000,
-    message: $green-light,
-    warning: $yellow-light,
-    error: $red-light,
-    muted: $near-white,
-    primary: $blue,
-    secondary: $purple,
-    text: (
-      base: $gray-dark,
-      inverse: $gray-lightest
-    ),
-    background: (
-      base: $white,
-      section: $gray-lightest
-    ),
-    accent: (
-      base: $gray-dark,
-      high: $black
-    ),
-    highlight: (
-      base: $gray-lighter,
-      high: $gray-lightest
-    )
-  ),
-  contrast: (
-    white: #FFF,
-    black: #000,
-    message: #A7D129,
-    warning: #FFD700,
-    error: #C02739,
-    muted: $gray-darker,
-    primary: $blue,
-    secondary: $purple,
-    text: (
-      base: $white,
-      inverse: $gray
-    ),
-    background: (
-      base: $gray-darker,
-      inverse: $gray-light,
-      section: $gray-dark
-    ),
-    accent: (
-      base: $gray-lightest,
-      inverse: $white,
-      high: $near-white
-    ),
-    highlight: (
-      base: $gray-dark,
-      high: $gray-darker
-    )
-  )
-);
-
 ///////////
 // Usage //
 ///////////
@@ -70,110 +11,63 @@ $color-palette: (
 // `var(--c-` to call the custom property for that color.
 // E.g. `color: clr(text);` will return `color: var(--c-text);`
 // Note: (The `--c-` is added via the `@each` loops below)
-$registered-palette: ();
-@function clr($name, $variant:null, $alpha: 1, $theme:'default') {
-  // Return theme specific variant.
-  @if ($variant != null) {
-    // Check if alpha is default value or overwritten.
-    @if (type-of($alpha) == number) {
-      // Return variant as alpha value.
-      @if (type-of($variant) == number) {
-        // Return color value if it doesn't have variations or assume 
-        // the base color from multi-dimensional array.
-        @if (type-of(map-get(map-get($color-palette, $theme), $name)) == color) {
-          @return var(--c-#{$name}-#{str-replace($variant, '.', '')});
-          //@return rgba(map-get(map-get($color-palette, $theme), $name), $variant);
-        }
-        @else {
-          @return var(--c-#{$name}-#{str-replace($variant, '.', '')});
-          //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $variant);
-        }
-      }
-      @else {
-        // Return theme specific color assume default-theme.
-        @if (map-has-key($color-palette, $variant)) {
-          // Return color value if it doesn't have variations or assume 
-          // the base color from multi-dimensional array.
-          @if (type-of(map-get(map-get($color-palette, $variant), $name)) == color) {
-            @if ($alpha == 1) {
-              @return var(--c-#{$name});
-            }
-            @else {
-              @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
-            }
-            //@return rgba(map-get(map-get($color-palette, $variant), $name), $alpha);
-          }
-          @else {
-            @if ($alpha == 1) {
-              @return var(--c-#{$name});
-            }
-            @else {
-              @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
-            }
-            //@return rgba(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $alpha);
-          }
-        }
-        @else if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-          
-          @if (map-has-key(map-get(map-get($color-palette, $theme), $name), $variant)) {
-            @if ($alpha == 1) {
-              @return var(--c-#{$name});
-            }
-            @else {
-              @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
-            }
-            //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $alpha);
-          }
-          @else {
-            @error "Property #{$variant} must be either a color variation, alpha number, or theme name.";
-          }
-        }
-        @else {
-          @error "Property #{$variant} must be either a color variation, alpha number, or theme name.";
-        }
-      }
-    }
-    // Check if the alpha matches a color palettes theme name.
-    @else if (map-has-key($color-palette, $alpha)) {
-      // Return color theme specific color or base color from variants.
-      @if (type-of(map-get(map-get($color-palette, $alpha), $name)) == map) {
-        @return var(--c-#{$name}-#{$variant});
-        //@return rgba(map-get(map-get(map-get($color-palette, $alpha), $name), 'base'), 1);
-      }
-      @else {
-        @return var(--c-#{$name}-#{$variant});
-        //@return rgba(map-get(map-get($color-palette, $alpha), $name), 1);
-      }
+// This function also accepts an alpha number argument that will
+// return the color value as rgba.
+@function clr($name, $variant:null, $alpha: 1, $theme:default) {
+  // Coverage: clr(text)
+  @if ($variant == null) {
+    @return rgba(var(--c-#{$name}), $alpha);
+  }
+
+  // Return variant as alpha value.
+  // Coverage: clr(text, 0.5), clr(text, 0.5, contrast)
+  @if ($variant != null and type-of($variant) == number) {
+    @if (map-has-key($color-palette, $alpha)) {
+      // Return color value if it doesn't have variations or assume 
+      // the base color from multi-dimensional array.
+      @return rgba(var(--c-#{$name}-#{$alpha}), $variant);
     }
     @else {
-      @error "Property #{$alpha} must be either an alpha number or theme name.";
+      @return rgba(var(--c-#{$name}), $variant);
     }
   }
-  // Return nested base color
-  @else if ($variant == null and type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-    @if ($alpha == 1) {
-      @return var(--c-#{$name});
+
+  // Coverage: clr(text, inverse), 
+  // clr(text, inverse, 0.5), clr(text, contrast), clr(text, contrast, 0.5),
+  // clr(text, inverse, contrast), clr(text, inverse, 0.5, contrast)
+  @if ($variant != null and type-of($variant) == string) {
+    // Return theme specific color if it's defined.
+    // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
+    @if (map-has-key($color-palette, $variant)) {
+      @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
+    }
+    
+    // Coverage: clr(text, inverse), clr(text, inverse, 0.5), 
+    // clr(text, inverse, contrast), clr(text, inverse, 0.5, contrast)
+    @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
+      // Coverage: clr(text, inverse), 
+      // clr(text, inverse, 0.5), clr(text, contrast, 0.5),
+      // clr(text, inverse, 0.5, contrast)
+      @if (type-of($alpha) == number) {
+
+        @if ($theme == default) {
+          @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
+        }
+        @else {
+          @return rgba(var(--c-#{$name}-#{$variant}-#{$theme}), $alpha);
+        }
+      }
+      // Coverage: clr(text, inverse, contrast)
+      @else if (map-has-key($color-palette, $alpha)) {
+        @return rgba(var(--c-#{$name}-#{$variant}-#{$alpha}), 1);
+      }
+      @else {
+        @error "Property #{$alpha} must be either an alpha number or theme name.";
+      }
     }
     @else {
-      @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
+      @return rgba(var(--c-#{$name}-#{$variant}), $alpha);
     }
-    //@return rgba(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $alpha);
-  }
-  // Return colors without variations.
-  @else {
-    // $customProperty: (
-    //   #{$theme}: (
-    //     #{$name}-#{$alpha}: rgba(map-get(map-get($color-palette, $theme), $name), $alpha)
-    //   )
-    // );
-    // $set: non-destructive-map-merge($registered-palette, $customProperty);
-    @if ($alpha == 1) {
-      @return var(--c-#{$name});
-    }
-    @else {
-      @return var(--c-#{$name}-#{str-replace($alpha, '.', '')});
-    }
-    //@return rgba(map-get(map-get($color-palette, $theme), $name), $alpha);
   }
 }
 
@@ -202,46 +96,66 @@ $registered-palette: ();
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}: #{$value};
+              --c-#{$name}: #{cnvrt-to-rgb($value)};
             }
             @else {
-              --c-#{$name}-#{$clrname}: #{$value};
+              --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
             }
           }
         }
         @else {
-          --c-#{$name}: #{$color};
+          --c-#{$name}: #{cnvrt-to-rgb($color)};
+        }
+      }
+    }
+    @else {
+
+      @each $name, $color in $palette {
+
+        @if (type-of($color) == map) {
+
+          @each $clrname, $value in $color {
+            @if ($clrname == 'base') {
+              --c-#{$name}-#{$theme}: #{cnvrt-to-rgb($value)};
+            }
+            @else {
+              --c-#{$name}-#{$clrname}-#{$theme}: #{cnvrt-to-rgb($value)};
+            }
+          }
+        }
+        @else {
+          --c-#{$name}-#{$theme}: #{cnvrt-to-rgb($color)};
         }
       }
     }
   }
 
   // Create custom properties for dark colors, an duse them if the user's OS has dark mode enabled
-  // @media (prefers-color-scheme: dark) {
-  //   @each $theme, $palette in $color-palette {
+  @media (prefers-color-scheme: dark) {
+    @each $theme, $palette in $color-palette {
 
-  //     @if ($theme == 'contrast') {
+      @if ($theme == 'contrast') {
         
-  //       @each $name, $color in $palette {
+        @each $name, $color in $palette {
 
-  //         @if (type-of($color) == map) {
+          @if (type-of($color) == map) {
 
-  //           @each $clrname, $value in $color {
-  //             @if ($clrname == 'base') {
-  //               --c-#{$name}: #{$value};
-  //             }
-  //             @else {
-  //               --c-#{$name}-#{$clrname}: #{$value};
-  //             }
-  //           }
-  //         }
-  //         @else {
-  //           --c-#{$name}: #{$color};
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+            @each $clrname, $value in $color {
+              @if ($clrname == 'base') {
+                --c-#{$name}: #{cnvrt-to-rgb($value)};
+              }
+              @else {
+                --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
+              }
+            }
+          }
+          @else {
+            --c-#{$name}: #{cnvrt-to-rgb($color)};
+          }
+        }
+      }
+    }
+  }
 
   // Use the default color scheme for the "Default Theme" section of the
   // component library regardless of OS setting.
@@ -256,15 +170,15 @@ $registered-palette: ();
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}: #{$value};
+              --c-#{$name}: #{cnvrt-to-rgb($value)};
             }
             @else {
-              --c-#{$name}-#{$clrname}: #{$value};
+              --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
             }
           }
         }
         @else {
-          --c-#{$name}: #{$color};
+          --c-#{$name}: #{cnvrt-to-rgb($color)};
         }
       }
     }
