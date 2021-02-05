@@ -12,25 +12,7 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button.yml')),
     );
-    expect(container).toMatchSnapshot(`
-      <div>
-        
-
-
-
-
-        <button
-          aria-label="button"
-          class="button"
-        >
-          
-            Twig Button
-        
-        </button>
-        
-
-      </div>
-    `);
+    expect(container).toMatchSnapshot();
   });
 
   it('can render a button with the alternative data', async () => {
@@ -38,24 +20,6 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button-alt.yml')),
     );
-    expect(container).toMatchSnapshot(`
-      <div>
-        
-
-
-
-
-        <button
-          aria-label="button"
-          class="button button--alt"
-        >
-          
-            Alternative Button
-        
-        </button>
-        
-
-      </div>
-    `);
+    expect(container).toMatchSnapshot();
   });
 });

@@ -14,36 +14,6 @@ describe('cta', () => {
       namespaces,
     );
 
-    expect(container).toMatchSnapshot(`
-      <div>
-        <div
-          class="cta"
-        >
-          
-        
-          <h2>
-            This is a reason to act
-          </h2>
-          
-        
-
-
-
-
-          <button
-            aria-label="button"
-            class="button"
-          >
-            
-            Click here
-        
-          </button>
-          
-
-        </div>
-        
-
-      </div>
-    `);
+    expect(container).toMatchSnapshot();
   });
 });
