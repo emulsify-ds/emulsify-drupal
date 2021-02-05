@@ -14,7 +14,7 @@ describe('cta', () => {
       namespaces,
     );
 
-    expect(container).toMatchInlineSnapshot(`
+    expect(container).toMatchSnapshot(`
       <div>
         <div
           class="cta"

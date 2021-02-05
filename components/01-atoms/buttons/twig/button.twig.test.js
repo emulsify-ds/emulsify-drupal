@@ -12,7 +12,7 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button.yml')),
     );
-    expect(container).toMatchInlineSnapshot(`
+    expect(container).toMatchSnapshot(`
       <div>
         
 
@@ -38,7 +38,7 @@ describe('Twig Button', () => {
       join(__dirname, 'button.twig'),
       loadYaml(join(__dirname, 'button-alt.yml')),
     );
-    expect(container).toMatchInlineSnapshot(`
+    expect(container).toMatchSnapshot(`
       <div>
         
 
