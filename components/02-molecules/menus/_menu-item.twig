@@ -22,6 +22,8 @@
 {% set li_modifiers = item_modifiers %}
 {% set li_blockname = item_blockname %}
 
+{% import "@molecules/menus/_menu.twig" as menus %}
+
 {% extends "@atoms/lists/_list-item.twig" %}
   {% block list_item_content %}
     {# if drupal #}
