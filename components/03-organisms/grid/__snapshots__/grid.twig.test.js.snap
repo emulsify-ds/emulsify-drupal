@@ -347,7 +347,6 @@ exports[`grid can render a grid of ctas 1`] = `
 
 
       <button
-        aria-label="button"
         class="button"
       >
         
@@ -374,7 +373,6 @@ exports[`grid can render a grid of ctas 1`] = `
 
 
       <button
-        aria-label="button"
         class="button"
       >
         
@@ -401,7 +399,6 @@ exports[`grid can render a grid of ctas 1`] = `
 
 
       <button
-        aria-label="button"
         class="button"
       >
         

@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Twig Button can render a button with the alternative data 1`] = `
+<div>
+  
+
+
+
+
+  <button
+    class="button button--alt"
+  >
+    
+      Alternative Button
+  
+  </button>
+  
+
+</div>
+`;
+
+exports[`Twig Button can render a button with the standard data 1`] = `
+<div>
+  
+
+
+
+
+  <button
+    class="button"
+  >
+    
+      Twig Button
+  
+  </button>
+  
+
+</div>
+`;
