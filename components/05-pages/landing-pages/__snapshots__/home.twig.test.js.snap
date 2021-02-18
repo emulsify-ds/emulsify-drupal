@@ -459,7 +459,6 @@ exports[`home can render a home page 1`] = `
 
 
           <button
-            aria-label="button"
             class="button"
           >
             

@@ -6,7 +6,8 @@ import iconTwig from './icons/icons.twig';
 
 import imageData from './image/image.yml';
 import figureData from './image/figure.yml';
-import iconData from './icons/icons.yml';
+
+const svgIcons = require.context('../../../images/icons/', true, /\.svg$/);
 
 /**
  * Storybook Definition.
@@ -19,6 +20,15 @@ export const images = () => (
 export const figures = () => (
   <div dangerouslySetInnerHTML={{ __html: figure(figureData) }} />
 );
+
+const items = [];
+svgIcons.keys().forEach((key) => {
+  const iconName = svgIcons(key).split('static/media/').pop().split('.')[0];
+  const icon = {};
+  icon.value = iconName;
+  items.push(icon);
+});
+
 export const icons = () => (
-  <div dangerouslySetInnerHTML={{ __html: iconTwig(iconData) }} />
+  <div dangerouslySetInnerHTML={{ __html: iconTwig({ items }) }} />
 );

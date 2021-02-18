@@ -422,7 +422,6 @@ function _emulsify_get_files_to_alter() {
     return array_merge($default_array, array(
       'components',
       'templates',
-      'README.md',
     ));
   }
 }
@@ -501,7 +500,6 @@ function _emulsify_get_files_to_copy() {
   if (drush_get_option('slim') === TRUE) {
     return array_merge($default_array, array(
       'components/style.scss',
-      'components/00-base/01-colors',
     ));
   }
   else {
