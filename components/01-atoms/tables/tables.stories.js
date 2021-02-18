@@ -1,5 +1,3 @@
-import React from 'react';
-
 import tables from './tables.twig';
 
 /**
@@ -7,6 +5,4 @@ import tables from './tables.twig';
  */
 export default { title: 'Atoms/Tables' };
 
-export const table = () => (
-  <div dangerouslySetInnerHTML={{ __html: tables({}) }} />
-);
+export const table = () => tables();
