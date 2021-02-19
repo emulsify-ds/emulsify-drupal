@@ -15,7 +15,7 @@ globals:
   it: true
   describe: true
   Drupal: true
-parser: babel-eslint
+parser: '@babel/eslint-parser'
 rules:
   strict: 0
   import/no-extraneous-dependencies: 0
