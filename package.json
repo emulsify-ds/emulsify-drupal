@@ -76,7 +76,6 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "@babel/preset-react": "^7.12.5",
     "@storybook/addon-a11y": "^6.1.18",
     "@storybook/addon-essentials": "^6.1.18",
     "@storybook/addon-links": "^6.1.18",
