@@ -11,17 +11,17 @@
   text-align: center;
 
   &--warning {
-    color: $gray;
+    color: clr(text);
     background-color: clr(warning);
   }
 
   &--error {
-    color: $gray;
+    color: clr(text);
     background-color: clr(error);
   }
 
   &--status {
-    color: $gray;
+    color: clr(text);
     background-color: clr(message);
   }
 }

@@ -33,7 +33,7 @@
   cursor: pointer;
   display: block;
   width: 20%;
-  color: $white;
+  color: clr(white);
   position: relative;
 
   @include medium {

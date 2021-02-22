@@ -28,7 +28,7 @@
     }
 
     &::after {
-      color: $white;
+      color: clr(white);
       display: inline-block;
       content: '>';
       margin-left: 0.5rem;

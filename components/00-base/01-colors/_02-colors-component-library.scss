@@ -47,7 +47,7 @@
 
         @if ($variant == 'base') {
           .cl-colors__item--#{$clrname} {
-            background-color: clr($clrname);
+            background-color: clr($clrname, 0.5);
             color: set-color($value, $theme);
           }
         }

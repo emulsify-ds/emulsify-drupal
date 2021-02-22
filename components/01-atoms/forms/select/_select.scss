@@ -6,7 +6,7 @@
   position: relative;
 
   @media (prefers-color-scheme: dark) {
-    background-color: clr(background, inverse, alt-theme);
+    background-color: clr(background, inverse, contrast);
   }
 
   &::after {
