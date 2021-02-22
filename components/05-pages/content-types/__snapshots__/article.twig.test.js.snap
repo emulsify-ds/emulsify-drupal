@@ -200,7 +200,6 @@ exports[`article can render an article page 1`] = `
 
 
           <button
-            aria-label="button"
             class="button"
           >
             
@@ -518,7 +517,6 @@ exports[`article can render an article page 1`] = `
 
 
           <button
-            aria-label="button"
             class="button"
           >
             
