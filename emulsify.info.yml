@@ -41,22 +41,17 @@ logo: images/logo.png
 #   - '@stable/css/system/components/reset-appearance.module.css'
 
 # MUST install `components` module: `drush dl components && drush en components -y``
-component-libraries:
-  base:
-    paths:
+components:
+  namespaces:
+    base:
       - components/00-base
-  atoms:
-    paths:
+    atoms:
       - components/01-atoms
-  molecules:
-    paths:
+    molecules:
       - components/02-molecules
-  organisms:
-    paths:
+    organisms:
       - components/03-organisms
-  templates:
-    paths:
+    templates:
       - components/04-templates
-  pages:
-    paths:
+    pages:
       - components/05-pages
