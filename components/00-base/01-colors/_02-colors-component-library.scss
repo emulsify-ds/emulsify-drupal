@@ -12,22 +12,44 @@
 
 .cl-colors__item {
   list-style: none;
-  padding: 1rem 2rem;
+  padding: 2rem;
   transition: all 0.4s;
   flex: 1 1 20%;
   min-width: 150px;
   min-height: 150px;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: flex-start;
+  font-weight: bold;
+  font-size: 110%;
+  text-align: center;
+}
+
+// Add the color definition from the color-palette map.
+@mixin color-tag($color) {
+  position: relative;
+
+  &::after {
+    content: '#{$color}';
+    display: block;
+    padding: 5px;
+    font-weight: bold;
+    text-align: center;
+    background-color: $color;
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+  }
 }
 
 // Dynamically set swatch text color based on the lightness of the background color
 @function set-color($color, $theme) {
-  @if (lightness($color) < 50) {
-    @return clr(text);
+  //$color: encodecolor($color);
+  @if (lightness($color) > 50) {
+    @return clr(text, $theme);
   } @else {
-    @return clr(text, inverse);
+    @return clr(text, inverse, $theme);
   }
 }
 
@@ -37,32 +59,38 @@
   .cl-colors__list--#{$theme} {
     background-color: clr(background, $theme);
     padding: 2rem;
-  }
 
-  @each $clrname, $color in $palette {
+    @each $clrname, $color in $palette {
 
-    @if (type-of($color) == map) {
+      @if (type-of($color) == map) {
 
-      @each $variant, $value in $color {
+        @each $variant, $value in $color {
 
-        @if ($variant == 'base') {
-          .cl-colors__item--#{$clrname} {
-            background-color: clr($clrname, 0.5);
-            color: set-color($value, $theme);
+          @if ($variant == 'base') {
+            .cl-colors__item--#{$clrname} {
+              @include color-tag($value);
+
+              background-color: clr($clrname);
+              color: set-color($value, $theme);
+            }
           }
-        }
-        @else {
-          .cl-colors__item--#{$clrname}-#{$variant} {
-            background-color: clr($clrname, $variant);
-            color: set-color($value, $theme);
+          @else {
+            .cl-colors__item--#{$clrname}-#{$variant} {
+              @include color-tag($value);
+
+              background-color: clr($clrname, $variant);
+              color: set-color($value, $theme);
+            }
           }
         }
       }
-    }
-    @else {
-      .cl-colors__item--#{$clrname} {
-        background-color: clr($clrname);
-        color: set-color($color, $theme);
+      @else {
+        .cl-colors__item--#{$clrname} {
+          @include color-tag($color);
+
+          background-color: clr($clrname);
+          color: set-color($color, $theme);
+        }
       }
     }
   }

@@ -17,10 +17,10 @@
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-      @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $alpha);
+      @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $alpha#{')'};
     }
     @else {
-      @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $alpha);
+      @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $alpha#{')'};
     }
   }
 
@@ -31,18 +31,18 @@
       // Return color value if it doesn't have variations or assume 
       // the base color from multi-dimensional array.
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return rgba(var(--c-#{$name}-#{$alpha}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant);
-      }
+        @return #{'hsla('}var(--c-#{$name}-#{$alpha}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant#{')'};
+      } 
       @else {
-        @return rgba(var(--c-#{$name}-#{$alpha}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $variant);
+        @return #{'hsla('}var(--c-#{$name}-#{$alpha}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $variant#{')'};
       }
     }
     @else {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant);
+        @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant#{')'};
       }
       @else {
-        @return rgba(var(--c-#{$name}, cnvrt-to-rgb(map-get(map-get($color-palette, $theme), $name))), $variant);
+        @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $variant#{')'};
       }
     }
   }
@@ -55,10 +55,10 @@
     // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
     @if (map-has-key($color-palette, $variant)) {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha);
+        @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha#{')'};
       }
       @else {
-        @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get($color-palette, $variant), $name))), $alpha);
+        @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get($color-palette, $variant), $name))), $alpha#{')'};
       }
     }
     
@@ -70,22 +70,22 @@
       // clr(text, inverse, 0.5, contrast)
       @if (type-of($alpha) == number) {
         @if (map-has-key($color-palette, $variant) and type-of(map-get(map-get($color-palette, $variant), $name)) == map) {
-          @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha);
+          @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha#{')'};
         }
         @else {
-          @return rgba(var(--c-#{$name}-#{$variant}-#{$theme}, map-get(map-get(map-get($color-palette, $theme), $name), $variant)), $alpha);
+          @return #{'hsla('}var(--c-#{$name}-#{$variant}-#{$theme}, map-get(map-get(map-get($color-palette, $theme), $name), $variant)), $alpha#{')'};
         }
       }
       // Coverage: clr(text, inverse, contrast)
       @else if (map-has-key($color-palette, $alpha)) {
-        @return rgba(var(--c-#{$name}-#{$variant}-#{$alpha}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $alpha), $name), $variant))), 1);
+        @return #{'hsla('}var(--c-#{$name}-#{$variant}-#{$alpha}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $alpha), $name), $variant))), 1#{')'};
       }
       @else {
         @error "Property #{$alpha} must be either an alpha number or theme name.";
       }
     }
     @else {
-      @return rgba(var(--c-#{$name}-#{$variant}, cnvrt-to-rgb(map-get(map-get(map-get($color-palette, $theme), $name), $variant))), $alpha);
+      @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), $variant))), $alpha#{')'};
     }
   }
 }
@@ -115,15 +115,15 @@
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}: #{cnvrt-to-hsl($value)};
             }
             @else {
-              --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}-#{$clrname}: #{cnvrt-to-hsl($value)};
             }
           }
         }
         @else {
-          --c-#{$name}: #{cnvrt-to-rgb($color)};
+          --c-#{$name}: #{cnvrt-to-hsl($color)};
         }
       }
     }
@@ -135,15 +135,15 @@
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}-#{$theme}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}-#{$theme}: #{cnvrt-to-hsl($value)};
             }
             @else {
-              --c-#{$name}-#{$clrname}-#{$theme}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}-#{$clrname}-#{$theme}: #{cnvrt-to-hsl($value)};
             }
           }
         }
         @else {
-          --c-#{$name}-#{$theme}: #{cnvrt-to-rgb($color)};
+          --c-#{$name}-#{$theme}: #{cnvrt-to-hsl($color)};
         }
       }
     }
@@ -161,15 +161,15 @@
 
             @each $clrname, $value in $color {
               @if ($clrname == 'base') {
-                --c-#{$name}: #{cnvrt-to-rgb($value)};
+                --c-#{$name}: #{cnvrt-to-hsl($value)};
               }
               @else {
-                --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
+                --c-#{$name}-#{$clrname}: #{cnvrt-to-hsl($value)};
               }
             }
           }
           @else {
-            --c-#{$name}: #{cnvrt-to-rgb($color)};
+            --c-#{$name}: #{cnvrt-to-hsl($color)};
           }
         }
       }
@@ -189,15 +189,15 @@
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}: #{cnvrt-to-hsl($value)};
             }
             @else {
-              --c-#{$name}-#{$clrname}: #{cnvrt-to-rgb($value)};
+              --c-#{$name}-#{$clrname}: #{cnvrt-to-hsl($value)};
             }
           }
         }
         @else {
-          --c-#{$name}: #{cnvrt-to-rgb($color)};
+          --c-#{$name}: #{cnvrt-to-hsl($color)};
         }
       }
     }

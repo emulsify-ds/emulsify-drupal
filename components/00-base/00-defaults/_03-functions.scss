@@ -2,20 +2,18 @@
  * General Functions (put specific ones in component files where applicable)
 */
 
-/* Functions - String Replace.
- * Ability to replace a portion of an incoming string with another string.
-*/
-
-@function str-replace($string, $search, $replace: '') {
-  $index: str-index(#{$string}, #{$search});
-  
-  @if $index {
-    @return str-slice(#{$string}, 1, $index - 1) + $replace + str-replace(str-slice(#{$string}, $index + str-length(#{$search})), #{$search}, $replace);
+@function encodecolor($string) {
+  @if type-of($string) == 'color' and str-index(#{$string}, '#') == 1 {
+    $hex: str-slice(ie-hex-str($string), 4);
+    @return unquote('#' + $hex);
   }
-  
-  @return #{$string};
+
+  @return unquote($string);
 }
 
-@function cnvrt-to-rgb($hex) {
-  @return red($hex), green($hex), blue($hex);
+/* Functions - Convert to HSL values.
+ * Returns a raw hue, saturation, and lightness values for the `hsl()` function.
+*/
+@function cnvrt-to-hsl($hex) {
+  @return hue($hex), saturation($hex), lightness($hex);
 }
