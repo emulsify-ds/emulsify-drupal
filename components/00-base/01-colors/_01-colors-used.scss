@@ -17,13 +17,24 @@
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-      @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $alpha#{')'};
+      @return #{'hsla('}
+        var(
+          --c-#{$name}, 
+          cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))
+        ), 
+        $alpha
+      #{')'};
     }
     @else {
-      @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $alpha#{')'};
+      @return #{'hsla('}
+          var(
+            --c-#{$name}, 
+            cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))
+          ), 
+          $alpha
+        #{')'};
     }
   }
-
   // Return variant as alpha value.
   // Coverage: clr(text, 0.5), clr(text, 0.5, contrast)
   @if ($variant != null and type-of($variant) == number) {
@@ -31,22 +42,45 @@
       // Return color value if it doesn't have variations or assume 
       // the base color from multi-dimensional array.
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}var(--c-#{$name}-#{$alpha}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}-#{$alpha}, 
+              cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))
+            ), 
+            $variant
+          #{')'};
       } 
       @else {
-        @return #{'hsla('}var(--c-#{$name}-#{$alpha}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $variant#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}-#{$alpha}, 
+              cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))
+            ), 
+            $variant
+          #{')'};
       }
     }
     @else {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))), $variant#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}, 
+              cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), 'base'))
+            ), 
+            $variant
+          #{')'};
       }
       @else {
-        @return #{'hsla('}var(--c-#{$name}, cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))), $variant#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}, 
+              cnvrt-to-hsl(map-get(map-get($color-palette, $theme), $name))
+            ), 
+            $variant
+          #{')'};
       }
     }
   }
-
   // Coverage: clr(text, inverse), 
   // clr(text, inverse, 0.5), clr(text, contrast), clr(text, contrast, 0.5),
   // clr(text, inverse, contrast), clr(text, inverse, 0.5, contrast)
@@ -55,13 +89,24 @@
     // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
     @if (map-has-key($color-palette, $variant)) {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}-#{$variant}, 
+              cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))
+            ), 
+            $alpha
+          #{')'};
       }
       @else {
-        @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get($color-palette, $variant), $name))), $alpha#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}-#{$variant}, 
+              cnvrt-to-hsl(map-get(map-get($color-palette, $variant), $name))
+            ), 
+            $alpha
+          #{')'};
       }
     }
-    
     // Coverage: clr(text, inverse), clr(text, inverse, 0.5), 
     // clr(text, inverse, contrast), clr(text, inverse, 0.5, contrast)
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
@@ -70,22 +115,46 @@
       // clr(text, inverse, 0.5, contrast)
       @if (type-of($alpha) == number) {
         @if (map-has-key($color-palette, $variant) and type-of(map-get(map-get($color-palette, $variant), $name)) == map) {
-          @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))), $alpha#{')'};
+          @return #{'hsla('}
+              var(
+                --c-#{$name}-#{$variant}, 
+                cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $variant), $name), 'base'))
+              ), 
+              $alpha
+            #{')'};
         }
         @else {
-          @return #{'hsla('}var(--c-#{$name}-#{$variant}-#{$theme}, map-get(map-get(map-get($color-palette, $theme), $name), $variant)), $alpha#{')'};
+          @return #{'hsla('}
+              var(
+                --c-#{$name}-#{$variant}, 
+                cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), $variant))
+              ), 
+              $alpha
+            #{')'};
         }
       }
       // Coverage: clr(text, inverse, contrast)
       @else if (map-has-key($color-palette, $alpha)) {
-        @return #{'hsla('}var(--c-#{$name}-#{$variant}-#{$alpha}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $alpha), $name), $variant))), 1#{')'};
+        @return #{'hsla('}
+            var(
+              --c-#{$name}-#{$variant}-#{$alpha}, 
+              cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $alpha), $name), $variant))
+            ), 
+            1
+          #{')'};
       }
       @else {
         @error "Property #{$alpha} must be either an alpha number or theme name.";
       }
     }
     @else {
-      @return #{'hsla('}var(--c-#{$name}-#{$variant}, cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), $variant))), $alpha#{')'};
+      @return #{'hsla('}
+          var(
+            --c-#{$name}-#{$variant}, 
+            cnvrt-to-hsl(map-get(map-get(map-get($color-palette, $theme), $name), $variant))
+          ), 
+          $alpha
+        #{')'};
     }
   }
 }
@@ -149,7 +218,7 @@
     }
   }
 
-  // Create custom properties for dark colors, an duse them if the user's OS has dark mode enabled
+  // Create custom properties for contrast colors, and use them if the user's OS has dark mode enabled.
   @media (prefers-color-scheme: dark) {
     @each $theme, $palette in $color-palette {
 
@@ -175,7 +244,6 @@
       }
     }
   }
-
   // Use the default color scheme for the "Default Theme" section of the
   // component library regardless of OS setting.
   // This is required to show the correct colors in the component library at all times

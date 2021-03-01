@@ -14,6 +14,11 @@
 /* Functions - Convert to HSL values.
  * Returns a raw hue, saturation, and lightness values for the `hsl()` function.
 */
-@function cnvrt-to-hsl($hex) {
-  @return hue($hex), saturation($hex), lightness($hex);
+@function cnvrt-to-hsl($color) {
+  @if type-of($color) == color {
+    @return hue($color), saturation($color), lightness($color);
+  }
+  @else {
+    @return $color;
+  }
 }

@@ -45,7 +45,6 @@
 
 // Dynamically set swatch text color based on the lightness of the background color
 @function set-color($color, $theme) {
-  //$color: encodecolor($color);
   @if (lightness($color) > 50) {
     @return clr(text, $theme);
   } @else {
