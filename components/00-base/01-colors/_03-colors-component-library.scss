@@ -1,0 +1,98 @@
+// These styles only affect the colors "Usage" page in the component library
+.cl-colors {
+  padding: 1rem;
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 2rem;
+    padding: 0;
+  }
+
+  &__item {
+    list-style: none;
+    padding: 1rem;
+    transition: all 0.4s;
+    flex: 1 1 20%;
+    min-width: 150px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-weight: bold;
+  }
+
+  &__swatch {
+    display: block;
+    width: 100%;
+    padding: 3rem;
+  }
+
+  &__definition {
+    &::before {
+      display: block;
+      padding: 5px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 80%;
+      color: clr(text);
+      white-space: pre-wrap;
+    }
+  }
+}
+
+@mixin color-swatch($color, $variant: null) {
+  > .cl-colors__swatch {
+    background-color: clr($color, $variant);
+  }
+}
+
+// Add the color definition from the color-palette map.
+@mixin color-definition($color) {
+  > .cl-colors__definition {
+
+    &::before {
+      content: 'Hex: #{cnvrt-clr($color)},\a rgba(#{cnvrt-clr($color, 'rgba')}),\a hsla(#{cnvrt-clr($color, 'hsla')})';
+    }
+  }
+}
+
+// Set color swatch styles based on defined color in $color-palette.
+@each $theme, $palette in $color-palette {
+
+  .cl-colors__list--#{$theme} {
+    background-color: clr(background);
+    padding: 2rem;
+    color: clr(text);
+
+    @each $clrname, $color in $palette {
+
+      @if (type-of($color) == map) {
+
+        @each $variant, $value in $color {
+
+          @if ($variant == 'base') {
+            .cl-colors__item--#{$clrname} {
+              @include color-swatch($clrname);
+              @include color-definition($value);
+            }
+          }
+          @else {
+            .cl-colors__item--#{$clrname}-#{$variant} {
+              @include color-swatch($clrname, $variant);
+              @include color-definition($value);
+            }
+          }
+        }
+      }
+      @else {
+        .cl-colors__item--#{$clrname} {
+          @include color-swatch($clrname);
+          @include color-definition($color);
+        }
+      }
+    }
+  }
+}

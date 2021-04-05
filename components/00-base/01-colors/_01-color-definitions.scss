@@ -2,9 +2,9 @@
 // rather than color variables directly.
 $color-palette: (
   default: (
-    white: #FFF,
-    black: #000,
-    message: #cfefc2,
+    white: white,
+    black: rgba(0,0,0,1),
+    message: rgb(95, 169, 38),
     warning: #f9fb93,
     error: #fbe3e4,
     muted: #f2f2f2,

@@ -1,0 +1,89 @@
+// Create CSS custom properties
+// This is what powers the built-in OS light/dark mode switching.
+// For each color variable (e.g. `text` and `background`) a css custom
+// property will be created. (e.g. `--c-text:` and `--c-background:`).
+//
+// The first `@each` below will create a custom property for each item in the
+// `$color-palette` map. So put all of your default colors there.
+//
+// The `prefers-color-scheme: dark` media query below will then create custom
+// properties for each of the colors in the `$darkColors` map only if the
+// browser supports that feature. If there is an exact match (e.g. `text`) in
+// both maps, the one from `$darkColors` will be used on machines that have
+// opted to use the 'dark mode' on their OS.
+:root {
+  // Create custom properties for default-theme colors
+  @each $theme, $palette in $color-palette {
+
+    @each $name, $color in $palette {
+
+      @if (type-of($color) == map) {
+
+        @each $clrname, $value in $color {
+          @if ($clrname == 'base') {
+            --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+          }
+          @else {
+            --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+          }
+        }
+      }
+      @else {
+        --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+      }
+    }
+  }
+
+  // Create custom properties for contrast colors, and use them if the user's OS has dark mode enabled.
+  @media (prefers-color-scheme: dark) {
+    @each $theme, $palette in $color-palette {
+
+      @if ($theme == 'contrast') {
+
+        @each $name, $color in $palette {
+
+          @if (type-of($color) == map) {
+
+            @each $clrname, $value in $color {
+              @if ($clrname == 'base') {
+                --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+              }
+              @else {
+                --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+              }
+            }
+          }
+          @else {
+            --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+          }
+        }
+      }
+    }
+  }
+  // Use the default color scheme for the "Default Theme" section of the
+  // component library regardless of OS setting.
+  // This is required to show the correct colors in the component library at all times
+  @each $theme, $palette in $color-palette {
+
+    [data-theme='#{$theme}'] {
+
+      @each $name, $color in $palette {
+
+        @if (type-of($color) == map) {
+
+          @each $clrname, $value in $color {
+            @if ($clrname == 'base') {
+              --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+            }
+            @else {
+              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+            }
+          }
+        }
+        @else {
+          --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+        }
+      }
+    }
+  }
+}
