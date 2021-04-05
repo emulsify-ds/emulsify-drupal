@@ -43,23 +43,23 @@
 // Note: (The `--c-` is added via the `@each` loops below)
 // This function also accepts an alpha number argument that will
 // return the color value as hsl + alpha.
-@function clr($name, $variant:null, $alpha: 1, $theme:default) {
+@function clr($name, $variant:null, $alpha: 1, $theme:default, $format: hsl) {
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-      @return #{'hsla('}
+      @return $format#{'a('}
         var(
           --c-#{$name},
-          cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), 'hsl')
+          cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
         ),
         $alpha
       #{')'};
     }
     @else {
-      @return #{'hsla('}
+      @return $format#{'a('}
           var(
             --c-#{$name},
-            cnvrt-clr(map-get(map-get($color-palette, $theme), $name), 'hsl')
+            cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
           ),
           $alpha
         #{')'};
@@ -72,19 +72,19 @@
       // Return color value if it doesn't have variations or assume
       // the base color from multi-dimensional array.
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name}-#{$alpha},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), 'hsl')
+              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
             ),
             $variant
           #{')'};
       }
       @else {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name}-#{$alpha},
-              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), 'hsl')
+              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
             ),
             $variant
           #{')'};
@@ -92,19 +92,19 @@
     }
     @else {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), 'hsl')
+              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
             ),
             $variant
           #{')'};
       }
       @else {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name},
-              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), 'hsl')
+              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
             ),
             $variant
           #{')'};
@@ -119,19 +119,19 @@
     // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
     @if (map-has-key($color-palette, $variant)) {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name}-#{$variant},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), 'hsl')
+              cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)
             ),
             $alpha
           #{')'};
       }
       @else {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name}-#{$variant},
-              cnvrt-clr(map-get(map-get($color-palette, $variant), $name), 'hsl')
+              cnvrt-clr(map-get(map-get($color-palette, $variant), $name), $format)
             ),
             $alpha
           #{')'};
@@ -146,29 +146,29 @@
       @if (type-of($alpha) == number) {
         @if (map-has-key($color-palette, $variant) and type-of(map-get(map-get($color-palette, $variant), $name)) == map) {
 
-          @return #{'hsla('}
+          @return $format#{'a('}
               var(
                 --c-#{$name}-#{$variant},
-                cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), 'hsl')
+                cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)
               ),
               $alpha
             #{')'};
         }
         @else {
           @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-            @return #{'hsla('}
+            @return $format#{'a('}
                 var(
                   --c-#{$name}-#{$variant},
-                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), 'hsl')
+                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
                 ),
                 $alpha
               #{')'};
           }
           @else {
-            @return #{'hsla('}
+            @return $format#{'a('}
                 var(
                   --c-#{$name}-#{$variant},
-                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), 'hsl')
+                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)
                 ),
                 $alpha
               #{')'};
@@ -177,10 +177,10 @@
       }
       // Coverage: clr(text, inverse, contrast)
       @else if (map-has-key($color-palette, $alpha)) {
-        @return #{'hsla('}
+        @return $format#{'a('}
             var(
               --c-#{$name}-#{$variant}-#{$alpha},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $alpha), $name), $variant), 'hsl')
+              cnvrt-clr(map-get(map-get(map-get($color-palette, $alpha), $name), $variant), $format)
             ),
             1
           #{')'};
@@ -190,10 +190,10 @@
       }
     }
     @else {
-      @return #{'hsla('}
+      @return $format#{'a('}
           var(
             --c-#{$name}-#{$variant},
-            cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), 'hsl')
+            cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)
           ),
           $alpha
         #{')'};

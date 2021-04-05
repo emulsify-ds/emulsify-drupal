@@ -11,6 +11,9 @@
 // browser supports that feature. If there is an exact match (e.g. `text`) in
 // both maps, the one from `$darkColors` will be used on machines that have
 // opted to use the 'dark mode' on their OS.
+
+$format: 'hsl';
+
 :root {
   // Create custom properties for default-theme colors
   @each $theme, $palette in $color-palette {
@@ -21,15 +24,15 @@
 
         @each $clrname, $value in $color {
           @if ($clrname == 'base') {
-            --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+            --c-#{$name}: #{cnvrt-clr($value, $format)};
           }
           @else {
-            --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+            --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
           }
         }
       }
       @else {
-        --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+        --c-#{$name}: #{cnvrt-clr($color, $format)};
       }
     }
   }
@@ -46,15 +49,15 @@
 
             @each $clrname, $value in $color {
               @if ($clrname == 'base') {
-                --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+                --c-#{$name}: #{cnvrt-clr($value, $format)};
               }
               @else {
-                --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+                --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
               }
             }
           }
           @else {
-            --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+            --c-#{$name}: #{cnvrt-clr($color, $format)};
           }
         }
       }
@@ -73,15 +76,15 @@
 
           @each $clrname, $value in $color {
             @if ($clrname == 'base') {
-              --c-#{$name}: #{cnvrt-clr($value, 'hsl')};
+              --c-#{$name}: #{cnvrt-clr($value, $format)};
             }
             @else {
-              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, 'hsl')};
+              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
             }
           }
         }
         @else {
-          --c-#{$name}: #{cnvrt-clr($color, 'hsl')};
+          --c-#{$name}: #{cnvrt-clr($color, $format)};
         }
       }
     }
