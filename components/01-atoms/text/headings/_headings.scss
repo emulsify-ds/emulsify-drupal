@@ -3,7 +3,7 @@
  * All arguments are optional. If not defined, the defaults below will be used
 */
 
-$color-heading: clr(text);
+$color-heading: clr(accent);
 
 @mixin heading-xl(
   $font-family: $font-heading,

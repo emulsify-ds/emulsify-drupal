@@ -11,6 +11,6 @@ import './colors';
  */
 export default { title: 'Base/Colors' };
 
-export const Palettes = () => {
-  return <div dangerouslySetInnerHTML={{ __html: colors(colorsData) }} />;
-};
+export const Palettes = () => (
+  <div dangerouslySetInnerHTML={{ __html: colors(colorsData) }} />
+);

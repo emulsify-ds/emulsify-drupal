@@ -8,7 +8,7 @@ $button-colors: (
     bg-hover: clr(highlight),
   ),
   primary-dark: (
-    text: clr(muted),
+    text: clr(text),
     bg: clr(primary),
     text-hover: clr(text),
     bg-hover: clr(highlight, high),
@@ -20,7 +20,7 @@ $button-colors: (
     bg-hover: clr(highlight),
   ),
   secondary-dark: (
-    text: clr(text, inverse),
+    text: clr(text),
     bg: clr(secondary),
     text-hover: clr(text),
     bg-hover: clr(highlight, high),
