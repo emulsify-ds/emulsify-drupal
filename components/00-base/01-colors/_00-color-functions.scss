@@ -6,8 +6,9 @@
 
   @if (type-of($color) == color) {
 
-    @if ($format == null) {
-      @return $color;
+    @if ($format == null or $format == 'hex') {
+      $ie-hex: ie_hex_str($color);
+      @return unquote('#' + str_slice($ie-hex, 4));
     }
     @else if ($format == 'rgb') {
       @return red($color), green($color), blue($color);
@@ -42,8 +43,9 @@
 // E.g. `color: clr(text);` will return `color: hsla(var(--c-text), 1);`
 // Note: (The `--c-` is added via the `@each` loops below)
 // This function also accepts an alpha number argument that will
-// return the color value as hsl + alpha.
-@function clr($name, $variant:null, $alpha: 1, $theme:default, $format: hsl) {
+// return the color value as (hsl or rgb) + alpha.
+@function clr($name, $variant:null, $alpha: 1, $theme:default) {
+  $format: hsl;
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {

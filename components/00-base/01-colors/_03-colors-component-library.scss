@@ -1,44 +1,67 @@
 // These styles only affect the colors "Usage" page in the component library
 .cl-colors {
-  padding: 1rem;
+  padding: $space;
 
   &__list {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 0 2rem;
+    margin: 0 0 $space-double;
     padding: 0;
   }
 
   &__item {
     list-style: none;
-    padding: 1rem;
+    padding: $space;
     transition: all 0.4s;
     flex: 1 1 20%;
-    min-width: 150px;
-    min-height: 150px;
+    min-width: $space * 20;
+    min-height: $space * 20;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: flex-start;
     font-weight: bold;
+    font-family: sans-serif;
+  }
+
+  &__title {
+    font-size: 120%;
+    padding: $space-one-half 0 0;
+    display: block;
+    line-height: 1;
   }
 
   &__swatch {
     display: block;
     width: 100%;
-    padding: 3rem;
+    padding: $space-triple;
   }
 
   &__definition {
+    display: block;
+    width: 100%;
+    padding: $space-one-fourth 0;
+    font-weight: normal;
+    color: clr(text);
+    white-space: pre-wrap;
+
     &::before {
+      display: none;
+    }
+
+    span {
       display: block;
-      padding: 5px;
-      font-weight: bold;
-      text-align: center;
-      font-size: 80%;
-      color: clr(text);
-      white-space: pre-wrap;
+      cursor: pointer;
+      color: clr(text, 0.8);
+      margin: 0 0 $space-one-fourth;
+      padding: 0 $space-one-fourth;
+      background-color: clr(text, 0.05);
+
+      &:hover {
+        color: clr(text);
+        background-color: clr(text, 0.1);
+      }
     }
   }
 }
@@ -50,11 +73,16 @@
 }
 
 // Add the color definition from the color-palette map.
-@mixin color-definition($color) {
+@mixin color-definition($color, $clrname, $variant: null) {
+  @if ($variant != null) {
+    $variant: ', ' + $variant;
+  }
+
   > .cl-colors__definition {
 
     &::before {
-      content: 'Hex: #{cnvrt-clr($color)},\a rgba(#{cnvrt-clr($color, 'rgba')}),\a hsla(#{cnvrt-clr($color, 'hsla')})';
+      content:
+        '<span>clr(#{$clrname}#{$variant})</span><span>#{cnvrt-clr($color)}</span><span>rgba(#{cnvrt-clr($color, 'rgba')})</span><span>hsla(#{cnvrt-clr($color, 'hsla')})</span>';
     }
   }
 }
@@ -64,7 +92,7 @@
 
   .cl-colors__list--#{$theme} {
     background-color: clr(background);
-    padding: 2rem;
+    padding: $space-double;
     color: clr(text);
 
     @each $clrname, $color in $palette {
@@ -76,13 +104,13 @@
           @if ($variant == 'base') {
             .cl-colors__item--#{$clrname} {
               @include color-swatch($clrname);
-              @include color-definition($value);
+              @include color-definition($value, $clrname);
             }
           }
           @else {
             .cl-colors__item--#{$clrname}-#{$variant} {
               @include color-swatch($clrname, $variant);
-              @include color-definition($value);
+              @include color-definition($value, $clrname, $variant);
             }
           }
         }
@@ -90,7 +118,7 @@
       @else {
         .cl-colors__item--#{$clrname} {
           @include color-swatch($clrname);
-          @include color-definition($color);
+          @include color-definition($color, $clrname);
         }
       }
     }

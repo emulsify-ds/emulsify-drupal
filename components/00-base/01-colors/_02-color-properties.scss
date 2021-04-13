@@ -18,21 +18,24 @@ $format: 'hsl';
   // Create custom properties for default-theme colors
   @each $theme, $palette in $color-palette {
 
-    @each $name, $color in $palette {
+    @if ($theme == 'default') {
 
-      @if (type-of($color) == map) {
+      @each $name, $color in $palette {
 
-        @each $clrname, $value in $color {
-          @if ($clrname == 'base') {
-            --c-#{$name}: #{cnvrt-clr($value, $format)};
-          }
-          @else {
-            --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
+        @if (type-of($color) == map) {
+
+          @each $clrname, $value in $color {
+            @if ($clrname == 'base') {
+              --c-#{$name}: #{cnvrt-clr($value, $format)};
+            }
+            @else {
+              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
+            }
           }
         }
-      }
-      @else {
-        --c-#{$name}: #{cnvrt-clr($color, $format)};
+        @else {
+          --c-#{$name}: #{cnvrt-clr($color, $format)};
+        }
       }
     }
   }
