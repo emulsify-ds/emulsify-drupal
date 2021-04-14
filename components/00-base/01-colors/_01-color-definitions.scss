@@ -1,5 +1,8 @@
-// Color Usage variables - use these (via the `clr` function)
-// rather than color variables directly.
+// Color Palette Definitions - Use these via the `clr` function.
+// Colors can be defined using any valid color value. (name, hex, rgb, rgba, hsl, hsla)
+// Map structure should follow [theme_name] : [color_name] : [variant_name]
+// [variant_name] is optional.
+// If [variant_name] is present a 'base' definition is expected.
 $color-palette: (
   default: (
     white: white,
@@ -27,7 +30,7 @@ $color-palette: (
       high: #e5e5e5
     )
   ),
-  contrast: (
+  dark: (
     white: #FFF,
     black: #000,
     message: #A7D129,

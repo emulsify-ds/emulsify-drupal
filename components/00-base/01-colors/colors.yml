@@ -19,8 +19,8 @@ palettes:
       - name: 'Accent High'
       - name: 'Highlight'
       - name: 'Highlight High'
-  - palette_heading: 'Contrast Theme'
-    theme_name: 'contrast'
+  - palette_heading: 'Dark Theme'
+    theme_name: 'dark'
     colors:
       - name: 'White'
       - name: 'Black'

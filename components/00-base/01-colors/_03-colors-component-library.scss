@@ -15,7 +15,7 @@
     transition: all 0.4s;
     flex: 1 1 20%;
     min-width: $space * 20;
-    min-height: $space * 20;
+    min-height: $space * 18;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -27,7 +27,7 @@
 
   &__title {
     font-size: 120%;
-    padding: $space-one-half 0 0;
+    padding: $space-one-fourth 0;
     display: block;
     line-height: 1;
   }
@@ -36,6 +36,7 @@
     display: block;
     width: 100%;
     padding: $space-triple;
+    margin: 0 0 $space-one-half;
   }
 
   &__definition {
@@ -46,22 +47,23 @@
     color: clr(text);
     white-space: pre-wrap;
 
-    &::before {
+    &::before,
+    &::after {
       display: none;
     }
+  }
 
-    span {
-      display: block;
-      cursor: pointer;
-      color: clr(text, 0.8);
-      margin: 0 0 $space-one-fourth;
-      padding: 0 $space-one-fourth;
-      background-color: clr(text, 0.05);
+  &__definition_item {
+    display: block;
+    cursor: pointer;
+    color: clr(text, 0.8);
+    margin: 0 0 $space-one-fourth;
+    padding: 0 $space-one-fourth;
+    background-color: clr(text, 0.05);
 
-      &:hover {
-        color: clr(text);
-        background-color: clr(text, 0.1);
-      }
+    &:hover {
+      color: clr(text);
+      background-color: clr(text, 0.1);
     }
   }
 }
@@ -82,7 +84,12 @@
 
     &::before {
       content:
-        '<span>clr(#{$clrname}#{$variant})</span><span>#{cnvrt-clr($color)}</span><span>rgba(#{cnvrt-clr($color, 'rgba')})</span><span>hsla(#{cnvrt-clr($color, 'hsla')})</span>';
+        'Usage: clr(#{$clrname}#{$variant})';
+    }
+
+    &::after {
+      content:
+        '#{cnvrt-clr($color)}<br>rgba(#{cnvrt-clr($color, 'rgba')})<br>hsla(#{cnvrt-clr($color, 'hsla')})';
     }
   }
 }
