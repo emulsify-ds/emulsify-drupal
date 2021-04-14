@@ -1,61 +1,67 @@
-// Color Palette Definitions - Use these via the `clr` function.
-// Colors can be defined using any valid color value. (name, hex, rgb, rgba, hsl, hsla)
-// Map structure should follow [theme_name] : [color_name] : [variant_name]
-// [variant_name] is optional.
-// If [variant_name] is present a 'base' definition is expected.
+// - Color Palette Definitions : Use these via the `clr` function.
+// - Colors can be defined using any valid color value. (name, hex, rgb, rgba, hsl, hsla)
+// - Map structure should follow [theme_name] : [color_name] : [variant_name]
+// - [variant_name] is optional.
+// - If [variant_name] is present a 'base' definition is expected.
+// - Themes and colors should not have matching names.
+// - The default theme should contain all possible colors. Needed for fallback purposes.
+// - Additional themes can override default theme definitions or fallback
+// to the default theme's color definition.
 $color-palette: (
   default: (
+    primary: (
+      base: #1a96ca,
+      light: #cde9f4,
+      dark: #06425c
+    ),
+    secondary: #EDD843,
+    message: rgb(138, 211, 82),
+    warning: rgb(247, 249, 136),
+    error: rgb(255, 212, 214),
     white: white,
     black: rgba(0,0,0,1),
-    message: rgb(95, 169, 38),
-    warning: hsl(61.15deg, 92.85%, 78.04%),
-    error: hsla(357.5deg, 75%, 93.72%, 0.5),
-    muted: #f2f2f2,
-    primary: #005de0,
-    secondary: #610c63,
     text: (
-      base: #333,
-      inverse: #e5e5e5
+      base: #161616,
+      inverse: #fafafa
     ),
     background: (
       base: #FFF,
-      section: #e5e5e5
+      section: #f5f7f9
     ),
     accent: (
-      base: #F00,
-      high: #fbe3e4
+      base: #35AA4E,
     ),
     highlight: (
       base: #ccc,
       high: #e5e5e5
-    )
+    ),
+    muted: #bbb,
   ),
-  dark: (
-    white: #FFF,
-    black: #000,
-    message: #A7D129,
-    warning: #FFD700,
-    error: #C02739,
-    muted: #333,
-    primary: #005de0,
-    secondary: #610c63,
+  dark-mode: (
+    message: rgb(83, 179, 10),
+    warning: rgb(222, 222, 1),
+    error: rgb(154, 20, 27),
     text: (
-      base: #FFF,
-      inverse: #222
+      base: #fafafa,
+      inverse: #161616
     ),
     background: (
       base: #222,
-      inverse: #888,
+      inverse: #bbb,
       section: #555
     ),
-    accent: (
-      base: #e5e5e5,
-      inverse: #FFF,
-      high: #f2f2f2
+  ),
+  alt-theme: (
+    text: (
+      base: #fff,
+      inverse: #000
     ),
-    highlight: (
-      base: #555,
-      high: #444
-    )
-  )
+    background: (
+      base: #06425c,
+      section: #cde9f4
+    ),
+    accent: (
+      base: #EDD843,
+    ),
+  ),
 );

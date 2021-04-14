@@ -74,7 +74,8 @@
   }
 }
 
-// Add the color definition from the color-palette map.
+// Display proper usage of the color with clr() function.
+// Display hex, rgba, and hsla definitions for reference.
 @mixin color-definition($color, $clrname, $variant: null) {
   @if ($variant != null) {
     $variant: ', ' + $variant;
@@ -99,34 +100,34 @@
 
   .cl-colors__list--#{$theme} {
     background-color: clr(background);
-    padding: $space-double;
+    padding: 0 0 $space-double;
     color: clr(text);
+  }
 
-    @each $clrname, $color in $palette {
+  @each $clrname, $color in $palette {
 
-      @if (type-of($color) == map) {
+    @if (type-of($color) == map) {
 
-        @each $variant, $value in $color {
+      @each $variant, $value in $color {
 
-          @if ($variant == 'base') {
-            .cl-colors__item--#{$clrname} {
-              @include color-swatch($clrname);
-              @include color-definition($value, $clrname);
-            }
+        @if ($variant == 'base') {
+          .cl-colors__item--#{$clrname} {
+            @include color-swatch($clrname);
+            @include color-definition($value, $clrname);
           }
-          @else {
-            .cl-colors__item--#{$clrname}-#{$variant} {
-              @include color-swatch($clrname, $variant);
-              @include color-definition($value, $clrname, $variant);
-            }
+        }
+        @else {
+          .cl-colors__item--#{$clrname}-#{$variant} {
+            @include color-swatch($clrname, $variant);
+            @include color-definition($value, $clrname, $variant);
           }
         }
       }
-      @else {
-        .cl-colors__item--#{$clrname} {
-          @include color-swatch($clrname);
-          @include color-definition($color, $clrname);
-        }
+    }
+    @else {
+      .cl-colors__item--#{$clrname} {
+        @include color-swatch($clrname);
+        @include color-definition($color, $clrname);
       }
     }
   }
