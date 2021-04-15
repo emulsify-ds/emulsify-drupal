@@ -1,9 +1,0 @@
-/*
- * General Functions (put specific ones in component files where applicable)
-*/
-@function map-deep-get($map, $keys...) {
-  @each $key in $keys {
-      $map: map-get($map, $key);
-  }
-  @return $map;
-}
