@@ -1,5 +1,3 @@
-import React from 'react';
-
 import grid from './grid.twig';
 
 import gridData from './grid.yml';
@@ -11,16 +9,8 @@ import gridCtaData from './grid-ctas.yml';
  */
 export default { title: 'Organisms/Grids' };
 
-export const defaultGrid = () => (
-  <div dangerouslySetInnerHTML={{ __html: grid(gridData) }} />
-);
-export const cardGrid = () => (
-  <div
-    dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCardData }) }}
-  />
-);
-export const ctaGrid = () => (
-  <div
-    dangerouslySetInnerHTML={{ __html: grid({ ...gridData, ...gridCtaData }) }}
-  />
-);
+export const defaultGrid = () => grid(gridData);
+
+export const cardGrid = () => grid({ ...gridData, ...gridCardData });
+
+export const ctaGrid = () => grid({ ...gridData, ...gridCtaData });
