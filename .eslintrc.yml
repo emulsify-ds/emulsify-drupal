@@ -2,8 +2,10 @@ root: true
 extends:
   - airbnb
   - prettier
+  - prettier/react
   - plugin:prettier/recommended
 plugins:
+  - react
   - prettier
   - jest
 env:
@@ -15,8 +17,21 @@ globals:
   it: true
   describe: true
   Drupal: true
-parser: '@babel/eslint-parser'
+parser: babel-eslint
 rules:
   strict: 0
+  react/jsx-filename-extension: [1, { 'extensions': ['.js', '.jsx'] }]
   import/no-extraneous-dependencies: 0
+  react/prefer-stateless-function: 0
   prettier/prettier: error
+  jsx-a11y/label-has-for:
+    - 2
+    - required:
+        some:
+          - nesting
+          - id
+overrides:
+  - files:
+      - '*.stories.js'
+    rules:
+      react/no-danger: 0

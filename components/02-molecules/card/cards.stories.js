@@ -1,3 +1,5 @@
+import React from 'react';
+
 import card from './card.twig';
 
 import cardData from './card.yml';
@@ -8,6 +10,11 @@ import cardBgData from './card-bg.yml';
  */
 export default { title: 'Molecules/Cards' };
 
-export const cardExample = () => card(cardData);
-
-export const cardWithBackground = () => card({ ...cardData, ...cardBgData });
+export const cardExample = () => (
+  <div dangerouslySetInnerHTML={{ __html: card(cardData) }} />
+);
+export const cardWithBackground = () => (
+  <div
+    dangerouslySetInnerHTML={{ __html: card({ ...cardData, ...cardBgData }) }}
+  />
+);

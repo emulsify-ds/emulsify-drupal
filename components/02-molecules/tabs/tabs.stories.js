@@ -1,3 +1,5 @@
+import React from 'react';
+
 import tabs from './tabs.twig';
 
 import tabData from './tabs.yml';
@@ -9,4 +11,6 @@ import './tabs';
  */
 export default { title: 'Molecules/Tabs' };
 
-export const JSTabs = () => tabs(tabData);
+export const JSTabs = () => (
+  <div dangerouslySetInnerHTML={{ __html: tabs(tabData) }} />
+);

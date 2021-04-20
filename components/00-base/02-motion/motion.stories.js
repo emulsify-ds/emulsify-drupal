@@ -1,3 +1,5 @@
+import React from 'react';
+
 import motion from './motion.twig';
 
 import motionData from './motion.yml';
@@ -7,4 +9,10 @@ import motionData from './motion.yml';
  */
 export default { title: 'Base/Motion' };
 
-export const Usage = () => motion(motionData);
+export const Usage = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: motion(motionData),
+    }}
+  />
+);

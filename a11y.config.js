@@ -17,6 +17,7 @@ module.exports = {
   components: [
     'base-colors--palettes',
     'base-motion--usage',
+    'atoms-button--react',
     'atoms-button--twig',
     'atoms-button--twig-alt',
     'atoms-forms--checkboxes',
