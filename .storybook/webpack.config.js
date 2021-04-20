@@ -9,11 +9,9 @@ module.exports = async ({ config }) => {
     test: /\.twig$/,
     use: [
       {
-        loader: 'twig-loader',
+        loader: 'twing-loader',
         options: {
-          twigOptions: {
-            namespaces,
-          },
+          environmentModulePath: require.resolve('./environment.js'),
         },
       },
     ],
