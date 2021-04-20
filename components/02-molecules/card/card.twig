@@ -104,7 +104,7 @@
     {% endif %}
     {# Button #}
     {% if card__button__url %}
-      {% include "@atoms/buttons/twig/button.twig" with {
+      {% include "@atoms/buttons/button.twig" with {
         button_base_class: card__button__base_class|default('button'),
         button_modifiers: card__button__modifiers,
         button_blockname: card__base_class,

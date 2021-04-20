@@ -8,9 +8,9 @@ We are using an SVG sprite generator (details [here](https://www.npmjs.com/packa
 
 **Usage**
 
-The SVG component is found here: 
-`/components/_patterns/01-atoms/04-images/icons/_icon.twig`. 
-See available variables in that file 
+The SVG component is found here:
+`/components/_patterns/01-atoms/04-images/icons/_icon.twig`.
+See available variables in that file
 as well as instructions for Drupal. Examples of usage below:
 
 Simple: (no BEM renaming)
@@ -25,7 +25,7 @@ Simple: (no BEM renaming)
 
 ```
 <svg class="icon">
-  <use xmlns:xlink="http://www.w3.org/1999/xlink" 
+  <use xmlns:xlink="http://www.w3.org/1999/xlink"
   xlink:href="/icons.svg#src--menu"></use>
 </svg>
 ```
@@ -44,7 +44,7 @@ Complex (BEM classes):
 
 ```
 <svg class="main-nav__toggle">
-  <use xmlns:xlink="http://www.w3.org/1999/xlink" 
+  <use xmlns:xlink="http://www.w3.org/1999/xlink"
   xlink:href="/icons.svg#src--menu"></use>
 </svg>
 ```
