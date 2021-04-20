@@ -41,7 +41,7 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
 2. Run the `commit` script via `yarn commit` or `npm run commit` and follow the prompts to craft the perfect commit message.
-3. _Rejoice!_ For now your commit message will be used to create the changelog for the next version that includes that commit.
+3. Your commit message will be used to create the changelog for the next version that includes that commit.
 
 ## Author
 
