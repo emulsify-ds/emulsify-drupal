@@ -1,3 +1,5 @@
+import React from 'react';
+
 import dl from './dl.twig';
 import ul from './ul.twig';
 import ol from './ol.twig';
@@ -11,8 +13,12 @@ import olData from './ol.yml';
  */
 export default { title: 'Atoms/Lists' };
 
-export const definitionList = () => dl(dlData);
-
-export const unorderedList = () => ul(ulData);
-
-export const orderedList = () => ol(olData);
+export const definitionList = () => (
+  <div dangerouslySetInnerHTML={{ __html: dl(dlData) }} />
+);
+export const unorderedList = () => (
+  <div dangerouslySetInnerHTML={{ __html: ul(ulData) }} />
+);
+export const orderedList = () => (
+  <div dangerouslySetInnerHTML={{ __html: ol(olData) }} />
+);

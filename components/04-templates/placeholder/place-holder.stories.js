@@ -1,3 +1,5 @@
+import React from 'react';
+
 import placeHolderTwig from './place-holder.twig';
 
 /**
@@ -5,4 +7,6 @@ import placeHolderTwig from './place-holder.twig';
  */
 export default { title: 'Templates/Place Holder' };
 
-export const placeHolder = () => placeHolderTwig();
+export const placeHolder = () => (
+  <div dangerouslySetInnerHTML={{ __html: placeHolderTwig({}) }} />
+);

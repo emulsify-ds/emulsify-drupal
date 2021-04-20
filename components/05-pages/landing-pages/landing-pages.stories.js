@@ -1,3 +1,5 @@
+import React from 'react';
+
 import '../../02-molecules/menus/main-menu/main-menu';
 
 import home from './home.twig';
@@ -17,12 +19,17 @@ export default {
   },
 };
 
-export const homePage = () =>
-  home({
-    page_layout_modifier: 'contained',
-    ...mainMenuData,
-    ...breadcrumbData,
-    ...socialMenuData,
-    ...footerMenuData,
-    card__link__text: 'Click here',
-  });
+export const homePage = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: home({
+        page_layout_modifier: 'contained',
+        ...mainMenuData,
+        ...breadcrumbData,
+        ...socialMenuData,
+        ...footerMenuData,
+        card__link__text: 'Click here',
+      }),
+    }}
+  />
+);

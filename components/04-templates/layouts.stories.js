@@ -1,3 +1,5 @@
+import React from 'react';
+
 import fullWidthTwig from './full-width.twig';
 import withSidebarTwig from './with-sidebar.twig';
 
@@ -15,8 +17,18 @@ export default {
   },
 };
 
-export const fullWidth = () =>
-  fullWidthTwig({ ...mainMenu, ...socialMenu, ...footerMenu });
+export const fullWidth = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: fullWidthTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
+    }}
+  />
+);
 
-export const withSidebar = () =>
-  withSidebarTwig({ ...mainMenu, ...socialMenu, ...footerMenu });
+export const withSidebar = () => (
+  <div
+    dangerouslySetInnerHTML={{
+      __html: withSidebarTwig({ ...mainMenu, ...socialMenu, ...footerMenu }),
+    }}
+  />
+);

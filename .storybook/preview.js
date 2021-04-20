@@ -1,4 +1,4 @@
-import { addDecorator } from '@storybook/html';
+import { addDecorator } from '@storybook/react';
 import { useEffect } from '@storybook/client-api';
 import Twig from 'twig';
 import { setupTwig } from './setupTwig';
@@ -16,7 +16,3 @@ addDecorator((storyFn) => {
 });
 
 setupTwig(Twig);
-
-export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
-};
