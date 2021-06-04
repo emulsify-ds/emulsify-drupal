@@ -52,6 +52,7 @@ module.exports = async ({ config }) => {
       quiet: false,
     }),
     new ESLintPlugin({
+      context: path.resolve(__dirname, '../', 'components'),
       extensions: ['js'],
     }),
   );
