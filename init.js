@@ -12,7 +12,9 @@ const getEmulsifyConfig = () => {
     return require('./project.emulsify.json');
   } catch (e) {
     throw new Error(
-      'Unable to find an Emulsify project configuration file (project.emulsify.json). Please create one, or re-initialize your project using the Emulsify CLI.',
+      `Unable to load an Emulsify project config file (project.emulsify.json): ${String(
+        e,
+      )}`,
     );
   }
 };
@@ -90,3 +92,5 @@ const main = () => {
   info.name = name;
   fs.writeFileSync(infoFilePath, yaml.safeDump(info));
 };
+
+main();
