@@ -53,18 +53,20 @@ const validateEmulsifyConfig = (config) => {
 
 const renameFiles = (files) =>
   files.map(({ from, to }) =>
-    fs.rename(path.join(__dirname, from), path.join(__dirname, to)),
+    fs.renameSync(path.join(__dirname, from), path.join(__dirname, to)),
   );
 
 const main = () => {
   // Load up config file, throw if none exists.
-  const {
-    project: { machineName, name },
-  } = getEmulsifyConfig();
+  const config = getEmulsifyConfig();
 
   // Validate config file, throw if it is missing
   //properties or is otherwise malformed.
   validateEmulsifyConfig(config);
+
+  const {
+    project: { machineName, name },
+  } = config;
 
   // Move all files to their correct location.
   renameFiles([
