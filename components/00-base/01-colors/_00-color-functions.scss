@@ -37,10 +37,13 @@
 // This function works in conjunction with the dynamic css custom properties
 // defined in the _01-color-definitions.scss. The item called in the
 // function is prefixed with `var(--c-` to call the custom property for that color.
-// E.g. `color: clr(text);` will return `color: hsla(var(--c-text), 1);`
+// E.g. `color: clr(text);` will compile to `color: hsla(var(--c-text), 1);`
 // This function also accepts an alpha number argument that will
 // return the color value as (hsl or rgb) + alpha.
-@function clr($name, $variant:null, $alpha: 1, $theme:default, $format:hsl) {
+// Change $format variable to 'rgb' so all custom property definition output as rgba
+// instead of hsla.
+$format: 'hsl';
+@function clr($name, $variant:null, $alpha: 1, $theme:default, $format: #{$format}) {
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
