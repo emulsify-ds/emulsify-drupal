@@ -22,7 +22,6 @@
     align-items: flex-start;
     justify-content: flex-start;
     font-weight: bold;
-    font-family: sans-serif;
   }
 
   &__title {
@@ -82,22 +81,18 @@
   }
 
   > .cl-colors__definition {
-
     &::before {
-      content:
-        'Usage: clr(#{$clrname}#{$variant})';
+      content: 'Usage: clr(#{$clrname}#{$variant})';
     }
 
     &::after {
-      content:
-        '#{cnvrt-clr($color)}<br>rgba(#{cnvrt-clr($color, 'rgba')})<br>hsla(#{cnvrt-clr($color, 'hsla')})';
+      content: '#{cnvrt-clr($color)}<br>rgba(#{cnvrt-clr($color, 'rgba')})<br>hsla(#{cnvrt-clr($color, 'hsla')})';
     }
   }
 }
 
 // Set color swatch styles based on defined color in $color-palette.
 @each $theme, $palette in $color-palette {
-
   .cl-colors__list--#{$theme} {
     background-color: clr(background);
     padding: 0 0 $space-double;
@@ -105,26 +100,21 @@
   }
 
   @each $clrname, $color in $palette {
-
     @if (type-of($color) == map) {
-
       @each $variant, $value in $color {
-
         @if ($variant == 'base') {
           .cl-colors__item--#{$clrname} {
             @include color-swatch($clrname);
             @include color-definition($value, $clrname);
           }
-        }
-        @else {
+        } @else {
           .cl-colors__item--#{$clrname}-#{$variant} {
             @include color-swatch($clrname, $variant);
             @include color-definition($value, $clrname, $variant);
           }
         }
       }
-    }
-    @else {
+    } @else {
       .cl-colors__item--#{$clrname} {
         @include color-swatch($clrname);
         @include color-definition($color, $clrname);
