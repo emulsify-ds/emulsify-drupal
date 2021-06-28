@@ -1,5 +1,3 @@
-import React from 'react';
-
 import image from './image/responsive-image.twig';
 import figure from './image/figure.twig';
 import iconTwig from './icons/icons.twig';
@@ -14,12 +12,9 @@ const svgIcons = require.context('../../../images/icons/', true, /\.svg$/);
  */
 export default { title: 'Atoms/Images' };
 
-export const images = () => (
-  <div dangerouslySetInnerHTML={{ __html: image(imageData) }} />
-);
-export const figures = () => (
-  <div dangerouslySetInnerHTML={{ __html: figure(figureData) }} />
-);
+export const images = () => image(imageData);
+
+export const figures = () => figure(figureData);
 
 const items = [];
 svgIcons.keys().forEach((key) => {
@@ -29,6 +24,4 @@ svgIcons.keys().forEach((key) => {
   items.push(icon);
 });
 
-export const icons = () => (
-  <div dangerouslySetInnerHTML={{ __html: iconTwig({ items }) }} />
-);
+export const icons = () => iconTwig({ items });
