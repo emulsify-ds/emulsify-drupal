@@ -18,12 +18,12 @@
 }
 
 .form-item__textfield {
-  border: 1px solid clr(highlight-high);
+  border: 1px solid clr(highlight, high);
   padding: 0.6em;
   max-width: 100%;
 
   &:focus {
-    border-color: clr(accent-high);
+    border-color: clr(accent, high);
   }
 
   &::placeholder {

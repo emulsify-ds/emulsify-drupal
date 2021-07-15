@@ -47,7 +47,7 @@ $main-menu-medium: $medium;
   width: 100%;
 
   @include medium {
-    background-color: clr(highlight-high);
+    background-color: clr(highlight, high);
     display: none;
     height: auto;
     left: 0;
@@ -64,7 +64,7 @@ $main-menu-medium: $medium;
   &:hover {
     @include medium {
       opacity: 1;
-      background-color: clr(accent-high);
+      background-color: clr(accent, high);
       transition: all 0.2s;
 
       .main-menu__link--sub {
@@ -74,7 +74,7 @@ $main-menu-medium: $medium;
         &:active,
         &:hover {
           color: clr(background);
-          background-color: clr(accent-high);
+          background-color: clr(accent, high);
         }
       }
     }

@@ -9,19 +9,17 @@
   margin-bottom: $space-one-half;
   padding: $space-one-half;
   text-align: center;
+  color: clr(text);
 
   &--warning {
-    color: $gray;
     background-color: clr(warning);
   }
 
   &--error {
-    color: $gray;
     background-color: clr(error);
   }
 
   &--status {
-    color: $gray;
     background-color: clr(message);
   }
 }

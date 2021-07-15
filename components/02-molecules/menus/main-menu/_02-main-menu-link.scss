@@ -24,11 +24,11 @@
     &.active,
     &:active,
     &:hover {
-      color: clr(highlight-high);
+      color: clr(highlight, high);
     }
 
     &::after {
-      color: $white;
+      color: clr(white);
       display: inline-block;
       content: '>';
       margin-left: 0.5rem;
@@ -66,7 +66,7 @@
 }
 
 .main-menu--sub-2 {
-  background-color: clr(highlight-high);
+  background-color: clr(highlight, high);
 }
 
 .main-menu__link--sub-2 {

@@ -12,6 +12,7 @@
         "if",
         "else",
         "each",
+        "error",
         "content",
         "import",
         "function",

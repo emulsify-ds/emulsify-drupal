@@ -1,0 +1,124 @@
+// These styles only affect the colors "Usage" page in the component library
+.cl-colors {
+  padding: $space;
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 $space-double;
+    padding: 0;
+  }
+
+  &__item {
+    list-style: none;
+    padding: $space;
+    transition: all 0.4s;
+    flex: 1 1 20%;
+    min-width: $space * 20;
+    min-height: $space * 18;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-weight: bold;
+  }
+
+  &__title {
+    font-size: 120%;
+    padding: $space-one-fourth 0;
+    display: block;
+    line-height: 1;
+  }
+
+  &__swatch {
+    display: block;
+    width: 100%;
+    padding: $space-triple;
+    margin: 0 0 $space-one-half;
+  }
+
+  &__definition {
+    display: block;
+    width: 100%;
+    padding: $space-one-fourth 0;
+    font-weight: normal;
+    color: clr(text);
+    white-space: pre-wrap;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  &__definition_item {
+    display: block;
+    cursor: pointer;
+    color: clr(text, 0.8);
+    margin: 0 0 $space-one-fourth;
+    padding: 0 $space-one-fourth;
+    background-color: clr(text, 0.05);
+
+    &:hover {
+      color: clr(text);
+      background-color: clr(text, 0.1);
+    }
+  }
+}
+
+@mixin color-swatch($color, $variant: null) {
+  > .cl-colors__swatch {
+    background-color: clr($color, $variant);
+  }
+}
+
+// Display proper usage of the color with clr() function.
+// Display hex, rgba, and hsla definitions for reference.
+@mixin color-definition($color, $clrname, $variant: null) {
+  @if ($variant != null) {
+    $variant: ', ' + $variant;
+  }
+
+  > .cl-colors__definition {
+    &::before {
+      content: 'Usage: clr(#{$clrname}#{$variant})';
+    }
+
+    &::after {
+      content: '#{cnvrt-clr($color)}<br>rgba(#{cnvrt-clr($color, 'rgba')})<br>hsla(#{cnvrt-clr($color, 'hsla')})';
+    }
+  }
+}
+
+// Set color swatch styles based on defined color in $color-palette.
+@each $theme, $palette in $color-palette {
+  .cl-colors__list--#{$theme} {
+    background-color: clr(background);
+    padding: 0 0 $space-double;
+    color: clr(text);
+  }
+
+  @each $clrname, $color in $palette {
+    @if (type-of($color) == map) {
+      @each $variant, $value in $color {
+        @if ($variant == 'base') {
+          .cl-colors__item--#{$clrname} {
+            @include color-swatch($clrname);
+            @include color-definition($value, $clrname);
+          }
+        } @else {
+          .cl-colors__item--#{$clrname}-#{$variant} {
+            @include color-swatch($clrname, $variant);
+            @include color-definition($value, $clrname, $variant);
+          }
+        }
+      }
+    } @else {
+      .cl-colors__item--#{$clrname} {
+        @include color-swatch($clrname);
+        @include color-definition($color, $clrname);
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@
   position: relative;
 
   @media (prefers-color-scheme: dark) {
-    background-color: clr(background-inverse);
+    background-color: clr(background, inverse);
   }
 
   &::after {
@@ -25,7 +25,7 @@
   }
 
   &:hover {
-    border-color: clr(accent-high);
+    border-color: clr(accent, high);
   }
 }
 

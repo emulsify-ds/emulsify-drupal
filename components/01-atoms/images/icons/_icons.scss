@@ -9,7 +9,7 @@
     width: 100px;
 
     @media (prefers-color-scheme: dark) {
-      fill: clr(accent-high);
+      fill: clr(accent, high);
     }
   }
 

@@ -1,0 +1,70 @@
+// Create CSS custom properties based on the color-palette map.
+// For each color variable (e.g. `text` and `background`) a css custom
+// property will be created. (e.g. `--c-text:` and `--c-background:`).
+:root {
+  // Create custom properties from the default theme.
+  @each $theme, $palette in $color-palette {
+    @if ($theme == 'default') {
+      @each $name, $color in $palette {
+        @if (type-of($color) == map) {
+          @each $clrname, $value in $color {
+            @if ($clrname == 'base') {
+              --c-#{$name}: #{cnvrt-clr($value, $format)};
+            } @else {
+              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
+            }
+          }
+        } @else {
+          --c-#{$name}: #{cnvrt-clr($color, $format)};
+        }
+      }
+    }
+  }
+  // Redefine the color custom properties when markup
+  // has a data-theme attribute set. This can be set
+  // on the body tag to affect the entire page or set
+  // on any tag within the page to affect it's children.
+  @each $theme, $palette in $color-palette {
+    [data-theme='#{$theme}'] {
+      @each $name, $color in $palette {
+        @if (type-of($color) == map) {
+          @each $clrname, $value in $color {
+            @if ($clrname == 'base') {
+              --c-#{$name}: #{cnvrt-clr($value, $format)};
+            } @else {
+              --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
+            }
+          }
+        } @else {
+          --c-#{$name}: #{cnvrt-clr($color, $format)};
+        }
+      }
+    }
+  }
+  // Uncomment the following code to enable user-controllable dark mode via
+  // their OS or User-Agent setting.
+  // See: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
+  // @media (prefers-color-scheme: dark) {
+  //   @each $theme, $palette in $color-palette {
+  //     // Change the following theme value to any theme you've defined in
+  //     // _01-color-definitions.scss to be the representative dark-mode.
+  //     @if ($theme == 'dark') {
+  //       @each $name, $color in $palette {
+  //         @if (type-of($color) == map) {
+  //           @each $clrname, $value in $color {
+  //             @if ($clrname == 'base') {
+  //               --c-#{$name}: #{cnvrt-clr($value, $format)};
+  //             }
+  //             @else {
+  //               --c-#{$name}-#{$clrname}: #{cnvrt-clr($value, $format)};
+  //             }
+  //           }
+  //         }
+  //         @else {
+  //           --c-#{$name}: #{cnvrt-clr($color, $format)};
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+}

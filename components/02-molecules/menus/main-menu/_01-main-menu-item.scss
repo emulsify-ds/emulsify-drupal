@@ -11,7 +11,7 @@
 
     /* Only top level */
     &:not(.main-menu__item--sub):hover {
-      background-color: clr(accent-high);
+      background-color: clr(accent, high);
       transition: all 0.2s;
 
       & > .main-menu--sub {
@@ -29,11 +29,11 @@
 
 /* Expand Button */
 .expand-sub {
-  background-color: clr(accent-high);
+  background-color: clr(accent, high);
   cursor: pointer;
   display: block;
   width: 20%;
-  color: $white;
+  color: clr(white);
   position: relative;
 
   @include medium {
@@ -58,7 +58,7 @@
 
   /* See main-menu.js */
   &--open {
-    background-color: clr(accent-high);
+    background-color: clr(accent, high);
     color: clr(muted);
 
     &::after {

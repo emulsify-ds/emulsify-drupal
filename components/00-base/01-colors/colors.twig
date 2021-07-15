@@ -7,19 +7,21 @@
   } %}
 
   {% for palette in palettes %}
-    {% set palette_machine = palette.palette_heading|lower %}
+    {% set theme_name = palette.theme_name %}
     {% include "@atoms/text/headings/_heading.twig" with {
       heading_level: 3,
       heading: palette.palette_heading,
     } %}
-    <ul {{ bem('list', [palette_machine], colors_base_class) }} data-theme="{{ palette_machine }}">
+    <ul {{ bem('list', [theme_name], colors_base_class) }} data-theme="{{ theme_name }}">
       {% for color in palette.colors %}
         {% set color_machine = color.name|lower|replace({' ': '-'}) %}
         {% if color.color_reverse == TRUE %}
           {% set colors_title_modifiers = ['reverse'] %}
         {% endif %}
-        <li {{ bem("item", [palette_machine ~ '-' ~ color_machine], colors_base_class) }}>
-          <span {{ bem("title", colors_title_modifiers, colors_base_class) }}>{{ color.name }}</span> <br/>
+        <li {{ bem("item", [color_machine], colors_base_class) }}>
+          <span {{ bem("swatch", colors_title_modifiers, colors_base_class) }}></span>
+          <span {{ bem("title", colors_title_modifiers, colors_base_class) }}>{{ color.name }}</span>
+          <span {{ bem("definition", colors_title_modifiers, colors_base_class) }}></span>
         </li>
       {% endfor %}
     </ul>

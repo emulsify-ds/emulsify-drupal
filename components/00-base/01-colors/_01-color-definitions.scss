@@ -1,0 +1,67 @@
+// - Color Palette Definitions : Use these via the `clr` function.
+// - Colors can be defined using any valid color value. (name, hex, rgb, rgba, hsl, hsla)
+// - Map structure should follow [theme_name] : [color_name] : [variant_name]
+// - [variant_name] is optional.
+// - If [variant_name] is present a 'base' definition is expected.
+// - Themes and colors should not have matching names.
+// - The default theme should contain all possible colors. Needed for fallback purposes.
+// - Additional themes can override default theme definitions or fallback
+// to the default theme's color definition.
+$color-palette: (
+  default: (
+    primary: (
+      base: #1a96ca,
+      light: #cde9f4,
+      dark: #06425c
+    ),
+    secondary: #EDD843,
+    message: rgb(138, 211, 82),
+    warning: rgb(247, 249, 136),
+    error: rgb(255, 212, 214),
+    white: white,
+    black: rgba(0,0,0,1),
+    text: (
+      base: #161616,
+      inverse: #fafafa
+    ),
+    background: (
+      base: #FFF,
+      section: #f5f7f9
+    ),
+    accent: (
+      base: #35AA4E,
+    ),
+    highlight: (
+      base: #ccc,
+      high: #e5e5e5
+    ),
+    muted: #bbb,
+  ),
+  dark-mode: (
+    message: rgb(83, 179, 10),
+    warning: rgb(222, 222, 1),
+    error: rgb(154, 20, 27),
+    text: (
+      base: #fafafa,
+      inverse: #161616
+    ),
+    background: (
+      base: #222,
+      inverse: #bbb,
+      section: #555
+    ),
+  ),
+  alt-theme: (
+    text: (
+      base: #fff,
+      inverse: #000
+    ),
+    background: (
+      base: #06425c,
+      section: #cde9f4
+    ),
+    accent: (
+      base: #EDD843,
+    ),
+  ),
+);
