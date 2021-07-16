@@ -3,12 +3,45 @@ const twigDrupal = require('twig-drupal-filters');
 const twigBEM = require('bem-twig-extension');
 const twigAddAttributes = require('add-attributes-twig-extension');
 
-module.exports.namespaces = {
-  atoms: resolve(__dirname, '../', 'components/01-atoms'),
-  molecules: resolve(__dirname, '../', 'components/02-molecules'),
-  organisms: resolve(__dirname, '../', 'components/03-organisms'),
-  templates: resolve(__dirname, '../', 'components/04-templates'),
+/**
+ * Fetches project-based variant configuration. If no such configuration
+ * exists, returns default values.
+ *
+ * @returns project-based variant configuration, or default config.
+ */
+const fetchVariantConfig = () => {
+  try {
+    return require('../project.emulsify.json').variant.structureImplementations;
+  } catch (e) {
+    return [
+      {
+        name: 'base',
+        directory: './components/00-base',
+      },
+      {
+        name: 'atoms',
+        directory: './components/01-atoms',
+      },
+      {
+        name: 'molecules',
+        directory: './components/02-molecules',
+      },
+      {
+        name: 'organisms',
+        directory: './components/03-organisms',
+      },
+      {
+        name: 'pages',
+        directory: './components/04-pages',
+      },
+    ];
+  }
 };
+
+module.exports.namespaces = {};
+for (const { name, directory } of fetchVariantConfig()) {
+  module.exports.namespaces[name] = resolve(__dirname, '../', directory);
+}
 
 /**
  * Configures and extends a standard twig object.
