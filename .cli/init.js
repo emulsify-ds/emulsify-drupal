@@ -9,7 +9,7 @@ const isObjectLiteral = (obj) =>
 
 const getEmulsifyConfig = () => {
   try {
-    return require('./project.emulsify.json');
+    return require('../project.emulsify.json');
   } catch (e) {
     throw new Error(
       `Unable to load an Emulsify project config file (project.emulsify.json): ${String(
@@ -71,25 +71,25 @@ const main = () => {
   // Move all files to their correct location.
   renameFiles([
     {
-      from: 'emulsify.info.yml',
-      to: `${machineName}.info.yml`,
+      from: '../emulsify.info.yml',
+      to: `../${machineName}.info.yml`,
     },
     {
-      from: 'emulsify.theme',
-      to: `${machineName}.theme`,
+      from: '../emulsify.theme',
+      to: `../${machineName}.theme`,
     },
     {
-      from: 'emulsify.breakpoints.yml',
-      to: `${machineName}.breakpoints.yml`,
+      from: '../emulsify.breakpoints.yml',
+      to: `../${machineName}.breakpoints.yml`,
     },
     {
-      from: 'emulsify.libraries.yml',
-      to: `${machineName}.libraries.yml`,
+      from: '../emulsify.libraries.yml',
+      to: `../${machineName}.libraries.yml`,
     },
   ]);
 
   // Update info.yml file.
-  const infoFilePath = path.join(__dirname, `./${machineName}.info.yml`);
+  const infoFilePath = path.join(__dirname, `../${machineName}.info.yml`);
   const info = yaml.safeLoad(fs.readFileSync(infoFilePath, 'utf8'));
   info.name = name;
   fs.writeFileSync(infoFilePath, yaml.safeDump(info));
