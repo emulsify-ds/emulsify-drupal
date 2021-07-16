@@ -4,6 +4,9 @@ description: Theme using Storybook and component-driven development
 base theme: stable9
 core: 8.x
 core_version_requirement: ^8 || ^9
+dependencies:
+  - components:components (>=8.x-2.x)
+  - emulsify_twig:emulsify_twig
 
 # Libraries (These are loaded on every page. Use https://www.drupal.org/developing/api/8/assets#twig whenever possible.)
 libraries:
