@@ -1,4 +1,4 @@
-// Convert color values to desire format.
+// Convert color values to desired format.
 // Returns hex by default.
 // Optionally returns rgb, rgba, hsl, or hsla.
 @function cnvrt-clr($color, $format: null) {
@@ -24,17 +24,24 @@
 }
 // This color function makes it easy for you to call a color by it's
 // functional name anywhere you need.
-// E.g. to use the `text` color, you type: `color: clr(text);`
-//
+// E.g. to use a color labeled `background`, just pass the name: `color: clr(background);`
+// Color palettes and branding guidelines often have similar color variants.
+// The clr() function allows for comma separated options for color variants
+// and alpha properties. The following are valid examples if the $color-palette
+// map defined in _01-color-definitions.scss is properly structured:
+// [style]: clr(background);
+// [style]: clr(background, 0.65);
+// [style]: clr(background, inverse);
+// [style]: clr(background, inverse, 0.65);
+
 // How it works:
 // This function works in conjunction with the dynamic css custom properties
 // defined in the _01-color-definitions.scss. The item called in the
 // function is prefixed with `var(--c-` to call the custom property for that color.
-// E.g. `color: clr(text);` will compile to `color: hsla(var(--c-text), 1);`
-// This function also accepts an alpha number argument that will
-// return the color value as (hsl or rgb) + alpha.
-// Change $format variable to 'rgb' so all custom property definition output as rgba
-// instead of hsla.
+// E.g. `color: clr(background);` will compile to `color: hsla(var(--c-background), 1);`
+
+// A format that accepts alpha properties is required. Change the $format variable
+// to 'rgb' in or to set the default output of the function as an rgba() value.
 $format: 'hsl';
 @function clr(
   $name,

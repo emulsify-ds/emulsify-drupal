@@ -2,11 +2,17 @@
 // - Colors can be defined using any valid color value. (name, hex, rgb, rgba, hsl, hsla)
 // - Map structure should follow [theme_name] : [color_name] : [variant_name]
 // - [variant_name] is optional.
-// - If [variant_name] is present a 'base' definition is expected.
+// - If [variant_name] is present a 'base' definition is required.
 // - Themes and colors should not have matching names.
 // - The default theme should contain all possible colors. Needed for fallback purposes.
 // - Additional themes can override default theme definitions or fallback
 // to the default theme's color definition.
+
+// How it works
+// The colors defined below will be translated into css custom properties and
+// referenced via the clr function. These properties are used to be dynamically
+// redefined via a data attribute.
+// Example: <body data-theme="dark-mode">
 $color-palette: (
   default: (
     primary: (
