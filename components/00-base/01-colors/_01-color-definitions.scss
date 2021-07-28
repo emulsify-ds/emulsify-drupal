@@ -12,28 +12,28 @@ $color-palette: (
     primary: (
       base: #1a96ca,
       light: #cde9f4,
-      dark: #06425c
+      dark: #06425c,
     ),
-    secondary: #EDD843,
+    secondary: #edd843,
     message: rgb(138, 211, 82),
     warning: rgb(247, 249, 136),
     error: rgb(255, 212, 214),
     white: white,
-    black: rgba(0,0,0,1),
+    black: rgba(0, 0, 0, 1),
     text: (
       base: #161616,
-      inverse: #fafafa
+      inverse: #fafafa,
     ),
     background: (
-      base: #FFF,
-      section: #f5f7f9
+      base: #fff,
+      section: #f5f7f9,
     ),
     accent: (
-      base: #35AA4E,
+      base: #35aa4e,
     ),
     highlight: (
       base: #ccc,
-      high: #e5e5e5
+      high: #e5e5e5,
     ),
     muted: #bbb,
   ),
@@ -43,25 +43,25 @@ $color-palette: (
     error: rgb(154, 20, 27),
     text: (
       base: #fafafa,
-      inverse: #161616
+      inverse: #161616,
     ),
     background: (
       base: #222,
       inverse: #bbb,
-      section: #555
+      section: #555,
     ),
   ),
   alt-theme: (
     text: (
       base: #fff,
-      inverse: #000
+      inverse: #000,
     ),
     background: (
       base: #06425c,
-      section: #cde9f4
+      section: #cde9f4,
     ),
     accent: (
-      base: #EDD843,
+      base: #edd843,
     ),
   ),
 );
