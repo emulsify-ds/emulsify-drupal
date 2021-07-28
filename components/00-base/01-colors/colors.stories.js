@@ -2,7 +2,7 @@ import colors from './colors.twig';
 
 import colorsData from './colors.yml';
 
-import colorsDocs from './colors.mdx';
+import colorsDocs from './colors';
 
 /**
  * Storybook Definition.

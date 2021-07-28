@@ -2,30 +2,23 @@
 // Returns hex by default.
 // Optionally returns rgb, rgba, hsl, or hsla.
 @function cnvrt-clr($color, $format: null) {
-
   @if (type-of($color) == color) {
-
     @if ($format == null or $format == 'hex') {
       $ie-hex: ie_hex_str($color);
       @return unquote('#' + str_slice($ie-hex, 4));
-    }
-    @else if ($format == 'rgb') {
+    } @else if ($format == 'rgb') {
       @return red($color), green($color), blue($color);
-    }
-    @else if ($format == 'rgba') {
+    } @else if ($format == 'rgba') {
       @return red($color), green($color), blue($color), opacity($color);
-    }
-    @else if ($format == 'hsl') {
+    } @else if ($format == 'hsl') {
       @return hue($color), saturation($color), lightness($color);
-    }
-    @else if ($format == 'hsla') {
-      @return hue($color), saturation($color), lightness($color), opacity($color);
-    }
-    @else {
+    } @else if ($format == 'hsla') {
+      @return hue($color), saturation($color), lightness($color),
+        opacity($color);
+    } @else {
       @error "#{$format} is not a valid color format";
     }
-  }
-  @else {
+  } @else {
     @error "#{$color} is not a valid color";
   }
 }
@@ -43,26 +36,21 @@
 // Change $format variable to 'rgb' so all custom property definition output as rgba
 // instead of hsla.
 $format: 'hsl';
-@function clr($name, $variant:null, $alpha: 1, $theme:default, $format: #{$format}) {
+@function clr(
+  $name,
+  $variant: null,
+  $alpha: 1,
+  $theme: default,
+  $format: #{$format}
+) {
   // Coverage: clr(text)
   @if ($variant == null) {
     @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-      @return $format#{'a('}
-        var(
-          --c-#{$name},
-          cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
-        ),
-        $alpha
-      #{')'};
-    }
-    @else {
-      @return $format#{'a('}
-          var(
-            --c-#{$name},
-            cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
-          ),
-          $alpha
-        #{')'};
+      @return $format#{'a('} var(--c-#{$name}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)),
+        $alpha #{')'};
+    } @else {
+      @return $format#{'a('} var(--c-#{$name}, cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)),
+        $alpha #{')'};
     }
   }
   // Return variant as alpha value.
@@ -72,42 +60,19 @@ $format: 'hsl';
       // Return color value if it doesn't have variations or assume
       // the base color from multi-dimensional array.
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return $format#{'a('}
-            var(
-              --c-#{$name}-#{$alpha},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
-            ),
-            $variant
-          #{')'};
+        @return $format#{'a('} var(--c-#{$name}-#{$alpha}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)),
+          $variant #{')'};
+      } @else {
+        @return $format#{'a('} var(--c-#{$name}-#{$alpha}, cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)),
+          $variant #{')'};
       }
-      @else {
-        @return $format#{'a('}
-            var(
-              --c-#{$name}-#{$alpha},
-              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
-            ),
-            $variant
-          #{')'};
-      }
-    }
-    @else {
+    } @else {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return $format#{'a('}
-            var(
-              --c-#{$name},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
-            ),
-            $variant
-          #{')'};
-      }
-      @else {
-        @return $format#{'a('}
-            var(
-              --c-#{$name},
-              cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)
-            ),
-            $variant
-          #{')'};
+        @return $format#{'a('} var(--c-#{$name}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)),
+          $variant #{')'};
+      } @else {
+        @return $format#{'a('} var(--c-#{$name}, cnvrt-clr(map-get(map-get($color-palette, $theme), $name), $format)),
+          $variant #{')'};
       }
     }
   }
@@ -119,22 +84,11 @@ $format: 'hsl';
     // Coverage: clr(text, contrast), clr(text, contrast, 0.5)
     @if (map-has-key($color-palette, $variant)) {
       @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-        @return $format#{'a('}
-            var(
-              --c-#{$name}-#{$variant},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)
-            ),
-            $alpha
-          #{')'};
-      }
-      @else {
-        @return $format#{'a('}
-            var(
-              --c-#{$name}-#{$variant},
-              cnvrt-clr(map-get(map-get($color-palette, $variant), $name), $format)
-            ),
-            $alpha
-          #{')'};
+        @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)),
+          $alpha #{')'};
+      } @else {
+        @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get($color-palette, $variant), $name), $format)),
+          $alpha #{')'};
       }
     }
     // Coverage: clr(text, inverse), clr(text, inverse, 0.5),
@@ -144,59 +98,35 @@ $format: 'hsl';
       // clr(text, inverse, 0.5), clr(text, contrast, 0.5),
       // clr(text, inverse, 0.5, contrast)
       @if (type-of($alpha) == number) {
-        @if (map-has-key($color-palette, $variant) and type-of(map-get(map-get($color-palette, $variant), $name)) == map) {
-
-          @return $format#{'a('}
-              var(
-                --c-#{$name}-#{$variant},
-                cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)
-              ),
-              $alpha
-            #{')'};
-        }
-        @else {
-          @if (type-of(map-get(map-get($color-palette, $theme), $name)) == map) {
-            @return $format#{'a('}
-                var(
-                  --c-#{$name}-#{$variant},
-                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)
-                ),
-                $alpha
-              #{')'};
-          }
-          @else {
-            @return $format#{'a('}
-                var(
-                  --c-#{$name}-#{$variant},
-                  cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)
-                ),
-                $alpha
-              #{')'};
+        @if (
+          map-has-key($color-palette, $variant) and
+            type-of(map-get(map-get($color-palette, $variant), $name)) ==
+            map
+        ) {
+          @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get(map-get($color-palette, $variant), $name), 'base'), $format)),
+            $alpha #{')'};
+        } @else {
+          @if (
+            type-of(map-get(map-get($color-palette, $theme), $name)) == map
+          ) {
+            @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), 'base'), $format)),
+              $alpha #{')'};
+          } @else {
+            @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)),
+              $alpha #{')'};
           }
         }
       }
       // Coverage: clr(text, inverse, contrast)
       @else if (map-has-key($color-palette, $alpha)) {
-        @return $format#{'a('}
-            var(
-              --c-#{$name}-#{$variant}-#{$alpha},
-              cnvrt-clr(map-get(map-get(map-get($color-palette, $alpha), $name), $variant), $format)
-            ),
-            1
-          #{')'};
-      }
-      @else {
+        @return $format#{'a('} var(--c-#{$name}-#{$variant}-#{$alpha}, cnvrt-clr(map-get(map-get(map-get($color-palette, $alpha), $name), $variant), $format)),
+          1 #{')'};
+      } @else {
         @error "Property #{$alpha} must be either an alpha number or theme name.";
       }
-    }
-    @else {
-      @return $format#{'a('}
-          var(
-            --c-#{$name}-#{$variant},
-            cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)
-          ),
-          $alpha
-        #{')'};
+    } @else {
+      @return $format#{'a('} var(--c-#{$name}-#{$variant}, cnvrt-clr(map-get(map-get(map-get($color-palette, $theme), $name), $variant), $format)),
+        $alpha #{')'};
     }
   }
 }

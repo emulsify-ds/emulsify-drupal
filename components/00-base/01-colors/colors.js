@@ -1,12 +1,29 @@
 Drupal.behaviors.displayColorDefinitions = {
   attach() {
+    /**
+     * unquote
+     * @description Returns a string without quotes.
+     * @param {HTMLElement} el element with value
+     */
+    function handleClick(element, color) {
+      element.addEventListener('click', () => {
+        const clrValue = color.textContent.split('Usage: ').pop();
+        navigator.clipboard.writeText(clrValue);
+      });
+    }
+
+    /**
+     * unquote
+     * @description Returns a string without quotes.
+     * @param {HTMLElement} el element with value
+     */
     function unquoted(el) {
       return el.replace(/(^['"])|(['"]$)/g, '');
     }
     const elements = document.getElementsByClassName('cl-colors__definition');
 
     // eslint-disable-next-line func-names
-    Array.prototype.forEach.call(elements, function (element) {
+    elements.forEach((element) => {
       const stylesBefore = window.getComputedStyle(element, '::before');
       const stylesAfter = window.getComputedStyle(element, '::after');
       const contentBefore = stylesBefore.getPropertyValue('content');
@@ -19,6 +36,8 @@ Drupal.behaviors.displayColorDefinitions = {
       spanAfter.innerHTML = unquoted(contentAfter);
       element.appendChild(spanBefore);
       element.appendChild(spanAfter);
+
+      handleClick(element, spanBefore);
     });
   },
 };
