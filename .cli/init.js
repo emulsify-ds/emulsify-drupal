@@ -97,9 +97,9 @@ const strReplaceEmulsify = (machineName) => (str) =>
  * @returns void.
  */
 const applyToYmlFile = (filePath, functor) => {
-  if (!path || typeof path !== `string`) {
+  if (!filePath || typeof filePath !== `string`) {
     throw new Error(
-      `Cannot modify a file without knowing how to access it: ${path}`,
+      `Cannot modify a file without knowing how to access it: ${filePath}`,
     );
   }
   if (typeof functor !== 'function') {
