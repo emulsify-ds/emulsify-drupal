@@ -4,9 +4,20 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 
+/**
+ * Returns a boolean indicating whether or not the given object is a literal object.
+ *
+ * @param {any} obj object who's type will be checked.
+ * @returns {boolean} boolean indicating whether or not the given obj is a literal object.
+ */
 const isObjectLiteral = (obj) =>
   obj != null && obj.constructor.name === 'Object';
 
+/**
+ * Attempts to require the project.emulsify.json file.
+ *
+ * @returns parsed project.emulsify.json file.
+ */
 const getEmulsifyConfig = () => {
   try {
     return require('../project.emulsify.json');
@@ -19,6 +30,11 @@ const getEmulsifyConfig = () => {
   }
 };
 
+/**
+ * Throws if the given emulsify config file is invalid.
+ *
+ * @param {*} config emulsify project config, as loaded from a project.emulsify.json file.
+ */
 const validateEmulsifyConfig = (config) => {
   const prefix = 'Invalid project.emulsify.json config file';
   const example = JSON.stringify({
@@ -51,10 +67,48 @@ const validateEmulsifyConfig = (config) => {
   }
 };
 
+/**
+ * Takes an array of objects describing the origin and destination of a given file,
+ * then moves each specified file according to it's to/from properties.
+ *
+ * @param {Array<{ to: string, from: string }>} files array of objects depicting the origin and destination of a given file.
+ * @returns void.
+ */
 const renameFiles = (files) =>
   files.map(({ from, to }) =>
     fs.renameSync(path.join(__dirname, from), path.join(__dirname, to)),
   );
+
+/**
+ * Takes a machineName, and returns a fn that, when called with a str,
+ * replaces all instances of `emulsify` with the given machineName.
+ *
+ * @param {string} machineName string that should replace emulsify.
+ * @returns {function} fn that when called with a str, replaces all instances of `emulsify` with the given machineName.
+ */
+const strReplaceEmulsify = (machineName) => (str) =>
+  str.replace(/emulsify/g, machineName);
+
+/**
+ * Loads a yml file at filePath, applies the functor to the contents of the file, and writes it.
+ *
+ * @param {string} filePath path to the file that should be loaded, modified, and re-saved.
+ * @param {fn} functor fn that should return the new contents of the file, to be saved.
+ * @returns void.
+ */
+const applyToYmlFile = (filePath, functor) => {
+  if (!path || typeof path !== `string`) {
+    throw new Error(
+      `Cannot modify a file without knowing how to access it: ${path}`,
+    );
+  }
+  if (typeof functor !== 'function') {
+    return;
+  }
+
+  const file = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'));
+  fs.writeFileSync(filePath, yaml.safeDump(functor(file)));
+};
 
 const main = () => {
   // Load up config file, throw if none exists.
@@ -89,10 +143,26 @@ const main = () => {
   ]);
 
   // Update info.yml file.
-  const infoFilePath = path.join(__dirname, `../${machineName}.info.yml`);
-  const info = yaml.safeLoad(fs.readFileSync(infoFilePath, 'utf8'));
-  info.name = name;
-  fs.writeFileSync(infoFilePath, yaml.safeDump(info));
+  applyToYmlFile(
+    path.join(__dirname, `../${machineName}.info.yml`),
+    (info) => ({
+      ...info,
+      name: machineName,
+      libraries: info.libraries.map(strReplaceEmulsify(machineName)),
+    }),
+  );
+
+  // Udpate breakpoint.yml file.
+  applyToYmlFile(
+    path.join(__dirname, `../${machineName}.breakpoints.yml`),
+    (breakpoints) => {
+      const newBps = {};
+      for (const prop of Object.keys(breakpoints)) {
+        newBps[strReplaceEmulsify(machineName)(prop)] = breakpoints[prop];
+      }
+      return newBps;
+    },
+  );
 };
 
 main();
