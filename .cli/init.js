@@ -152,7 +152,7 @@ const main = () => {
     }),
   );
 
-  // Udpate breakpoint.yml file.
+  // Update breakpoint.yml file.
   applyToYmlFile(
     path.join(__dirname, `../${machineName}.breakpoints.yml`),
     (breakpoints) => {
