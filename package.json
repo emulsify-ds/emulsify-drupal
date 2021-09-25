@@ -72,7 +72,8 @@
     "twatch": "jest --no-coverage --watch --verbose",
     "coverage": "yarn test && open-cli .coverage/lcov-report/index.html",
     "format": "prettier --write \"**/*.{js,yml,scss,md}\"",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "postinstall": "npx patch-package"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^6.1.18",
