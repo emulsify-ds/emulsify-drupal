@@ -18,7 +18,7 @@ export const figures = () => figure(figureData);
 
 const items = [];
 svgIcons.keys().forEach((key) => {
-  const iconName = svgIcons(key).split('static/media/').pop().split('.')[0];
+  const iconName = svgIcons(key).split('images/icons/').pop().split('.')[0];
   const icon = {};
   icon.value = iconName;
   items.push(icon);
