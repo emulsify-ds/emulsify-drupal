@@ -60,7 +60,7 @@
   },
   "scripts": {
     "commit": "git-cz",
-    "lint": "eslint ./components",
+    "lint": "eslint --no-error-on-unmatched-pattern ./components",
     "a11y": "npm run build-storybook && ./scripts/a11y.js -r",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "build-storybook": "npm run build && build-storybook -s ./dist,./images -o .out",

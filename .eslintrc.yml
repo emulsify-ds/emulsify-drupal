@@ -20,3 +20,4 @@ rules:
   strict: 0
   import/no-extraneous-dependencies: 0
   prettier/prettier: error
+  no-error-on-unmatched-pattern: 1
