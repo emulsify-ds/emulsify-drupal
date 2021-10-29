@@ -2,8 +2,7 @@
 dist
 
 # Yarn/NPM
-node_modules/
-yarn.lock
+node_modules
 
 # Storybook
 .out
@@ -16,7 +15,7 @@ yarn.lock
 
 # Composer
 composer.lock
-/vendor/
+vendor
 
 # Jest
 .coverage
