@@ -11,11 +11,14 @@
       true,
       {
         "ignoreAtRules": [
+          "content",
           "each",
           "else",
           "extend",
+          "forward",
           "function",
           "if",
+          "import",
           "include",
           "mixin",
           "return",
