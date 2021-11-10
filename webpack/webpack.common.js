@@ -41,6 +41,7 @@ module.exports = {
     ],
   },
   plugins: [
+    plugins.FixStyleOnlyEntriesPlugin,
     plugins.MiniCssExtractPlugin,
     plugins.ImageminPlugin,
     plugins.SpriteLoaderPlugin,

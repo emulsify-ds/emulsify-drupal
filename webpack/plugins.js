@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const _MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 const _ImageminPlugin = require('imagemin-webpack-plugin').default;
 const _SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 const glob = require('glob');
@@ -31,6 +32,7 @@ const ProgressPlugin = new webpack.ProgressPlugin();
 
 module.exports = {
   ProgressPlugin,
+  FixStyleOnlyEntriesPlugin: new FixStyleOnlyEntriesPlugin(),
   MiniCssExtractPlugin,
   ImageminPlugin,
   SpriteLoaderPlugin,
