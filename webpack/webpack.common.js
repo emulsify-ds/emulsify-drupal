@@ -17,7 +17,7 @@ function getEntries(pattern) {
   });
 
   entries.svgSprite = path.resolve(webpackDir, 'svgSprite.js');
-  entries.css = path.resolve(webpackDir, 'css.js');
+  entries.css = path.resolve(webpackDir, '../components/style.scss');
 
   return entries;
 }
@@ -41,6 +41,7 @@ module.exports = {
     ],
   },
   plugins: [
+    plugins.FixStyleOnlyEntriesPlugin,
     plugins.MiniCssExtractPlugin,
     plugins.ImageminPlugin,
     plugins.SpriteLoaderPlugin,
