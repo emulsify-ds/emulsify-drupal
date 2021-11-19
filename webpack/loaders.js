@@ -37,7 +37,6 @@ const CSSLoader = {
         sourceMap: true,
         sassOptions: {
           importer: globImporter(),
-          outputStyle: 'compressed',
         },
       },
     },
