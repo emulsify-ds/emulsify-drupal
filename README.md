@@ -37,11 +37,11 @@ Please also follow the issue template and pull request templates provided. See b
 
 ### Committing Changes
 
-To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure semantic release can version correctly.
+We enforce the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format using [Commitlint](https://commitlint.js.org/#/) to facilitate automating the changelog (with [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog)) and to facilitate automatic semantic releases (with [Semantic Release](https://github.com/semantic-release/semantic-release))
 
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
-2. Run the `commit` script via `yarn commit` or `npm run commit` and follow the prompts to craft the perfect commit message.
-3. Your commit message will be used to create the changelog for the next version that includes that commit.
+2. Commit your changes using a format that follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) standard.
+3. Your commit message will be used to create a changelog entry for the next version that includes that commit. It will also bump the version number according to the [Semver spec](https://semver.org/).
 
 ## Author
 
