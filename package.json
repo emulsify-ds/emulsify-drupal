@@ -1,7 +1,7 @@
 {
   "name": "emulsify-drupal",
-  "version": "1.0.0",
-  "description": "Storybook development + Webpack Build + Drupal 8 theme",
+  "version": "0.0.0-development",
+  "description": "Drupal starter for the Emulsify Design System",
   "keywords": [
     "component library",
     "design system",
@@ -10,12 +10,11 @@
     "storybook",
     "styleguide"
   ],
-  "author": "Evan Willhite <evan@fourkitchens.com>",
-  "license": "MIT",
+  "author": "Four Kitchens <shout@fourkitchens.com>",
+  "license": "ISC",
   "scripts": {
     "a11y": "npm run storybook-build && ./scripts/a11y.js -r",
     "build": "webpack --config ./webpack/webpack.prod.js",
-    "commit": "git-cz",
     "coverage": "yarn test && open-cli .coverage/lcov-report/index.html",
     "develop": "concurrently --raw \"npm run webpack\" \"npm run storybook\"",
     "format": "npm run lint-fix; npm run prettier-fix",
@@ -27,6 +26,7 @@
     "postinstall": "npx patch-package",
     "prettier": "prettier --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
+    "semantic-release": "semantic-release",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
     "storybook-build": "npm run build && storybook-build -s ./dist,./images -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/eslint-parser": "^7.12.17",
+    "@semantic-release/github": "^8.0.2",
     "@storybook/addon-a11y": "^6.1.18",
     "@storybook/addon-actions": "^6.3.8",
     "@storybook/addon-essentials": "^6.3.8",
@@ -56,10 +57,8 @@
     "breakpoint-sass": "^2.7.1",
     "chalk": "^4.0.0",
     "clean-webpack-plugin": "^4.0.0",
-    "commitizen": "^4.2.2",
     "concurrently": "^5.3.0",
     "css-loader": "^5.0.1",
-    "cz-conventional-changelog": "3.3.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
@@ -84,6 +83,7 @@
     "ramda": "^0.27.1",
     "sass": "^1.42.1",
     "sass-loader": "^10.1.0",
+    "semantic-release": "^18.0.1",
     "style-loader": "^2.0.0",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^9.0.3",
@@ -97,10 +97,5 @@
     "webpack-cli": "^4.8.0",
     "webpack-merge": "^5.8.0",
     "yaml": "^1.10.0"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
   }
 }
