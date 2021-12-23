@@ -10,8 +10,8 @@
     "storybook",
     "styleguide"
   ],
-  "author": "Evan Willhite <evan@fourkitchens.com>",
-  "license": "MIT",
+  "author": "Four Kitchens <shout@fourkitchens.com>",
+  "license": "ISC",
   "scripts": {
     "a11y": "npm run storybook-build && ./scripts/a11y.js -r",
     "build": "webpack --config ./webpack/webpack.prod.js",
