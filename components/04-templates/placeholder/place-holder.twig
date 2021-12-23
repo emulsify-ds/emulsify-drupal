@@ -1,7 +1,0 @@
-{% set place_holder__base_class = 'place-holder' %}
-
-<section {{ bem(place_holder__base_class) }}>
-  <div {{ bem('content', place_holder__modifiers, place_holder__base_class) }}>
-    {{ place_holder|default('Place holder') }}
-  </div>
-</section>

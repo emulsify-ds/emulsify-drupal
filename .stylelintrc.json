@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-prettier"
+  ],
+  "plugins": [
+    "stylelint-prettier"
+  ],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "content",
+          "each",
+          "else",
+          "extend",
+          "forward",
+          "function",
+          "if",
+          "import",
+          "include",
+          "mixin",
+          "return",
+          "use"
+        ]
+      }
+    ],
+    "number-leading-zero": "always",
+    "number-no-trailing-zeros": true,
+    "prettier/prettier": true
+  }
+}

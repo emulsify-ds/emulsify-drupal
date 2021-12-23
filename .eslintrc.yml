@@ -1,9 +1,10 @@
 root: true
 extends:
-  - airbnb
-  - prettier
+  - airbnb-base
+  - plugin:security/recommended
   - plugin:prettier/recommended
 plugins:
+  - security
   - prettier
   - jest
 env:
@@ -15,7 +16,9 @@ globals:
   it: true
   describe: true
   Drupal: true
-parser: '@babel/eslint-parser'
+parser: "@babel/eslint-parser"
+parserOptions:
+  requireConfigFile: false
 rules:
   strict: 0
   import/no-extraneous-dependencies: 0
