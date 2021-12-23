@@ -25,6 +25,7 @@
     "lint-staged": "lint-staged",
     "lint-styles": "stylelint './components/**/*.scss'",
     "postinstall": "npx patch-package",
+    "prepare": "husky install",
     "prettier": "prettier --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
@@ -32,8 +33,7 @@
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage",
     "twatch": "jest --no-coverage --watch --verbose",
-    "webpack": "webpack --watch --config ./webpack/webpack.dev.js",
-    "prepare": "husky install"
+    "webpack": "webpack --watch --config ./webpack/webpack.dev.js"
   },
   "dependencies": {
     "add-attributes-twig-extension": "^0.1.0",
@@ -73,6 +73,7 @@
     "husky": "^7.0.0",
     "imagemin-webpack-plugin": "^2.4.2",
     "jest": "^26.6.3",
+    "js-yaml": "^3.14.1",
     "js-yaml-loader": "^1.2.2",
     "lint-staged": "^11.2.6",
     "mini-css-extract-plugin": "^1.6.2",
