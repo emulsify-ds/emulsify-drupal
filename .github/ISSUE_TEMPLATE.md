@@ -1,4 +1,4 @@
-emulsify version (see [releases](https://github.com/fourkitchens/emulsify/releases)):
+emulsify version (see [releases](https://github.com/emulsify-ds/emulsify-drupal/releases)):
 
 node version:
 
