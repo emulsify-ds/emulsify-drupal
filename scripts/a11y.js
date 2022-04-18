@@ -13,8 +13,15 @@ const {
   storybookBuildDir,
   pa11y: pa11yConfig,
   ignore,
-  components,
 } = require('../a11y.config.js');
+
+// Build list of stories from storybook; stories.json is generated from
+// `npx sb extract .out stories.json`.
+const stories = require('../.out/stories.json');
+
+// Honor ignore rules in config
+const componentIds = Object.keys(stories.stories);
+const components = componentIds.filter((id) => !ignore.stories.includes(id));
 
 const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../', storybookBuildDir);
 const STORYBOOK_IFRAME = path.join(STORYBOOK_BUILD_DIR, 'iframe.html');

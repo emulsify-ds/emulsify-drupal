@@ -13,7 +13,7 @@
   "author": "Four Kitchens <shout@fourkitchens.com>",
   "license": "ISC",
   "scripts": {
-    "a11y": "npm run storybook-build && ./scripts/a11y.js -r",
+    "a11y": "npm run storybook-build && npx sb extract .out .out/stories.json && ./scripts/a11y.js -r",
     "build": "webpack --config ./webpack/webpack.prod.js",
     "commit": "git-cz",
     "coverage": "yarn test && open-cli .coverage/lcov-report/index.html",
