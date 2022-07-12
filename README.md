@@ -16,7 +16,7 @@ Emulsify is an open-source tool for creating design systems with reusable compon
 
 ### Quick Links
 
-1. [Installation](https://docs.emulsify.info/installation/design-system)
+1. [Installation](https://docs.emulsify.info/emulsify-drupal/emulsify-drupal)
 2. [Usage](https://docs.emulsify.info/usage/commands)
 
 ## Demo
