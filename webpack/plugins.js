@@ -10,7 +10,7 @@ const glob = require('glob');
 const imagePath = path.resolve(__dirname, '../images');
 
 const MiniCssExtractPlugin = new _MiniCssExtractPlugin({
-  filename: 'style.css',
+  filename: '[name].css',
   chunkFilename: '[id].css',
 });
 
@@ -35,7 +35,15 @@ module.exports = {
   ImageminPlugin,
   SpriteLoaderPlugin,
   CleanWebpackPlugin: new CleanWebpackPlugin({
+    protectWebpackAssets: false, // Required for removal of extra, unwanted dist/css/*.js files.
     cleanOnceBeforeBuildPatterns: ['!*.{png,jpg,gif,svg}'],
-    cleanAfterEveryBuildPatterns: ['remove/**', '!js', '!*.{png,jpg,gif,svg}'],
+    cleanAfterEveryBuildPatterns: [
+      'remove/**',
+      '!js',
+      'css/**/*.js', // Remove all unwanted, auto generated JS files from dist/css folder.
+      'css/**/*.js.map',
+      'css/style.*', // Remove duplicated dist/css/style.css and its css.map
+      '!*.{png,jpg,gif,svg}',
+    ],
   }),
 };
