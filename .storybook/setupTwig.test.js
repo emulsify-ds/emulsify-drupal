@@ -27,7 +27,7 @@ describe('setupTwig', () => {
       base: '../components/00-base',
       molecules: '../components/02-molecules',
       organisms: '../components/03-organisms',
-      pages: '../components/04-pages',
+      templates: '../components/04-templates',
     });
   });
 });

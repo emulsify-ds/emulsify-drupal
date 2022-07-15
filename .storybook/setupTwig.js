@@ -31,8 +31,8 @@ const fetchVariantConfig = () => {
         directory: 'components/03-organisms',
       },
       {
-        name: 'pages',
-        directory: 'components/04-pages',
+        name: 'templates',
+        directory: 'components/04-templates',
       },
     ];
   }
