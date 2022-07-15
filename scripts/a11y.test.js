@@ -1,3 +1,5 @@
+import 'regenerator-runtime/runtime';
+
 const mockExit = jest
   .spyOn(global.process, 'exit')
   .mockImplementation(() => {});
@@ -17,7 +19,7 @@ const {
   ignore,
   storybookBuildDir,
   pa11y: pa11yConfig,
-} = require('../a11y.config.js');
+} = require('../a11y.config');
 
 const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../', storybookBuildDir);
 const STORYBOOK_IFRAME = path.join(STORYBOOK_BUILD_DIR, 'iframe.html');
