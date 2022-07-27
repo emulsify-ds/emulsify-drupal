@@ -34,9 +34,13 @@ function getEntries(scssPattern, jsPattern) {
   });
 
   entries.svgSprite = path.resolve(webpackDir, 'svgSprite.js');
-  // entries.css must renamed into entries.style in order to keep style.css file name.
-  // Since each css file in derives its name from own entries.property name.
-  entries.style = path.resolve(webpackDir, 'css.js');
+
+  // CSS Files.
+  glob.sync(`${webpackDir}/css/*js`).forEach((file) => {
+    const baseFileName = path.basename(file);
+    const newfilePath = `css/${baseFileName.replace('.js', '')}`;
+    entries[newfilePath] = file;
+  });
 
   return entries;
 }
