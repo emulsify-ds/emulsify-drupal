@@ -9,6 +9,8 @@ node_modules
 
 # System
 .DS_Store
+.idea
+.vscode
 
 # Git deploy
 .publish
