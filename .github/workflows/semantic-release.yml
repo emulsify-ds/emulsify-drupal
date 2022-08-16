@@ -3,8 +3,7 @@ on:
   push:
     branches:
       - 'master'
-      - 'alpha'
-      - 'beta'
+      - 'main'
 jobs:
   release:
     name: Attempt Semantic Release
@@ -14,11 +13,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.10
+      - name: Install
+        run: npm install
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run semantic-release
       - name: Add remote SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
