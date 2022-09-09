@@ -1,9 +1,8 @@
 # Ignore compiled files.
 dist
 
-# Yarn/NPM
+# npm
 node_modules
-yarn.lock
 
 # Storybook
 .out
