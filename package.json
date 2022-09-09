@@ -16,7 +16,7 @@
     "a11y": "npm run storybook-build && ./scripts/a11y.js -r",
     "build": "webpack --config ./webpack/webpack.prod.js",
     "commit": "git-cz",
-    "coverage": "yarn test && open-cli .coverage/lcov-report/index.html",
+    "coverage": "npm run test && open-cli .coverage/lcov-report/index.html",
     "develop": "concurrently --raw \"npm run webpack\" \"npm run storybook\"",
     "format": "npm run lint-fix; npm run prettier-fix",
     "lint": "npm run lint-js; npm run lint-styles",
