@@ -5,6 +5,10 @@ base theme: stable9
 core: 8.x
 core_version_requirement: ^8 || ^9
 
+dependencies:
+  - drupal:components (^2.1)
+  - drupal:emulsify_twig (^2.0)
+
 # Libraries (These are loaded on every page. Use https://www.drupal.org/developing/api/8/assets#twig whenever possible.)
 libraries:
   - 'emulsify/global'

@@ -29,9 +29,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require": {
-        "drupal/components": "^2.1",
-        "drupal/emulsify_twig": "^2.0"
-    }
+    "prefer-stable": true
 }
