@@ -38,6 +38,10 @@ module.exports = async ({ config }) => {
           sassOptions: {
             importer: globImporter(),
           },
+          additionalData: `@import "${path.resolve(
+            __dirname,
+            '../components/_import.scss',
+          )}";`,
         },
       },
     ],
