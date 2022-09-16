@@ -35,7 +35,7 @@ module.exports = {
   entry: getEntries(
     path.resolve(
       rootDir,
-      'components/**/!(*.stories|*.component|*.min|*.test).js',
+      'components/**/!(*.stories|*.component|*.min|*.mixin|*.test).js',
     ),
     path.resolve(rootDir, 'components/**/*.component.scss'),
   ),
