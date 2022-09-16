@@ -30,7 +30,7 @@ function emulsify_library_info_alter(&$libraries, $extension) {
           $componentPathFromTheme = str_replace($theme_path . '/', '', $componentPathFromRoot); // /components/status-messages/
 
           // Decode the libraries.yml 
-          $new_libraries = Yaml::decode(file_get_contents($file->getRealPath()));
+          $new_libraries = Drupal\Component\Serialization\Yaml::decode(file_get_contents($file->getRealPath()));
 
           // Each libraries.yml could have multiple library-definitions
           foreach ($new_libraries as $key => $new_library) {
@@ -54,7 +54,7 @@ function emulsify_library_info_alter(&$libraries, $extension) {
                     // If the path to the file is absolutely defined, for example: 
                     // components/status-messages/dist/status-messages.css, 
                     // then it will work out of the box.
-                    if(substr($file_key, 0, 11) == 'components/') {
+                    if(substr($file_key, 0, 5) == 'dist/') {
                       // no need to do anything
                     } else {
                       // If a type is defined
@@ -80,7 +80,7 @@ function emulsify_library_info_alter(&$libraries, $extension) {
               // Do the same for the JS as we did for CSS
               if (isset($new_library['js'])) {
                 foreach($new_library['js'] as $file_key => $js_file) {
-                  if(substr($file_key, 0, 11) == 'components/') {
+                  if(substr($file_key, 0, 5) == 'dist/') {
                   } else {
                     if (isset($js_file['type'])) {
                       if ($js_file['type'] == 'external') {
