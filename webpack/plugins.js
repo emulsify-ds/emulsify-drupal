@@ -42,7 +42,6 @@ module.exports = {
       '!js',
       'css/**/*.js', // Remove all unwanted, auto generated JS files from dist/css folder.
       'css/**/*.js.map',
-      'css/style.*', // Remove duplicated dist/css/style.css and its css.map
       '!*.{png,jpg,gif,svg}',
     ],
   }),
