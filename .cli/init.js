@@ -110,6 +110,32 @@ const applyToYmlFile = (filePath, functor) => {
   fs.writeFileSync(filePath, yaml.safeDump(functor(file)));
 };
 
+// Edit the package.json file here.
+const removeLintScripts = () => {
+  fs.readFile('package.json', 'utf8', (err, jsonString) => {
+    if (err) {
+      // Don't stop execution if this fails.
+      console.log(err);
+      console.log('Linting scripts not removed due to error.');
+      return;
+    }
+    try {
+      const buildInfo = JSON.parse(jsonString);
+      delete buildInfo.scripts.prepare;
+      fs.writeFile(
+        'package.json',
+        JSON.stringify(buildInfo, null, 2),
+        (err) => {
+          if (err) console.log(err);
+        },
+      );
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+  });
+};
+
 const main = () => {
   // Load up config file, throw if none exists.
   const config = getEmulsifyConfig();
@@ -152,17 +178,8 @@ const main = () => {
     }),
   );
 
-  // Update breakpoint.yml file.
-  applyToYmlFile(
-    path.join(__dirname, `../${machineName}.breakpoints.yml`),
-    (breakpoints) => {
-      const newBps = {};
-      for (const prop of Object.keys(breakpoints)) {
-        newBps[strReplaceEmulsify(machineName)(prop)] = breakpoints[prop];
-      }
-      return newBps;
-    },
-  );
+  // Attempting to scripts from here to be used elsewhere.
+  removeLintScripts();
 };
 
 main();
