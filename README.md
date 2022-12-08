@@ -98,6 +98,13 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/callinmullaney>
+            <img src=https://avatars.githubusercontent.com/u/369018?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Callin Mullaney/>
+            <br />
+            <sub style="font-size:14px"><b>Callin Mullaney</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/KurtTrowbridge>
             <img src=https://avatars.githubusercontent.com/u/848721?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Kurt Trowbridge/>
             <br />
@@ -109,13 +116,6 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
             <img src=https://avatars.githubusercontent.com/u/545638?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Adam Erickson/>
             <br />
             <sub style="font-size:14px"><b>Adam Erickson</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/callinmullaney>
-            <img src=https://avatars.githubusercontent.com/u/369018?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Callin Mullaney/>
-            <br />
-            <sub style="font-size:14px"><b>Callin Mullaney</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
