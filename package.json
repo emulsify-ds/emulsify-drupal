@@ -50,7 +50,7 @@
     "@storybook/addon-essentials": "^6.5.14",
     "@storybook/addon-links": "^6.3.8",
     "@storybook/html": "^6.5.14",
-    "@storybook/storybook-deployer": "^2.8.10",
+    "@storybook/storybook-deployer": "^2.8.16",
     "autoprefixer": "^10.0.2",
     "babel-loader": "^8.2.2",
     "babel-preset-minify": "^0.5.0",
