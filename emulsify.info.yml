@@ -3,7 +3,7 @@ type: theme
 description: Theme using Storybook and component-driven development
 base theme: stable9
 core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 
 dependencies:
   - drupal:components (^2.1)
