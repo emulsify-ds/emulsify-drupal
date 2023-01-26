@@ -29,7 +29,7 @@
     "prettier": "prettier --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
     "storybook": "start-storybook --ci -s ./dist,./images -p 6006",
-    "storybook-build": "build-storybook -s ./dist,./images -o .out",
+    "storybook-build": "npm run build && build-storybook -s ./dist,./images -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage",
     "twatch": "jest --no-coverage --watch --verbose",
