@@ -112,17 +112,17 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/americkson>
-            <img src=https://avatars.githubusercontent.com/u/545638?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Adam Erickson/>
-            <br />
-            <sub style="font-size:14px"><b>Adam Erickson</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/ccjjmartin>
             <img src=https://avatars.githubusercontent.com/u/12279982?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Chris Martin/>
             <br />
             <sub style="font-size:14px"><b>Chris Martin</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/americkson>
+            <img src=https://avatars.githubusercontent.com/u/545638?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Adam Erickson/>
+            <br />
+            <sub style="font-size:14px"><b>Adam Erickson</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
