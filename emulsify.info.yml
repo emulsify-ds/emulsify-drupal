@@ -22,10 +22,6 @@ libraries:
 #       component:
 #         css/chosen-drupal.css: false
 
-# CKEditor stylesheet loads in wysiwyg to give content editors a better experience
-ckeditor_stylesheets:
-  - dist/css/style.css
-
 regions:
   header: Header
   content: Content # the content region is required

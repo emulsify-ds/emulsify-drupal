@@ -1,13 +1,7 @@
 global:
   css:
     theme:
-      dist/css/style.css: {}
-
-main-menu:
-  js:
-    dist/js/02-molecules/menus/main-menu/main-menu.js: {}
-  dependencies:
-    - core/drupal
+      dist/css/global.css: {}
 
 # IE 11 support for SVG use - disable if not needed.
 # See also components/01-atoms/images/icons/_icon.twig to remove attach_library.
@@ -15,9 +9,3 @@ sprite:
   js:
     components/01-atoms/images/icons/svgxuse.min.js:
       { attributes: { defer: true } }
-
-tabs:
-  js:
-    dist/js/02-molecules/tabs/tabs.js: {}
-  dependencies:
-    - core/drupal

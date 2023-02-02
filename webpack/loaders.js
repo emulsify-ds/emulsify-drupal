@@ -1,3 +1,4 @@
+const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const globImporter = require('node-sass-glob-importer');
 
@@ -35,6 +36,10 @@ const CSSLoader = {
       loader: 'sass-loader',
       options: {
         sourceMap: true,
+        additionalData: `@import "${path.resolve(
+          __dirname,
+          '../components/_import.scss',
+        )}";`,
         sassOptions: {
           importer: globImporter(),
           outputStyle: 'compressed',
@@ -53,9 +58,16 @@ const SVGSpriteLoader = {
   },
 };
 
+const FontLoader = {
+  test: /.(woff|woff2|ttf|eot|otf|svg)$/,
+  loader: 'file-loader',
+  include: [/fonts/],
+};
+
 module.exports = {
   JSLoader,
   CSSLoader,
   SVGSpriteLoader,
   ImageLoader,
+  FontLoader,
 };

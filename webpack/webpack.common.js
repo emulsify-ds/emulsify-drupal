@@ -7,40 +7,23 @@ const webpackDir = path.resolve(__dirname);
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.resolve(rootDir, 'dist');
 
-// Glob pattern for scss files that ignore file names prefixed with underscore.
-const scssPattern = path.resolve(rootDir, 'components/**/!(_*).scss');
-// Glob pattern for JS files.
-const jsPattern = path.resolve(
-  rootDir,
-  'components/**/!(*.stories|*.component|*.min|*.test).js',
-);
-
-// Prepare list of scss and js file for "entry".
-function getEntries(scssPattern, jsPattern) {
+function getEntries(pattern, patternCss) {
   const entries = {};
 
-  // SCSS entries
-  glob.sync(scssPattern).forEach((file) => {
-    const filePath = file.split('components/')[1];
-    const newfilePath = `css/${filePath.replace('.scss', '')}`;
-    entries[newfilePath] = file;
-  });
-
-  // JS entries
-  glob.sync(jsPattern).forEach((file) => {
+  glob.sync(pattern).forEach((file) => {
     const filePath = file.split('components/')[1];
     const newfilePath = `js/${filePath.replace('.js', '')}`;
     entries[newfilePath] = file;
   });
 
-  entries.svgSprite = path.resolve(webpackDir, 'svgSprite.js');
-
-  // CSS Files.
-  glob.sync(`${webpackDir}/css/*js`).forEach((file) => {
-    const baseFileName = path.basename(file);
-    const newfilePath = `css/${baseFileName.replace('.js', '')}`;
+  glob.sync(patternCss).forEach((file) => {
+    const filePath = file.split('components/')[1];
+    const newfilePath = `css/${filePath.replace('.component.scss', '')}`;
     entries[newfilePath] = file;
   });
+
+  entries.svgSprite = path.resolve(webpackDir, 'svgSprite.js');
+  entries.global = path.resolve(webpackDir, 'global.js');
 
   return entries;
 }
@@ -49,13 +32,20 @@ module.exports = {
   stats: {
     errorDetails: true,
   },
-  entry: getEntries(scssPattern, jsPattern),
+  entry: getEntries(
+    path.resolve(
+      rootDir,
+      'components/**/!(*.stories|*.component|*.min|*.mixin|*.test).js',
+    ),
+    path.resolve(rootDir, 'components/**/*.component.scss'),
+  ),
   module: {
     rules: [
       loaders.CSSLoader,
       loaders.SVGSpriteLoader,
       loaders.ImageLoader,
       loaders.JSLoader,
+      loaders.FontLoader,
     ],
   },
   plugins: [
@@ -64,6 +54,8 @@ module.exports = {
     plugins.SpriteLoaderPlugin,
     plugins.ProgressPlugin,
     plugins.CleanWebpackPlugin,
+    plugins.StyleLintPlugin,
+    plugins.ESLintPlugin,
   ],
   output: {
     path: distDir,

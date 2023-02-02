@@ -4,3 +4,105 @@
  * @file
  * Functions to support theming.
  */
+
+/**
+  * Implements hook_library_info_alter().
+  * @link https://www.drupal.org/project/drupal/issues/3092496
+  */
+function emulsify_library_info_alter(&$libraries, $extension) {
+  // Get the name of the theme where this function is being called
+  $theme_name = basename(__FILE__, '.theme'); // compony
+
+  // Get the path of the theme where this function is being called
+  $theme_path = drupal_get_path('theme', $theme_name); // themes/custom/compony
+
+  // Alter only the library definitions of the current theme.
+  if ($extension == $theme_name) {
+    $directory_iterator = new RecursiveDirectoryIterator($theme_path . '/components/');
+
+    // Iterate over all the files found in /themes/custom/compony/components/
+    foreach (new RecursiveIteratorIterator($directory_iterator) as $file) {
+      // Filter out all the files that have the exact name: "libraries.yml"
+      if ($file->getFilename() == 'libraries.yml') {
+        try {
+          // Let's assume we found a libraries.yml file on /themes/custom/compony/components/status-messages/libraries.yml
+          $componentPathFromRoot = substr($file->getPathName(), 0, -13); // /themes/custom/compony/components/status-messages/
+          $componentPathFromTheme = str_replace($theme_path . '/', '', $componentPathFromRoot); // /components/status-messages/
+
+          // Decode the libraries.yml 
+          $new_libraries = Drupal\Component\Serialization\Yaml::decode(file_get_contents($file->getRealPath()));
+
+          // Each libraries.yml could have multiple library-definitions
+          foreach ($new_libraries as $key => $new_library) {
+            // Check if the key of this library "status-messages" in our example isn't already defined somewhere else
+            if(isset($libraries[$key])) {
+              // If the library is defined somewhere else already, 
+              // throw a warning that we have multiple definitions of 
+              // the same library within the same theme.
+              \Drupal::messenger()
+                ->addWarning(t('The library @key from the theme @themename has multiple definitions.', [
+                  '@key' => $key,
+                  '@themename' => $theme_name,
+                ]));
+            } else {
+              // If the library key hasn't been defined yet, and the library contains CSS definitions
+              if (isset($new_library['css'])) {
+                // Go over each CSS group definition, multiple groups are possible, so we need to loop over them
+                foreach($new_library['css'] as $group_key => $css_grouped) {
+                  // Inside each group definition, there can be multiple CSS-files, so again we need to loop over those
+                  foreach($css_grouped as $file_key => $css_file) {
+                    // If the path to the file is absolutely defined, for example: 
+                    // components/status-messages/dist/status-messages.css, 
+                    // then it will work out of the box.
+                    if(substr($file_key, 0, 5) == 'dist/') {
+                      // no need to do anything
+                    } else {
+                      // If a type is defined
+                      if (isset($css_file['type'])) {
+                        // If the type of the css file is external
+                        if ($css_file['type'] == 'external') {
+                          // break out of the foreach loop of this CSS-file.
+                          continue;
+                        }
+                      }
+
+                      // We only arrive here if the path doesn't start with 'components/', 
+                      // which would indicate the path is relative.
+                      // We prefix the path to the css file of the relative definition with $componentPathFromTheme, 
+                      // so internally it will be absolute positioned starting from the theme it is found in.
+                      $new_library['css'][$group_key][$componentPathFromTheme . $file_key] = $css_file;
+                      unset($new_library['css'][$group_key][$file_key]);
+                    }
+                  }
+                }
+              }
+              
+              // Do the same for the JS as we did for CSS
+              if (isset($new_library['js'])) {
+                foreach($new_library['js'] as $file_key => $js_file) {
+                  if(substr($file_key, 0, 5) == 'dist/') {
+                  } else {
+                    if (isset($js_file['type'])) {
+                      if ($js_file['type'] == 'external') {
+                        continue;
+                      }
+                    }
+
+                    // Path is relatively defined
+                    $new_library['js'][$componentPathFromTheme . $file_key] = $js_file;
+                    unset($new_library['js'][$file_key]);
+                  }
+                }
+              }
+              // Set the libraries variable to now have the altered library.
+              $libraries[$key] = $new_library;
+            }
+          }
+        } catch (InvalidDataTypeException $e) {
+          // Throw a helpful exception to provide context.
+          throw new InvalidLibraryFileException(sprintf('Invalid library definition in %s: %s', $file->getRealPath(), $e->getMessage()), 0, $e);
+        }
+      }
+    }
+  };
+}
