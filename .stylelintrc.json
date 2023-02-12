@@ -6,6 +6,7 @@
   "plugins": [
     "stylelint-prettier"
   ],
+  "customSyntax": "postcss-scss",
   "rules": {
     "at-rule-no-unknown": [
       true,
