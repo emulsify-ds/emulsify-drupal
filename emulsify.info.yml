@@ -5,7 +5,7 @@ base theme: stable9
 core_version_requirement: ^9 || ^10
 
 dependencies:
-  - drupal:components (^2.1)
+  - drupal:components (^3.0)
   - drupal:emulsify_twig (^4.0)
 
 # Libraries (These are loaded on every page. Use https://www.drupal.org/developing/api/8/assets#twig whenever possible.)
