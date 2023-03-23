@@ -98,6 +98,13 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/marcb4k>
+            <img src=https://avatars.githubusercontent.com/u/107938318?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Marc Berger/>
+            <br />
+            <sub style="font-size:14px"><b>Marc Berger</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/techninja>
             <img src=https://avatars.githubusercontent.com/u/320747?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=James Todd/>
             <br />
@@ -130,13 +137,6 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
             <img src=https://avatars.githubusercontent.com/u/1760366?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Chris Runo/>
             <br />
             <sub style="font-size:14px"><b>Chris Runo</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/marcb4k>
-            <img src=https://avatars.githubusercontent.com/u/107938318?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Marc Berger/>
-            <br />
-            <sub style="font-size:14px"><b>Marc Berger</b></sub>
         </a>
     </td>
 </tr>
