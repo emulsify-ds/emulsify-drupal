@@ -5,8 +5,8 @@ base theme: stable9
 core_version_requirement: ^9 || ^10
 
 dependencies:
-  - drupal:components (^2.1)
-  - drupal:emulsify_twig (^2.0)
+  - drupal:components (^3.0)
+  - drupal:emulsify_twig (^4.0)
 
 # Libraries (These are loaded on every page. Use https://www.drupal.org/developing/api/8/assets#twig whenever possible.)
 libraries:
@@ -46,15 +46,9 @@ logo: images/logo.png
 # MUST install `components` module: `drush dl components && drush en components -y``
 components:
   namespaces:
-    base:
-      - components/00-base
-    atoms:
-      - components/01-atoms
-    molecules:
-      - components/02-molecules
-    organisms:
-      - components/03-organisms
-    templates:
-      - components/04-templates
-    pages:
-      - components/05-pages
+    base: components/00-base
+    atoms: components/01-atoms
+    molecules: components/02-molecules
+    organisms: components/03-organisms
+    templates: components/04-templates
+    pages: components/05-pages
