@@ -52,6 +52,7 @@ const SVGSpriteLoader = {
   loader: 'svg-sprite-loader',
   options: {
     extract: true,
+    runtimeCompat: true,
     spriteFilename: '../dist/icons.svg',
   },
 };
