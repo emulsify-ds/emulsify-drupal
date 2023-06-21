@@ -1,10 +1,8 @@
-[![Emulsify Design System](https://user-images.githubusercontent.com/409903/170579210-327abcdd-2c98-4922-87bb-36446a4cc013.svg)](https://www.emulsify.info/)
-
-<p align="center"><img src="https://raw.githubusercontent.com/emulsify-ds/documentation/master/.gitbook/assets/logo.png" width="400"/></p>
-
-Emulsify is an open-source tool for creating design systems with reusable components and clear guidelines for teams. Emulsify helps organizations scale their design while reducing cost, streamlining workflows, and improving accessibility.
+![Emulsify Design System](https://github.com/emulsify-ds/.github/blob/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
 
 # Emulsify Drupal
+
+## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
 ### Storybook development, Webpack build, and Drupal 8 theme
 
@@ -12,12 +10,12 @@ Emulsify is an open-source tool for creating design systems with reusable compon
 
 ## Documentation
 
-[docs.emulsify.info](https://docs.emulsify.info/)
+[docs.emulsify.info](https://emulsify.info/docs)
 
 ### Quick Links
 
-1. [Installation](https://docs.emulsify.info/emulsify-drupal/emulsify-drupal)
-2. [Usage](https://docs.emulsify.info/usage/commands)
+1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
+2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
 
 ## Demo
 
