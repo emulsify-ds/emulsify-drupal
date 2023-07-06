@@ -9,11 +9,16 @@ import '../components/style.scss';
 // If in a Drupal project, it's recommended to import a symlinked version of drupal.js.
 import './_drupal.js';
 
-// addDecorator deprecated, but not sure how to use this otherwise.
-addDecorator((storyFn) => {
-  useEffect(() => Drupal.attachBehaviors(), []);
-  return storyFn();
-});
+export const decorators = [
+  (Story, { args }) => {
+    const { renderAs } = args || {};
+
+    // Usual emulsify hack to add Drupal behaviors.
+    useEffect(() => {
+      Drupal.attachBehaviors();
+    }, [args]);
+  },
+];
 
 setupTwig(Twig);
 
