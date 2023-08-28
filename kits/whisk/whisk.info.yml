@@ -1,8 +1,13 @@
-name: Emulsify
 type: theme
-description: The official parent theme for Emulsify and it's flexible component driven development.
-base theme: stable9
-core_version_requirement: ^9.5 || ^10
+base theme: emulsify
+core_version_requirement: '^9.5 || ^10'
+
+name: EMULSIFY_KIT_NAME
+description: EMULSIFY_KIT_DESCRIPTION
+package: 'Emulsify'
+screenshot: screenshot.png
+version: VERSION
+hidden: false
 
 dependencies:
   - 'drupal:components (^3.0)'

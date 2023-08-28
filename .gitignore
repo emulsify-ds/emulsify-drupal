@@ -4,9 +4,6 @@ dist
 # npm
 node_modules
 
-# Storybook
-.out
-
 # System
 .DS_Store
 .idea

@@ -1,0 +1,48 @@
+{
+  "browserSync": {
+    "proxy": "http://localhost",
+    "port": 3000,
+    "openAutomatically": false,
+    "notify": false
+  },
+  "css": {
+    "dest": "assets/css",
+    "src": [
+      "scss/**/*.scss"
+    ],
+    "includePaths": [
+      "../contrib/aeon/scss"
+    ]
+  },
+  "js": {
+    "dest": "assets/js",
+    "src": [
+      "js/**/*.js"
+    ]
+  },
+  "components": {
+    "css": {
+      "dest": "./components",
+      "src": [
+        "components/*/src/styles/*.scss",
+        "scss/base/*.scss"
+      ],
+      "includePaths": [
+        "../contrib/aeon/scss",
+        "./scss/base"
+      ]
+    },
+    "js": {
+      "dest": "./components",
+      "src": [
+        "components/*/src/scripts/*.js"
+      ]
+    }
+  },
+  "templates": {
+    "src": [
+      "templates/**/*.twig",
+      "components/*/*.twig"
+    ]
+  }
+}

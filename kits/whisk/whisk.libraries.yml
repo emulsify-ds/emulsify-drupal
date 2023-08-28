@@ -1,0 +1,11 @@
+base:
+  version: VERSION
+  css:
+    theme:
+      assets/css/aeon_kit.css: {}
+  js:
+    assets/js/aeon_kit.js: { minified: true }
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
