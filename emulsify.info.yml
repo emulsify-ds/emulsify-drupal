@@ -1,6 +1,6 @@
 name: Emulsify
 type: theme
-description: The official parent theme for Emulsify and it's flexible component driven development.
+description: The official base theme for Emulsify and it's flexible component driven development.
 base theme: stable9
 core_version_requirement: ^9.5 || ^10
 

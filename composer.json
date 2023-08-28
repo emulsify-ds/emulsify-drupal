@@ -1,6 +1,6 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "Storybook development + Webpack Build + Drupal 8 theme",
+    "description": "The official Drupal 10 base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",
@@ -38,11 +38,6 @@
         "drupal/core": "^9.5 || ^10",
         "drupal/components": "^3.0@beta",
         "drupal/emulsify_twig": "^4.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Drush\\Commands\\aeon\\": "Commands/aeon/"
-        }
     },
     "extra": {
         "drush": {
