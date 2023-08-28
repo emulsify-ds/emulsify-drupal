@@ -1,10 +1,8 @@
-[![Emulsify Design System](https://user-images.githubusercontent.com/409903/170579210-327abcdd-2c98-4922-87bb-36446a4cc013.svg)](https://www.emulsify.info/)
-
-<p align="center"><img src="https://raw.githubusercontent.com/emulsify-ds/documentation/master/.gitbook/assets/logo.png" width="400"/></p>
-
-Emulsify is an open-source tool for creating design systems with reusable components and clear guidelines for teams. Emulsify helps organizations scale their design while reducing cost, streamlining workflows, and improving accessibility.
+![Emulsify Design System](https://github.com/emulsify-ds/.github/blob/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
 
 # Emulsify Drupal
+
+## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
 ### Storybook development, Webpack build, and Drupal 8 theme
 
@@ -12,12 +10,12 @@ Emulsify is an open-source tool for creating design systems with reusable compon
 
 ## Documentation
 
-[docs.emulsify.info](https://docs.emulsify.info/)
+[docs.emulsify.info](https://emulsify.info/docs)
 
 ### Quick Links
 
-1. [Installation](https://docs.emulsify.info/emulsify-drupal/emulsify-drupal)
-2. [Usage](https://docs.emulsify.info/usage/commands)
+1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
+2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
 
 ## Demo
 
@@ -98,6 +96,13 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/codechefmarc>
+            <img src=https://avatars.githubusercontent.com/u/107938318?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Marc Berger/>
+            <br />
+            <sub style="font-size:14px"><b>Marc Berger</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/techninja>
             <img src=https://avatars.githubusercontent.com/u/320747?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=James Todd/>
             <br />
@@ -132,15 +137,15 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
             <sub style="font-size:14px"><b>Chris Runo</b></sub>
         </a>
     </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/marcb4k>
-            <img src=https://avatars.githubusercontent.com/u/107938318?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Marc Berger/>
-            <br />
-            <sub style="font-size:14px"><b>Marc Berger</b></sub>
-        </a>
-    </td>
 </tr>
 <tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/andycarlberg>
+            <img src=https://avatars.githubusercontent.com/u/7405933?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Andy Carlberg/>
+            <br />
+            <sub style="font-size:14px"><b>Andy Carlberg</b></sub>
+        </a>
+    </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/eatsmarter-benny>
             <img src=https://avatars.githubusercontent.com/u/78405000?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=eatsmarter-benny/>
@@ -176,6 +181,8 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
             <sub style="font-size:14px"><b>Mihaic100</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/psebborn>
             <img src=https://avatars.githubusercontent.com/u/147779?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Paul Sebborn/>
