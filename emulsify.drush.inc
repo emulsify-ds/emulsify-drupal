@@ -86,7 +86,6 @@ function drush_emulsify($name = NULL, $machine_name = NULL) {
   $kit = (drush_get_option('kit')) ? drush_trim_path(drush_get_option('kit')) : 'whisk';
 
   drush_emulsify_create($name, $machine_name, $description, $subtheme_path, $kit);
-  // drush_emulsify_admin_create($name, $machine_name, $description, $subtheme_path, $kit);.
 }
 
 /**
