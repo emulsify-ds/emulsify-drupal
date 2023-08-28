@@ -1,6 +1,6 @@
 {
-  "name": "aeon_kit",
-  "description": "AEON_KIT_DESCRIPTION",
+  "name": "emulsify_kit",
+  "description": "EMULSIFY_KIT_DESCRIPTION",
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.20.12",
