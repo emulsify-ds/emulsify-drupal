@@ -35,14 +35,19 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/core": "^9.5 || ^10",
+        "drupal/core": "^9.5 || ^10 || ^11",
         "drupal/components": "^3.0@beta",
         "drupal/emulsify_twig": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "Drupal\\emulsify\\": "src/"
+        }
     },
     "extra": {
         "drush": {
             "services": {
-                "drush.services.yml": "^10 || ^11"
+                "drush.services.yml": "^9.5 || ^10 || ^11"
             }
         }
     }
