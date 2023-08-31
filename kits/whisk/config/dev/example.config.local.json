@@ -1,5 +1,0 @@
-{
-  "browserSync": {
-    "proxy" : "http://local.dev"
-  }
-}

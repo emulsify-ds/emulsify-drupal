@@ -4,11 +4,11 @@ dependencies:
   module:
     - system
   theme:
-    - aeon_kit
+    - emulsify_recipe
 _core:
   default_config_hash: NDwadleLD3YVSbDUaakxyYZyINYtkFtOVGShfq4kWy8
-id: aeon_kit_branding
-theme: aeon_kit
+id: emulsify_recipe_branding
+theme: emulsify_recipe
 region: header
 weight: -5
 provider: null

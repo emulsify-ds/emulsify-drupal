@@ -2,8 +2,8 @@ type: theme
 base theme: emulsify
 core_version_requirement: '^9.5 || ^10'
 
-name: EMULSIFY_KIT_NAME
-description: EMULSIFY_KIT_DESCRIPTION
+name: EMULSIFY_RECIPE_NAME
+description: EMULSIFY_RECIPE_DESCRIPTION
 package: 'Emulsify'
 screenshot: screenshot.png
 version: VERSION

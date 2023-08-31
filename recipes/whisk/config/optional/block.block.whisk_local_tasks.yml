@@ -2,11 +2,11 @@ langcode: en
 status: true
 dependencies:
   theme:
-    - aeon_kit
+    - emulsify_recipe
 _core:
   default_config_hash: X9I1OB0W3WlWtrK-CNcg6hNWwa8wficanpH8pYnDZDE
-id: aeon_kit_local_tasks
-theme: aeon_kit
+id: emulsify_recipe_local_tasks
+theme: emulsify_recipe
 region: content
 weight: -3
 provider: null

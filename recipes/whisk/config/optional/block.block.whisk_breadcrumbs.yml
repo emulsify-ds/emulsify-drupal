@@ -4,11 +4,11 @@ dependencies:
   module:
     - system
   theme:
-    - aeon_kit
+    - emulsify_recipe
 _core:
   default_config_hash: oXUb3JZR2WW5VOdw4HrhRicCsq51mCgLfRyvheG68ck
-id: aeon_kit_breadcrumbs
-theme: aeon_kit
+id: emulsify_recipe_breadcrumbs
+theme: emulsify_recipe
 region: breadcrumb
 weight: -5
 provider: null
