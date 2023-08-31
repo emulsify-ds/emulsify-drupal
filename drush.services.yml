@@ -1,0 +1,6 @@
+services:
+  emulsify.commands:
+    class: \Drupal\emulsify\Commands\SubThemeCommands
+    arguments: ['@file_system']
+    tags:
+      - { name: drush.command }

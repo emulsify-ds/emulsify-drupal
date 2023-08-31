@@ -3,6 +3,7 @@ type: theme
 description: The official base theme for Emulsify and it's flexible component driven development.
 base theme: stable9
 core_version_requirement: ^9.5 || ^10
+package: emulsify
 
 dependencies:
   - 'drupal:components (^3.0)'
