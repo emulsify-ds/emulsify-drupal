@@ -7,8 +7,10 @@ module.exports = {
     '@storybook/addon-a11y',
     '@storybook/addon-links',
     '@storybook/addon-essentials',
-    '@storybook/addon-mdx-gfm',
   ],
+  core: {
+    builder: 'webpack5',
+  },
   framework: {
     name: '@storybook/html-webpack5',
     options: {},

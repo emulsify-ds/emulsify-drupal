@@ -2,4 +2,4 @@ function requireAll(r) {
   r.keys().forEach(r);
 }
 
-requireAll(require.context('../images/', true, /\.svg$/));
+requireAll(require.context('../assets/icons/', true, /\.svg$/));

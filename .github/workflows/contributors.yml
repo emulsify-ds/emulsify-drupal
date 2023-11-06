@@ -1,11 +1,10 @@
 name: Add contributors
 on:
   schedule:
-    - cron: '20 20 * * *'
+    - cron: "20 20 * * *"
   push:
     branches:
       - master
-  workflow_dispatch:
 
 jobs:
   add-contributors:
@@ -14,11 +13,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: BobAnkh/add-contributors@master
         with:
-          CONTRIBUTOR: '### Contributors'
-          COLUMN_PER_ROW: '6'
+          CONTRIBUTOR: "### Contributors"
+          COLUMN_PER_ROW: "6"
           ACCESS_TOKEN: ${{secrets.ADD_TO_PROJECT_PAT}}
-          IMG_WIDTH: '100'
-          FONT_SIZE: '14'
-          PATH: '/README.md'
-          COMMIT_MESSAGE: 'docs(README): update contributors'
-          AVATAR_SHAPE: 'round'
+          IMG_WIDTH: "100"
+          FONT_SIZE: "14"
+          PATH: "/README.md"
+          COMMIT_MESSAGE: "docs(README): update contributors"
+          AVATAR_SHAPE: "round"

@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - '*.x'
-  workflow_dispatch:
 jobs:
   sync:
     name: Sync Dev Branch

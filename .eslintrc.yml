@@ -1,25 +1,36 @@
 root: true
 extends:
   - airbnb-base
+  - eslint:recommended
+  - plugin:import/recommended
   - plugin:security/recommended
   - plugin:prettier/recommended
 plugins:
+  - import
   - security
   - prettier
-  - jest
 env:
   es6: true
   browser: true
-  jest/globals: true
 globals:
   expect: true
   it: true
   describe: true
   Drupal: true
-parser: "@babel/eslint-parser"
 parserOptions:
   requireConfigFile: false
 rules:
   strict: 0
   import/no-extraneous-dependencies: 0
   prettier/prettier: error
+settings:
+  import/ignore:
+    - \.(scss|less|css)$ # can't parse unprocessed CSS modules, either
+  import/resolver:
+    node:
+      extensions:
+        - '.js'
+        - '.jsx'
+      moduleDirectory:
+        - 'src'
+        - 'node_modules'
