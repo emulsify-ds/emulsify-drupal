@@ -9,14 +9,17 @@ plugins:
   - import
   - security
   - prettier
+  - jest
 env:
   es6: true
   browser: true
+  jest/globals: true
 globals:
   expect: true
   it: true
   describe: true
   Drupal: true
+  parser: "@babel/eslint-parser"
 parserOptions:
   requireConfigFile: false
 rules:

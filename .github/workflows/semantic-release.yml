@@ -5,6 +5,7 @@ on:
       - 'master'
       - 'alpha'
       - 'beta'
+  workflow_dispatch:
 jobs:
   release:
     name: Attempt Semantic Release
