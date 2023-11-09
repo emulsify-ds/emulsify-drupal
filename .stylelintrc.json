@@ -27,6 +27,7 @@
       }
     ],
     "function-no-unknown": null,
+    "value-keyword-case": null,
     "prettier/prettier": true,
     "selector-class-pattern": null,
     "selector-not-notation": null

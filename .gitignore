@@ -1,5 +1,6 @@
 # Ignore compiled files.
-dist
+dist/**/*
+!dist/.gitkeep
 
 # npm
 node_modules

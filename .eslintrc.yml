@@ -19,9 +19,13 @@ globals:
   it: true
   describe: true
   Drupal: true
-  parser: "@babel/eslint-parser"
-parserOptions:
+parser: "@babel/eslint-parser"
+parserOptions: 
   requireConfigFile: false
+  babelOptions: 
+    babelrc: false
+    configFile: true
+    presets: ["@babel/preset-env"]
 rules:
   strict: 0
   import/no-extraneous-dependencies: 0
