@@ -14,7 +14,7 @@ const {
   pa11y: pa11yConfig,
   ignore,
   components,
-} = require('../a11y.config.js');
+} = require('../../a11y.config.js');
 
 const STORYBOOK_BUILD_DIR = path.resolve(__dirname, '../', storybookBuildDir);
 const STORYBOOK_IFRAME = path.join(STORYBOOK_BUILD_DIR, 'iframe.html');
