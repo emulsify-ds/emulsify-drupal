@@ -5,7 +5,7 @@
  * Contains a basic scaffolding script.
  */
 
-if ($argc < 2 || in_array($argv[1], array('--help', '-help', '-h', '-?'))) {
+if ($argc < 2 || in_array($argv[1], ['--help', '-help', '-h', '-?'])) {
   emulsify_drush_help('drush:emulsify');
   $command = emulsify_drush_command()['emulsify'];
   print(PHP_EOL . "Arguments" . PHP_EOL);
@@ -33,7 +33,10 @@ function drush_is_windows($os = NULL) {
 }
 
 /**
- * Makes sure the path has only path separators native for the current operating system
+ * Checks paths separators for the current OS.
+ *
+ * Makes sure the path has only path separators native for the current
+ * operating system.
  */
 function drush_normalize_path($path) {
   if (drush_is_windows()) {
@@ -74,18 +77,22 @@ function drush_get_options() {
       case "--machine-name":
         $options['machine-name'] = $argv[$key + 1];
         break;
+
       case "-description":
       case "--description":
         $options['description'] = $argv[$key + 1];
         break;
+
       case "-path":
       case "--path":
         $options['path'] = $argv[$key + 1];
         break;
+
       case "-slim":
       case "--slim":
         $options['slim'] = TRUE;
         break;
+
     }
   }
 
@@ -104,13 +111,13 @@ function drush_get_option($option) {
  * Internal function called by drush_copy_dir; do not use directly.
  */
 function _drush_recursive_copy($src, $dest) {
-  // all subdirectories and contents:
-  if(is_dir($src)) {
+  // All subdirectories and contents:
+  if (is_dir($src)) {
     if (!drush_mkdir($dest, TRUE)) {
       return FALSE;
     }
     $dir_handle = opendir($src);
-    while($file = readdir($dir_handle)) {
+    while ($file = readdir($dir_handle)) {
       if ($file != "." && $file != "..") {
         if (_drush_recursive_copy("$src/$file", "$dest/$file") !== TRUE) {
           return FALSE;
@@ -145,19 +152,21 @@ function _drush_recursive_copy($src, $dest) {
 }
 
 /**
- * Cross-platform compatible helper function to recursively create a directory tree.
+ * Cross-platform compatible function to recursively create a directory tree.
+ *
+ * Callers should *always* do their own error handling after calling
+ * drush_mkdir. If $required is FALSE, then a different location should be
+ * selected, and a final error message should be displayed if no usable
+ * locations can be found.
  *
  * @param string $path
  *   Path to directory to create.
- * @param boolean $required
+ * @param bool $required
  *   If TRUE, then drush_mkdir will call drush_set_error on failure.
  *
- * Callers should *always* do their own error handling after calling drush_mkdir.
- * If $required is FALSE, then a different location should be selected, and a final
- * error message should be displayed if no usable locations can be found.
- * @see drush_directory_cache().
- * If $required is TRUE, then the execution of the current command should be
- * halted if the required directory cannot be created.
+ * @see drush_directory_cache()
+ *   If $required is TRUE, then the execution of the current command should be
+ *   halted if the required directory cannot be created.
  */
 function drush_mkdir($path, $required = TRUE) {
   if (!is_dir($path)) {
@@ -174,10 +183,14 @@ function drush_mkdir($path, $required = TRUE) {
           return FALSE;
         }
         if (is_writable(dirname($path))) {
-          return dt('Unable to create !dir.', array('!dir' => preg_replace('/\w+\/\.\.\//', '', $path)));
+          return dt('Unable to create !dir.', ['!dir' => preg_replace('/\w+\/\.\.\//', '', $path)]);
         }
         else {
-          return dt('Unable to create !newdir in !dir. Please check directory permissions.', array('!newdir' => basename($path), '!dir' => realpath(dirname($path))));
+          $replacements = [
+            '!newdir' => basename($path),
+            '!dir' => realpath(dirname($path)),
+          ];
+          return dt('Unable to create !newdir in !dir. Please check directory permissions.', $replacements);
         }
       }
     }
@@ -188,7 +201,7 @@ function drush_mkdir($path, $required = TRUE) {
       if (!$required) {
         return FALSE;
       }
-      return dt('Directory !dir exists, but is not writable. Please check directory permissions.', array('!dir' => realpath($path)));
+      return dt('Directory !dir exists, but is not writable. Please check directory permissions.', ['!dir' => realpath($path)]);
     }
     return TRUE;
   }
@@ -198,24 +211,24 @@ function drush_mkdir($path, $required = TRUE) {
  * Implements hook_drush_command().
  */
 function emulsify_drush_command() {
-  $items = array();
+  $items = [];
 
-  $items['emulsify'] = array(
+  $items['emulsify'] = [
     'description' => 'Create an Emulsify-based theme.',
-    'arguments' => array(
+    'arguments' => [
       'human_readable_name' => 'The name of your theme.',
-    ),
-    'options' => array(
+    ],
+    'options' => [
       'machine-name' => 'The machine-readable name of your theme. This will be auto-generated from the human_readable_name if ommited.',
       'description' => 'The description of your theme',
       'path' => 'Supports three options contrib, custom, none.  Defaults to "custom".',
       'slim' => 'Only copy base files',
-    ),
-    'examples' => array(
+    ],
+    'examples' => [
       'php emulsify.php "My Awesome Theme"' => 'Creates an Emulsify theme called "My Awesome Theme", using the default options.',
       'php emulsify.php "My Awesome Theme" --machine-name mat' => 'Creates a Emulsify theme called "My Awesome Theme" with the specific machine name "mat".',
-    ),
-  );
+    ],
+  ];
 
   return $items;
 }
@@ -247,12 +260,12 @@ function drush_emulsify($human_readable_name = NULL) {
     $machine_name = $human_readable_name;
   }
   $machine_name = str_replace(' ', '_', strtolower($machine_name));
-  $search = array(
+  $search = [
     // Remove characters not valid in function names.
     '/[^a-z0-9_]/',
     // Functions must begin with an alpha character.
     '/^[^a-z]+/',
-  );
+  ];
   $machine_name = preg_replace($search, '', $machine_name);
 
   // Description of theme.
@@ -301,7 +314,7 @@ function drush_emulsify($human_readable_name = NULL) {
  * @param string $theme_path_passed
  *   A string that will be translated into a base path for your new theme.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing the success or failure of the function.
  */
 function drush_emulsify_create($human_readable_name, $machine_name, $description, $theme_path_passed) {
@@ -392,12 +405,12 @@ function drush_emulsify_create($human_readable_name, $machine_name, $description
  *   representing the string to replace it with.
  */
 function _emulsify_get_alterations($human_readable_name, $machine_name, $description) {
-  return array(
+  return [
     'Emulsify' => $human_readable_name,
     'emulsify' => $machine_name,
     'Theme using Storybook and component-driven development' => $description,
     'hidden: true' => '',
-  );
+  ];
 }
 
 /**
@@ -408,21 +421,21 @@ function _emulsify_get_alterations($human_readable_name, $machine_name, $descrip
  */
 function _emulsify_get_files_to_alter() {
   // Slim files and directories declaration.
-  $default_array = array(
+  $default_array = [
     'emulsify.info.yml',
     'emulsify.theme',
     'emulsify.breakpoints.yml',
     'emulsify.libraries.yml',
-  );
+  ];
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
     return $default_array;
   }
   else {
-    return array_merge($default_array, array(
+    return array_merge($default_array, [
       'components',
       'templates',
-    ));
+    ]);
   }
 }
 
@@ -435,7 +448,7 @@ function _emulsify_get_files_to_alter() {
 function _emulsify_get_directories_to_make() {
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
-    return array(
+    return [
       'components',
       'components/00-base',
       'components/00-base/global',
@@ -448,10 +461,10 @@ function _emulsify_get_directories_to_make() {
       'images/icons',
       'images/icons/src',
       'templates',
-    );
+    ];
   }
   else {
-    return array();
+    return [];
   }
 }
 
@@ -473,7 +486,7 @@ function _emulsify_get_directories_to_make() {
  */
 function _emulsify_get_files_to_copy() {
   // Slim files and directories declaration.
-  $default_array = array(
+  $default_array = [
     '.storybook',
     'webpack',
     'util',
@@ -495,21 +508,21 @@ function _emulsify_get_files_to_copy() {
     'package.json',
     'postcss.config.js',
     'prettier.config.js',
-  );
+  ];
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
-    return array_merge($default_array, array(
+    return array_merge($default_array, [
       'components/style.scss',
-    ));
+    ]);
   }
   else {
-    return array_merge($default_array, array(
+    return array_merge($default_array, [
       'components',
       'images',
       'templates',
       'README.md',
       'screenshot.png',
-    ));
+    ]);
   }
 }
 
@@ -521,18 +534,18 @@ function _emulsify_get_files_to_copy() {
  */
 function _emulsify_get_files_to_rename() {
   // Slim files and directories declaration.
-  $default_array = array(
+  $default_array = [
     'emulsify.info.yml',
     'emulsify.theme',
     'emulsify.breakpoints.yml',
     'emulsify.libraries.yml',
-  );
+  ];
   // If we would like to have a bare copy we use is slim option.
   if (drush_get_option('slim') === TRUE) {
-    return array_merge($default_array, array());
+    return array_merge($default_array, []);
   }
   else {
-    return array_merge($default_array, array());
+    return array_merge($default_array, []);
   }
 }
 
@@ -546,14 +559,14 @@ function _emulsify_get_files_to_rename() {
  * @param array $alterations
  *   An array of alteration that will be processed in sequential order on all
  *   files, this means that you can replace previous replacements.
- * @param boolean $absolute
- *   A boolean representing if the files to alter are represented as relative
+ * @param bool $absolute
+ *   A boolean representing if the files to alter are represented as relative.
  *   or absolute paths.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing the success or failure of the function.
  */
-function _emulsify_alter_files($theme_path, array $files_to_alter = array(), array $alterations = array(), $absolute = FALSE, int $depth = 0) {
+function _emulsify_alter_files($theme_path, array $files_to_alter = [], array $alterations = [], $absolute = FALSE, int $depth = 0) {
   if (empty($files_to_alter) || empty($alterations)) {
     return TRUE;
   }
@@ -598,10 +611,10 @@ function _emulsify_alter_files($theme_path, array $files_to_alter = array(), arr
  * @param string $destination_path
  *   A string representing the destination path.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing the success or failure of the function.
  */
-function _emulsify_make_directories(array $directories = array(), string $destination_path = '') {
+function _emulsify_make_directories(array $directories = [], string $destination_path = '') {
 
   // Check for invalid settings and return an error.
   if (empty($destination_path)) {
@@ -636,10 +649,10 @@ function _emulsify_make_directories(array $directories = array(), string $destin
  * @param string $destination_path
  *   A string representing the destination path.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing the success or failure of the function.
  */
-function _emulsify_copy_files(array $files = array(), string $destination_path = '') {
+function _emulsify_copy_files(array $files = [], string $destination_path = '') {
 
   // Check for invalid settings and return an error.
   if (empty($destination_path)) {
@@ -676,10 +689,10 @@ function _emulsify_copy_files(array $files = array(), string $destination_path =
  *   An array that represents the files to be processed.  The array is expected
  *   to be provided as an indexed array of relative files paths.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing success or failure of the rename.
  */
-function _emulsify_rename_files($theme_path, $machine_name, array $files_to_rename = array()) {
+function _emulsify_rename_files($theme_path, $machine_name, array $files_to_rename = []) {
   foreach ($files_to_rename as $file_to_rename_path) {
     $file_original_path = $theme_path . DIRECTORY_SEPARATOR . $file_to_rename_path;
     $file_new_path = $theme_path . DIRECTORY_SEPARATOR . str_replace('emulsify', $machine_name, $file_to_rename_path);
@@ -699,7 +712,7 @@ function _emulsify_rename_files($theme_path, $machine_name, array $files_to_rena
  * @param array $replace
  *   An array that will replace the $find strings.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing success or failure of the replacement.
  */
 function _emulsify_file_str_replace($file_path, array $find, array $replace) {
@@ -716,7 +729,7 @@ function _emulsify_file_str_replace($file_path, array $find, array $replace) {
  * @param string $path
  *   A string representing the path to verify exists and is writeable.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing success or failure.
  */
 function _emulsify_validate_path($path) {
@@ -741,7 +754,7 @@ function _emulsify_validate_path($path) {
  * @param string $path
  *   A string representing the path to verify is empty.
  *
- * @return boolean
+ * @return bool
  *   A boolean representing if the path is empty or not.
  */
 function _emulsify_validate_path_is_empty($path) {
@@ -762,7 +775,7 @@ function _emulsify_validate_path_is_empty($path) {
  * @param string $message
  *   An optional string to replace the default message.
  *
- * @return boolean
+ * @return bool
  *   Always return false in the case we use this function as a return value.
  */
 function _emulsify_notify_fail($path = '', $message = '') {
@@ -775,9 +788,9 @@ function _emulsify_notify_fail($path = '', $message = '') {
 
   // Set the path if one was passed.
   if (!empty($path) && is_string($path)) {
-    $message = dt($message, array(
+    $message = dt($message, [
       '!path' => $path,
-    ));
+    ]);
   }
 
   print($message);
@@ -794,17 +807,17 @@ function _emulsify_notify_fail($path = '', $message = '') {
  * @param string $theme_path
  *   A string that will show where to find their new theme.
  *
- * @return boolean
+ * @return bool
  *   Always TRUE in the case we want to use this function as a return value.
  */
 function _emulsify_notify_success($human_readable_name, $theme_path) {
   // Notify user of the newly created theme.
   $message = 'Successfully created the Emulsify theme "!name" created in: !path, you can now run \'yarn\' or \'npm install\' to install.';
 
-  $message = dt($message, array(
+  $message = dt($message, [
     '!name' => $human_readable_name,
     '!path' => $theme_path,
-  ));
+  ]);
 
   print($message);
 
