@@ -7,7 +7,7 @@ const _ImageminPlugin = require('imagemin-webpack-plugin').default;
 const _SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 const glob = require('glob');
 
-const imagePath = path.resolve(__dirname, '../images');
+const imagePath = path.resolve(__dirname, '../assets/images');
 
 const MiniCssExtractPlugin = new _MiniCssExtractPlugin({
   filename: '[name].css',
