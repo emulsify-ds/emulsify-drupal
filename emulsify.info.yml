@@ -7,7 +7,7 @@ package: emulsify
 
 dependencies:
   - 'drupal:components (^3.0)'
-  - 'drupal:emulsify_twig (^4.0)'
+  - 'drupal:emulsify_tools (^1.0)'
 
 libraries:
   - emulsify/global

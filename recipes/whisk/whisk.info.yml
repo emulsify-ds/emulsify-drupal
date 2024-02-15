@@ -1,9 +1,9 @@
 type: theme
 base theme: emulsify
-core_version_requirement: '^9.5 || ^10'
+core_version_requirement: '^10 || ^11'
 
-name: EMULSIFY_RECIPE_NAME
-description: EMULSIFY_RECIPE_DESCRIPTION
+name: whisk
+description: A subtheme build upon the Emulsify Design System.
 package: 'Emulsify'
 screenshot: screenshot.png
 version: VERSION
@@ -11,7 +11,7 @@ hidden: false
 
 dependencies:
   - 'drupal:components (^3.0)'
-  - 'drupal:emulsify_twig (^4.0)'
+  - 'drupal:emulsify_tools (^4.0)'
 
 libraries:
   - emulsify/global
