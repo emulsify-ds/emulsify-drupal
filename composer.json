@@ -41,7 +41,7 @@
     "require": {
         "drupal/core": "^10 || ^11",
         "drupal/components": "^3.0@beta",
-        "emulsify-ds/emulsify_tools": "^1.0"
+        "emulsify-ds/emulsify_tools": "dev-main"
     },
     "extra": {
         "drush": {
