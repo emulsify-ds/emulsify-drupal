@@ -31,7 +31,7 @@
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         },
-        {
+        "emulsify-ds": {
             "type": "vcs",
             "url": "git@github.com:emulsify-ds/emulsify_tools.git"
         }
