@@ -1,5 +1,5 @@
 {
-    "name": "emulsify/emulsify-drupal",
+    "name": "emulsify-ds/emulsify-drupal",
     "description": "The official Drupal 10 base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
@@ -30,6 +30,10 @@
         "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:emulsify-ds/emulsify_tools.git"
         }
     },
     "minimum-stability": "dev",
@@ -37,7 +41,7 @@
     "require": {
         "drupal/core": "^10 || ^11",
         "drupal/components": "^3.0@beta",
-        "drupal/emulsify_tools": "^1.0"
+        "emulsify-ds/emulsify_tools": "^1.0"
     },
     "extra": {
         "drush": {
