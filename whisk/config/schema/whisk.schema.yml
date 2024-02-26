@@ -2,4 +2,4 @@
 
 whisk.settings:
   type: theme_settings
-  label: 'whisk settings'
+  label: 'EMULSIFY_RECIPE_NAME settings'
