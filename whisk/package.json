@@ -29,7 +29,8 @@
     "storybook-build": "storybook build -s ./dist,./assets/images,./assets/icons -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage  --config ./config/jest.config.js",
-    "twatch": "jest --no-coverage --watch --verbose"
+    "twatch": "jest --no-coverage --watch --verbose",
+    "webpack": "webpack --watch --config node_modules/emulsify-core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
     "emulsify-core": "github:emulsify-ds/emulsify-core"
