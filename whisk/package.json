@@ -25,7 +25,7 @@
     "lint-styles": "stylelint './components/**/*.scss'",
     "prettier": "prettier --ignore-unknown \"../../components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --write --ignore-unknown \"../../components**/*.{js,yml,scss,md}\"",
-    "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ./dist,./assets/images,./assets/icons -p 6006",
+    "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ../../../dist,../../../assets/images,../../../assets/icons -p 6006",
     "storybook-build": "storybook build -s ./dist,./assets/images,./assets/icons -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage  --config ./config/jest.config.js",
