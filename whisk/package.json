@@ -1,12 +1,12 @@
 {
-  "name": "whisk",
+  "name": "leela",
   "version": "1.0.0",
   "description": "Storybook development + Webpack Build",
   "keywords": [
     "component library",
     "design system",
     "drupal",
-    "pattern library",
+    "emulsify",
     "storybook",
     "styleguide"
   ],
@@ -23,8 +23,8 @@
     "lint-js": "eslint --no-error-on-unmatched-pattern ./components",
     "lint-staged": "lint-staged",
     "lint-styles": "stylelint './components/**/*.scss'",
-    "prettier": "prettier --ignore-unknown \"../../components/**/*.{js,yml,scss,md}\"",
-    "prettier-fix": "prettier --write --ignore-unknown \"../../components**/*.{js,yml,scss,md}\"",
+    "prettier": "prettier --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
+    "prettier-fix": "prettier --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
     "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ../../../dist,../../../assets/images,../../../assets/icons -p 6006",
     "storybook-build": "storybook build -s ./dist,./assets/images,./assets/icons -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",

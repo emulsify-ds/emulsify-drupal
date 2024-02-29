@@ -1,6 +1,6 @@
 {
   "extends": [
-    "./node_modules/emulsify-core/.eslintrc.json"
+    "../node_modules/emulsify-core/.eslintrc.json"
   ],
   "globals": {
     "Drupal": true,
