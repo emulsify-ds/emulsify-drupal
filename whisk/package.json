@@ -22,7 +22,7 @@
     "lint-fix": "npm run lint-js -- --fix; npm run lint-styles -- --fix",
     "lint-js": "eslint --no-error-on-unmatched-pattern ./components",
     "lint-staged": "lint-staged",
-    "lint-styles": "stylelint './components/**/*.scss'",
+    "lint-styles": "stylelint --config config/emulsify-core/.stylelintrc.json './components/**/*.scss'",
     "prettier": "prettier --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
     "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ../../../dist,../../../assets/images,../../../assets/icons -p 6006",
