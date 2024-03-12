@@ -1,5 +1,4 @@
 {
-  "extends": [
-    "../../node_modules/emulsify-core/config/.prettierrc.json"
-  ]
+  "singleQuote": true,
+  "trailingComma": "all"
 }

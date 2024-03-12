@@ -1,0 +1,4 @@
+dist
+.out
+.coverage
+*.min.js
