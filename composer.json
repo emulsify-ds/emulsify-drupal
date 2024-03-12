@@ -31,17 +31,13 @@
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         },
-        "emulsify-ds": {
-            "type": "vcs",
-            "url": "git@github.com:emulsify-ds/emulsify_tools.git"
-        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "drupal/core": "^10 || ^11",
         "drupal/components": "^3.0@beta",
-        "emulsify-ds/emulsify_tools": "dev-main"
+        "drupal/emulsify_tools": "^1.0.x-dev@dev"
     },
     "extra": {
         "drush": {
