@@ -12,31 +12,39 @@
   ],
   "author": "Four Kitchens <shout@fourkitchens.com>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emulsify-ds/emulsify-drupal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emulsify-ds/emulsify-drupal/issues"
+  },
+  "homepage": "https://www.emulsify.info",
   "scripts": {
-    "setup": "./devops/scripts/setup.sh",
     "prepare": "husky install",
     "husky:commit-msg": "commitlint --edit $1",
     "husky:pre-commit": "npm run lint",
     "lint": "npm run lint:php",
     "lint:php": "find ./ -name '*.php' -exec php -l {} \\;",
+    "lint-staged": "lint-staged",
+    "prepare": "[ -d '.git' ] && (husky install) || true",
     "publish": "semantic-release --tag-format '${version}'",
-    "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug"
+    "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "emulsify-core": "github:emulsify-ds/emulsify-core",
-    "graceful-fs": "^4.2.10",
-    "twig-drupal-filters": "^3.2.0"
+    "graceful-fs": "^4.2.10"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.6.0",
-    "@commitlint/config-conventional": "^18.6.0",
+    "@commitlint/cli": "^19.2.0",
+    "@commitlint/config-conventional": "^19.1.0",
     "@emulsify/cli": "^1.6.0",
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^9.0.4",
+    "@semantic-release/github": "^10.0.2",
     "@semantic-release/release-notes-generator": "^12.1.0",
-    "husky": "^9.0.7",
-    "semantic-release": "^23.0.0"
+    "husky": "^9.0.11",
+    "semantic-release": "^23.0.4"
   }
 }
