@@ -1,0 +1,5 @@
+{
+  "extends": [
+    "../../node_modules/emulsify-core/config/.stylelintrc.json"
+  ]
+}
