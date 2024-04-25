@@ -1,16 +1,20 @@
-name: Emulsify
 type: theme
-description: The official base theme for Emulsify and it's flexible component driven development.
-base theme: stable9
-core_version_requirement: ^10 || ^11
-package: emulsify
+base theme: emulsify
+core_version_requirement: '^10 || ^11'
+
+name: whisk
+description: A subtheme build upon the Emulsify Design System.
+package: 'Emulsify'
+screenshot: screenshot.png
+version: VERSION
+hidden: false
 
 dependencies:
   - 'drupal:components (^3.0)'
-  - 'drupal:emulsify_tools (^1.0)'
+  - 'drupal:emulsify_tools (^4.0)'
 
 libraries:
-  - emulsify/global
+  - whisk/base
 
 regions:
   header: Header

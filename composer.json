@@ -1,26 +1,30 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "Storybook development + Webpack Build + Drupal 8 theme",
+    "description": "The official Drupal 10 base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",
     "authors": [
-      {
-        "name": "Brian Lewis",
-        "email": "brian@fourkitchens.com"
-      },
-      {
-          "name": "Chris Martin",
-          "email": "chris.martin@fourkitchens.com"
-      },
-      {
-          "name": "Evan Willhite",
-          "email": "evan@fourkitchens.com"
-      },
-      {
-          "name": "Randy Oest",
-          "email": "randy@fourkitchens.com"
-      }
+        {
+            "name": "Brian Lewis",
+            "email": "brian@fourkitchens.com"
+        },
+        {
+            "name": "Chris Martin",
+            "email": "chris.martin@fourkitchens.com"
+        },
+        {
+            "name": "Evan Willhite",
+            "email": "evan@fourkitchens.com"
+        },
+        {
+            "name": "Randy Oest",
+            "email": "randy@fourkitchens.com"
+        },
+        {
+            "name": "Callin Mullaney",
+            "email": "callin@fourkitchens.com"
+        }
     ],
     "repositories": {
         "drupal": {
@@ -31,7 +35,15 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
+        "drupal/core": "^10 || ^11",
         "drupal/components": "^3.0@beta",
-        "drupal/emulsify_twig": "^4.0"
+        "drupal/emulsify_tools": "^1.0.x-dev@dev"
+    },
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^10 || ^11"
+            }
+        }
     }
 }
