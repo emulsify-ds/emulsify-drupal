@@ -26,7 +26,7 @@
     "prettier": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
     "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ../../../dist,../../../assets/images,../../../assets/icons -p 6006",
-    "storybook-build": "storybook build -s ./dist,./assets/images,./assets/icons -o .out",
+    "storybook-build": "storybook build -c node_modules/emulsify-core/.storybook -s ./dist,./assets/images,./assets/icons -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage  --config ./config/jest.config.js",
     "twatch": "jest --no-coverage --watch --verbose",

@@ -1,3 +1,6 @@
+// Change the name of this file to babel.config.js
+// for Emulsify Core to recognize and fully override
+// its provided configuration.
 module.exports = (api) => {
   api.cache(true);
 
