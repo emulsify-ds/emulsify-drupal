@@ -36,15 +36,15 @@
     "graceful-fs": "^4.2.10"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.2.0",
-    "@commitlint/config-conventional": "^19.1.0",
-    "@emulsify/cli": "^1.6.0",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@emulsify/cli": "^1.9.0",
     "@semantic-release/changelog": "^6.0.2",
-    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^10.0.2",
-    "@semantic-release/release-notes-generator": "^12.1.0",
+    "@semantic-release/github": "^10.0.6",
+    "@semantic-release/release-notes-generator": "^14.0.0",
     "husky": "^9.0.11",
-    "semantic-release": "^23.0.4"
+    "semantic-release": "^24.0.0"
   }
 }
