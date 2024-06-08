@@ -2,9 +2,7 @@ name: Semantic Release on Merge
 on:
   push:
     branches:
-      - 'master'
-      - 'alpha'
-      - 'beta'
+      - "main"
   workflow_dispatch:
 jobs:
   release:
@@ -28,5 +26,5 @@ jobs:
         run: |
           git remote add drupal-org '${{ secrets.DRUPAL_REPO_URL }}'
           git push drupal-org --tags
-          git checkout master
-          git push drupal-org master
+          git checkout main
+          git push drupal-org main
