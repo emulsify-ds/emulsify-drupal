@@ -13,26 +13,26 @@
   "author": "Four Kitchens <shout@fourkitchens.com>",
   "license": "ISC",
   "scripts": {
-    "a11y": "npm run storybook-build && node_modules/emulsify-core/scripts/a11y.js -r",
-    "build": "webpack --config node_modules/emulsify-core/config/webpack/webpack.prod.js",
+    "a11y": "npm run storybook-build && node_modules/@emulsify/core/scripts/a11y.js -r",
+    "build": "webpack --config node_modules/@emulsify/core/config/webpack/webpack.prod.js",
     "coverage": "npm run test && open-cli .coverage/lcov-report/index.html",
     "develop": "concurrently --raw \"npm run webpack\" \"npm run storybook\"",
     "format": "npm run lint-fix; npm run prettier-fix",
     "lint": "npm run lint-js; npm run lint-styles",
     "lint-fix": "npm run lint-js -- --fix; npm run lint-styles -- --fix",
-    "lint-js": "eslint --config config/emulsify-core/eslintrc.config.json --no-eslintrc --no-error-on-unmatched-pattern ./components",
+    "lint-js": "eslint --config config/@emulsify/core/eslintrc.config.json --no-eslintrc --no-error-on-unmatched-pattern ./components",
     "lint-staged": "lint-staged",
-    "lint-styles": "stylelint --config config/emulsify-core/stylelintrc.config.json './components/**/*.scss'",
-    "prettier": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
-    "prettier-fix": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
-    "storybook": "storybook dev -c node_modules/emulsify-core/.storybook --ci -s ../../../dist,../../../assets/images,../../../assets/icons -p 6006",
-    "storybook-build": "storybook build -c node_modules/emulsify-core/.storybook -s ./dist,./assets/images,./assets/icons -o .out",
+    "lint-styles": "stylelint --config config/@emulsify/core/stylelintrc.config.json './components/**/*.scss'",
+    "prettier": "prettier --config config/@emulsify/core/prettierrc.config.json --ignore-path config/@emulsify/core/.prettierignore --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
+    "prettier-fix": "prettier --config config/@emulsify/core/prettierrc.config.json --ignore-path config/@emulsify/core/.prettierignore --write --ignore-unknown \"./components**/*.{js,yml,scss,md}\"",
+    "storybook": "storybook dev -c node_modules/@emulsify/core/.storybook --ci -s ../../../../dist,../../../../assets/images,../../../../assets/icons -p 6006",
+    "storybook-build": "storybook build -c node_modules/@emulsify/core/.storybook -s ./dist,./assets/images,./assets/icons -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "test": "jest --coverage  --config ./config/jest.config.js",
     "twatch": "jest --no-coverage --watch --verbose",
-    "webpack": "webpack --watch --config node_modules/emulsify-core/config/webpack/webpack.dev.js"
+    "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^1.1.0",
+    "@emulsify/core": "^1.1.2"
   }
 }
