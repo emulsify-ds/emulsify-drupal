@@ -33,6 +33,6 @@
     "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^1.1.2"
+    "@emulsify/core": "^1.2.0"
   }
 }
