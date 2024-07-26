@@ -1,4 +1,7 @@
 name: Test Project Build
+on:
+  pull_request:
+    types: [opened, reopened]
 jobs:
   build:
     name: Test Project Build
