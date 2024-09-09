@@ -4,9 +4,9 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Webpack build, and Drupal 8 theme
+### Storybook development, Webpack build, and Drupal 11 theme
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal 8 starter kit theme. It can be used as a standalone prototyping tool or inside a Drupal installation.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal 11 starter kit theme.
 
 ## Documentation
 
@@ -31,9 +31,9 @@ The project maintainers have adopted a Code of Conduct that we expect project pa
 
 Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
 
-1. [Emulsify Drupal](https://github.com/emulsify-ds/emulsify-drupal/issues)
-2. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
-3. [Emulsify Twig Drupal Module](https://www.drupal.org/project/issues/emulsify_twig)
+1. [Emulsify Drupal](https://www.drupal.org/project/issues/emulsify?categories=All)
+2. [Emulsify Tools Drupal Module](https://www.drupal.org/project/issues/emulsify_tools?categories=All)
+3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
 
 ### Committing Changes
 
@@ -66,17 +66,17 @@ Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/patrickocoffeyo>
-            <img src=https://avatars.githubusercontent.com/u/1107871?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Patrick Coffey/>
-            <br />
-            <sub style="font-size:14px"><b>Patrick Coffey</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/callinmullaney>
             <img src=https://avatars.githubusercontent.com/u/369018?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Callin Mullaney/>
             <br />
             <sub style="font-size:14px"><b>Callin Mullaney</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/patrickocoffeyo>
+            <img src=https://avatars.githubusercontent.com/u/1107871?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Patrick Coffey/>
+            <br />
+            <sub style="font-size:14px"><b>Patrick Coffey</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
