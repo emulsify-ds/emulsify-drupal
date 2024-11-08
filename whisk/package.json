@@ -1,6 +1,6 @@
 {
   "name": "whisk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Storybook development + Webpack Build",
   "keywords": [
     "component library",
@@ -17,7 +17,7 @@
     "build": "webpack --config node_modules/@emulsify/core/config/webpack/webpack.prod.js",
     "build-dev": "webpack --config node_modules/@emulsify/core/config/webpack/webpack.dev.js",
     "coverage": "npm run test && open-cli .coverage/lcov-report/index.html",
-    "develop": "concurrently --raw \"npm run webpack\" \"npm run storybook\"",
+    "develop": "npm run build-dev && concurrently --raw \"npm run webpack\" \"npm run storybook\"",
     "format": "npm run lint-fix; npm run prettier-fix",
     "husky:commit-msg": "commitlint --edit $1",
     "husky:pre-commit": "lint-staged",
@@ -31,14 +31,14 @@
     "storybook": "storybook dev -c node_modules/@emulsify/core/.storybook --ci -p 6006",
     "storybook-build": "npm run build && storybook build -c node_modules/@emulsify/core/.storybook -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
-    "style-dictionary:build": "node ./tokens/tokensTransform.js",
+    "style-dictionary:build": "node ./src/tokens/tokensTransform.mjs",
     "test": "jest --coverage  --config ./config/jest.config.js",
     "tokens:build": "npm run tokens:transform && npm run style-dictionary:build",
-    "tokens:transform": "token-transformer ./tokens/figma.tokens.json ./tokens/transformed.tokens.json",
+    "tokens:transform": "token-transformer ./src/tokens/figma.tokens.json ./src/tokens/transformed.tokens.json",
     "twatch": "jest --no-coverage --watch --verbose",
     "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^2.2.3"
+    "@emulsify/core": "^2.4.2"
   }
 }
