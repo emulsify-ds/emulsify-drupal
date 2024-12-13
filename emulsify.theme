@@ -12,7 +12,7 @@
  *
  * @inheritdoc
  */
-function emulsify_suggestions_alter(&$suggestions, $variables, $hook) {
+function emulsify_theme_suggestions_alter(&$suggestions, $variables, $hook) {
   if ($hook == 'field') {
     $suggestions[] = 'field__' . $variables['element']['#entity_type'] . '__' . $variables['element']['#field_name'];
     $suggestions[] = 'field__' . $variables['element']['#entity_type'] . '__' . $variables['element']['#field_name'] . '__' . $variables['element']['#bundle'] . '__' . $variables['element']['#view_mode'];
