@@ -1,5 +1,7 @@
-base:
+global:
   version: VERSION
   css:
     theme:
-      dist/css/style.css: { minified: true }
+      dist/global/foundation.css: { minified: true }
+      dist/global/layout.css: { minified: true }
+      dist/global/tokens.css: { minified: true }
