@@ -27,4 +27,4 @@ const configOverrides = {};
 //   },
 // };
 
-module.exports = {configOverrides};
+export default configOverrides;
