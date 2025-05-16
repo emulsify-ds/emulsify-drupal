@@ -27,7 +27,7 @@
     "lint-styles": "stylelint --config config/emulsify-core/stylelintrc.config.json './components/**/*.scss'",
     "prettier": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
     "prettier-fix": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --write --ignore-unknown \"./components/**/*.{js,yml,scss,md}\"",
-    "storybook": "storybook dev -c node_modules/@emulsify/core/.storybook --ci -p 6006",
+    "storybook": "NODE_OPTIONS=--no-deprecation storybook dev -c node_modules/@emulsify/core/.storybook --ci -p 6006",
     "storybook-build": "npm run build && storybook build -c node_modules/@emulsify/core/.storybook -o .out",
     "storybook-deploy": "storybook-to-ghpages -o .out",
     "style-dictionary:build": "node ./src/tokens/tokensTransform.mjs",
