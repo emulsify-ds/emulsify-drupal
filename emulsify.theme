@@ -6,51 +6,15 @@
  */
 
 /**
- * Place any preprocess functions in .theme.inc files, or make a new one.
+ * Place any preprocess functions in [something].inc files.
  *
  * The .theme files should contain logic for the elements in their corresponding
- * template directories (ie 'blocks.theme.inc' should modify templates in
- * 'templates/blocks'.)
+ * template directories (ie 'node.theme.inc' should modify templates in
+ * 'templates/nodes'.)
  */
-require_once dirname(__FILE__) . 'includes/paragraphs.inc';
+require_once dirname(__FILE__) . 'includes/field.inc';
+require_once dirname(__FILE__) . 'includes/form.inc';
 require_once dirname(__FILE__) . 'includes/layout.inc';
-
-/**
- * Implements hook_theme_suggestions_alter().
- *
- * Add form login template suggestions.
- *
- * @inheritdoc
- */
-function emulsify_theme_suggestions_alter(&$suggestions, $variables, $hook) {
-  if ($hook == 'field') {
-    $suggestions[] = 'field__' . $variables['element']['#entity_type'] . '__' . $variables['element']['#field_name'];
-    $suggestions[] = 'field__' . $variables['element']['#entity_type'] . '__' . $variables['element']['#field_name'] . '__' . $variables['element']['#bundle'] . '__' . $variables['element']['#view_mode'];
-  }
-
-  if ($hook == 'form' && !empty($variables['element']['#id'])) {
-    $suggestions[] = 'form__' . str_replace('-', '_', $variables['element']['#id']);
-  }
-
-  if ($hook == 'table' && !empty($variables['attributes']['class'][0])) {
-    $suggestions[] = 'table__' . str_replace('-', '_', $variables['attributes']['class'][0]);
-  }
-
-  if ($hook == 'user') {
-    $suggestions[] = 'user__' . $variables['elements']['#view_mode'];
-  }
-
-  if ($hook == 'views_view') {
-    $suggestions[] = 'views_view__' . $variables['view']->id();
-    $suggestions[] = 'views_view__' . $variables['view']->id() . '__' . $variables['view']->current_display;
-  }
-
-  if ($hook == 'views_view_unformatted') {
-    $suggestions[] = 'views_view_unformatted__' . $variables['view']->id();
-    $suggestions[] = 'views_view_unformatted__' . $variables['view']->id() . '__' . $variables['view']->current_display;
-  }
-
-  if ($hook == 'views_mini_pager') {
-    $suggestions[] = 'views_mini_pager';
-  }
-}
+require_once dirname(__FILE__) . 'includes/paragraphs.inc';
+require_once dirname(__FILE__) . 'includes/user.inc';
+require_once dirname(__FILE__) . 'includes/views.inc';

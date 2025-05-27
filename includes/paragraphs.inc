@@ -1,36 +1,49 @@
 <?php
 
-use Drupal\node\NodeInterface;
-
 /**
  * @file
- * Paragraph-related hook implementations.
+ * Theme hook implementations for Drupal paragraph entities.
  */
+
+use Drupal\node\NodeInterface;
+use Drupal\paragraphs\ParagraphInterface;
 
 /**
  * Implements hook_preprocess_paragraph().
+ *
+ * Prepares variables for all paragraph templates:
+ * - Exposes the paragraph index in the parent entity reference.
+ * - Exposes the parent entity type and bundle.
+ * - If the parent is a node, exposes the node's title.
+ * - Copies raw attributes into container variables for use in Twig.
+ *
+ * @param array $variables
+ *   An associative array of variables passed to the template.
  */
 function emulsify_preprocess_paragraph(array &$variables) {
-  /** @var \Drupal\paragraphs\ParagraphInterface $paragraph */
+  /** @var ParagraphInterface $paragraph */
   $paragraph = $variables['paragraph'];
 
-  // Expose the index.
+  // Expose the paragraph's zero-based index within its parent entity.
   $variables['paragraph_index'] = $paragraph->index();
 
-  // If its embedded in another entity, expose its type & bundle.
+  // If the paragraph has a parent entity, expose its type & bundle.
   if ($parent = $paragraph->getParentEntity()) {
     $variables['parent_type']   = $parent->getEntityTypeId();
     $variables['parent_bundle'] = $parent->bundle();
 
-    // Only when that parent is a node do we set node_title.
+    // When that parent is a node, expose its title.
     if ($parent instanceof NodeInterface) {
       $variables['node_title'] = $parent->label();
     }
   }
 
-  // Copy any raw attributes into a "container" array.
+  // If raw attributes were provided, copy them for a container wrapper.
   if (!empty($variables['attributes']) && is_array($variables['attributes'])) {
-    $variables['container__attributes']          = $variables['attributes'];
-    $variables['container__additional_classes']  = $variables['attributes']['class'] ?? [];
+    // Full attributes array for a container element.
+    $variables['container__attributes'] = $variables['attributes'];
+
+    // Just the 'class' entries for additional CSS classes.
+    $variables['container__additional_classes'] = $variables['attributes']['class'] ?? [];
   }
 }
