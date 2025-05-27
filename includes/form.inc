@@ -9,7 +9,7 @@
  * Implements hook_theme_suggestions_form_alter().
  *
  * Adds template suggestions for rendering forms by their HTML ID:
- * - form--<form_id>.html.twig
+ * - form--<form_id>.html.twig.
  *
  * This allows you to create form-specific Twig templates, e.g.:
  *   form--contact_form.html.twig

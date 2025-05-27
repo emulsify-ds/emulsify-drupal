@@ -6,7 +6,6 @@
  */
 
 use Drupal\node\NodeInterface;
-use Drupal\paragraphs\ParagraphInterface;
 
 /**
  * Implements hook_preprocess_paragraph().
@@ -21,7 +20,6 @@ use Drupal\paragraphs\ParagraphInterface;
  *   An associative array of variables passed to the template.
  */
 function emulsify_preprocess_paragraph(array &$variables) {
-  /** @var ParagraphInterface $paragraph */
   $paragraph = $variables['paragraph'];
 
   // Expose the paragraph's zero-based index within its parent entity.
@@ -29,7 +27,7 @@ function emulsify_preprocess_paragraph(array &$variables) {
 
   // If the paragraph has a parent entity, expose its type & bundle.
   if ($parent = $paragraph->getParentEntity()) {
-    $variables['parent_type']   = $parent->getEntityTypeId();
+    $variables['parent_type'] = $parent->getEntityTypeId();
     $variables['parent_bundle'] = $parent->bundle();
 
     // When that parent is a node, expose its title.

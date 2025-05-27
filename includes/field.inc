@@ -5,9 +5,7 @@
  * Field-related hook implementations for the Emulsify theme.
  */
 
-use Drupal\node\NodeInterface;
 use Drupal\paragraphs\ParagraphInterface;
-use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_preprocess_field().
@@ -46,10 +44,10 @@ function emulsify_preprocess_field(array &$variables) {
  * Implements hook_theme_suggestions_field_alter().
  *
  * Adds template suggestions for field renderings based on:
- * - Entity type
- * - Field name
- * - Bundle
- * - View mode
+ * - Entity type.
+ * - Field name.
+ * - Bundle.
+ * - View mode.
  *
  * Suggestions generated:
  * - field--[entity_type]--[field_name].html.twig
@@ -72,16 +70,16 @@ function emulsify_theme_suggestions_field_alter(array &$suggestions, array $vari
 
   // Extract metadata from the render array.
   $entity_type = $variables['element']['#entity_type'] ?? '';
-  $field_name  = $variables['element']['#field_name']  ?? '';
-  $bundle      = $variables['element']['#bundle']      ?? '';
-  $view_mode   = $variables['element']['#view_mode']   ?? '';
+  $field_name  = $variables['element']['#field_name'] ?? '';
+  $bundle      = $variables['element']['#bundle'] ?? '';
+  $view_mode   = $variables['element']['#view_mode'] ?? '';
 
-  // Base suggestion: field--[entity_type]--[field_name].html.twig
+  // Base suggestion: field--[entity_type]--[field_name].html.twig.
   if ($entity_type && $field_name) {
     $suggestions[] = "field__{$entity_type}__{$field_name}";
   }
 
-  // Detailed suggestion: field--[entity_type]--[field_name]--[bundle]--[view_mode].html.twig
+  // Detailed suggestion: field--[entity_type]--[field_name]--[bundle]--[view_mode].html.twig.
   if ($entity_type && $field_name && $bundle && $view_mode) {
     $suggestions[] = "field__{$entity_type}__{$field_name}__{$bundle}__{$view_mode}";
   }

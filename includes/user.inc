@@ -9,11 +9,11 @@
  * Implements hook_theme_suggestions_user_alter().
  *
  * Adds template suggestions for rendering user entities by view mode:
- * - user--<view_mode>.html.twig
+ * - user--<view_mode>.html.twig.
  *
  * For example, if the user is rendered in the “compact” view mode, this will
  * allow you to create a template named:
- *   user--compact.html.twig
+ *   user--compact.html.twig.
  *
  * @param string[] $suggestions
  *   An array of theme hook suggestion names. We append to this.
