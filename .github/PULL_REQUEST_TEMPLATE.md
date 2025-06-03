@@ -10,5 +10,3 @@
 
 ### Functional Testing:
 - [ ] Document steps that allow someone to fully test your code changes. Include screenshot and links when appropriate.
-
-

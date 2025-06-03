@@ -1,6 +1,6 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "The official Drupal 10 base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
+    "description": "The official Drupal base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",
