@@ -23,7 +23,7 @@ function emulsify_preprocess_paragraph(array &$variables) {
   $paragraph = $variables['paragraph'];
 
   // Expose the paragraph's zero-based index within its parent entity.
-  $variables['paragraph_index'] = $paragraph->index();
+  $variables['paragraph_index'] = $paragraph->index;
 
   // If the paragraph has a parent entity, expose its type & bundle.
   if ($parent = $paragraph->getParentEntity()) {

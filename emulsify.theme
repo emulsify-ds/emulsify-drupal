@@ -12,9 +12,9 @@
  * template directories (ie 'node.theme.inc' should modify templates in
  * 'templates/nodes'.)
  */
-require_once dirname(__FILE__) . 'includes/field.inc';
-require_once dirname(__FILE__) . 'includes/form.inc';
-require_once dirname(__FILE__) . 'includes/layout.inc';
-require_once dirname(__FILE__) . 'includes/paragraphs.inc';
-require_once dirname(__FILE__) . 'includes/user.inc';
-require_once dirname(__FILE__) . 'includes/views.inc';
+require_once dirname(__FILE__) . '/includes/field.inc';
+require_once dirname(__FILE__) . '/includes/form.inc';
+require_once dirname(__FILE__) . '/includes/layout.inc';
+require_once dirname(__FILE__) . '/includes/paragraphs.inc';
+require_once dirname(__FILE__) . '/includes/user.inc';
+require_once dirname(__FILE__) . '/includes/views.inc';
