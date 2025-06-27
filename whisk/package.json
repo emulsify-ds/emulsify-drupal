@@ -11,7 +11,11 @@
     "styleguide"
   ],
   "author": "Four Kitchens <shout@fourkitchens.com>",
-  "license": "ISC",
+  "license": "GPL-2.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
   "scripts": {
     "a11y": "npm run storybook-build && node_modules/@emulsify/core/scripts/a11y.js -r",
     "build": "npm run ensure-dist && webpack --config node_modules/@emulsify/core/config/webpack/webpack.prod.js",
@@ -38,6 +42,6 @@
     "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^3.0.3"
+    "@emulsify/core": "^3.1.0"
   }
 }
