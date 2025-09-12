@@ -41,6 +41,6 @@
     "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^3.3.0"
+    "@emulsify/core": "^3.3.1"
   }
 }
