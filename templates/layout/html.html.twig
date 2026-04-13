@@ -1,0 +1,37 @@
+{#
+/**
+ * @file
+ * Theme override for the basic structure of a single Drupal page.
+ *
+ * This mirrors Drupal's default html wrapper so Emulsify owns the outer page
+ * shell instead of inheriting it from stable9.
+ *
+ * Available variables:
+ * - html_attributes: HTML attributes for the HTML tag.
+ * - attributes: HTML attributes for the BODY tag.
+ * - head_title: List of text elements that make up the head title.
+ * - page_top: Initial rendered markup from modules.
+ * - page: The rendered page markup.
+ * - page_bottom: Closing rendered markup from modules.
+ * - db_offline: Whether the site is offline because the database is unavailable.
+ * - placeholder_token: Token used by placeholder tags.
+ */
+#}
+<!DOCTYPE html>
+<html{{ html_attributes }}>
+  <head>
+    <head-placeholder token="{{ placeholder_token|raw }}">
+    <title>{{ head_title|safe_join(' | ') }}</title>
+    <css-placeholder token="{{ placeholder_token|raw }}">
+    <js-placeholder token="{{ placeholder_token|raw }}">
+  </head>
+  <body{{ attributes }}>
+    <a href="#main-content" class="visually-hidden focusable skip-link">
+      {{ 'Skip to main content'|t }}
+    </a>
+    {{ page_top }}
+    {{ page }}
+    {{ page_bottom }}
+    <js-bottom-placeholder token="{{ placeholder_token|raw }}">
+  </body>
+</html>

@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Theme override for status messages.
+ *
+ * This keeps the default Drupal message structure local to Emulsify so message
+ * rendering does not need to fall through to stable9.
+ *
+ * Available variables:
+ * - message_list: Messages grouped by type.
+ * - status_headings: Human-readable headings for each message type.
+ * - attributes: HTML attributes for the message wrapper.
+ */
+#}
+<div data-drupal-messages>
+  {% for type, messages in message_list %}
+    <div role="contentinfo" aria-label="{{ status_headings[type] }}"{{ attributes|without('role', 'aria-label') }}>
+      {% if type == 'error' %}
+        <div role="alert">
+      {% endif %}
+      {% if status_headings[type] %}
+        <h2 class="visually-hidden">{{ status_headings[type] }}</h2>
+      {% endif %}
+      {% if messages|length > 1 %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {{ messages|first }}
+      {% endif %}
+      {% if type == 'error' %}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
