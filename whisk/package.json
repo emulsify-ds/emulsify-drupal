@@ -37,7 +37,7 @@
     "tokens:build": "npm run tokens:transform && npm run style-dictionary:build",
     "tokens:transform": "token-transformer ./src/tokens/figma.tokens.json ./src/tokens/transformed.tokens.json",
     "twatch": "jest --no-coverage --watch --verbose",
-    "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js",
+    "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js"
   },
   "dependencies": {
     "@emulsify/core": "^4.0.0"
