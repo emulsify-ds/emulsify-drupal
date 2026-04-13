@@ -44,7 +44,7 @@ drush emulsify_tools:bake my_theme
 You can also generate the same subtheme with Drupal core's standard Starterkit command from the root of your Drupal site:
 
 ```bash
-php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path web/themes/custom
+php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path themes/custom
 ```
 
 These generation methods should be treated as equivalent:

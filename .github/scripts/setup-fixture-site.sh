@@ -14,6 +14,9 @@ composer_bin="${COMPOSER_BIN:-composer}"
 
 export COMPOSER_MEMORY_LIMIT=-1
 
+if [ -d "$fixture_dir" ]; then
+  chmod -R u+w "$fixture_dir" 2>/dev/null || true
+fi
 rm -rf "$fixture_dir"
 "$composer_bin" create-project --no-interaction "drupal/recommended-project:${drupal_version}" "$fixture_dir"
 
@@ -28,6 +31,7 @@ cd "$fixture_dir"
   --account-pass=admin \
   -y
 
+./vendor/bin/drush en components emulsify_tools -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 ./vendor/bin/drush en contact -y

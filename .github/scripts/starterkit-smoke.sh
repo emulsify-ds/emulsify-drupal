@@ -16,11 +16,11 @@ mkdir -p "$output_dir"
 
 (
   cd "$fixture_dir"
-  php web/core/scripts/drupal generate-theme "$generated_theme" --starterkit whisk --path web/themes/custom
+  php web/core/scripts/drupal generate-theme "$generated_theme" --starterkit whisk --path themes/custom -n
 )
 
 test -f "${generated_theme_dir}/${generated_theme}.info.yml"
-grep -q '^base theme: emulsify$' "${generated_theme_dir}/${generated_theme}.info.yml"
+grep -Eq "^('?base theme'?): emulsify$" "${generated_theme_dir}/${generated_theme}.info.yml"
 
 if grep -q '^hidden: true$' "${generated_theme_dir}/${generated_theme}.info.yml"; then
   echo "Generated theme should not remain hidden." >&2
