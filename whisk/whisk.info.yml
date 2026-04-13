@@ -1,0 +1,25 @@
+type: theme
+base theme: emulsify
+core_version_requirement: '^10.3 || ^11'
+
+name: Whisk Starter
+description: Generation-only starter source for Emulsify subthemes.
+package: 'Emulsify'
+screenshot: screenshot.png
+hidden: true
+
+dependencies:
+  - 'drupal:components (^3.0)'
+  - 'drupal:emulsify_tools (^4.0)'
+
+libraries:
+  - whisk/global
+
+regions:
+  header: Header
+  content_top: Content Top
+  content: Content
+  content_bottom: Content Bottom
+  footer: Footer
+
+logo: assets/images/logo.svg
