@@ -4,9 +4,13 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Webpack build, and Drupal 11 theme
+### Storybook development, Webpack build, and Drupal 10.3+/11 parent theme
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal 11 starter kit theme.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal parent theme for Drupal 10.3+ and 11.
+
+`emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the starter source used to generate subthemes and is not intended to be enabled directly on a site.
+
+In the 6.x series, `stable9` remains a fallback base theme while Emulsify progressively takes ownership of the template and render layer it previously inherited.
 
 ## Documentation
 
@@ -20,6 +24,59 @@
 ## Demo
 
 1. [Storybook](http://storybook.emulsify.info/)
+
+## How To
+
+### Generate a child theme
+
+If `emulsify_tools` is installed, you can generate a subtheme with the helper-module Drush command:
+
+```bash
+drush emulsify my_theme
+```
+
+The helper module also exposes the fully qualified command name:
+
+```bash
+drush emulsify_tools:bake my_theme
+```
+
+You can also generate the same subtheme with Drupal core's standard Starterkit command from the root of your Drupal site:
+
+```bash
+php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path web/themes/custom
+```
+
+These generation methods should be treated as equivalent:
+
+1. They generate the theme into `web/themes/custom/my_theme`.
+2. They use the `whisk` starter source.
+3. They keep `emulsify` as the runtime parent theme for the generated theme.
+
+After generation:
+
+1. Enable the theme:
+
+```bash
+drush theme:enable my_theme -y
+drush config:set system.theme default my_theme -y
+drush cr -y
+```
+
+2. Install the generated theme's frontend dependencies:
+
+```bash
+cd web/themes/custom/my_theme
+npm install
+```
+
+3. Start the generated theme's local tooling:
+
+```bash
+npm run develop
+```
+
+Do not enable `whisk` directly. It is a generation-only starter source.
 
 ## Contributing
 
@@ -40,7 +97,7 @@ Please also follow the issue template and pull request templates provided. See b
 To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure semantic release can version correctly.
 
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
-2. Run the `commit` script via `yarn commit` or `npm run commit` and follow the prompts to craft the perfect commit message.
+2. Create a [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) message, either manually or with your preferred commit helper.
 3. Your commit message will be used to create the changelog for the next version that includes that commit.
 
 ## Author
