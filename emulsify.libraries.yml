@@ -1,0 +1,14 @@
+global:
+  css:
+    theme:
+      css/theme/global.css: {}
+
+favicon_admin:
+  css:
+    theme:
+      css/admin/favicon-preview.css: {}
+  js:
+    js/admin/favicon-preview.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

@@ -6,10 +6,6 @@
     "license": "GPL-2.0-only",
     "authors": [
         {
-            "name": "Randy Oest",
-            "email": "randy@fourkitchens.com"
-        },
-        {
             "name": "Callin Mullaney",
             "email": "callin@fourkitchens.com"
         }
@@ -23,7 +19,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/core": "^10 || ^11",
+        "drupal/core": "^11.3",
         "drupal/components": "^3.0@beta",
         "drupal/emulsify_tools": "^1.0"
     },

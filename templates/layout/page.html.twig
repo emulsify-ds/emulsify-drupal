@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Theme override to display a single page.
+ *
+ * This keeps Emulsify's page-level wrapper owned by the parent theme so
+ * generated subthemes do not need to rely on stable9 for the default page
+ * structure.
+ *
+ * @see template_preprocess_page()
+ * @see html.html.twig
+ */
+#}
+{%
+  set page_classes = [
+    'section',
+    'page',
+  ]
+%}
+<div{{ attributes.addClass(page_classes) }}>
+
+  {{ page.header }}
+  {{ page.status }}
+
+  <main class="section main" role="main">
+    <a id="main-content" tabindex="-1"></a>
+    {{ page.breadcrumb }}
+    {{ page.content }}
+  </main>
+
+  {{ page.footer }}
+
+</div>{# /.layout-container #}

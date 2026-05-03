@@ -1,0 +1,7 @@
+/*
+ * Placeholder global theme library.
+ *
+ * Emulsify attaches the `emulsify/global` library at the theme level, so this
+ * file keeps that library definition valid even when the parent theme does not
+ * yet ship front-end CSS.
+ */
