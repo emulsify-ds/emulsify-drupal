@@ -1,7 +1,7 @@
 {
   "name": "whisk",
   "version": "1.0.0",
-  "description": "Storybook development + Webpack build + Drupal 11.3+ starter theme",
+  "description": "Storybook development + Vite Build",
   "keywords": [
     "component library",
     "design system",
@@ -18,10 +18,9 @@
   "type": "module",
   "scripts": {
     "a11y": "npm run storybook-build && node_modules/@emulsify/core/scripts/a11y.js -r",
-    "build": "npm run ensure-dist && webpack --config node_modules/@emulsify/core/config/webpack/webpack.prod.js",
-    "build-dev": "npm run ensure-dist && webpack --config node_modules/@emulsify/core/config/webpack/webpack.dev.js",
+    "build": "npm run ensure-dist && vite --config node_modules/@emulsify/core/config/vite/vite.config.js",
     "coverage": "npm run test && open-cli .coverage/lcov-report/index.html",
-    "develop": "npm run ensure-dist && concurrently --raw --no-shell npm:webpack npm:storybook",
+    "develop": "npm run ensure-dist && concurrently --raw --no-shell npm:vite npm:storybook",
     "ensure-dist": "mkdir -p dist",
     "format": "npm run lint-fix; npm run prettier-fix",
     "lint": "npm run lint-js; npm run lint-styles",
@@ -38,9 +37,9 @@
     "tokens:build": "npm run tokens:transform && npm run style-dictionary:build",
     "tokens:transform": "token-transformer ./src/tokens/figma.tokens.json ./src/tokens/transformed.tokens.json",
     "twatch": "jest --no-coverage --watch --verbose",
-    "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
+    "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js"
   },
   "dependencies": {
-    "@emulsify/core": "^3.5.0"
+    "@emulsify/core": "^4.0.0"
   }
 }
