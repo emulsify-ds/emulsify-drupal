@@ -1,7 +1,7 @@
 {
   "name": "whisk",
   "version": "1.0.0",
-  "description": "Storybook development + Webpack build + Drupal 10.3+/11 starter theme",
+  "description": "Storybook development + Webpack build + Drupal 11.3+ starter theme",
   "keywords": [
     "component library",
     "design system",

@@ -16,8 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         drupal-version:
-          - '10.3.*'
-          - '^10.3'
           - '11.3.*'
           - '^11.3'
     steps:
@@ -44,8 +42,6 @@ jobs:
       fail-fast: false
       matrix:
         drupal-version:
-          - '10.3.*'
-          - '^10.3'
           - '11.3.*'
           - '^11.3'
     steps:
@@ -71,8 +67,6 @@ jobs:
       fail-fast: false
       matrix:
         drupal-version:
-          - '10.3.*'
-          - '^10.3'
           - '11.3.*'
           - '^11.3'
     steps:
