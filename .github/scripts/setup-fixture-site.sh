@@ -31,7 +31,7 @@ cd "$fixture_dir"
   --account-pass=admin \
   -y
 
-./vendor/bin/drush en components emulsify_tools -y
+./vendor/bin/drush en emulsify_tools -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 ./vendor/bin/drush en contact -y
