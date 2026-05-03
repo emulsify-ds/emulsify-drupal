@@ -9,7 +9,7 @@ screenshot: screenshot.png
 hidden: true
 
 dependencies:
-  - 'drupal:emulsify_tools (^4.0)'
+  - 'drupal:emulsify_tools (^2.0)'
 
 libraries:
   - whisk/global

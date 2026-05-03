@@ -10,7 +10,7 @@ version: VERSION
 hidden: false
 
 dependencies:
-  - 'drupal:emulsify_tools (^4.0)'
+  - 'drupal:emulsify_tools (^2.0)'
 
 libraries:
   - whisk/global
