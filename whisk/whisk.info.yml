@@ -9,7 +9,6 @@ screenshot: screenshot.png
 hidden: true
 
 dependencies:
-  - 'drupal:components (^3.0)'
   - 'drupal:emulsify_tools (^4.0)'
 
 libraries:
