@@ -2,26 +2,5 @@
 
 /**
  * @file
- * Functions to support theming.
+ * Entrypoint for Emulsify theme-specific PHP customizations.
  */
-
-/**
- * Place any preprocess functions in [something].inc files.
- *
- * The .theme files should contain logic for the elements in their corresponding
- * template directories (ie 'node.theme.inc' should modify templates in
- * 'templates/nodes'.)
- */
-require_once dirname(__FILE__) . '/src/Hook/FieldHooks.php';
-require_once dirname(__FILE__) . '/src/Hook/FormHooks.php';
-require_once dirname(__FILE__) . '/src/Hook/LayoutHooks.php';
-require_once dirname(__FILE__) . '/src/Hook/ParagraphHooks.php';
-require_once dirname(__FILE__) . '/src/Hook/UserHooks.php';
-require_once dirname(__FILE__) . '/src/Hook/ViewsHooks.php';
-
-require_once dirname(__FILE__) . '/includes/field.inc';
-require_once dirname(__FILE__) . '/includes/form.inc';
-require_once dirname(__FILE__) . '/includes/layout.inc';
-require_once dirname(__FILE__) . '/includes/paragraphs.inc';
-require_once dirname(__FILE__) . '/includes/user.inc';
-require_once dirname(__FILE__) . '/includes/views.inc';

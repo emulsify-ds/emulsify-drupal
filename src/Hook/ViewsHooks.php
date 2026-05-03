@@ -2,6 +2,8 @@
 
 namespace Drupal\emulsify\Hook;
 
+use Drupal\Core\Hook\Attribute\Hook;
+
 /**
  * Theme hook handlers for Views templates.
  */
@@ -13,7 +15,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to Views templates.
    */
-  public static function preprocessViewsView(array &$variables): void {
+  #[Hook('preprocess_views_view')]
+  public function preprocessViewsView(array &$variables): void {
     $view = $variables['view'];
 
     // Provide the current request path to simplify path-aware templates.
@@ -35,7 +38,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsViewAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_view_alter')]
+  public function themeSuggestionsViewsViewAlter(array &$suggestions, array $variables): void {
     $view_id = $variables['view']->id();
     $display = $variables['view']->current_display;
 
@@ -52,7 +56,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsViewUnformattedAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_view_unformatted_alter')]
+  public function themeSuggestionsViewsViewUnformattedAlter(array &$suggestions, array $variables): void {
     $view_id = $variables['view']->id();
     $display = $variables['view']->current_display;
 
@@ -69,7 +74,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsMiniPagerAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_mini_pager_alter')]
+  public function themeSuggestionsViewsMiniPagerAlter(array &$suggestions, array $variables): void {
     // Keep a consistent mini pager override name across views.
     $suggestions[] = 'views_mini_pager';
   }

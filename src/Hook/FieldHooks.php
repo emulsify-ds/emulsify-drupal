@@ -2,6 +2,7 @@
 
 namespace Drupal\emulsify\Hook;
 
+use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\paragraphs\ParagraphInterface;
 
 /**
@@ -15,7 +16,8 @@ final class FieldHooks {
    * @param array $variables
    *   Variables passed to field templates.
    */
-  public static function preprocessField(array &$variables): void {
+  #[Hook('preprocess_field')]
+  public function preprocessField(array &$variables): void {
     if (
       $variables['field_type'] === 'entity_reference_revisions'
       && $variables['element']['#items']->getItemDefinition()->getSetting('target_type') === 'paragraph'
@@ -45,7 +47,8 @@ final class FieldHooks {
    * @param string $hook
    *   The hook name currently being altered.
    */
-  public static function themeSuggestionsFieldAlter(array &$suggestions, array $variables, $hook): void {
+  #[Hook('theme_suggestions_field_alter')]
+  public function themeSuggestionsFieldAlter(array &$suggestions, array $variables, string $hook): void {
     if ($hook !== 'field') {
       return;
     }
