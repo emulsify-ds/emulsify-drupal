@@ -48,7 +48,6 @@
 
 .emulsify-favicon-preview__device {
   display: grid;
-  place-items: center;
   gap: 0.6rem;
 }
 
