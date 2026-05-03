@@ -296,16 +296,18 @@ final class ThemeSettingsHooks {
       $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($settings, $source_file);
     }
 
-    $form['emulsify_favicon']['actions'] = [
-      '#type' => 'actions',
-    ];
-    $form['emulsify_favicon']['actions']['reset_package'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Reset to theme default'),
-      '#limit_validation_errors' => [],
-      '#submit' => [[self::class, 'resetFaviconSettings']],
-      '#button_type' => 'secondary',
-    ];
+    if ($has_generated_package) {
+      $form['emulsify_favicon']['actions'] = [
+        '#type' => 'actions',
+      ];
+      $form['emulsify_favicon']['actions']['reset_package'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Reset to theme default'),
+        '#limit_validation_errors' => [],
+        '#submit' => [[self::class, 'resetFaviconSettings']],
+        '#button_type' => 'secondary',
+      ];
+    }
   }
 
   /**
