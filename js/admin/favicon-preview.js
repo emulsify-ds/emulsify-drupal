@@ -1,6 +1,18 @@
 (function (Drupal, once) {
   'use strict';
 
+  const TRACKED_NAMES = [
+    'favicon_package_enabled',
+    'favicon_background_color',
+    'favicon_ios_background_color',
+    'favicon_ios_padding',
+    'favicon_ios_icon_name',
+    'favicon_manifest_short_name',
+    'favicon_android_background_color',
+    'favicon_android_padding',
+    'favicon_source_fid[fids]',
+  ];
+
   function clampPadding(value) {
     const numeric = Number.parseInt(value, 10);
     if (Number.isNaN(numeric)) {
@@ -76,6 +88,54 @@
     });
   }
 
+  function captureTrackedState(form) {
+    const state = {};
+
+    TRACKED_NAMES.forEach((name) => {
+      const value = inputValue(form, name, '');
+      state[name] = typeof value === 'boolean' ? value : String(value).trim();
+    });
+
+    const fileInput = form.querySelector('input[type="file"][name^="files[favicon_source_fid"]');
+    state.hasPendingFile = Boolean(fileInput && fileInput.files && fileInput.files.length > 0);
+
+    return state;
+  }
+
+  function isSameTrackedState(left, right) {
+    return Object.keys(left).every((key) => left[key] === right[key])
+      && Object.keys(right).every((key) => left[key] === right[key]);
+  }
+
+  function applyDirtyState(form) {
+    const notice = form.querySelector('[data-favicon-dirty-state]');
+    const button = form.querySelector('[data-favicon-regenerate-button]');
+    if (!notice && !button) {
+      return;
+    }
+
+    const initialState = form.emulsifyFaviconInitialState;
+    if (!initialState) {
+      return;
+    }
+
+    const isDirty = !isSameTrackedState(initialState, captureTrackedState(form));
+    if (notice) {
+      if (isDirty) {
+        notice.removeAttribute('hidden');
+      }
+      else {
+        notice.setAttribute('hidden', 'hidden');
+      }
+    }
+
+    if (button) {
+      button.value = isDirty
+        ? (button.dataset.dirtyLabel || button.value)
+        : (button.dataset.defaultLabel || button.value);
+    }
+  }
+
   function refreshPreviews(form) {
     const iosPadding = clampPadding(inputValue(form, 'favicon_ios_padding', 16));
     const androidPadding = clampPadding(inputValue(form, 'favicon_android_padding', 20));
@@ -93,22 +153,13 @@
     syncThemeColorValue(form);
     applyPreviewLabels(form);
     applyGenerationHint(form);
+    applyDirtyState(form);
   }
 
   Drupal.behaviors.emulsifyFaviconPreview = {
     attach(context) {
       once('emulsify-favicon-preview', 'form.system-theme-settings, form[data-drupal-selector="system-theme-settings"]', context).forEach((form) => {
-        const watchedNames = [
-          'favicon_background_color',
-          'favicon_ios_background_color',
-          'favicon_ios_padding',
-          'favicon_ios_icon_name',
-          'favicon_manifest_short_name',
-          'favicon_android_background_color',
-          'favicon_android_padding',
-        ];
-
-        watchedNames.forEach((name) => {
+        TRACKED_NAMES.forEach((name) => {
           const input = form.querySelector(`[name="${name}"]`);
           if (!input) {
             return;
@@ -121,6 +172,7 @@
           input.addEventListener('change', () => refreshPreviews(form));
         });
 
+        form.emulsifyFaviconInitialState = captureTrackedState(form);
         refreshPreviews(form);
       });
     },

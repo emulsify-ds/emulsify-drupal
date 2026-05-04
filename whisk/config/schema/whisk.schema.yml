@@ -12,6 +12,12 @@ whisk.settings:
       label: 'Icon file IDs'
       sequence:
         type: integer
+    favicon_source_svg:
+      type: text
+      label: 'Exportable SVG source markup'
+    favicon_source_filename:
+      type: string
+      label: 'Source SVG filename'
     favicon_background_color:
       type: string
       label: 'Icon background color'

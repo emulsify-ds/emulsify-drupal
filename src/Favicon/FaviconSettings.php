@@ -16,6 +16,8 @@ final class FaviconSettings {
   public const DEFAULTS = [
     'favicon_package_enabled' => FALSE,
     'favicon_source_fid' => [],
+    'favicon_source_svg' => '',
+    'favicon_source_filename' => '',
     'favicon_background_color' => '#ffffff',
     'favicon_theme_color' => '#ffffff',
     'favicon_ios_background_color' => '#ffffff',
@@ -59,6 +61,8 @@ final class FaviconSettings {
     $normalized['favicon_package_enabled'] = (bool) $normalized['favicon_package_enabled'];
     $normalized['favicon_android_maskable_enabled'] = TRUE;
     $normalized['favicon_source_fid'] = self::normalizeFileIds($normalized['favicon_source_fid']);
+    $normalized['favicon_source_svg'] = trim((string) $normalized['favicon_source_svg']);
+    $normalized['favicon_source_filename'] = trim((string) $normalized['favicon_source_filename']);
     $normalized['favicon_ios_padding'] = self::clampPadding($normalized['favicon_ios_padding']);
     $normalized['favicon_android_padding'] = self::clampPadding($normalized['favicon_android_padding']);
     $normalized['favicon_background_color'] = self::normalizeColor($normalized['favicon_background_color']);
@@ -114,6 +118,20 @@ final class FaviconSettings {
   public static function getSourceFileId(array $settings): ?int {
     $file_ids = self::normalizeFileIds($settings['favicon_source_fid'] ?? []);
     return $file_ids[0] ?? NULL;
+  }
+
+  /**
+   * Returns the exportable SVG source stored in config.
+   */
+  public static function getSourceSvg(array $settings): string {
+    return trim((string) ($settings['favicon_source_svg'] ?? ''));
+  }
+
+  /**
+   * Indicates whether an exportable SVG source is available.
+   */
+  public static function hasExportableSource(array $settings): bool {
+    return self::getSourceSvg($settings) !== '';
   }
 
   /**
