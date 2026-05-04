@@ -10,7 +10,7 @@
 
 `emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the starter source used to generate subthemes and is not intended to be enabled directly on a site.
 
-In the 6.x series, `stable9` remains a fallback base theme while Emulsify progressively takes ownership of the template and render layer it previously inherited.
+In the 6.x series, Emulsify now ships its own `stable9`-compatible template surface directly and no longer depends on `stable9` as a fallback base theme.
 
 ## Documentation
 
