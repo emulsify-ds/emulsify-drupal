@@ -64,83 +64,154 @@ final class FaviconPackageGenerator {
   /**
    * Validates a source file before generation.
    *
+   * @return array<string, mixed>
+   *   An analysis of the sanitized SVG source.
+   *
    * @throws \InvalidArgumentException
    *   Thrown when the icon file is unusable.
    */
-  public function validateSourceFile(File $source_file, bool $requires_rasterization = TRUE): void {
-    if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
-      throw new \InvalidArgumentException('The GD PHP extension is required to generate favicon PNG assets.');
-    }
-
+  public function validateSourceFile(File $source_file, bool $requires_rasterization = TRUE): array {
     [$source_data, $mime_type, $extension] = $this->loadSourceAsset($source_file);
 
-    if ($extension !== 'svg') {
-      throw new \InvalidArgumentException('Upload an SVG icon file.');
-    }
-
-    if ($source_file->getSize() > self::MAX_FILE_SIZE) {
-      throw new \InvalidArgumentException('Upload an icon file smaller than 5 MB.');
-    }
-
-    if ($mime_type !== 'image/svg+xml') {
-      throw new \InvalidArgumentException('The uploaded icon file must be an SVG.');
-    }
-
-    $this->sanitizeSvg($source_data);
-    if ($requires_rasterization && !class_exists('Imagick')) {
-      throw new \InvalidArgumentException('SVG source files require the Imagick PHP extension for PNG generation.');
-    }
+    return $this->validateSourceAsset(
+      $source_data,
+      $mime_type,
+      $extension,
+      $source_file->getSize(),
+      $requires_rasterization,
+    );
   }
 
   /**
-   * Generates a full favicon package and returns its metadata.
+   * Validates an SVG source string before generation.
+   *
+   * @return array<string, mixed>
+   *   An analysis of the sanitized SVG source.
+   */
+  public function validateSourceSvg(string $source_data, bool $requires_rasterization = TRUE): array {
+    return $this->validateSourceAsset(
+      $source_data,
+      'image/svg+xml',
+      'svg',
+      strlen($source_data),
+      $requires_rasterization,
+    );
+  }
+
+  /**
+   * Returns the deterministic package hash and directory for a source/settings pair.
+   *
+   * @return array{hash: string, path: string, source_hash: string}
+   *   The expected package definition.
+   */
+  public function getPackageDefinition(string $theme_name, array $settings, string $source_data): array {
+    $normalized = FaviconSettings::normalize(
+      $settings,
+      (string) $this->configFactory->get('system.site')->get('name'),
+    );
+    $analysis = $this->validateSourceSvg($source_data, FALSE);
+    $package_hash = $this->buildPackageHash($normalized, (string) $analysis['source_hash']);
+
+    return [
+      'hash' => $package_hash,
+      'path' => $this->buildPackageDirectory($theme_name, $package_hash),
+      'source_hash' => (string) $analysis['source_hash'],
+    ];
+  }
+
+  /**
+   * Determines whether a generated package directory exists.
+   */
+  public function packageExists(string $package_directory): bool {
+    $realpath = $this->fileSystem->realpath($package_directory);
+    return is_string($realpath) && is_dir($realpath);
+  }
+
+  /**
+   * Reads generated metadata for an existing package.
+   *
+   * @return array<string, mixed>|null
+   *   The decoded metadata, or NULL if it is unavailable.
+   */
+  public function readPackageMetadata(string $package_directory): ?array {
+    if (!$this->packageExists($package_directory)) {
+      return NULL;
+    }
+
+    $metadata = @file_get_contents($package_directory . '/metadata.json');
+    if (!is_string($metadata) || $metadata === '') {
+      return NULL;
+    }
+
+    $decoded = json_decode($metadata, TRUE);
+    return is_array($decoded) ? $decoded : NULL;
+  }
+
+  /**
+   * Generates a full favicon package from a managed file.
    *
    * @return array{hash: string, path: string, generated_at: int}
    *   Generated package metadata.
    */
   public function generate(string $theme_name, File $source_file, array $settings): array {
-    $normalized = FaviconSettings::normalize($settings, (string) $this->configFactory->get('system.site')->get('name'));
-    $this->validateSourceFile($source_file, TRUE);
+    $analysis = $this->validateSourceFile($source_file, TRUE);
 
-    [$source_data, $mime_type, $extension] = $this->loadSourceAsset($source_file);
-    $source_hash = hash('sha256', $source_data);
-    $hash_settings = $normalized;
-    unset(
-      $hash_settings['favicon_source_fid'],
-      $hash_settings['favicon_ios_icon_name'],
-      $hash_settings['favicon_package_hash'],
-      $hash_settings['favicon_package_path'],
-      $hash_settings['favicon_package_generated_at'],
+    return $this->generateFromSvg(
+      $theme_name,
+      (string) $analysis['sanitized_svg'],
+      $settings,
+      [
+        'file_id' => (int) $source_file->id(),
+        'filename' => $source_file->getFilename(),
+      ],
     );
-    $package_hash = substr(hash('sha256', $this->encodeJson([
-      'source_hash' => $source_hash,
-      'settings' => $hash_settings,
-    ])), 0, 12);
-    $package_directory = sprintf('public://favicon-package/%s/%s', $theme_name, $package_hash);
+  }
+
+  /**
+   * Generates a full favicon package from exportable SVG source markup.
+   *
+   * @param array<string, mixed> $source
+   *   Optional source metadata such as file ID or filename.
+   *
+   * @return array{hash: string, path: string, generated_at: int}
+   *   Generated package metadata.
+   */
+  public function generateFromSvg(string $theme_name, string $source_data, array $settings, array $source = []): array {
+    $normalized = FaviconSettings::normalize(
+      $settings,
+      (string) $this->configFactory->get('system.site')->get('name'),
+    );
+    $analysis = $this->validateSourceSvg($source_data, TRUE);
+    $source_svg = (string) $analysis['sanitized_svg'];
+    $definition = $this->getPackageDefinition($theme_name, $normalized, $source_svg);
+    $package_hash = $definition['hash'];
+    $package_directory = $definition['path'];
     $generated_at = $this->time->getRequestTime();
 
     $this->fileSystem->prepareDirectory($package_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
 
     $browser_padding = min($normalized['favicon_ios_padding'], $normalized['favicon_android_padding']);
-    $svg_markup = $this->buildSvgFavicon(
-      $mime_type,
-      $source_data,
-      $normalized['favicon_background_color'],
-      $browser_padding,
-      $mime_type === 'image/svg+xml',
+    $this->writeBytes(
+      $package_directory . '/favicon.svg',
+      $this->buildSvgFavicon(
+        'image/svg+xml',
+        $source_svg,
+        $normalized['favicon_background_color'],
+        $browser_padding,
+        FALSE,
+      ),
     );
-    $this->writeBytes($package_directory . '/favicon.svg', $svg_markup);
 
     $browser_png_32 = $this->renderPng(
-      $mime_type,
-      $source_data,
+      'image/svg+xml',
+      $source_svg,
       32,
       $normalized['favicon_background_color'],
       $browser_padding,
     );
     $browser_png_96 = $this->renderPng(
-      $mime_type,
-      $source_data,
+      'image/svg+xml',
+      $source_svg,
       96,
       $normalized['favicon_background_color'],
       $browser_padding,
@@ -151,8 +222,8 @@ final class FaviconPackageGenerator {
     $this->writeBytes(
       $package_directory . '/apple-touch-icon.png',
       $this->renderPng(
-        $mime_type,
-        $source_data,
+        'image/svg+xml',
+        $source_svg,
         180,
         $normalized['favicon_ios_background_color'],
         $normalized['favicon_ios_padding'],
@@ -162,8 +233,8 @@ final class FaviconPackageGenerator {
     $this->writeBytes(
       $package_directory . '/web-app-manifest-192x192.png',
       $this->renderPng(
-        $mime_type,
-        $source_data,
+        'image/svg+xml',
+        $source_svg,
         192,
         $normalized['favicon_android_background_color'],
         $normalized['favicon_android_padding'],
@@ -173,8 +244,8 @@ final class FaviconPackageGenerator {
     $this->writeBytes(
       $package_directory . '/web-app-manifest-512x512.png',
       $this->renderPng(
-        $mime_type,
-        $source_data,
+        'image/svg+xml',
+        $source_svg,
         512,
         $normalized['favicon_android_background_color'],
         $normalized['favicon_android_padding'],
@@ -185,8 +256,8 @@ final class FaviconPackageGenerator {
     $this->writeBytes(
       $package_directory . '/web-app-manifest-512x512-maskable.png',
       $this->renderPng(
-        $mime_type,
-        $source_data,
+        'image/svg+xml',
+        $source_svg,
         512,
         $normalized['favicon_android_background_color'],
         $maskable_padding,
@@ -194,20 +265,18 @@ final class FaviconPackageGenerator {
     );
 
     $manifest = $this->buildManifest($package_directory, $normalized);
-    $this->writeBytes($package_directory . '/site.webmanifest', $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $this->writeBytes(
+      $package_directory . '/site.webmanifest',
+      $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+    );
 
     $metadata = [
       'theme' => $theme_name,
       'hash' => $package_hash,
       'generated_at' => $generated_at,
-      'source' => [
-        'file_id' => (int) $source_file->id(),
-        'filename' => $source_file->getFilename(),
-        'mime_type' => $mime_type,
-        'extension' => $extension,
-        'sha256' => $source_hash,
-      ],
+      'source' => $this->buildSourceMetadata($source, (string) $analysis['source_hash']),
       'settings' => $normalized,
+      'warnings' => $analysis['warnings'],
       'files' => [
         'favicon.svg',
         'favicon.ico',
@@ -215,11 +284,14 @@ final class FaviconPackageGenerator {
         'apple-touch-icon.png',
         'web-app-manifest-192x192.png',
         'web-app-manifest-512x512.png',
+        'web-app-manifest-512x512-maskable.png',
         'site.webmanifest',
       ],
     ];
-    $metadata['files'][] = 'web-app-manifest-512x512-maskable.png';
-    $this->writeBytes($package_directory . '/metadata.json', $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    $this->writeBytes(
+      $package_directory . '/metadata.json',
+      $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+    );
 
     $this->cacheTagsInvalidator->invalidateTags(['rendered']);
 
@@ -228,6 +300,44 @@ final class FaviconPackageGenerator {
       'path' => $package_directory,
       'generated_at' => $generated_at,
     ];
+  }
+
+  /**
+   * Validates a loaded source asset.
+   *
+   * @return array<string, mixed>
+   *   The normalized source analysis.
+   */
+  private function validateSourceAsset(
+    string $source_data,
+    string $mime_type,
+    string $extension,
+    ?int $size,
+    bool $requires_rasterization,
+  ): array {
+    if ($extension !== 'svg') {
+      throw new \InvalidArgumentException('Upload an SVG icon file.');
+    }
+
+    if ($size !== NULL && $size > self::MAX_FILE_SIZE) {
+      throw new \InvalidArgumentException('Upload an icon file smaller than 5 MB.');
+    }
+
+    if ($mime_type !== 'image/svg+xml') {
+      throw new \InvalidArgumentException('The uploaded icon file must be an SVG.');
+    }
+
+    $analysis = $this->inspectSvgMarkup($source_data);
+    if ($requires_rasterization) {
+      if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
+        throw new \InvalidArgumentException('The GD PHP extension is required to generate favicon PNG assets.');
+      }
+      if (!class_exists('Imagick')) {
+        throw new \InvalidArgumentException('SVG source files require the Imagick PHP extension for PNG generation.');
+      }
+    }
+
+    return $analysis;
   }
 
   /**
@@ -316,6 +426,47 @@ final class FaviconPackageGenerator {
   }
 
   /**
+   * Builds the deterministic package hash from source and settings.
+   */
+  private function buildPackageHash(array $settings, string $source_hash): string {
+    $hash_settings = $settings;
+    unset(
+      $hash_settings['favicon_source_fid'],
+      $hash_settings['favicon_source_svg'],
+      $hash_settings['favicon_source_filename'],
+      $hash_settings['favicon_ios_icon_name'],
+      $hash_settings['favicon_package_hash'],
+      $hash_settings['favicon_package_path'],
+      $hash_settings['favicon_package_generated_at'],
+    );
+
+    return substr(hash('sha256', $this->encodeJson([
+      'source_hash' => $source_hash,
+      'settings' => $hash_settings,
+    ])), 0, 12);
+  }
+
+  /**
+   * Builds the package directory URI for a hash.
+   */
+  private function buildPackageDirectory(string $theme_name, string $package_hash): string {
+    return sprintf('public://favicon-package/%s/%s', $theme_name, $package_hash);
+  }
+
+  /**
+   * Normalizes source metadata written to metadata.json.
+   */
+  private function buildSourceMetadata(array $source, string $source_hash): array {
+    return [
+      'file_id' => (int) ($source['file_id'] ?? 0),
+      'filename' => (string) ($source['filename'] ?? 'favicon.svg'),
+      'mime_type' => 'image/svg+xml',
+      'extension' => 'svg',
+      'sha256' => $source_hash,
+    ];
+  }
+
+  /**
    * Generates an SVG favicon wrapper around the uploaded source.
    */
   private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding, bool $sanitize_svg): string {
@@ -348,6 +499,69 @@ SVG,
    * Sanitizes SVG uploads while allowing embedded image data URIs.
    */
   private function sanitizeSvg(string $source_data): string {
+    return (string) $this->inspectSvgMarkup($source_data)['sanitized_svg'];
+  }
+
+  /**
+   * Inspects and sanitizes SVG markup.
+   *
+   * @return array<string, mixed>
+   *   Source analysis including the sanitized SVG.
+   */
+  private function inspectSvgMarkup(string $source_data): array {
+    $document = $this->loadSvgDocument($source_data);
+    $root = $document->documentElement;
+    if (!$root || strtolower($root->localName ?? $root->nodeName) !== 'svg') {
+      throw new \InvalidArgumentException('The uploaded icon file must be an SVG.');
+    }
+
+    $view_box = $this->parseViewBox($root->getAttribute('viewBox'));
+    if ($view_box === NULL) {
+      throw new \InvalidArgumentException('The uploaded SVG must define a viewBox.');
+    }
+    if (!$this->isSquare($view_box[2], $view_box[3])) {
+      throw new \InvalidArgumentException('The uploaded SVG must use a square viewBox.');
+    }
+
+    $declared_dimensions = $this->extractDeclaredDimensions($root);
+    if ($declared_dimensions['width'] !== NULL && $declared_dimensions['height'] !== NULL && !$this->isSquare($declared_dimensions['width'], $declared_dimensions['height'])) {
+      throw new \InvalidArgumentException('The uploaded SVG must declare square width and height values.');
+    }
+
+    $has_embedded_raster_images = $this->documentHasRasterImages($document);
+    $uses_transparency = $this->documentUsesTransparency($document);
+
+    $this->stripDisallowedSvgNodes($document);
+    $this->stripDisallowedSvgAttributes($document);
+
+    $sanitized = $document->saveXML($document->documentElement) ?: '';
+    if ($sanitized === '') {
+      throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.');
+    }
+
+    $warnings = [];
+    if ($uses_transparency) {
+      $warnings[] = 'This SVG appears to use transparency. Check the browser, iOS, and Android previews against their configured backgrounds.';
+    }
+    if ($has_embedded_raster_images) {
+      $warnings[] = 'This SVG contains raster <image> content. Generated icons may not scale as cleanly as a fully vector source.';
+    }
+
+    return [
+      'sanitized_svg' => $sanitized,
+      'source_hash' => hash('sha256', $sanitized),
+      'view_box' => $view_box,
+      'declared_dimensions' => $declared_dimensions,
+      'uses_transparency' => $uses_transparency,
+      'has_embedded_raster_images' => $has_embedded_raster_images,
+      'warnings' => $warnings,
+    ];
+  }
+
+  /**
+   * Loads an SVG document with safe libxml settings.
+   */
+  private function loadSvgDocument(string $source_data): \DOMDocument {
     $previous = libxml_use_internal_errors(TRUE);
     $document = new \DOMDocument();
     $loaded = $document->loadXML($source_data, LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_NOBLANKS);
@@ -358,15 +572,159 @@ SVG,
       throw new \InvalidArgumentException('The uploaded SVG could not be parsed.');
     }
 
-    $this->stripDisallowedSvgNodes($document);
-    $this->stripDisallowedSvgAttributes($document);
+    return $document;
+  }
 
-    $sanitized = $document->saveXML($document->documentElement) ?: '';
-    if ($sanitized === '') {
-      throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.');
+  /**
+   * Parses a root SVG viewBox into four floats.
+   *
+   * @return float[]|null
+   *   The parsed min-x, min-y, width, and height values.
+   */
+  private function parseViewBox(string $view_box): ?array {
+    $parts = preg_split('/[\s,]+/', trim($view_box)) ?: [];
+    if (count($parts) !== 4) {
+      return NULL;
     }
 
-    return $sanitized;
+    $values = [];
+    foreach ($parts as $part) {
+      if (!is_numeric($part)) {
+        return NULL;
+      }
+      $values[] = (float) $part;
+    }
+
+    return ($values[2] > 0 && $values[3] > 0) ? $values : NULL;
+  }
+
+  /**
+   * Extracts square dimension hints from root width and height attributes.
+   *
+   * @return array{width: float|null, height: float|null}
+   *   Parsed root dimensions when they can be normalized.
+   */
+  private function extractDeclaredDimensions(\DOMElement $root): array {
+    return [
+      'width' => $this->extractNumericLength($root->getAttribute('width')),
+      'height' => $this->extractNumericLength($root->getAttribute('height')),
+    ];
+  }
+
+  /**
+   * Parses a numeric SVG length when it uses an absolute unit.
+   */
+  private function extractNumericLength(string $value): ?float {
+    $candidate = trim($value);
+    if ($candidate === '') {
+      return NULL;
+    }
+
+    if (!preg_match('/^(-?(?:\d+|\d*\.\d+))(?:px|pt|pc|mm|cm|in)?$/i', $candidate, $matches)) {
+      return NULL;
+    }
+
+    return (float) $matches[1];
+  }
+
+  /**
+   * Determines whether the SVG contains raster image content.
+   */
+  private function documentHasRasterImages(\DOMDocument $document): bool {
+    foreach ($document->getElementsByTagName('image') as $element) {
+      foreach (['href', 'xlink:href'] as $attribute_name) {
+        $value = trim((string) $element->getAttribute($attribute_name));
+        if ($value === '') {
+          continue;
+        }
+
+        if (preg_match('/^data:image\/(png|gif|jpe?g|webp|bmp|avif);/i', $value)) {
+          return TRUE;
+        }
+
+        if (!str_starts_with(strtolower($value), 'data:image/svg+xml')) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Determines whether the SVG appears to rely on transparency.
+   */
+  private function documentUsesTransparency(\DOMDocument $document): bool {
+    foreach ($document->getElementsByTagName('*') as $element) {
+      $tag_name = strtolower($element->localName ?? $element->nodeName);
+      if (in_array($tag_name, ['mask', 'clippath'], TRUE)) {
+        return TRUE;
+      }
+
+      foreach (['opacity', 'fill-opacity', 'stroke-opacity', 'stop-opacity'] as $attribute_name) {
+        if ($element->hasAttribute($attribute_name) && $this->numericOpacityIsTransparent($element->getAttribute($attribute_name))) {
+          return TRUE;
+        }
+      }
+
+      foreach (['fill', 'stroke', 'stop-color', 'flood-color'] as $attribute_name) {
+        if ($element->hasAttribute($attribute_name) && $this->colorValueHasTransparency($element->getAttribute($attribute_name))) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Determines whether an opacity attribute implies transparency.
+   */
+  private function numericOpacityIsTransparent(string $value): bool {
+    $candidate = trim(strtolower($value));
+    if ($candidate === '') {
+      return FALSE;
+    }
+
+    if (str_ends_with($candidate, '%')) {
+      $numeric = (float) rtrim($candidate, '%');
+      return $numeric < 100;
+    }
+
+    return is_numeric($candidate) && (float) $candidate < 1;
+  }
+
+  /**
+   * Determines whether a color token encodes alpha transparency.
+   */
+  private function colorValueHasTransparency(string $value): bool {
+    $candidate = trim(strtolower($value));
+    if ($candidate === 'transparent') {
+      return TRUE;
+    }
+
+    if (preg_match('/^#([0-9a-f]{4}|[0-9a-f]{8})$/i', $candidate, $matches)) {
+      $hex = $matches[1];
+      if (strlen($hex) === 4) {
+        return strtolower($hex[3]) !== 'f';
+      }
+      return strtolower(substr($hex, 6, 2)) !== 'ff';
+    }
+
+    if (preg_match('/^rgba\((.+)\)$/i', $candidate, $matches) || preg_match('/^hsla\((.+)\)$/i', $candidate, $matches)) {
+      $parts = preg_split('/\s*,\s*|\s+\/\s*/', trim($matches[1])) ?: [];
+      $alpha = end($parts);
+      return is_string($alpha) && $this->numericOpacityIsTransparent($alpha);
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Checks whether two lengths should be treated as square.
+   */
+  private function isSquare(float $first, float $second): bool {
+    return abs($first - $second) < 0.01;
   }
 
   /**

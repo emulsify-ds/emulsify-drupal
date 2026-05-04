@@ -59,16 +59,31 @@ final class FaviconPreviewBuilder {
 
     return sprintf(
       '<div class="emulsify-favicon-preview emulsify-favicon-preview--browser" data-favicon-preview-group="browser">'
-      . '<p class="emulsify-favicon-preview__summary">Browser tabs use the generated SVG favicon and ICO. The preview below approximates the framed icon before you save.</p>'
+      . '<p class="emulsify-favicon-preview__summary">Browser tabs use the generated SVG favicon and ICO. Compare the framed icon against light and dark tab chrome before you save.</p>'
+      . '<div class="emulsify-favicon-preview__grid">'
       . '<div class="emulsify-favicon-preview__card">'
+      . '<h4>Light tab</h4>'
       . '<div class="emulsify-favicon-preview__tab">'
       . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:%s; --preview-padding:%s%%">'
-      . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview" data-preview-image loading="lazy" /></span>'
+      . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview on a light tab" data-preview-image loading="lazy" /></span>'
+      . '</span>'
+      . '<span>example.com</span>'
+      . '</div>'
+      . '</div>'
+      . '<div class="emulsify-favicon-preview__card emulsify-favicon-preview__card--dark">'
+      . '<h4>Dark tab</h4>'
+      . '<div class="emulsify-favicon-preview__tab emulsify-favicon-preview__tab--dark">'
+      . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:%s; --preview-padding:%s%%">'
+      . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview on a dark tab" data-preview-image loading="lazy" /></span>'
       . '</span>'
       . '<span>example.com</span>'
       . '</div>'
       . '</div>'
       . '</div>',
+      $empty_class,
+      Html::escape((string) ($settings['favicon_background_color'] ?? '#ffffff')),
+      $this->getBrowserPadding($settings),
+      $source_url,
       $empty_class,
       Html::escape((string) ($settings['favicon_background_color'] ?? '#ffffff')),
       $this->getBrowserPadding($settings),
@@ -154,6 +169,10 @@ final class FaviconPreviewBuilder {
   private function resolvePreviewSourceUrl(string $platform, array $settings, ?File $source_file): string {
     if ($source_file) {
       return $this->fileUrlGenerator->generateString($source_file->getFileUri());
+    }
+
+    if (FaviconSettings::hasExportableSource($settings)) {
+      return 'data:image/svg+xml;base64,' . base64_encode(FaviconSettings::getSourceSvg($settings));
     }
 
     $package_path = $settings['favicon_package_path'] ?? '';

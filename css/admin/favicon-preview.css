@@ -30,6 +30,12 @@
   box-shadow: var(--emulsify-favicon-preview-shadow);
 }
 
+.emulsify-favicon-preview__card--dark {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, #1c2431 0%, #111821 100%);
+  color: #f5f7fb;
+}
+
 .emulsify-favicon-preview__card h4 {
   margin: 0;
   font-size: 0.95rem;
@@ -44,6 +50,12 @@
   border-radius: 999px;
   background: var(--emulsify-favicon-preview-surface);
   padding: 0.45rem 0.7rem;
+}
+
+.emulsify-favicon-preview__tab--dark {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
 }
 
 .emulsify-favicon-preview__device {

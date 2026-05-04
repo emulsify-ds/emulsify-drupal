@@ -3,6 +3,7 @@
 namespace Drupal\emulsify\Hook;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ThemeSettingsProvider;
@@ -73,10 +74,13 @@ final class ThemeSettingsHooks {
     $site_name = $this->getSiteName();
     $theme_name = FaviconSettings::resolveThemeName($form_state);
     $settings = FaviconSettings::loadThemeSettings($theme_name, $this->themeSettingsProvider, $site_name);
-    $has_generated_package = !empty($settings['favicon_package_path']);
-    $source_file = NULL;
-    if ($source_fid = FaviconSettings::getSourceFileId($settings)) {
-      $source_file = File::load($source_fid);
+    $source_file = $this->resolveStoredSourceFile($settings);
+    $package_status = $this->buildPackageStatus($theme_name, $settings, $source_file);
+    $has_generated_package = $package_status['package_exists'];
+    $has_preview_source = $package_status['source_available'] || $has_generated_package;
+    $preview_settings = $settings;
+    if ($package_status['path'] !== '') {
+      $preview_settings['favicon_package_path'] = $package_status['path'];
     }
 
     // Remove the legacy page-element display toggles and persist the values
@@ -124,6 +128,14 @@ final class ThemeSettingsHooks {
       '#type' => 'hidden',
       '#default_value' => $settings['favicon_package_generated_at'],
     ];
+    $form['favicon_source_svg'] = [
+      '#type' => 'hidden',
+      '#default_value' => $settings['favicon_source_svg'],
+    ];
+    $form['favicon_source_filename'] = [
+      '#type' => 'hidden',
+      '#default_value' => $settings['favicon_source_filename'],
+    ];
     $form['favicon_theme_color'] = [
       '#type' => 'hidden',
       '#default_value' => $settings['favicon_android_background_color'],
@@ -145,7 +157,7 @@ final class ThemeSettingsHooks {
       '#type' => 'details',
       '#title' => $this->t('Favicon'),
       '#open' => TRUE,
-      '#description' => $this->t('Upload one source SVG, configure platform-specific framing, and save the form to generate a modern favicon package. When enabled, the generated package overrides Drupal\'s default shortcut icon tags.'),
+      '#description' => $this->t('Upload one source SVG, configure platform-specific framing, and save the form to generate a modern favicon package. The sanitized SVG source is stored with theme settings so configuration imports can regenerate the package in other environments.'),
     ];
 
     $form['emulsify_favicon']['favicon_package_enabled'] = [
@@ -175,7 +187,12 @@ final class ThemeSettingsHooks {
           'extensions' => 'svg',
         ],
       ],
-      '#description' => $this->t('Use a square SVG. Embedded base64 image data is allowed, but remote references and scripts are stripped during generation.'),
+      '#description' => $this->t('Use a square SVG with a square viewBox. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
+    ];
+    $form['emulsify_favicon']['source']['portable_source'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Portable source config'),
+      '#markup' => '<span class="description">' . $this->buildPortableSourceDescription($package_status) . '</span>',
     ];
     if (!$has_generated_package) {
       $form['emulsify_favicon']['source']['generation_hint'] = [
@@ -184,7 +201,7 @@ final class ThemeSettingsHooks {
           'data-favicon-generation-hint' => 'true',
           'hidden' => 'hidden',
         ],
-        '#markup' => '<div class="messages messages--warning" role="status">' . $this->t('Save the form after selecting an icon file to generate the favicon package and unlock the platform previews below.') . '</div>',
+        '#markup' => '<div class="messages messages--warning" role="status">' . $this->t('Save the form or click Generate package after selecting an icon file to build the favicon package and unlock the saved asset previews.') . '</div>',
         '#states' => [
           'visible' => [
             ':input[name="favicon_package_enabled"]' => ['checked' => TRUE],
@@ -193,11 +210,18 @@ final class ThemeSettingsHooks {
         ],
       ];
     }
+    if ($package_status['source_diagnostics'] !== '') {
+      $form['emulsify_favicon']['source']['diagnostics'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Source diagnostics'),
+        '#markup' => $package_status['source_diagnostics'],
+      ];
+    }
 
     $form['emulsify_favicon']['status'] = [
       '#type' => 'item',
       '#title' => $this->t('Current generated package'),
-      '#markup' => '<span class="description">' . $this->t('@summary', ['@summary' => FaviconSettings::summarizePackageLocation($settings)]) . '</span>',
+      '#markup' => $package_status['status_markup'],
     ];
 
     $form['emulsify_favicon']['browser'] = [
@@ -216,8 +240,8 @@ final class ThemeSettingsHooks {
       '#default_value' => $settings['favicon_background_color'],
       '#description' => $this->t('Applied to the square browser favicon, SVG favicon, and ICO.'),
     ];
-    if ($has_generated_package) {
-      $form['emulsify_favicon']['browser']['preview'] = $this->previewBuilder->buildBrowserPreview($settings, $source_file);
+    if ($has_preview_source) {
+      $form['emulsify_favicon']['browser']['preview'] = $this->previewBuilder->buildBrowserPreview($preview_settings, $source_file);
     }
 
     $form['emulsify_favicon']['ios'] = [
@@ -251,8 +275,8 @@ final class ThemeSettingsHooks {
       '#maxlength' => 60,
       '#description' => $this->t('Used for the iOS shortcut label. Leave blank to use the current site name.'),
     ];
-    if ($has_generated_package) {
-      $form['emulsify_favicon']['ios']['preview'] = $this->previewBuilder->buildIosPreview($settings, $source_file);
+    if ($has_preview_source) {
+      $form['emulsify_favicon']['ios']['preview'] = $this->previewBuilder->buildIosPreview($preview_settings, $source_file);
     }
 
     $form['emulsify_favicon']['android'] = [
@@ -292,20 +316,53 @@ final class ThemeSettingsHooks {
       '#maxlength' => 60,
       '#description' => $this->t('Used for the Android and PWA launcher label. Leave blank to use the current site name.'),
     ];
-    if ($has_generated_package) {
-      $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($settings, $source_file);
+    if ($has_preview_source) {
+      $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($preview_settings, $source_file);
     }
 
-    if ($has_generated_package) {
+    if ($package_status['source_available'] || $has_generated_package) {
       $form['emulsify_favicon']['actions'] = [
         '#type' => 'actions',
       ];
-      $form['emulsify_favicon']['actions']['reset_package'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Reset to theme default'),
-        '#limit_validation_errors' => [],
-        '#submit' => [[self::class, 'resetFaviconSettings']],
-        '#button_type' => 'secondary',
+
+      if ($package_status['source_available']) {
+        $default_label = $package_status['state'] === 'current'
+          ? $this->t('Regenerate package')
+          : $this->t('Generate package');
+        $dirty_label = $package_status['state'] === 'current'
+          ? $this->t('Regenerate package (changes pending)')
+          : $this->t('Generate package (changes pending)');
+
+        $form['emulsify_favicon']['actions']['regenerate_package'] = [
+          '#type' => 'submit',
+          '#value' => $default_label,
+          '#submit' => [[self::class, 'requestFaviconRegeneration']],
+          '#button_type' => $package_status['state'] === 'current' ? 'secondary' : 'primary',
+          '#attributes' => [
+            'data-favicon-regenerate-button' => 'true',
+            'data-default-label' => (string) $default_label,
+            'data-dirty-label' => (string) $dirty_label,
+          ],
+        ];
+      }
+
+      if ($has_generated_package) {
+        $form['emulsify_favicon']['actions']['reset_package'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Reset to theme default'),
+          '#limit_validation_errors' => [],
+          '#submit' => [[self::class, 'resetFaviconSettings']],
+          '#button_type' => 'secondary',
+        ];
+      }
+
+      $form['emulsify_favicon']['actions']['dirty_state'] = [
+        '#type' => 'container',
+        '#attributes' => [
+          'data-favicon-dirty-state' => 'true',
+          'hidden' => 'hidden',
+        ],
+        '#markup' => '<div class="messages messages--warning" role="status">' . $this->t('The source SVG or package settings changed. Save the form or click the package button again to rebuild the generated assets.') . '</div>',
       ];
     }
   }
@@ -325,10 +382,24 @@ final class ThemeSettingsHooks {
   }
 
   /**
+   * Static generate button callback.
+   */
+  public static function requestFaviconRegeneration(array &$form, FormStateInterface $form_state): void {
+    self::service()->doRequestFaviconRegeneration($form_state);
+  }
+
+  /**
    * Static reset button callback.
    */
   public static function resetFaviconSettings(array &$form, FormStateInterface $form_state): void {
     self::service()->doResetFaviconSettings($form_state);
+  }
+
+  /**
+   * Flags the form submit as an explicit regeneration request.
+   */
+  private function doRequestFaviconRegeneration(FormStateInterface $form_state): void {
+    $form_state->set('emulsify_favicon_force_generate', TRUE);
   }
 
   /**
@@ -340,27 +411,29 @@ final class ThemeSettingsHooks {
     $form_state->setValue('favicon_theme_color', $settings['favicon_android_background_color']);
     $form_state->setValue('favicon_manifest_name', $site_name);
     $form_state->setValue('favicon_manifest_display', 'standalone');
+
+    try {
+      $source_context = $this->resolveSourceContext(
+        $settings,
+        !empty($settings['favicon_package_enabled']),
+      );
+    }
+    catch (\InvalidArgumentException $exception) {
+      $form_state->setErrorByName('favicon_source_fid', $this->t('@message', ['@message' => $exception->getMessage()]));
+      return;
+    }
+
+    if ($source_context !== []) {
+      $form_state->setValue('favicon_source_svg', $source_context['source_svg']);
+      $form_state->setValue('favicon_source_filename', $source_context['source_filename']);
+    }
+
     if (empty($settings['favicon_package_enabled'])) {
       return;
     }
 
-    $source_fid = FaviconSettings::getSourceFileId($settings);
-    if (!$source_fid) {
+    if ($source_context === []) {
       $form_state->setErrorByName('favicon_source_fid', $this->t('Upload an SVG icon file before enabling the generated favicon package.'));
-      return;
-    }
-
-    $source_file = File::load($source_fid);
-    if (!$source_file) {
-      $form_state->setErrorByName('favicon_source_fid', $this->t('The uploaded icon file could not be loaded.'));
-      return;
-    }
-
-    try {
-      $this->packageGenerator->validateSourceFile($source_file, TRUE);
-    }
-    catch (\InvalidArgumentException $exception) {
-      $form_state->setErrorByName('favicon_source_fid', $this->t('@message', ['@message' => $exception->getMessage()]));
     }
   }
 
@@ -374,22 +447,62 @@ final class ThemeSettingsHooks {
 
     $theme_name = FaviconSettings::resolveThemeName($form_state);
     $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
-    $source_file = NULL;
 
-    if ($source_fid = FaviconSettings::getSourceFileId($settings)) {
-      $source_file = File::load($source_fid);
-      if ($source_file) {
-        $source_file->setPermanent();
-        $source_file->save();
-      }
+    try {
+      $source_context = $this->resolveSourceContext(
+        $settings,
+        !empty($settings['favicon_package_enabled']),
+      );
+    }
+    catch (\InvalidArgumentException) {
+      return;
     }
 
-    if (empty($settings['favicon_package_enabled']) || !$source_file) {
+    if ($source_context !== []) {
+      if ($source_context['source_file'] instanceof File) {
+        $source_context['source_file']->setPermanent();
+        $source_context['source_file']->save();
+      }
+
+      $form_state->setValue('favicon_source_svg', $source_context['source_svg']);
+      $form_state->setValue('favicon_source_filename', $source_context['source_filename']);
+    }
+
+    if (empty($settings['favicon_package_enabled']) || $source_context === []) {
       return;
     }
 
     try {
-      $result = $this->packageGenerator->generate($theme_name, $source_file, $settings);
+      $definition = $this->packageGenerator->getPackageDefinition(
+        $theme_name,
+        $settings,
+        $source_context['source_svg'],
+      );
+      $metadata = $this->packageGenerator->readPackageMetadata($definition['path']);
+      $should_generate = (bool) $form_state->get('emulsify_favicon_force_generate')
+        || $settings['favicon_package_hash'] !== $definition['hash']
+        || $settings['favicon_package_path'] !== $definition['path']
+        || !$this->packageGenerator->packageExists($definition['path']);
+
+      $form_state->setValue('favicon_package_hash', $definition['hash']);
+      $form_state->setValue('favicon_package_path', $definition['path']);
+      if (is_array($metadata) && isset($metadata['generated_at'])) {
+        $form_state->setValue('favicon_package_generated_at', (int) $metadata['generated_at']);
+      }
+
+      if (!$should_generate) {
+        return;
+      }
+
+      $result = $this->packageGenerator->generateFromSvg(
+        $theme_name,
+        $source_context['source_svg'],
+        $settings,
+        [
+          'file_id' => $source_context['source_file'] instanceof File ? (int) $source_context['source_file']->id() : 0,
+          'filename' => $source_context['source_filename'],
+        ],
+      );
       $form_state->setValue('favicon_package_hash', $result['hash']);
       $form_state->setValue('favicon_package_path', $result['path']);
       $form_state->setValue('favicon_package_generated_at', $result['generated_at']);
@@ -412,30 +525,207 @@ final class ThemeSettingsHooks {
 
     $theme_name = FaviconSettings::resolveThemeName($form_state);
     $settings = FaviconSettings::loadThemeSettings($theme_name, $this->themeSettingsProvider, $this->getSiteName());
+    $source_file = $this->resolveStoredSourceFile($settings);
+    $package_status = $this->buildPackageStatus($theme_name, $settings, $source_file);
 
-    if (!empty($settings['favicon_package_path'])) {
-      $realpath = $this->fileSystem->realpath($settings['favicon_package_path']);
+    $package_paths = array_unique(array_filter([
+      $settings['favicon_package_path'],
+      $package_status['path'],
+    ]));
+    foreach ($package_paths as $package_path) {
+      $realpath = $this->fileSystem->realpath($package_path);
       if ($realpath && is_dir($realpath)) {
         $this->fileSystem->deleteRecursive($realpath);
       }
     }
 
-    $this->configFactory->getEditable($theme_name . '.settings')
-      ->set('favicon_package_enabled', FALSE)
-      ->set('favicon_package_hash', '')
-      ->set('favicon_package_path', '')
-      ->set('favicon_package_generated_at', 0)
+    $config = $this->configFactory->getEditable($theme_name . '.settings');
+    foreach (FaviconSettings::DEFAULTS as $key => $value) {
+      $config->set($key, $value);
+      $form_state->setValue($key, $value);
+    }
+    $config
       ->set('features.favicon', TRUE)
       ->set('favicon.use_default', TRUE)
       ->set('favicon.path', '')
       ->save();
 
-    $form_state->setValue('favicon_package_enabled', FALSE);
-    $form_state->setValue('favicon_package_hash', '');
-    $form_state->setValue('favicon_package_path', '');
-    $form_state->setValue('favicon_package_generated_at', 0);
     $this->cacheTagsInvalidator->invalidateTags(['rendered']);
     $this->messenger->addStatus($this->t('Reset the generated favicon package and restored the theme default favicon behavior.'));
+  }
+
+  /**
+   * Resolves a stored managed file source when it still exists.
+   */
+  private function resolveStoredSourceFile(array $settings): ?File {
+    $source_fid = FaviconSettings::getSourceFileId($settings);
+    if (!$source_fid) {
+      return NULL;
+    }
+
+    $source_file = File::load($source_fid);
+    return $source_file instanceof File ? $source_file : NULL;
+  }
+
+  /**
+   * Resolves the current source context from form or config values.
+   *
+   * @return array<string, mixed>
+   *   The resolved source context, or an empty array if no source exists.
+   */
+  private function resolveSourceContext(array $settings, bool $requires_rasterization): array {
+    $source_fid = FaviconSettings::getSourceFileId($settings);
+    if ($source_fid) {
+      $source_file = File::load($source_fid);
+      if (!$source_file) {
+        throw new \InvalidArgumentException('The uploaded icon file could not be loaded.');
+      }
+
+      $analysis = $this->packageGenerator->validateSourceFile($source_file, $requires_rasterization);
+
+      return [
+        'source_file' => $source_file,
+        'source_svg' => (string) $analysis['sanitized_svg'],
+        'source_filename' => $source_file->getFilename(),
+        'analysis' => $analysis,
+      ];
+    }
+
+    $source_svg = FaviconSettings::getSourceSvg($settings);
+    if ($source_svg === '') {
+      return [];
+    }
+
+    $analysis = $this->packageGenerator->validateSourceSvg($source_svg, $requires_rasterization);
+
+    return [
+      'source_file' => NULL,
+      'source_svg' => (string) $analysis['sanitized_svg'],
+      'source_filename' => (string) ($settings['favicon_source_filename'] ?: 'favicon.svg'),
+      'analysis' => $analysis,
+    ];
+  }
+
+  /**
+   * Builds package freshness and source diagnostics for the admin UI.
+   *
+   * @return array<string, mixed>
+   *   Status and diagnostic metadata for the current theme.
+   */
+  private function buildPackageStatus(string $theme_name, array $settings, ?File $source_file): array {
+    $status = [
+      'state' => 'missing',
+      'hash' => (string) ($settings['favicon_package_hash'] ?? ''),
+      'path' => (string) ($settings['favicon_package_path'] ?? ''),
+      'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path']),
+      'source_available' => FALSE,
+      'portable_source_missing' => FALSE,
+      'exportable_source' => FaviconSettings::hasExportableSource($settings),
+      'source_diagnostics' => '',
+      'status_markup' => '',
+    ];
+
+    try {
+      $source_context = [];
+      if ($source_file) {
+        $source_context = $this->resolveSourceContext($settings, FALSE);
+        $status['portable_source_missing'] = !$status['exportable_source'];
+      }
+      elseif ($status['exportable_source']) {
+        $source_context = $this->resolveSourceContext($settings, FALSE);
+      }
+
+      if ($source_context !== []) {
+        $status['source_available'] = TRUE;
+        $definition = $this->packageGenerator->getPackageDefinition(
+          $theme_name,
+          $settings,
+          $source_context['source_svg'],
+        );
+        $status['hash'] = $definition['hash'];
+        $status['path'] = $definition['path'];
+        $status['package_exists'] = $this->packageGenerator->packageExists($definition['path']);
+        $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup(
+          $source_context['analysis']['warnings'] ?? [],
+          $status['portable_source_missing'],
+        );
+
+        if ($status['package_exists'] && $settings['favicon_package_hash'] === $definition['hash'] && $settings['favicon_package_path'] === $definition['path']) {
+          $status['state'] = 'current';
+        }
+        elseif ($status['package_exists']) {
+          $status['state'] = 'stale';
+        }
+        else {
+          $status['state'] = 'missing';
+        }
+      }
+      elseif ($status['package_exists']) {
+        $status['state'] = 'legacy';
+        $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup([], TRUE);
+      }
+    }
+    catch (\Throwable $exception) {
+      $status['state'] = 'invalid';
+      $status['source_diagnostics'] = '<div class="messages messages--error" role="alert"><div>' . Html::escape($exception->getMessage()) . '</div></div>';
+    }
+
+    $status['status_markup'] = $this->buildStatusMarkup($status);
+    return $status;
+  }
+
+  /**
+   * Describes whether the current source is portable through config.
+   */
+  private function buildPortableSourceDescription(array $package_status): string {
+    if ($package_status['exportable_source']) {
+      return (string) $this->t('The sanitized SVG source is saved in theme config and can be regenerated after configuration import.');
+    }
+
+    if ($package_status['portable_source_missing']) {
+      return (string) $this->t('Save this form once to store a portable copy of the current SVG source in theme config.');
+    }
+
+    return (string) $this->t('Saving an SVG source also stores a portable copy in theme config for other environments.');
+  }
+
+  /**
+   * Builds source warning markup.
+   *
+   * @param string[] $warnings
+   *   Source warnings to render.
+   */
+  private function buildSourceDiagnosticsMarkup(array $warnings, bool $portable_source_missing): string {
+    $items = [];
+    foreach ($warnings as $warning) {
+      $items[] = '<li>' . Html::escape($warning) . '</li>';
+    }
+    if ($portable_source_missing) {
+      $items[] = '<li>' . Html::escape((string) $this->t('Save this form once to store a portable SVG source in theme config for future configuration exports.')) . '</li>';
+    }
+
+    if ($items === []) {
+      return '';
+    }
+
+    return '<div class="messages messages--warning" role="status"><ul>' . implode('', $items) . '</ul></div>';
+  }
+
+  /**
+   * Builds package freshness markup.
+   */
+  private function buildStatusMarkup(array $status): string {
+    $path = $status['path'] !== ''
+      ? $status['path'] . ($status['hash'] !== '' ? ' (' . $status['hash'] . ')' : '')
+      : '';
+
+    return match ($status['state']) {
+      'current' => '<div class="messages messages--status" role="status"><div>' . $this->t('Generated package is current: @path', ['@path' => $path]) . '</div></div>',
+      'stale' => '<div class="messages messages--warning" role="status"><div>' . $this->t('Generated package is out of date. Save the form or click Regenerate package to rebuild @path from the latest source and platform settings.', ['@path' => $path]) . '</div></div>',
+      'legacy' => '<div class="messages messages--warning" role="status"><div>' . $this->t('A generated package exists, but no portable SVG source is saved in theme config yet. Save this form once to make configuration exports portable.') . '</div></div>',
+      'invalid' => '<div class="messages messages--error" role="alert"><div>' . $this->t('The saved SVG source is invalid and cannot currently generate a favicon package.') . '</div></div>',
+      default => '<div class="messages messages--warning" role="status"><div>' . $this->t('No generated package exists for this environment yet. Save the form or click Generate package to build it from the saved SVG source and platform settings.') . '</div></div>',
+    };
   }
 
   /**
