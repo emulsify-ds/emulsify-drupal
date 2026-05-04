@@ -21,13 +21,13 @@
   },
   "homepage": "https://www.emulsify.info",
   "scripts": {
-    "prepare": "husky install",
     "husky:commit-msg": "commitlint --edit $1",
     "husky:pre-commit": "npm run lint",
     "lint": "npm run lint:php",
     "lint:php": "find ./ -name '*.php' -exec php -l {} \\;",
     "lint-staged": "lint-staged",
     "prepare": "[ -d '.git' ] && (husky install) || true",
+    "release:check": "node .github/scripts/release-check.cjs",
     "publish": "semantic-release --tag-format '${version}'",
     "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
     "semantic-release": "semantic-release"

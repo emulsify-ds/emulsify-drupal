@@ -100,6 +100,16 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 2. Create a [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) message, either manually or with your preferred commit helper.
 3. Your commit message will be used to create the changelog for the next version that includes that commit.
 
+### Release Readiness
+
+Run the release guard before merging packaging or starterkit changes:
+
+```bash
+npm run release:check
+```
+
+Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks.
+
 ## Author
 
 Emulsify&reg; is a product of [Four Kitchens &mdash; We make BIG websites](https://fourkitchens.com).
