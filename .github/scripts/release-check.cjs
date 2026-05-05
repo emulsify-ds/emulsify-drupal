@@ -9,7 +9,6 @@ const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
 const options = {
   drupalVersion: process.env.RELEASE_CHECK_DRUPAL_VERSION || '11.3.*',
-  requireNoStable9: args.has('--require-no-stable9'),
   skipSmoke: args.has('--skip-smoke'),
   workDir: process.env.RELEASE_CHECK_WORKDIR || path.join(os.tmpdir(), 'emulsify-release-check'),
 };
@@ -241,6 +240,12 @@ function runStaticChecks() {
     return `README.md matches Drupal ${minCoreVersion}+ and the current major release line.`;
   });
 
+  runStaticCheck('Base theme independence', () => {
+    ensure(!/^base theme:\s*stable9\s*$/m.test(emulsifyInfo), 'emulsify.info.yml should not depend on stable9.');
+    ensure(readme.includes('no longer depends on `stable9`'), 'README.md should document the stable9 removal.');
+    return 'Emulsify owns its template layer without a stable9 base theme fallback.';
+  });
+
   runStaticCheck('Starterkit generation', () => {
     for (const requiredIgnore of ['/project.emulsify.json', '/whisk.info.emulsify.yml', '/whisk.starterkit.yml']) {
       ensure(whiskStarterkit.includes(requiredIgnore), `whisk.starterkit.yml should ignore ${requiredIgnore}.`);
@@ -266,6 +271,7 @@ function runStaticChecks() {
 
 function runSmokeChecks() {
   if (options.skipSmoke) {
+    addResult('SKIP', 'Stable9 template parity', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Generated theme smoke test', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'No-Stable9 smoke result', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Favicon generation', 'Skipped with --skip-smoke.');
@@ -295,11 +301,20 @@ function runSmokeChecks() {
   });
 
   if (setupResult.status !== 0) {
+    addResult('FAIL', 'Stable9 template parity', 'Unable to build the Drupal fixture site for template parity checks.');
     addResult('FAIL', 'Generated theme smoke test', 'Unable to build the Drupal fixture site for smoke testing.');
-    addResult(options.requireNoStable9 ? 'FAIL' : 'WARN', 'No-Stable9 smoke result', 'Unable to build the Drupal fixture site for smoke testing.');
+    addResult('FAIL', 'No-Stable9 smoke result', 'Unable to build the Drupal fixture site for smoke testing.');
     addResult('FAIL', 'Favicon generation', 'Unable to build the Drupal fixture site for smoke testing.');
     return;
   }
+
+  runSmokeCheck(
+    'Stable9 template parity',
+    'bash',
+    [path.join(repoRoot, '.github/scripts/template-parity.sh'), baseFixture, repoRoot],
+    repoRoot,
+    { passMessage: 'Verified that Emulsify ships every stable9 template path without inheriting from stable9.' },
+  );
 
   copyDirectory(baseFixture, generatedThemeFixture);
   runSmokeCheck(
@@ -317,11 +332,8 @@ function runSmokeChecks() {
     [path.join(repoRoot, '.github/scripts/smoke-without-stable9.sh'), noStable9Fixture, noStable9Output],
     repoRoot,
     {
-      passMessage: 'Smoke test passed after removing the stable9 fallback.',
-      warnOnly: !options.requireNoStable9,
-      failMessage: options.requireNoStable9
-        ? 'Smoke test failed after removing the stable9 fallback.'
-        : 'Smoke test failed after removing the stable9 fallback. This remains non-blocking unless --require-no-stable9 is set.',
+      passMessage: 'Smoke test passed without any stable9 base theme dependency.',
+      failMessage: 'Smoke test failed without the stable9 base theme dependency.',
     },
   );
 

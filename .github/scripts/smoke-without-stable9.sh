@@ -9,22 +9,17 @@ fi
 
 fixture_dir="$1"
 output_dir="$2"
-theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
+theme_info_file="$(find "${fixture_dir}/web/themes/contrib" -maxdepth 2 -type f -name 'emulsify.info.yml' | head -n 1)"
 
-php -r '
-$file = $argv[1];
-$contents = file_get_contents($file);
-if ($contents === false) {
-  fwrite(STDERR, "Unable to read theme info file.\n");
-  exit(1);
-}
-$updated = preg_replace("/^base theme: stable9\\n/m", "", $contents, 1);
-if ($updated === null || $updated === $contents) {
-  fwrite(STDERR, "Unable to remove stable9 fallback from theme info.\n");
-  exit(1);
-}
-file_put_contents($file, $updated);
-' "$theme_info_file"
+if [ -z "$theme_info_file" ] || [ ! -f "$theme_info_file" ]; then
+  echo "Unable to locate emulsify.info.yml in the fixture." >&2
+  exit 1
+fi
+
+if grep -Eq "^base theme: stable9$" "$theme_info_file"; then
+  echo "Emulsify should not declare stable9 as a base theme." >&2
+  exit 1
+fi
 
 (
   cd "$fixture_dir"

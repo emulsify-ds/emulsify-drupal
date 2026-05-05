@@ -1,7 +1,7 @@
 name: Emulsify
 type: theme
 description: The official base theme for Emulsify and its flexible component-driven development.
-base theme: stable9
+base theme: false
 core_version_requirement: ^11.3
 package: emulsify
 

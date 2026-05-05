@@ -1,0 +1,71 @@
+{#
+/**
+ * @file
+ * Theme override for media reference fields.
+ *
+ * @see \Drupal\Core\Field\FieldPreprocess::preprocessFieldMultipleValueForm()
+ */
+#}
+{%
+  set classes = [
+    'js-form-item',
+    'form-item',
+    'js-form-wrapper',
+    'form-wrapper',
+  ]
+%}
+<fieldset{{ add_attributes({ class: classes }) }}>
+  {%
+    set legend_span_classes = [
+      'fieldset-legend',
+      required ? 'js-form-required',
+      required ? 'form-required',
+    ]
+  %}
+  {# Always wrap fieldset legends in a <span> for CSS positioning. #}
+  <legend{{ legend_attributes }}>
+    {% with { attributes: legend_span_attributes } %}
+      <span{{ add_attributes({ class: legend_span_classes }) }}>{{ original_label }}</span>
+    {% endwith %}
+  </legend>
+
+  <div class="js-form-item form-item">
+    {% if media_add_help %}
+      {% with { attributes: header_attributes } %}
+        <h4{{ add_attributes({ class: 'label' }) }}>
+          {% trans %}
+            Create new media
+          {% endtrans %}
+        </h4>
+      {% endwith %}<br />
+      <div class="description">
+        {{ media_add_help }}
+      </div>
+    {% endif %}
+
+    {% if multiple %}
+      {{ table }}
+    {% else %}
+      {% for element in elements %}
+        {{ element }}
+      {% endfor %}
+    {% endif %}
+
+    {% with { attributes: description.attributes } %}
+      <div{{ add_attributes({ class: 'description' }) }}>
+        {% if multiple and description.content %}
+          <ul>
+            <li>{{ media_list_help }} {{ media_list_link }} {{ allowed_types_help }}</li>
+            <li>{{ description.content }}</li>
+          </ul>
+        {% else %}
+          {{ media_list_help }} {{ media_list_link }} {{ allowed_types_help }}
+        {% endif %}
+        {% if multiple and button %}
+          <div class="clearfix">{{ button }}</div>
+        {% endif %}
+      </div>
+    {% endwith %}
+
+  </div>
+</fieldset>

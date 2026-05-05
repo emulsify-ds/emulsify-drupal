@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  render-parity:
-    name: Render Parity (${{ matrix.drupal-version }})
+  template-parity:
+    name: Template Parity (${{ matrix.drupal-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -31,13 +31,12 @@ jobs:
       - name: Build fixture site
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
-      - name: Compare render output before and after removing stable9
-        run: bash .github/scripts/render-parity.sh /tmp/emulsify-fixture /tmp/emulsify-render-parity
+      - name: Verify Emulsify ships the full stable9 template surface
+        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
   no-stable9-readiness:
     name: No Stable9 Readiness (${{ matrix.drupal-version }})
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
