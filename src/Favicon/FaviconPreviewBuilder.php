@@ -3,6 +3,7 @@
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\Entity\File;
 
@@ -28,7 +29,7 @@ final class FaviconPreviewBuilder {
    */
   public function buildBrowserPreview(array $settings, ?File $source_file = NULL): array {
     return [
-      '#markup' => $this->buildBrowserMarkup($settings, $source_file),
+      '#markup' => Markup::create($this->buildBrowserMarkup($settings, $source_file)),
     ];
   }
 
@@ -37,7 +38,7 @@ final class FaviconPreviewBuilder {
    */
   public function buildIosPreview(array $settings, ?File $source_file = NULL): array {
     return [
-      '#markup' => $this->buildIosMarkup($settings, $source_file),
+      '#markup' => Markup::create($this->buildIosMarkup($settings, $source_file)),
     ];
   }
 
@@ -46,7 +47,7 @@ final class FaviconPreviewBuilder {
    */
   public function buildAndroidPreview(array $settings, ?File $source_file = NULL): array {
     return [
-      '#markup' => $this->buildAndroidMarkup($settings, $source_file),
+      '#markup' => Markup::create($this->buildAndroidMarkup($settings, $source_file)),
     ];
   }
 
