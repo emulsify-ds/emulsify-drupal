@@ -574,36 +574,54 @@ final class ThemeSettingsHooks {
    *   The resolved source context, or an empty array if no source exists.
    */
   private function resolveSourceContext(array $settings, bool $requires_rasterization): array {
+    $source_svg = FaviconSettings::getSourceSvg($settings);
+    $source_filename = (string) ($settings['favicon_source_filename'] ?: 'favicon.svg');
     $source_fid = FaviconSettings::getSourceFileId($settings);
-    if ($source_fid) {
-      $source_file = File::load($source_fid);
-      if (!$source_file) {
-        throw new \InvalidArgumentException('The uploaded icon file could not be loaded.');
-      }
-
-      $analysis = $this->packageGenerator->validateSourceFile($source_file, $requires_rasterization);
-
-      return [
-        'source_file' => $source_file,
-        'source_svg' => (string) $analysis['sanitized_svg'],
-        'source_filename' => $source_file->getFilename(),
-        'analysis' => $analysis,
-      ];
+    $source_file = $source_fid ? File::load($source_fid) : NULL;
+    if ($source_fid && !$source_file && $source_svg === '') {
+      throw new \InvalidArgumentException('The uploaded icon file could not be loaded.');
     }
 
-    $source_svg = FaviconSettings::getSourceSvg($settings);
-    if ($source_svg === '') {
+    $analysis = $source_file
+      ? $this->resolveSourceFileAnalysis($source_file, $source_svg, $requires_rasterization)
+      : NULL;
+
+    if ($analysis !== NULL) {
+      $source_filename = $source_file->getFilename();
+    }
+
+    if ($analysis === NULL && $source_svg === '') {
       return [];
     }
 
-    $analysis = $this->packageGenerator->validateSourceSvg($source_svg, $requires_rasterization);
+    if ($analysis === NULL) {
+      $source_file = NULL;
+      $analysis = $this->packageGenerator->validateSourceSvg($source_svg, $requires_rasterization);
+    }
 
     return [
-      'source_file' => NULL,
+      'source_file' => $source_file,
       'source_svg' => (string) $analysis['sanitized_svg'],
-      'source_filename' => (string) ($settings['favicon_source_filename'] ?: 'favicon.svg'),
+      'source_filename' => $source_filename,
       'analysis' => $analysis,
     ];
+  }
+
+  /**
+   * Validates a managed source file or falls back to stored SVG config.
+   *
+   * @return array<string, mixed>|null
+   *   The validated source analysis, or NULL when config fallback should be used.
+   */
+  private function resolveSourceFileAnalysis(File $source_file, string $source_svg, bool $requires_rasterization): ?array {
+    try {
+      return $this->packageGenerator->validateSourceFile($source_file, $requires_rasterization);
+    }
+    catch (\InvalidArgumentException $exception) {
+      if ($source_svg === '') { throw $exception; }
+    }
+
+    return NULL;
   }
 
   /**
