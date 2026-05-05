@@ -24,7 +24,7 @@
   variant ? variant ~ '__item'
 ]
 %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ add_attributes({ class: classes }) }}>
   {% if variant == 'field-option' %}
     {{ label }}
     <div{{ description.attributes }}>
@@ -34,9 +34,11 @@
   {{ children }}
   {% if variant == 'field-suboption' %}
     {{ label }}
-    <div{{ description.attributes.addClass(description_classes) }}>
-      {{ description.content }}
-    </div>
+    {% with { attributes: description.attributes } %}
+      <div{{ add_attributes({ class: description_classes }) }}>
+        {{ description.content }}
+      </div>
+    {% endwith %}
   {% endif %}
   {% if errors %}
     <div class="form-item--error-message">

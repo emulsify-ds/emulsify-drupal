@@ -20,25 +20,29 @@
  * @see \Drupal\toolbar\ToolbarThemeHooks::preprocessToolbar()
  */
 #}
-<div{{ attributes.addClass('toolbar') }}>
-  <nav{{ toolbar_attributes.addClass('toolbar-bar', 'clearfix') }}>
+<div{{ add_attributes({ class: 'toolbar' }) }}>
+  {% with { attributes: toolbar_attributes } %}
+    <nav{{ add_attributes({ class: ['toolbar-bar', 'clearfix'] }) }}>
     <h2 class="visually-hidden">{{ toolbar_heading }}</h2>
     {% for key, tab in tabs %}
       {% set tray = trays[key] %}
-      <div{{ tab.attributes.addClass('toolbar-tab') }}>
-        {{ tab.link }}
-        <div{{ tray.attributes }}>
-          {% if tray.label %}
-            <nav class="toolbar-lining clearfix" role="navigation" aria-label="{{ tray.label }}">
-              <h3 class="toolbar-tray-name visually-hidden">{{ tray.label }}</h3>
-          {% else %}
-            <nav class="toolbar-lining clearfix" role="navigation">
-          {% endif %}
-          {{- tray.links -}}
-          </nav>
+      {% with { attributes: tab.attributes } %}
+        <div{{ add_attributes({ class: 'toolbar-tab' }) }}>
+          {{ tab.link }}
+          <div{{ tray.attributes }}>
+            {% if tray.label %}
+              <nav class="toolbar-lining clearfix" role="navigation" aria-label="{{ tray.label }}">
+                <h3 class="toolbar-tray-name visually-hidden">{{ tray.label }}</h3>
+            {% else %}
+              <nav class="toolbar-lining clearfix" role="navigation">
+            {% endif %}
+            {{- tray.links -}}
+            </nav>
+          </div>
         </div>
-      </div>
+      {% endwith %}
     {% endfor %}
-  </nav>
+    </nav>
+  {% endwith %}
   {{ remainder }}
 </div>

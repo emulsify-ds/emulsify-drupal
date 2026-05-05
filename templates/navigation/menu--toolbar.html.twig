@@ -30,7 +30,7 @@
   {% import _self as menus %}
   {% if items %}
     {% if menu_level == 0 %}
-      <ul{{ attributes.addClass('toolbar-menu') }}>
+      <ul{{ add_attributes({ class: 'toolbar-menu' }) }}>
     {% else %}
       <ul class="toolbar-menu">
     {% endif %}
@@ -43,12 +43,14 @@
           item.in_active_trail ? 'menu-item--active-trail',
         ]
       %}
-      <li{{ item.attributes.addClass(classes) }}>
-        {{ link(item.title, item.url) }}
-        {% if item.below %}
-          {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
-        {% endif %}
-      </li>
+      {% with { attributes: item.attributes } %}
+        <li{{ add_attributes({ class: classes }) }}>
+          {{ link(item.title, item.url) }}
+          {% if item.below %}
+            {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
+          {% endif %}
+        </li>
+      {% endwith %}
     {% endfor %}
     </ul>
   {% endif %}

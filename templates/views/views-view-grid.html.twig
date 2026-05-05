@@ -51,26 +51,34 @@
 {% if title %}
   <h3>{{ title }}</h3>
 {% endif %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ add_attributes({ class: classes }) }}>
   {% if options.alignment == 'horizontal' %}
     {% for row in items %}
-      <div{{ row.attributes.addClass(row_classes, options.row_class_default ? 'row-' ~ loop.index) }}>
-        {% for column in row.content %}
-          <div{{ column.attributes.addClass(col_classes, options.col_class_default ? 'col-' ~ loop.index) }}>
-            {{- column.content -}}
-          </div>
-        {% endfor %}
-      </div>
+      {% with { attributes: row.attributes } %}
+        <div{{ add_attributes({ class: [row_classes, options.row_class_default ? 'row-' ~ loop.index] }) }}>
+          {% for column in row.content %}
+            {% with { attributes: column.attributes } %}
+              <div{{ add_attributes({ class: [col_classes, options.col_class_default ? 'col-' ~ loop.index] }) }}>
+                {{- column.content -}}
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endwith %}
     {% endfor %}
   {% else %}
     {% for column in items %}
-      <div{{ column.attributes.addClass(col_classes, options.col_class_default ? 'col-' ~ loop.index) }}>
-        {% for row in column.content %}
-          <div{{ row.attributes.addClass(row_classes, options.row_class_default ? 'row-' ~ loop.index) }}>
-            {{- row.content -}}
-          </div>
-        {% endfor %}
-      </div>
+      {% with { attributes: column.attributes } %}
+        <div{{ add_attributes({ class: [col_classes, options.col_class_default ? 'col-' ~ loop.index] }) }}>
+          {% for row in column.content %}
+            {% with { attributes: row.attributes } %}
+              <div{{ add_attributes({ class: [row_classes, options.row_class_default ? 'row-' ~ loop.index] }) }}>
+                {{- row.content -}}
+              </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endwith %}
     {% endfor %}
   {% endif %}
 </div>

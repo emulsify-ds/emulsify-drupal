@@ -20,7 +20,7 @@
  */
 #}
 {% if context.list_style %}
-  {%- set attributes = attributes.addClass('item-list__' ~ context.list_style) %}
+  {%- set attributes = add_attributes({ class: 'item-list__' ~ context.list_style }) %}
 {% endif %}
 {% if items or empty %}
   {%- if title is not empty -%}

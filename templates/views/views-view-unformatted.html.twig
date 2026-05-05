@@ -24,7 +24,9 @@
       default_row_class ? 'views-row',
     ]
   %}
-  <div{{ row.attributes.addClass(row_classes) }}>
-    {{- row.content -}}
-  </div>
+  {% with { attributes: row.attributes } %}
+    <div{{ add_attributes({ class: row_classes }) }}>
+      {{- row.content -}}
+    </div>
+  {% endwith %}
 {% endfor %}

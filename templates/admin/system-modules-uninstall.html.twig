@@ -32,7 +32,8 @@
   <tbody>
     {% for module in modules %}
       {% set zebra = cycle(['odd', 'even'], loop.index0) -%}
-      <tr{{ module.attributes.addClass(zebra) }}>
+      {% with { attributes: module.attributes } %}
+        <tr{{ add_attributes({ class: zebra }) }}>
         <td align="center">
           {{- module.checkbox -}}
         </td>
@@ -61,7 +62,8 @@
             </div>
           {% endif %}
         </td>
-      </tr>
+        </tr>
+      {% endwith %}
     {% else %}
       <tr class="odd">
         <td colspan="3" class="empty message">{{ 'No modules are available to uninstall.'|t }}</td>

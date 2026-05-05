@@ -25,7 +25,7 @@
     overridden ? 'overridden',
 ]
 %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ add_attributes({ class: classes }) }}>
   {% if description -%}
     <span class="label">{{ description }}</span>
   {%- endif %}

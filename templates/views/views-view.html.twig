@@ -35,7 +35,7 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ add_attributes({ class: classes }) }}>
   {{ title_prefix }}
   {{ title }}
   {{ title_suffix }}

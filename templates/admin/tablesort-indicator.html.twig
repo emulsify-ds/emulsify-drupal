@@ -13,7 +13,7 @@
     'tablesort--' ~ style,
   ]
 %}
-<span{{ attributes.addClass(classes) }}>
+<span{{ add_attributes({ class: classes }) }}>
   <span class="visually-hidden">
     {% if style == 'asc' -%}
       {{ 'Sort ascending'|t }}

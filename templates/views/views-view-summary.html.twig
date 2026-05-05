@@ -20,7 +20,7 @@
 #}
 <ul>
   {% for row in rows %}
-    <li><a href="{{ row.url }}"{{ row.attributes.addClass(row.active ? 'is-active')|without('href') }}>{{ row.link }}</a>
+    <li>{% with { attributes: row.attributes } %}<a href="{{ row.url }}"{{ add_attributes({ class: row.active ? 'is-active' })|without('href') }}>{{ row.link }}</a>{% endwith %}
       {% if options.count %}
         ({{ row.count }})
       {% endif %}

@@ -11,12 +11,14 @@
   ]
 %}
 {% if content %}
-  <div{{ attributes.addClass(classes) }}>
+  <div{{ add_attributes({ class: classes }) }}>
     {% for region in layout.getRegionNames %}
       {% if content[region] %}
-        <div {{ region_attributes[region].addClass('layout__region', 'layout__region--' ~ region|clean_class) }}>
-          {{ content[region] }}
-        </div>
+        {% with { attributes: region_attributes[region] } %}
+          <div{{ add_attributes({ class: ['layout__region', 'layout__region--' ~ region|clean_class] }) }}>
+            {{ content[region] }}
+          </div>
+        {% endwith %}
       {% endif %}
     {% endfor %}
   </div>

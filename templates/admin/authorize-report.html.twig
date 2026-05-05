@@ -18,7 +18,7 @@
  */
 #}
 {% if messages %}
-  <div{{ attributes.addClass('authorize-results') }}>
+  <div{{ add_attributes({ class: 'authorize-results' }) }}>
     {% for message_group in messages %}
       {{ message_group }}
     {% endfor %}

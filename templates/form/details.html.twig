@@ -23,7 +23,9 @@
     ]
   %}
   {%- if title -%}
-    <summary{{ summary_attributes.addClass(summary_classes) }}>{{ title }}</summary>
+    {% with { attributes: summary_attributes } %}
+      <summary{{ add_attributes({ class: summary_classes }) }}>{{ title }}</summary>
+    {% endwith %}
   {%- endif -%}
 
   {% if errors %}

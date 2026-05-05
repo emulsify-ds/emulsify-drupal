@@ -33,7 +33,8 @@
   <tbody>
     {% for module in modules %}
       {% set zebra = cycle(['odd', 'even'], loop.index0) %}
-      <tr{{ module.attributes.addClass(zebra) }}>
+      {% with { attributes: module.attributes } %}
+        <tr{{ add_attributes({ class: zebra }) }}>
         <td class="checkbox">
           {{ module.checkbox }}
         </td>
@@ -68,7 +69,8 @@
             </div>
           </details>
         </td>
-      </tr>
+        </tr>
+      {% endwith %}
     {% endfor %}
   </tbody>
 </table>

@@ -20,7 +20,9 @@
   ]
 %}
 {% if title %}
-  <h4{{ title_attributes.addClass(title_classes) }}>{{ title }}</h4>
+  {% with { attributes: title_attributes } %}
+    <h4{{ add_attributes({ class: title_classes }) }}>{{ title }}</h4>
+  {% endwith %}
 {% endif %}
 {{ content }}
 {% if errors %}

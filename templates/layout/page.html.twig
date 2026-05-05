@@ -17,7 +17,7 @@
     'page',
   ]
 %}
-<div{{ attributes.addClass(page_classes) }}>
+<div{{ add_attributes({ class: page_classes }) }}>
 
   {{ page.header }}
   {{ page.status }}

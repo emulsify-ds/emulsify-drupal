@@ -25,4 +25,4 @@
     has_parent ? 'form-wrapper',
   ]
 %}
-<div{{ attributes.addClass(classes) }}>{{ children }}</div>
+<div{{ add_attributes({ class: classes }) }}>{{ children }}</div>

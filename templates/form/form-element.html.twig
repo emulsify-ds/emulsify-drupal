@@ -63,14 +63,16 @@
     description_display == 'invisible' ? 'visually-hidden',
   ]
 %}
-<div{{ attributes.addClass(classes) }}>
+<div{{ add_attributes({ class: classes }) }}>
   {% if label_display in ['before', 'invisible'] %}
     {{ label }}
   {% endif %}
   {% if description_display == 'before' and description.content %}
-    <div{{ description.attributes.addClass(description_classes) }}>
-      {{ description.content }}
-    </div>
+    {% with { attributes: description.attributes } %}
+      <div{{ add_attributes({ class: description_classes }) }}>
+        {{ description.content }}
+      </div>
+    {% endwith %}
   {% endif %}
   {% if prefix is not empty %}
     <span class="field-prefix">{{ prefix }}</span>
@@ -88,8 +90,10 @@
     </div>
   {% endif %}
   {% if description_display in ['after', 'invisible'] and description.content %}
-    <div{{ description.attributes.addClass(description_classes) }}>
-      {{ description.content }}
-    </div>
+    {% with { attributes: description.attributes } %}
+      <div{{ add_attributes({ class: description_classes }) }}>
+        {{ description.content }}
+      </div>
+    {% endwith %}
   {% endif %}
 </div>

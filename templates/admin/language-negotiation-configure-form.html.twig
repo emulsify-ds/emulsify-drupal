@@ -28,12 +28,14 @@
       'table-' ~ language_type.type ~ '-wrapper',
     ]
   %}
-  <div{{ language_type.attributes.addClass(language_classes) }}>
-    <h2>{{ language_type.title }}</h2>
-    <div class="description">{{ language_type.description }}</div>
-    {{ language_type.configurable }}
-    {{ language_type.table }}
-    {{ language_type.children }}
-  </div>
+  {% with { attributes: language_type.attributes } %}
+    <div{{ add_attributes({ class: language_classes }) }}>
+      <h2>{{ language_type.title }}</h2>
+      <div class="description">{{ language_type.description }}</div>
+      {{ language_type.configurable }}
+      {{ language_type.table }}
+      {{ language_type.children }}
+    </div>
+  {% endwith %}
 {% endfor %}
 {{ children }}

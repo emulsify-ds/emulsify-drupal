@@ -23,7 +23,7 @@
   ]
 %}
 {% if content %}
-  <dl{{ attributes.addClass(classes) }}>
+  <dl{{ add_attributes({ class: classes }) }}>
     {% for item in content %}
       <dt class="list-group__link">{{ item.link }}</dt>
       {% if item.description %}
