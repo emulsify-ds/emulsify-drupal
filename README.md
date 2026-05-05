@@ -4,13 +4,9 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Webpack build, and Drupal 11.3+ parent theme
+### Storybook development, Vite build, and Drupal 11 theme
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal parent theme for Drupal 11.3 and newer.
-
-`emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the starter source used to generate subthemes and is not intended to be enabled directly on a site.
-
-In the 6.x series, Emulsify now ships its own `stable9`-compatible template surface directly and no longer depends on `stable9` as a fallback base theme.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Vite](https://vite.dev/) development environment, and a Drupal 11 starter kit theme.
 
 ## Documentation
 

@@ -12,14 +12,13 @@ const configOverrides = {};
 //     '../../../@storybook/addon-a11y',
 //     '../../../@storybook/addon-links',
 //     '../../../@storybook/addon-essentials',
-//     '../../../@storybook/addon-themes',
-//     '../../../@storybook/addon-styling-webpack'
+//     '../../../@storybook/addon-themes'
 //   ],
 //   core: {
-//     builder: 'webpack5',
+//     builder: 'vite',
 //   },
 //   framework: {
-//     name: '@storybook/html-webpack5',
+//     name: '@storybook/react-vite',
 //     options: {},
 //   },
 //   docs: {
