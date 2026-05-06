@@ -41,7 +41,11 @@
           {{- module.checkbox -}}
         </td>
         <td>
-          <label for="{{ module.checkbox_id }}" class="module-name table-filter-text-source">{{ module.name }}</label>
+          {% set module_label_attributes = {
+            for: module.checkbox_id,
+            class: ['module-name', 'table-filter-text-source'],
+          } %}
+          <label{{ add_attributes(module_label_attributes) }}>{{ module.name }}</label>
         </td>
         <td class="description">
           <span class="text module-description">{{ module.description }}</span>

@@ -34,8 +34,15 @@
     ),
   } only %}
 
-  <div class="toolbar-dropdown__menu" id={{ dropdown_id }}>
-    <ul class="toolbar-dropdown__list">
+  {% set top_bar_page_actions_menu_attributes = {
+    class: 'toolbar-dropdown__menu',
+    id: dropdown_id,
+  } %}
+  <div{{ add_attributes(top_bar_page_actions_menu_attributes) }}>
+    {% set top_bar_page_actions_list_attributes = {
+      class: 'toolbar-dropdown__list',
+    } %}
+    <ul{{ add_attributes(top_bar_page_actions_list_attributes) }}>
       {% for page_action in page_actions %}
         {{ page_action }}
       {% endfor %}

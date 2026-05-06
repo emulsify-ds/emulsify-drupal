@@ -19,12 +19,21 @@
   */
  #}
 {% for group in grouped_requirements %}
-  <h3 id="{{ group.type }}">{{ group.title }}</h3>
+  {% set status_report_group_title_attributes = {
+    id: group.type,
+  } %}
+  <h3{{ add_attributes(status_report_group_title_attributes) }}>{{ group.title }}</h3>
   {% for requirement in group.items %}
     <details>
-      <summary role="button">
+      {% set status_report_summary_attributes = {
+        role: 'button',
+      } %}
+      <summary{{ add_attributes(status_report_summary_attributes) }}>
         {% if requirement.severity_title %}
-          <span class="visually-hidden">{{ requirement.severity_title }}</span>
+          {% set status_report_severity_attributes = {
+            class: 'visually-hidden',
+          } %}
+          <span{{ add_attributes(status_report_severity_attributes) }}>{{ requirement.severity_title }}</span>
         {% endif %}
         {{ requirement.title }}
       </summary>

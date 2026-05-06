@@ -10,7 +10,10 @@
  */
 #}
 {{ attach_library('navigation/internal.navigation-messages') }}
-<div class="toolbar-block__list">
+{% set navigation_messages_attributes = {
+  class: 'toolbar-block__list',
+} %}
+<div{{ add_attributes(navigation_messages_attributes) }}>
   {% for message in message_list %}
     {{ message }}
   {% endfor %}

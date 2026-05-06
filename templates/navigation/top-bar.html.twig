@@ -21,15 +21,31 @@
 } %}
 {% if tools or context|render or actions|render %}
   <aside{{ add_attributes(top_bar_attributes) }}>
-    <h3 id="top-bar__title" class="visually-hidden">{{ 'Administrative top bar'|t }}</h3>
-    <div class="top-bar__content">
-      <div class="top-bar__tools">
+    {% set top_bar_title_attributes = {
+      id: 'top-bar__title',
+      class: 'visually-hidden',
+    } %}
+    <h3{{ add_attributes(top_bar_title_attributes) }}>{{ 'Administrative top bar'|t }}</h3>
+    {% set top_bar_content_attributes = {
+      class: 'top-bar__content',
+    } %}
+    <div{{ add_attributes(top_bar_content_attributes) }}>
+      {% set top_bar_tools_attributes = {
+        class: 'top-bar__tools',
+      } %}
+      <div{{ add_attributes(top_bar_tools_attributes) }}>
         {{- tools -}}
       </div>
-      <div class="top-bar__context">
+      {% set top_bar_context_attributes = {
+        class: 'top-bar__context',
+      } %}
+      <div{{ add_attributes(top_bar_context_attributes) }}>
         {{- context -}}
       </div>
-      <div class="top-bar__actions">
+      {% set top_bar_actions_attributes = {
+        class: 'top-bar__actions',
+      } %}
+      <div{{ add_attributes(top_bar_actions_attributes) }}>
         {{- actions -}}
       </div>
     </div>

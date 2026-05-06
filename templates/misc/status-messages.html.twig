@@ -12,14 +12,32 @@
  * - attributes: HTML attributes for the message wrapper.
  */
 #}
-<div data-drupal-messages>
+{% set status_message_wrapper_attributes = attributes.toArray %}
+{% with { attributes: create_attribute() } %}
+  {% set status_messages_attributes = {
+    'data-drupal-messages': true,
+  } %}
+  <div{{ add_attributes(status_messages_attributes) }}>
+{% endwith %}
   {% for type, messages in message_list %}
-    <div role="contentinfo" aria-label="{{ status_headings[type] }}"{{ attributes|without('role', 'aria-label') }}>
+    {% with { attributes: create_attribute(status_message_wrapper_attributes) } %}
+      {% set status_message_attributes = {
+        role: 'contentinfo',
+        'aria-label': status_headings[type],
+      } %}
+      <div{{ add_attributes(status_message_attributes) }}>
+    {% endwith %}
       {% if type == 'error' %}
-        <div role="alert">
+        {% set status_message_alert_attributes = {
+          role: 'alert',
+        } %}
+        <div{{ add_attributes(status_message_alert_attributes) }}>
       {% endif %}
       {% if status_headings[type] %}
-        <h2 class="visually-hidden">{{ status_headings[type] }}</h2>
+        {% set status_message_heading_attributes = {
+          class: 'visually-hidden',
+        } %}
+        <h2{{ add_attributes(status_message_heading_attributes) }}>{{ status_headings[type] }}</h2>
       {% endif %}
       {% if messages|length > 1 %}
         <ul>
@@ -33,6 +51,6 @@
       {% if type == 'error' %}
         </div>
       {% endif %}
-    </div>
+      </div>
   {% endfor %}
 </div>

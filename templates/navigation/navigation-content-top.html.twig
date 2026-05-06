@@ -11,7 +11,10 @@
  */
 #}
 {% if items is not empty %}
-  <div class="admin-toolbar__content-top">
+  {% set navigation_content_top_attributes = {
+    class: 'admin-toolbar__content-top',
+  } %}
+  <div{{ add_attributes(navigation_content_top_attributes) }}>
     {{ items }}
   </div>
 {% endif %}
