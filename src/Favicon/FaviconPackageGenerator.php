@@ -168,7 +168,7 @@ final class FaviconPackageGenerator {
   }
 
   /**
-   * Generates a full favicon package from exportable SVG source markup.
+   * Generates a full favicon package from portable SVG source markup.
    *
    * @param array<string, mixed> $source
    *   Optional source metadata such as file ID or filename.
@@ -430,6 +430,8 @@ final class FaviconPackageGenerator {
    */
   private function buildPackageHash(array $settings, string $source_hash): string {
     $hash_settings = $settings;
+    // File IDs, stored source copies, and human-facing labels do not change the
+    // rendered package output, so exclude them from the deterministic hash.
     unset(
       $hash_settings['favicon_source_fid'],
       $hash_settings['favicon_source_svg'],
@@ -506,7 +508,7 @@ SVG,
    * Inspects and sanitizes SVG markup.
    *
    * @return array<string, mixed>
-   *   Source analysis including the sanitized SVG.
+   *   Source analysis including sanitized markup and non-fatal warnings.
    */
   private function inspectSvgMarkup(string $source_data): array {
     $document = $this->loadSvgDocument($source_data);
@@ -808,6 +810,8 @@ SVG,
     $background = imagecolorallocatealpha($canvas, $red, $green, $blue, 0);
     imagefilledrectangle($canvas, 0, 0, $size, $size, $background);
 
+    // All raster outputs share the same centering and padding rules so the
+    // browser, iOS, and Android assets stay visually aligned.
     $inner_size = max(1, $size - (2 * (int) round($size * ($padding / 100))));
     $scale = min($inner_size / $source_width, $inner_size / $source_height);
     $target_width = max(1, (int) round($source_width * $scale));

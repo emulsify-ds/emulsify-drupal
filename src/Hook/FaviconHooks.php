@@ -106,7 +106,7 @@ final class FaviconHooks {
    * Resolves package settings when a portable SVG source is available.
    */
   private function doResolveRuntimePackageSettings(string $theme_name, array $settings): ?array {
-    $source_svg = FaviconSettings::getSourceSvg($settings);
+    $source_svg = FaviconSettings::getPortableSourceSvg($settings);
     $source_metadata = [
       'filename' => (string) ($settings['favicon_source_filename'] ?? 'favicon.svg'),
     ];

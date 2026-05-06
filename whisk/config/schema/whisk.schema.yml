@@ -14,7 +14,7 @@ whisk.settings:
         type: integer
     favicon_source_svg:
       type: text
-      label: 'Exportable SVG source markup'
+      label: 'Portable SVG source markup'
     favicon_source_filename:
       type: string
       label: 'Source SVG filename'

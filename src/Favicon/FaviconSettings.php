@@ -121,17 +121,35 @@ final class FaviconSettings {
   }
 
   /**
-   * Returns the exportable SVG source stored in config.
+   * Returns the portable SVG source stored in config.
    */
-  public static function getSourceSvg(array $settings): string {
+  public static function getPortableSourceSvg(array $settings): string {
     return trim((string) ($settings['favicon_source_svg'] ?? ''));
   }
 
   /**
-   * Indicates whether an exportable SVG source is available.
+   * Indicates whether a portable SVG source is available.
+   */
+  public static function hasPortableSource(array $settings): bool {
+    return self::getPortableSourceSvg($settings) !== '';
+  }
+
+  /**
+   * Returns the portable SVG source stored in config.
+   *
+   * @todo Remove in Emulsify 8.x after callers move to getPortableSourceSvg().
+   */
+  public static function getSourceSvg(array $settings): string {
+    return self::getPortableSourceSvg($settings);
+  }
+
+  /**
+   * Indicates whether a portable SVG source is available.
+   *
+   * @todo Remove in Emulsify 8.x after callers move to hasPortableSource().
    */
   public static function hasExportableSource(array $settings): bool {
-    return self::getSourceSvg($settings) !== '';
+    return self::hasPortableSource($settings);
   }
 
   /**

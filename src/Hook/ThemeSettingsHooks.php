@@ -28,6 +28,26 @@ final class ThemeSettingsHooks {
   use StringTranslationTrait;
 
   /**
+   * Theme settings UI keys that should never be persisted to config.
+   *
+   * ThemeSettingsForm saves arbitrary submitted values unless they are marked
+   * as clean, so all helper-only UI keys live here.
+   */
+  private const NON_CONFIG_THEME_SETTING_KEYS = [
+    'portable_source',
+    'portable_source_notice',
+    'diagnostics',
+    'source_diagnostics_notice',
+    'status',
+    'package_status_notice',
+    'maskable_info',
+    'maskable_icon_notice',
+    'generation_hint',
+    'dirty_state',
+    'emulsify_tools_apply_admin_theme_favicon',
+  ];
+
+  /**
    * Generates favicon packages from uploaded theme assets.
    */
   private FaviconPackageGenerator $packageGenerator;
@@ -115,6 +135,7 @@ final class ThemeSettingsHooks {
     $form['#attached']['library'][] = 'emulsify/favicon_admin';
     $form['#validate'][] = [self::class, 'validateFaviconSettings'];
     $form['#submit'][] = [self::class, 'submitFaviconSettings'];
+    $this->registerCleanValueKeys($form_state);
 
     $form['favicon_package_hash'] = [
       '#type' => 'hidden',
@@ -189,7 +210,7 @@ final class ThemeSettingsHooks {
       ],
       '#description' => $this->t('Use a square SVG with a square viewBox. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
     ];
-    $form['emulsify_favicon']['source']['portable_source'] = [
+    $form['emulsify_favicon']['source']['portable_source_notice'] = [
       '#type' => 'item',
       '#title' => $this->t('Portable source config'),
       '#markup' => '<span class="description">' . $this->buildPortableSourceDescription($package_status) . '</span>',
@@ -211,14 +232,14 @@ final class ThemeSettingsHooks {
       ];
     }
     if ($package_status['source_diagnostics'] !== '') {
-      $form['emulsify_favicon']['source']['diagnostics'] = [
+      $form['emulsify_favicon']['source']['source_diagnostics_notice'] = [
         '#type' => 'item',
         '#title' => $this->t('Source diagnostics'),
         '#markup' => $package_status['source_diagnostics'],
       ];
     }
 
-    $form['emulsify_favicon']['status'] = [
+    $form['emulsify_favicon']['package_status_notice'] = [
       '#type' => 'item',
       '#title' => $this->t('Current generated package'),
       '#markup' => $package_status['status_markup'],
@@ -304,7 +325,7 @@ final class ThemeSettingsHooks {
       '#max' => 40,
       '#description' => $this->t('The maskable icon keeps at least 20% padding to protect the safe area.'),
     ];
-    $form['emulsify_favicon']['android']['maskable_info'] = [
+    $form['emulsify_favicon']['android']['maskable_icon_notice'] = [
       '#type' => 'item',
       '#title' => $this->t('Maskable Android Icon'),
       '#markup' => '<span class="description">' . $this->t('Emulsify always generates a dedicated maskable Android icon with extra safe-area padding so launchers can crop the outer edges into circles or squircles without cutting into the logo.') . '</span>',
@@ -335,8 +356,8 @@ final class ThemeSettingsHooks {
 
         $form['emulsify_favicon']['actions']['regenerate_package'] = [
           '#type' => 'submit',
+		'#name' => 'regenerate_package',
           '#value' => $default_label,
-          '#submit' => [[self::class, 'requestFaviconRegeneration']],
           '#button_type' => $package_status['state'] === 'current' ? 'secondary' : 'primary',
           '#attributes' => [
             'data-favicon-regenerate-button' => 'true',
@@ -382,13 +403,6 @@ final class ThemeSettingsHooks {
   }
 
   /**
-   * Static generate button callback.
-   */
-  public static function requestFaviconRegeneration(array &$form, FormStateInterface $form_state): void {
-    self::service()->doRequestFaviconRegeneration($form_state);
-  }
-
-  /**
    * Static reset button callback.
    */
   public static function resetFaviconSettings(array &$form, FormStateInterface $form_state): void {
@@ -396,10 +410,12 @@ final class ThemeSettingsHooks {
   }
 
   /**
-   * Flags the form submit as an explicit regeneration request.
+   * Marks helper-only values so ThemeSettingsForm does not export them.
    */
-  private function doRequestFaviconRegeneration(FormStateInterface $form_state): void {
-    $form_state->set('emulsify_favicon_force_generate', TRUE);
+  private function registerCleanValueKeys(FormStateInterface $form_state): void {
+    foreach (self::NON_CONFIG_THEME_SETTING_KEYS as $key) {
+      $form_state->addCleanValueKey($key);
+    }
   }
 
   /**
@@ -479,7 +495,7 @@ final class ThemeSettingsHooks {
         $source_context['source_svg'],
       );
       $metadata = $this->packageGenerator->readPackageMetadata($definition['path']);
-      $should_generate = (bool) $form_state->get('emulsify_favicon_force_generate')
+      $should_generate = $this->isRegenerationRequest($form_state)
         || $settings['favicon_package_hash'] !== $definition['hash']
         || $settings['favicon_package_path'] !== $definition['path']
         || !$this->packageGenerator->packageExists($definition['path']);
@@ -555,6 +571,14 @@ final class ThemeSettingsHooks {
   }
 
   /**
+   * Returns whether the current submit was an explicit regeneration request.
+   */
+  private function isRegenerationRequest(FormStateInterface $form_state): bool {
+    $trigger = $form_state->getTriggeringElement();
+    return is_array($trigger) && ($trigger['#name'] ?? '') === 'regenerate_package';
+  }
+
+  /**
    * Resolves a stored managed file source when it still exists.
    */
   private function resolveStoredSourceFile(array $settings): ?File {
@@ -574,7 +598,7 @@ final class ThemeSettingsHooks {
    *   The resolved source context, or an empty array if no source exists.
    */
   private function resolveSourceContext(array $settings, bool $requires_rasterization): array {
-    $source_svg = FaviconSettings::getSourceSvg($settings);
+    $source_svg = FaviconSettings::getPortableSourceSvg($settings);
     $source_filename = (string) ($settings['favicon_source_filename'] ?: 'favicon.svg');
     $source_fid = FaviconSettings::getSourceFileId($settings);
     $source_file = $source_fid ? File::load($source_fid) : NULL;
@@ -638,7 +662,7 @@ final class ThemeSettingsHooks {
       'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path']),
       'source_available' => FALSE,
       'portable_source_missing' => FALSE,
-      'exportable_source' => FaviconSettings::hasExportableSource($settings),
+      'portable_source_available' => FaviconSettings::hasPortableSource($settings),
       'source_diagnostics' => '',
       'status_markup' => '',
     ];
@@ -647,9 +671,9 @@ final class ThemeSettingsHooks {
       $source_context = [];
       if ($source_file) {
         $source_context = $this->resolveSourceContext($settings, FALSE);
-        $status['portable_source_missing'] = !$status['exportable_source'];
+		$status['portable_source_missing'] = !$status['portable_source_available'];
       }
-      elseif ($status['exportable_source']) {
+      elseif ($status['portable_source_available']) {
         $source_context = $this->resolveSourceContext($settings, FALSE);
       }
 
@@ -696,7 +720,7 @@ final class ThemeSettingsHooks {
    * Describes whether the current source is portable through config.
    */
   private function buildPortableSourceDescription(array $package_status): string {
-    if ($package_status['exportable_source']) {
+    if ($package_status['portable_source_available']) {
       return (string) $this->t('The sanitized SVG source is saved in theme config and can be regenerated after configuration import.');
     }
 

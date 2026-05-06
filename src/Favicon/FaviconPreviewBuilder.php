@@ -172,8 +172,8 @@ final class FaviconPreviewBuilder {
       return $this->fileUrlGenerator->generateString($source_file->getFileUri());
     }
 
-    if (FaviconSettings::hasExportableSource($settings)) {
-      return 'data:image/svg+xml;base64,' . base64_encode(FaviconSettings::getSourceSvg($settings));
+    if (FaviconSettings::hasPortableSource($settings)) {
+      return 'data:image/svg+xml;base64,' . base64_encode(FaviconSettings::getPortableSourceSvg($settings));
     }
 
     $package_path = $settings['favicon_package_path'] ?? '';
