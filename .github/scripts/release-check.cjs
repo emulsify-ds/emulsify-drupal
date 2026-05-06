@@ -200,6 +200,8 @@ function runStaticChecks() {
     ensure(extractYamlValue(emulsifyInfo, 'core_version_requirement') === coreConstraint, 'emulsify.info.yml must match composer drupal/core.');
     ensure(extractYamlValue(whiskInfo, 'core_version_requirement') === coreConstraint, 'whisk.info.yml must match composer drupal/core.');
     ensure(extractYamlDependencyConstraint(emulsifyInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'emulsify.info.yml must match the composer emulsify_tools constraint.');
+    ensure(extractYamlDependencyConstraint(whiskInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.yml must match the composer emulsify_tools constraint.');
+    ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
     ensure(themeReadinessWorkflow.includes(`- '${minCoreVersion}.*'`), 'theme-readiness.yml should smoke test the supported Drupal patch line.');
     ensure(themeReadinessWorkflow.includes(`- '^${minCoreVersion}'`), 'theme-readiness.yml should smoke test the supported Drupal constraint.');
     return `Root theme metadata and CI matrix align to Drupal ${minCoreVersion}.`;

@@ -20,7 +20,7 @@
     "prefer-stable": true,
     "require": {
         "drupal/core": "^11.3",
-        "drupal/emulsify_tools": "^1.0"
+		"drupal/emulsify_tools": "^2.0"
     },
     "extra": {
         "drush": {

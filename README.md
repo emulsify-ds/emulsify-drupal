@@ -4,9 +4,11 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Vite build, and Drupal 11 theme
+### Storybook development, Vite build, and Drupal 11.3+ theme
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Vite](https://vite.dev/) development environment, and a Drupal 11 starter kit theme.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Vite](https://vite.dev/) development environment, and a Drupal 11.3+ starter kit theme.
+
+The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal base theme.
 
 ## Documentation
 
