@@ -12,7 +12,11 @@
  * - string classes: The classes of the captioned HTML tag.
  */
 #}
-<figure role="group"{%- if classes %} class="{{ classes }}"{%- endif %}>
+{% set filter_caption_attributes = {
+  role: 'group',
+  class: classes ?: [],
+} %}
+<figure{{ add_attributes(filter_caption_attributes) }}>
 {{ node }}
 <figcaption>{{ caption }}</figcaption>
 </figure>

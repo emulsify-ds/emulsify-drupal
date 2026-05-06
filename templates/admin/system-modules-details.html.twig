@@ -42,11 +42,30 @@
           {{ module.checkbox }}
         </td>
         <td class="module">
-          <label id="{{ module.id }}" for="{{ module.enable_id }}" class="module-name table-filter-text-source">{{ module.name }}</label>
+          {% set module_label_attributes = {
+            id: module.id,
+            for: module.enable_id,
+            class: ['module-name', 'table-filter-text-source'],
+          } %}
+          <label{{ add_attributes(module_label_attributes) }}>{{ module.name }}</label>
         </td>
         <td class="description expand priority-low">
-          <details class="js-form-wrapper form-wrapper" id="{{ module.enable_id }}-description">
-            <summary aria-controls="{{ module.enable_id }}-description" role="button" aria-expanded="false"><span class="text module-description">{{ module.description }}</span></summary>
+          {% set module_details_attributes = {
+            class: ['js-form-wrapper', 'form-wrapper'],
+            id: module.enable_id ~ '-description',
+          } %}
+          <details{{ add_attributes(module_details_attributes) }}>
+            {% set module_summary_attributes = {
+              'aria-controls': module.enable_id ~ '-description',
+              role: 'button',
+              'aria-expanded': 'false',
+            } %}
+            <summary{{ add_attributes(module_summary_attributes) }}>
+              {% set module_summary_text_attributes = {
+                class: ['text', 'module-description'],
+              } %}
+              <span{{ add_attributes(module_summary_text_attributes) }}>{{ module.description }}</span>
+            </summary>
             <div class="details-wrapper">
               <div class="details-description">
                 <div class="requirements">

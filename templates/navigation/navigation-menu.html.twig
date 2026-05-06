@@ -1,6 +1,10 @@
 {% import _self as menus %}
-<ul class="toolbar-block__list">
-  {{ menus.menu_items(items, attributes, 0) }}
+{% set toolbar_menu_items_attributes = attributes %}
+{% set toolbar_block_list_attributes = {
+  class: 'toolbar-block__list',
+} %}
+<ul{{ add_attributes(toolbar_block_list_attributes) }}>
+  {{ menus.menu_items(items, toolbar_menu_items_attributes, 0) }}
 </ul>
 
 {% macro menu_items(items, attributes, menu_level) %}
@@ -25,7 +29,13 @@
     {% set item_id = ('navigation-link--' ~ item.original_link.pluginId)|clean_unique_id %}
     {% if menu_level == 0 %}
       {% if item.below is empty %}
-        <li id="{{ item_id }}" class="toolbar-block__list-item">
+        {% with { attributes: item.attributes } %}
+          {% set navigation_menu_item_attributes = {
+            id: item_id,
+            class: 'toolbar-block__list-item',
+          } %}
+          <li{{ add_attributes(navigation_menu_item_attributes) }}>
+        {% endwith %}
           {% include 'navigation:toolbar-button' with {
             attributes: item_link_attributes.setAttribute('href', item.url|render|default(null)).setAttribute('data-drupal-tooltip', item.title).setAttribute('data-drupal-tooltip-class', 'admin-toolbar__tooltip'),
             icon: item.icon,
@@ -38,7 +48,14 @@
           } only %}
         </li>
       {% else %}
-        <li id="{{ item_id }}" class="toolbar-block__list-item toolbar-popover" data-toolbar-popover>
+        {% with { attributes: item.attributes } %}
+          {% set navigation_menu_item_attributes = {
+            id: item_id,
+            class: ['toolbar-block__list-item', 'toolbar-popover'],
+            'data-toolbar-popover': '',
+          } %}
+          <li{{ add_attributes(navigation_menu_item_attributes) }}>
+        {% endwith %}
           {% include 'navigation:toolbar-button' with {
             action: 'Extend'|t,
             attributes: create_attribute({
@@ -57,7 +74,12 @@
               'toolbar-popover__control',
             ],
           } only %}
-          <div class="toolbar-popover__wrapper" data-toolbar-popover-wrapper inert>
+          {% set toolbar_popover_wrapper_attributes = {
+            class: 'toolbar-popover__wrapper',
+            'data-toolbar-popover-wrapper': '',
+            inert: 'inert',
+          } %}
+          <div{{ add_attributes(toolbar_popover_wrapper_attributes) }}>
             {% if item.url %}
               {% include 'navigation:toolbar-button' with {
                 attributes: item_link_attributes.setAttribute('href', item.url|render),
@@ -86,7 +108,10 @@
                 text: item.title,
               } only %}
             {% endif %}
-            <ul class="toolbar-menu toolbar-popover__menu">
+            {% set toolbar_popover_menu_attributes = {
+              class: ['toolbar-menu', 'toolbar-popover__menu'],
+            } %}
+            <ul{{ add_attributes(toolbar_popover_menu_attributes) }}>
               {{ menus.menu_items(item.below, attributes, 1) }}
             </ul>
           </div>
@@ -94,7 +119,12 @@
       {% endif %}
 
     {% elseif menu_level == 1 %}
-      <li class="toolbar-menu__item toolbar-menu__item--level-{{ menu_level }}">
+      {% with { attributes: item.attributes } %}
+        {% set navigation_menu_item_attributes = {
+          class: ['toolbar-menu__item', 'toolbar-menu__item--level-' ~ menu_level],
+        } %}
+        <li{{ add_attributes(navigation_menu_item_attributes) }}>
+      {% endwith %}
         {% if item.below is empty  %}
           {% include 'navigation:toolbar-button' with {
             attributes: item_link_attributes.setAttribute('href', item.url|render|default(null)),
@@ -113,33 +143,54 @@
             text: item.title,
             modifiers: ['expand--down'],
           } only %}
-          <ul class="toolbar-menu toolbar-menu--level-{{ menu_level + 1 }}" inert>
+          {% set toolbar_menu_attributes = {
+            class: ['toolbar-menu', 'toolbar-menu--level-' ~ (menu_level + 1)],
+            inert: 'inert',
+          } %}
+          <ul{{ add_attributes(toolbar_menu_attributes) }}>
             {{ menus.menu_items(item.below, attributes, menu_level + 1) }}
           </ul>
         {% endif %}
       </li>
     {% else %}
-      <li class="toolbar-menu__item toolbar-menu__item--level-{{ menu_level }}">
+      {% with { attributes: item.attributes } %}
+        {% set navigation_menu_item_attributes = {
+          class: ['toolbar-menu__item', 'toolbar-menu__item--level-' ~ menu_level],
+        } %}
+        <li{{ add_attributes(navigation_menu_item_attributes) }}>
+      {% endwith %}
         {% if item.below is empty  %}
           {{ link(item.title, item.url, {
             'class': [
               'toolbar-menu__link',
               'toolbar-menu__link--' ~ menu_level,
             ],
-            'data-index-text': item.title|first|lower
+              'data-index-text': item.title|first|lower
           }) }}
         {% else %}
-          <button
-            class="toolbar-menu__link toolbar-menu__link--{{ menu_level }}"
-            data-toolbar-menu-trigger="{{ menu_level }}"
-            aria-expanded="false"
-            data-index-text="{{ item.title|first|lower }}"
-          >
-            <span data-toolbar-action class="toolbar-menu__link-action visually-hidden">{{ 'Extend'|t }}</span>
-            <span class="toolbar-menu__link-title">{{ item.title }}</span>
+          {% set toolbar_menu_trigger_attributes = {
+            class: ['toolbar-menu__link', 'toolbar-menu__link--' ~ menu_level],
+            'data-toolbar-menu-trigger': menu_level,
+            'aria-expanded': 'false',
+            'data-index-text': item.title|first|lower,
+          } %}
+          <button{{ add_attributes(toolbar_menu_trigger_attributes) }}>
+            {% set toolbar_menu_trigger_action_attributes = {
+              'data-toolbar-action': '',
+              class: ['toolbar-menu__link-action', 'visually-hidden'],
+            } %}
+            <span{{ add_attributes(toolbar_menu_trigger_action_attributes) }}>{{ 'Extend'|t }}</span>
+            {% set toolbar_menu_trigger_title_attributes = {
+              class: 'toolbar-menu__link-title',
+            } %}
+            <span{{ add_attributes(toolbar_menu_trigger_title_attributes) }}>{{ item.title }}</span>
             {{ icon('navigation', 'chevron', { class: 'toolbar-menu__chevron', size: 16 }) }}
           </button>
-          <ul class="toolbar-menu toolbar-menu--level-{{ menu_level + 1 }}" inert>
+          {% set toolbar_menu_attributes = {
+            class: ['toolbar-menu', 'toolbar-menu--level-' ~ (menu_level + 1)],
+            inert: 'inert',
+          } %}
+          <ul{{ add_attributes(toolbar_menu_attributes) }}>
             {{ menus.menu_items(item.below, attributes, menu_level + 1) }}
           </ul>
         {% endif %}

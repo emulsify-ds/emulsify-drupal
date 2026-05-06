@@ -74,7 +74,11 @@
     server which comments are new for the user. Rendering the final "new"
     indicator here would break the render cache.
   #}
-  <mark class="hidden" data-comment-timestamp="{{ new_indicator_timestamp }}"></mark>
+  {% set comment_new_indicator_attributes = {
+    class: 'hidden',
+    'data-comment-timestamp': new_indicator_timestamp,
+  } %}
+  <mark{{ add_attributes(comment_new_indicator_attributes) }}></mark>
 
   <footer>
     {{ user_picture }}
@@ -86,7 +90,10 @@
       without this information.
     #}
     {% if parent %}
-      <p class="visually-hidden">{{ parent }}</p>
+      {% set parent_comment_attributes = {
+        class: 'visually-hidden',
+      } %}
+      <p{{ add_attributes(parent_comment_attributes) }}>{{ parent }}</p>
     {% endif %}
 
     {{ permalink }}

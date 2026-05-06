@@ -37,7 +37,11 @@
   class: not configuration.label_display ? 'visually-hidden',
   id: heading_id,
 } %}
-<nav role="navigation" aria-labelledby="{{ heading_id }}"{{ attributes|without('role', 'aria-labelledby') }}>
+{% set system_menu_block_attributes = {
+  role: 'navigation',
+  'aria-labelledby': heading_id,
+} %}
+<nav{{ add_attributes(system_menu_block_attributes) }}>
   {# Label. If not displayed, we still provide it for screen readers. #}
   {{ title_prefix }}
   {% with { attributes: title_attributes } %}

@@ -21,25 +21,45 @@
 <div>
   {% for group in grouped_requirements %}
     <div>
-      <h3 id="{{ group.type }}">{{ group.title }}</h3>
+      {% set status_report_group_title_attributes = {
+        id: group.type,
+      } %}
+      <h3{{ add_attributes(status_report_group_title_attributes) }}>{{ group.title }}</h3>
       {% for requirement in group.items %}
-        <details class="system-status-report__entry" open>
+        {% set status_report_entry_attributes = {
+          class: 'system-status-report__entry',
+          open: 'open',
+        } %}
+        <details{{ add_attributes(status_report_entry_attributes) }}>
           {%
             set summary_classes = [
               'system-status-report__status-title',
               group.type in ['warning', 'error'] ? 'system-status-report__status-icon system-status-report__status-icon--' ~ group.type
             ]
           %}
-          <summary{{ create_attribute({'class': summary_classes}) }} role="button">
+          {% set status_report_summary_attributes = {
+            class: summary_classes,
+            role: 'button',
+          } %}
+          <summary{{ add_attributes(status_report_summary_attributes) }}>
             {% if requirement.severity_title %}
-              <span class="visually-hidden">{{ requirement.severity_title }}</span>
+              {% set status_report_severity_attributes = {
+                class: 'visually-hidden',
+              } %}
+              <span{{ add_attributes(status_report_severity_attributes) }}>{{ requirement.severity_title }}</span>
             {% endif %}
             {{ requirement.title }}
           </summary>
-          <div class="system-status-report__entry__value">
+          {% set status_report_value_attributes = {
+            class: 'system-status-report__entry__value',
+          } %}
+          <div{{ add_attributes(status_report_value_attributes) }}>
             {{ requirement.value }}
             {% if requirement.description %}
-              <div class="description">{{ requirement.description }}</div>
+              {% set status_report_description_attributes = {
+                class: 'description',
+              } %}
+              <div{{ add_attributes(status_report_description_attributes) }}>{{ requirement.description }}</div>
             {% endif %}
           </div>
         </details>

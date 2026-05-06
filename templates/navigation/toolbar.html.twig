@@ -29,7 +29,10 @@
 <div{{ add_attributes(toolbar_wrapper_attributes) }}>
   {% with { attributes: toolbar_attributes } %}
     <nav{{ add_attributes(toolbar_nav_attributes) }}>
-    <h2 class="visually-hidden">{{ toolbar_heading }}</h2>
+    {% set toolbar_heading_attributes = {
+      class: 'visually-hidden',
+    } %}
+    <h2{{ add_attributes(toolbar_heading_attributes) }}>{{ toolbar_heading }}</h2>
     {% for key, tab in tabs %}
       {% set tray = trays[key] %}
       {% with { attributes: tab.attributes } %}
@@ -40,10 +43,22 @@
           {{ tab.link }}
           <div{{ tray.attributes }}>
             {% if tray.label %}
-              <nav class="toolbar-lining clearfix" role="navigation" aria-label="{{ tray.label }}">
-                <h3 class="toolbar-tray-name visually-hidden">{{ tray.label }}</h3>
+              {% set toolbar_tray_nav_attributes = {
+                class: ['toolbar-lining', 'clearfix'],
+                role: 'navigation',
+                'aria-label': tray.label,
+              } %}
+              <nav{{ add_attributes(toolbar_tray_nav_attributes) }}>
+                {% set toolbar_tray_name_attributes = {
+                  class: ['toolbar-tray-name', 'visually-hidden'],
+                } %}
+                <h3{{ add_attributes(toolbar_tray_name_attributes) }}>{{ tray.label }}</h3>
             {% else %}
-              <nav class="toolbar-lining clearfix" role="navigation">
+              {% set toolbar_tray_nav_attributes = {
+                class: ['toolbar-lining', 'clearfix'],
+                role: 'navigation',
+              } %}
+              <nav{{ add_attributes(toolbar_tray_nav_attributes) }}>
             {% endif %}
             {{- tray.links -}}
             </nav>

@@ -13,10 +13,16 @@
  * @see \Drupal\system\Theme\SystemAdminThemePreprocess::preprocessSystemAdminIndex()
  */
 #}
-<div class="admin clearfix">
+{% set system_admin_index_attributes = {
+  class: ['admin', 'clearfix'],
+} %}
+<div{{ add_attributes(system_admin_index_attributes) }}>
   {{ system_compact_link }}
   {% for position, blocks in containers %}
-    <div class="{{ position }} clearfix">
+    {% set system_admin_index_container_attributes = {
+      class: [position, 'clearfix'],
+    } %}
+    <div{{ add_attributes(system_admin_index_container_attributes) }}>
       {% for block in blocks %}
         {{ block }}
       {% endfor %}
