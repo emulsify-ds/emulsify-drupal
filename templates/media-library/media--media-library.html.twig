@@ -35,7 +35,10 @@
 <article{{ attributes }}>
   {% if content %}
     {% with { attributes: preview_attributes } %}
-      <div{{ add_attributes({ class: 'js-media-library-item-preview' }) }}>
+      {% set media_library_preview_attributes = {
+        class: 'js-media-library-item-preview',
+      } %}
+      <div{{ add_attributes(media_library_preview_attributes) }}>
         {{ content|without('name') }}
       </div>
     {% endwith %}

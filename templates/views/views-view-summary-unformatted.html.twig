@@ -24,7 +24,10 @@
     {{ row.separator }}
   {%- endif %}
   {% with { attributes: row.attributes } %}
-    <a href="{{ row.url }}"{{ add_attributes({ class: row.active ? 'is-active' })|without('href') }}>{{ row.link }}</a>
+    {% set view_summary_row_link_attributes = {
+      class: row.active ? 'is-active',
+    } %}
+    <a href="{{ row.url }}"{{ add_attributes(view_summary_row_link_attributes)|without('href') }}>{{ row.link }}</a>
   {% endwith %}
   {% if options.count %}
     ({{ row.count }})

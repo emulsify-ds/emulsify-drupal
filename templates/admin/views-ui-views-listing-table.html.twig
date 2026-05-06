@@ -15,7 +15,10 @@
  * @see template_preprocess_views_ui_views_listing_table()
  */
 #}
-<table{{ add_attributes({ class: 'responsive-enabled' }) }}>
+{% set views_listing_table_attributes = {
+  class: 'responsive-enabled',
+} %}
+<table{{ add_attributes(views_listing_table_attributes) }}>
   <thead>
     <tr>
       {% for header in headers %}

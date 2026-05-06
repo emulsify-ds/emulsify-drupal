@@ -23,7 +23,10 @@
  * @see \Drupal\update\Hook\UpdateThemeHooks::preprocessUpdateVersion()
  */
 #}
-<div{{ add_attributes({ class: 'project-update__version' }) }}>
+{% set update_version_attributes = {
+  class: 'project-update__version',
+} %}
+<div{{ add_attributes(update_version_attributes) }}>
   <div class="clearfix">
     <div class="project-update__version-title layout-column layout-column--quarter">{{ title }}</div>
     <div class="project-update__version-details layout-column layout-column--quarter">

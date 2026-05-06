@@ -63,13 +63,19 @@
     description_display == 'invisible' ? 'visually-hidden',
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set form_element_attributes = {
+  class: classes,
+} %}
+{% set form_element_description_attributes = {
+  class: description_classes,
+} %}
+<div{{ add_attributes(form_element_attributes) }}>
   {% if label_display in ['before', 'invisible'] %}
     {{ label }}
   {% endif %}
   {% if description_display == 'before' and description.content %}
     {% with { attributes: description.attributes } %}
-      <div{{ add_attributes({ class: description_classes }) }}>
+      <div{{ add_attributes(form_element_description_attributes) }}>
         {{ description.content }}
       </div>
     {% endwith %}
@@ -91,7 +97,7 @@
   {% endif %}
   {% if description_display in ['after', 'invisible'] and description.content %}
     {% with { attributes: description.attributes } %}
-      <div{{ add_attributes({ class: description_classes }) }}>
+      <div{{ add_attributes(form_element_description_attributes) }}>
         {{ description.content }}
       </div>
     {% endwith %}

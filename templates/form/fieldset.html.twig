@@ -34,7 +34,10 @@
     'form-wrapper',
   ]
 %}
-<fieldset{{ add_attributes({ class: classes }) }}>
+{% set fieldset_attributes_data = {
+  class: classes,
+} %}
+<fieldset{{ add_attributes(fieldset_attributes_data) }}>
   {%
     set legend_span_classes = [
       'fieldset-legend',
@@ -42,16 +45,22 @@
       required ? 'form-required',
     ]
   %}
+  {% set fieldset_legend_attributes = {
+    class: legend_span_classes,
+  } %}
   {# Always wrap fieldset legends in a <span> for CSS positioning. #}
   <legend{{ legend.attributes }}>
     {% with { attributes: legend_span.attributes } %}
-      <span{{ add_attributes({ class: legend_span_classes }) }}>{{ legend.title }}</span>
+      <span{{ add_attributes(fieldset_legend_attributes) }}>{{ legend.title }}</span>
     {% endwith %}
   </legend>
   <div class="fieldset-wrapper">
     {% if description_display == 'before' and description.content %}
       {% with { attributes: description.attributes } %}
-        <div{{ add_attributes({ class: 'description' }) }}>{{ description.content }}</div>
+        {% set fieldset_description_attributes = {
+          class: 'description',
+        } %}
+        <div{{ add_attributes(fieldset_description_attributes) }}>{{ description.content }}</div>
       {% endwith %}
     {% endif %}
     {% if errors %}
@@ -68,7 +77,10 @@
     {% endif %}
     {% if description_display in ['after', 'invisible'] and description.content %}
       {% with { attributes: description.attributes } %}
-        <div{{ add_attributes({ class: 'description' }) }}>{{ description.content }}</div>
+        {% set fieldset_description_attributes = {
+          class: 'description',
+        } %}
+        <div{{ add_attributes(fieldset_description_attributes) }}>{{ description.content }}</div>
       {% endwith %}
     {% endif %}
   </div>

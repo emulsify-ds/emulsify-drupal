@@ -17,7 +17,10 @@
     'page',
   ]
 %}
-<div{{ add_attributes({ class: page_classes }) }}>
+{% set page_attributes = {
+  class: page_classes,
+} %}
+<div{{ add_attributes(page_attributes) }}>
 
   {{ page.header }}
   {{ page.status }}

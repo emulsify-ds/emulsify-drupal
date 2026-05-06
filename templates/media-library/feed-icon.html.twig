@@ -11,6 +11,9 @@
  *   - class: HTML classes to be applied to the feed link.
  */
 #}
-<a href="{{ url }}"{{ add_attributes({ class: 'feed-icon' }) }}>
+{% set feed_icon_attributes = {
+  class: 'feed-icon',
+} %}
+<a href="{{ url }}"{{ add_attributes(feed_icon_attributes) }}>
   {{ 'Subscribe to @title'|t({'@title': title}) }}
 </a>

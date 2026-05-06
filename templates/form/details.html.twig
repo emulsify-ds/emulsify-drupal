@@ -22,9 +22,12 @@
       required ? 'form-required',
     ]
   %}
+  {% set details_summary_attributes = {
+    class: summary_classes,
+  } %}
   {%- if title -%}
     {% with { attributes: summary_attributes } %}
-      <summary{{ add_attributes({ class: summary_classes }) }}>{{ title }}</summary>
+      <summary{{ add_attributes(details_summary_attributes) }}>{{ title }}</summary>
     {% endwith %}
   {%- endif -%}
 

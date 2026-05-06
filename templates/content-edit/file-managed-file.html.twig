@@ -16,6 +16,9 @@
     'form-managed-file',
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set managed_file_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(managed_file_attributes) }}>
   {{ element }}
 </div>

@@ -51,14 +51,23 @@
 {% if title %}
   <h3>{{ title }}</h3>
 {% endif %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set views_grid_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(views_grid_attributes) }}>
   {% if options.alignment == 'horizontal' %}
     {% for row in items %}
       {% with { attributes: row.attributes } %}
-        <div{{ add_attributes({ class: [row_classes, options.row_class_default ? 'row-' ~ loop.index] }) }}>
+        {% set views_grid_row_attributes = {
+          class: [row_classes, options.row_class_default ? 'row-' ~ loop.index],
+        } %}
+        <div{{ add_attributes(views_grid_row_attributes) }}>
           {% for column in row.content %}
             {% with { attributes: column.attributes } %}
-              <div{{ add_attributes({ class: [col_classes, options.col_class_default ? 'col-' ~ loop.index] }) }}>
+              {% set views_grid_column_attributes = {
+                class: [col_classes, options.col_class_default ? 'col-' ~ loop.index],
+              } %}
+              <div{{ add_attributes(views_grid_column_attributes) }}>
                 {{- column.content -}}
               </div>
             {% endwith %}
@@ -69,10 +78,16 @@
   {% else %}
     {% for column in items %}
       {% with { attributes: column.attributes } %}
-        <div{{ add_attributes({ class: [col_classes, options.col_class_default ? 'col-' ~ loop.index] }) }}>
+        {% set views_grid_column_attributes = {
+          class: [col_classes, options.col_class_default ? 'col-' ~ loop.index],
+        } %}
+        <div{{ add_attributes(views_grid_column_attributes) }}>
           {% for row in column.content %}
             {% with { attributes: row.attributes } %}
-              <div{{ add_attributes({ class: [row_classes, options.row_class_default ? 'row-' ~ loop.index] }) }}>
+              {% set views_grid_row_attributes = {
+                class: [row_classes, options.row_class_default ? 'row-' ~ loop.index],
+              } %}
+              <div{{ add_attributes(views_grid_row_attributes) }}>
                 {{- row.content -}}
               </div>
             {% endwith %}

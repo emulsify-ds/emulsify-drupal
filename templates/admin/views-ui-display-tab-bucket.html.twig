@@ -22,7 +22,10 @@
     overridden ? 'overridden',
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set display_tab_bucket_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(display_tab_bucket_attributes) }}>
   {% if title -%}
     <h3 class="views-ui-display-tab-bucket__title">{{ title }}</h3>
   {%- endif %}

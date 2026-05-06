@@ -33,14 +33,15 @@
  */
 #}
 {% set heading_id = attributes.id ~ '-menu'|clean_id %}
+{% set system_menu_block_title_attributes = {
+  class: not configuration.label_display ? 'visually-hidden',
+  id: heading_id,
+} %}
 <nav role="navigation" aria-labelledby="{{ heading_id }}"{{ attributes|without('role', 'aria-labelledby') }}>
   {# Label. If not displayed, we still provide it for screen readers. #}
   {{ title_prefix }}
   {% with { attributes: title_attributes } %}
-    <h2{{ add_attributes({
-      class: not configuration.label_display ? 'visually-hidden',
-      id: heading_id,
-    }) }}>{{ configuration.label }}</h2>
+    <h2{{ add_attributes(system_menu_block_title_attributes) }}>{{ configuration.label }}</h2>
   {% endwith %}
   {{ title_suffix }}
 

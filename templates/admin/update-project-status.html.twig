@@ -35,7 +35,10 @@
   ]
 %}
 {% with { attributes: status.attributes } %}
-  <div{{ add_attributes({ class: ['project-update__status', status_classes] }) }}>
+  {% set project_status_attributes = {
+    class: ['project-update__status', status_classes],
+  } %}
+  <div{{ add_attributes(project_status_attributes) }}>
     {%- if status.label -%}
       <span>{{ status.label }}</span>
     {%- else -%}
@@ -77,7 +80,10 @@
     <div class="extra">
       {% for extra in extras %}
         {% with { attributes: extra.attributes } %}
-          <div{{ add_attributes({ class: extra_classes }) }}>
+          {% set project_extra_attributes = {
+            class: extra_classes,
+          } %}
+          <div{{ add_attributes(project_extra_attributes) }}>
             {{ extra.label }}: {{ extra.data }}
           </div>
         {% endwith %}

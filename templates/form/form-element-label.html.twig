@@ -20,6 +20,9 @@
     required ? 'form-required',
   ]
 %}
+{% set form_element_label_attributes = {
+  class: classes,
+} %}
 {% if title is not empty or required -%}
-  <label{{ add_attributes({ class: classes }) }}>{{ title }}</label>
+  <label{{ add_attributes(form_element_label_attributes) }}>{{ title }}</label>
 {%- endif %}

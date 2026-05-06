@@ -25,7 +25,10 @@
     ]
   %}
   {% with { attributes: row.attributes } %}
-    <div{{ add_attributes({ class: row_classes }) }}>
+    {% set views_unformatted_row_attributes = {
+      class: row_classes,
+    } %}
+    <div{{ add_attributes(views_unformatted_row_attributes) }}>
       {{- row.content -}}
     </div>
   {% endwith %}

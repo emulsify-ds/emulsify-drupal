@@ -25,4 +25,7 @@
     has_parent ? 'form-wrapper',
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>{{ children }}</div>
+{% set container_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(container_attributes) }}>{{ children }}</div>

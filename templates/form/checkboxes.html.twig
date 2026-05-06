@@ -12,4 +12,7 @@
  @todo: remove this file once https://www.drupal.org/node/1819284 is resolved.
  This is identical to core/modules/system/templates/container.html.twig
 #}
-<div{{ add_attributes({ class: 'form-checkboxes' }) }}>{{ children }}</div>
+{% set checkboxes_attributes = {
+  class: 'form-checkboxes',
+} %}
+<div{{ add_attributes(checkboxes_attributes) }}>{{ children }}</div>

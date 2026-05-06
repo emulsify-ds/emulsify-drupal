@@ -19,9 +19,12 @@
     required ? 'form-required',
   ]
 %}
+{% set datetime_wrapper_title_attributes = {
+  class: title_classes,
+} %}
 {% if title %}
   {% with { attributes: title_attributes } %}
-    <h4{{ add_attributes({ class: title_classes }) }}>{{ title }}</h4>
+    <h4{{ add_attributes(datetime_wrapper_title_attributes) }}>{{ title }}</h4>
   {% endwith %}
 {% endif %}
 {{ content }}

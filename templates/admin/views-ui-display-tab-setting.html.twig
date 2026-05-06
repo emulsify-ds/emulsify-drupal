@@ -25,7 +25,10 @@
     overridden ? 'overridden',
 ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set display_tab_setting_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(display_tab_setting_attributes) }}>
   {% if description -%}
     <span class="label">{{ description }}</span>
   {%- endif %}

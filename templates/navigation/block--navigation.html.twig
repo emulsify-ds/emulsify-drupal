@@ -28,19 +28,26 @@
  * @ingroup themeable
  */
 #}
-<div{{ add_attributes({ class: 'toolbar-block' }) }}>
+{% set navigation_block_attributes = {
+  class: 'toolbar-block',
+} %}
+{% set navigation_block_title_attributes = {
+  class: 'toolbar-block__title',
+  'data-drupal-tooltip': configuration.label,
+  'data-drupal-tooltip-class': 'toolbar-block__title-tooltip',
+} %}
+{% set navigation_block_hidden_title_attributes = {
+  class: ['visually-hidden', 'focusable'],
+} %}
+<div{{ add_attributes(navigation_block_attributes) }}>
   {{ title_prefix }}
   {% if configuration.label_display %}
     {% with { attributes: title_attributes } %}
-      <h2{{ add_attributes({
-        class: 'toolbar-block__title',
-        'data-drupal-tooltip': configuration.label,
-        'data-drupal-tooltip-class': 'toolbar-block__title-tooltip',
-      }) }}>{{ configuration.label }}</h2>
+      <h2{{ add_attributes(navigation_block_title_attributes) }}>{{ configuration.label }}</h2>
     {% endwith %}
   {% else %}
     {% with { attributes: title_attributes } %}
-      <h2{{ add_attributes({ class: ['visually-hidden', 'focusable'] }) }}>{{ configuration.label }}</h2>
+      <h2{{ add_attributes(navigation_block_hidden_title_attributes) }}>{{ configuration.label }}</h2>
     {% endwith %}
   {% endif %}
   {{ title_suffix }}

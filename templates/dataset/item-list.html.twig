@@ -20,7 +20,9 @@
  */
 #}
 {% if context.list_style %}
-  {%- set attributes = add_attributes({ class: 'item-list__' ~ context.list_style }) %}
+  {%- set item_list_attributes = {
+    class: 'item-list__' ~ context.list_style,
+  } %}
 {% endif %}
 {% if items or empty %}
   {%- if title is not empty -%}
@@ -28,7 +30,7 @@
   {%- endif -%}
 
   {%- if items -%}
-    <{{ list_type }}{{ attributes }}>
+    <{{ list_type }}{{ add_attributes(item_list_attributes|default({})) }}>
       {%- for item in items -%}
         <li{{ item.attributes }}>{{ item.value }}</li>
       {%- endfor -%}

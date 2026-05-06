@@ -24,7 +24,10 @@
   variant ? variant ~ '__item'
 ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set new_storage_type_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(new_storage_type_attributes) }}>
   {% if variant == 'field-option' %}
     {{ label }}
     <div{{ description.attributes }}>
@@ -35,7 +38,10 @@
   {% if variant == 'field-suboption' %}
     {{ label }}
     {% with { attributes: description.attributes } %}
-      <div{{ add_attributes({ class: description_classes }) }}>
+      {% set new_storage_type_description_attributes = {
+        class: description_classes|default([]),
+      } %}
+      <div{{ add_attributes(new_storage_type_description_attributes) }}>
         {{ description.content }}
       </div>
     {% endwith %}

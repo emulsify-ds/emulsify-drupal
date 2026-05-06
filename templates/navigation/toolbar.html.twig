@@ -20,14 +20,23 @@
  * @see \Drupal\toolbar\ToolbarThemeHooks::preprocessToolbar()
  */
 #}
-<div{{ add_attributes({ class: 'toolbar' }) }}>
+{% set toolbar_wrapper_attributes = {
+  class: 'toolbar',
+} %}
+{% set toolbar_nav_attributes = {
+  class: ['toolbar-bar', 'clearfix'],
+} %}
+<div{{ add_attributes(toolbar_wrapper_attributes) }}>
   {% with { attributes: toolbar_attributes } %}
-    <nav{{ add_attributes({ class: ['toolbar-bar', 'clearfix'] }) }}>
+    <nav{{ add_attributes(toolbar_nav_attributes) }}>
     <h2 class="visually-hidden">{{ toolbar_heading }}</h2>
     {% for key, tab in tabs %}
       {% set tray = trays[key] %}
       {% with { attributes: tab.attributes } %}
-        <div{{ add_attributes({ class: 'toolbar-tab' }) }}>
+        {% set toolbar_tab_attributes = {
+          class: 'toolbar-tab',
+        } %}
+        <div{{ add_attributes(toolbar_tab_attributes) }}>
           {{ tab.link }}
           <div{{ tray.attributes }}>
             {% if tray.label %}

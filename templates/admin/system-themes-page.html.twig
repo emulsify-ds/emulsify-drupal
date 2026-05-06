@@ -38,7 +38,10 @@
       ]
     %}
     {% with { attributes: theme_group.attributes } %}
-      <div{{ add_attributes({ class: theme_group_classes }) }}>
+      {% set theme_group_wrapper_attributes = {
+        class: theme_group_classes,
+      } %}
+      <div{{ add_attributes(theme_group_wrapper_attributes) }}>
         <h2 class="system-themes-list__header">{{ theme_group.title }}</h2>
         {% for theme in theme_group.themes %}
           {%
@@ -50,7 +53,10 @@
             ]
           %}
           {% with { attributes: theme.attributes } %}
-            <div{{ add_attributes({ class: theme_classes }) }}>
+            {% set theme_wrapper_attributes = {
+              class: theme_classes,
+            } %}
+            <div{{ add_attributes(theme_wrapper_attributes) }}>
               {% if theme.screenshot %}
                 {{ theme.screenshot }}
               {% endif %}

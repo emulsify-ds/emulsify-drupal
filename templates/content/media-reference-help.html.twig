@@ -14,7 +14,10 @@
     'form-wrapper',
   ]
 %}
-<fieldset{{ add_attributes({ class: classes }) }}>
+{% set media_reference_help_attributes = {
+  class: classes,
+} %}
+<fieldset{{ add_attributes(media_reference_help_attributes) }}>
   {%
     set legend_span_classes = [
       'fieldset-legend',
@@ -22,17 +25,23 @@
       required ? 'form-required',
     ]
   %}
+  {% set media_reference_help_legend_attributes = {
+    class: legend_span_classes,
+  } %}
   {# Always wrap fieldset legends in a <span> for CSS positioning. #}
   <legend{{ legend_attributes }}>
     {% with { attributes: legend_span_attributes } %}
-      <span{{ add_attributes({ class: legend_span_classes }) }}>{{ original_label }}</span>
+      <span{{ add_attributes(media_reference_help_legend_attributes) }}>{{ original_label }}</span>
     {% endwith %}
   </legend>
 
   <div class="js-form-item form-item">
     {% if media_add_help %}
       {% with { attributes: header_attributes } %}
-        <h4{{ add_attributes({ class: 'label' }) }}>
+        {% set media_reference_help_header_attributes = {
+          class: 'label',
+        } %}
+        <h4{{ add_attributes(media_reference_help_header_attributes) }}>
           {% trans %}
             Create new media
           {% endtrans %}
@@ -52,7 +61,10 @@
     {% endif %}
 
     {% with { attributes: description.attributes } %}
-      <div{{ add_attributes({ class: 'description' }) }}>
+      {% set media_reference_help_description_attributes = {
+        class: 'description',
+      } %}
+      <div{{ add_attributes(media_reference_help_description_attributes) }}>
         {% if multiple and description.content %}
           <ul>
             <li>{{ media_list_help }} {{ media_list_link }} {{ allowed_types_help }}</li>

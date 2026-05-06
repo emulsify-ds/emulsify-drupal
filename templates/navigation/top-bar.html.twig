@@ -13,13 +13,14 @@
  */
 #}
 {% set attributes = create_attribute() %}
+{% set top_bar_attributes = {
+  class: 'top-bar',
+  'data-drupal-admin-styles': '',
+  'aria-labelledby': 'top-bar__title',
+  'data-offset-top': true,
+} %}
 {% if tools or context|render or actions|render %}
-  <aside{{ add_attributes({
-    class: 'top-bar',
-    'data-drupal-admin-styles': '',
-    'aria-labelledby': 'top-bar__title',
-    'data-offset-top': true,
-  }) }}>
+  <aside{{ add_attributes(top_bar_attributes) }}>
     <h3 id="top-bar__title" class="visually-hidden">{{ 'Administrative top bar'|t }}</h3>
     <div class="top-bar__content">
       <div class="top-bar__tools">

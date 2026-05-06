@@ -17,8 +17,11 @@
  * @see https://www.drupal.org/node/3522119
  */
 #}
+{% set authorize_report_attributes = {
+  class: 'authorize-results',
+} %}
 {% if messages %}
-  <div{{ add_attributes({ class: 'authorize-results' }) }}>
+  <div{{ add_attributes(authorize_report_attributes) }}>
     {% for message_group in messages %}
       {{ message_group }}
     {% endfor %}

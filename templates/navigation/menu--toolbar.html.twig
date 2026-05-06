@@ -30,7 +30,10 @@
   {% import _self as menus %}
   {% if items %}
     {% if menu_level == 0 %}
-      <ul{{ add_attributes({ class: 'toolbar-menu' }) }}>
+      {% set toolbar_menu_attributes = {
+        class: 'toolbar-menu',
+      } %}
+      <ul{{ add_attributes(toolbar_menu_attributes) }}>
     {% else %}
       <ul class="toolbar-menu">
     {% endif %}
@@ -44,7 +47,10 @@
         ]
       %}
       {% with { attributes: item.attributes } %}
-        <li{{ add_attributes({ class: classes }) }}>
+        {% set toolbar_menu_item_attributes = {
+          class: classes,
+        } %}
+        <li{{ add_attributes(toolbar_menu_item_attributes) }}>
           {{ link(item.title, item.url) }}
           {% if item.below %}
             {{ menus.menu_links(item.below, attributes, menu_level + 1) }}

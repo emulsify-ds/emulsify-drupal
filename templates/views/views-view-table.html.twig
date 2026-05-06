@@ -38,7 +38,10 @@
     sticky ? 'sticky-enabled sticky-header',
   ]
 %}
-<table{{ add_attributes({ class: classes }) }}>
+{% set views_table_attributes = {
+  class: classes,
+} %}
+<table{{ add_attributes(views_table_attributes) }}>
   {% if caption_needed %}
     <caption>
     {% if caption %}
@@ -64,7 +67,11 @@
             %}
           {% endif %}
           {% with { attributes: column.attributes } %}
-            <th{{ add_attributes({ class: column_classes, scope: 'col' }) }}>
+            {% set views_table_header_attributes = {
+              class: column_classes,
+              scope: 'col',
+            } %}
+            <th{{ add_attributes(views_table_header_attributes) }}>
               {%- if column.wrapper_element -%}
                 <{{ column.wrapper_element }}>
                   {%- if column.url -%}
@@ -101,7 +108,10 @@
             {% endfor %}
           {% endif %}
           {% with { attributes: column.attributes } %}
-            <td{{ add_attributes({ class: column_classes }) }}>
+            {% set views_table_column_attributes = {
+              class: column_classes,
+            } %}
+            <td{{ add_attributes(views_table_column_attributes) }}>
               {%- if column.wrapper_element -%}
                 <{{ column.wrapper_element }}>
                 {% for content in column.content %}

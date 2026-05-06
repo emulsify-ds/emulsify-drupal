@@ -35,7 +35,10 @@
     dom_id ? 'js-view-dom-id-' ~ dom_id,
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set views_wrapper_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(views_wrapper_attributes) }}>
   {{ title_prefix }}
   {{ title }}
   {{ title_suffix }}

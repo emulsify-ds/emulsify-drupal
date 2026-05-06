@@ -18,7 +18,10 @@
     'panel',
   ]
 %}
-<div{{ add_attributes({ class: classes }) }}>
+{% set admin_block_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(admin_block_attributes) }}>
   {% if block.title %}
     <h3 class="panel__title">{{ block.title }}</h3>
   {% endif %}

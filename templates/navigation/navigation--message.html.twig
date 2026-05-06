@@ -15,21 +15,25 @@
     'toolbar-message--type--' ~ type,
   ]
 %}
+{% set navigation_message_link_attributes = {
+  class: classes,
+  href: url,
+  'data-drupal-tooltip': content,
+  'data-drupal-tooltip-class': 'admin-toolbar__tooltip',
+} %}
+{% set navigation_message_attributes = {
+  class: classes,
+} %}
 
 {% if url is not empty %}
-  <a{{ add_attributes({
-    class: classes,
-    href: url,
-    'data-drupal-tooltip': content,
-    'data-drupal-tooltip-class': 'admin-toolbar__tooltip',
-  }) }}>
+  <a{{ add_attributes(navigation_message_link_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
     <div class="toolbar-message__label">
       {{ content }}
     </div>
   </a>
 {% else %}
-  <div{{ add_attributes({ class: classes }) }}>
+  <div{{ add_attributes(navigation_message_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
     <div class="toolbar-message__label">
       {{ content }}
