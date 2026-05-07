@@ -4,7 +4,7 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 
 ## Requirements
 
-- Drupal 11.3 or newer is required.
+- Drupal 11.3 through Drupal 12.x is supported.
 - Drupal 10 is no longer supported.
 - `drupal/emulsify_tools:^2.0` is required by both `composer.json` and `emulsify.info.yml`.
 
@@ -23,7 +23,7 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 
 ## Recommended Upgrade Path
 
-1. Update the site to Drupal 11.3 or newer.
+1. Update the site to Drupal 11.3 or any Drupal 12 release.
 2. Require `drupal/emulsify_tools:^2.0`.
 3. Update the Emulsify base theme to 7.x.
 4. Regenerate or review custom child themes so they inherit from `emulsify`, not `stable9` or `whisk`.

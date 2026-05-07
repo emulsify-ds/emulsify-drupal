@@ -1,6 +1,6 @@
 type: theme
 base theme: emulsify
-core_version_requirement: '^11.3'
+core_version_requirement: '^11.3 || ^12'
 
 name: Whisk Starter
 description: Generation-only starter source for Emulsify subthemes.

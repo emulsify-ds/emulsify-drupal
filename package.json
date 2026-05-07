@@ -1,7 +1,7 @@
 {
   "name": "emulsify-drupal",
   "version": "7.0.0",
-  "description": "Storybook development + Vite Build + Drupal 11 theme",
+  "description": "Storybook development + Vite Build + Drupal 11.3-12.x theme",
   "keywords": [
     "component library",
     "design system",

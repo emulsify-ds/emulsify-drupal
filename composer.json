@@ -19,7 +19,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/core": "^11.3",
+        "drupal/core": "^11.3 || ^12",
         "drupal/emulsify_tools": "^2.0"
     }
 }
