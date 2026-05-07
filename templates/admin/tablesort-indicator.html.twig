@@ -8,10 +8,7 @@
  */
 #}
 {%
-  set classes = [
-    'tablesort',
-    'tablesort--' ~ style,
-  ]
+  set classes = bem('tablesort', [style])
 %}
 {% set tablesort_indicator_attributes = {
   class: classes,

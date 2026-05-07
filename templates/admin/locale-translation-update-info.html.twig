@@ -13,13 +13,13 @@
  * @see \Drupal\locale\Hook\LocaleThemeHooks::preprocessLocaleTranslationUpdateInfo()
  */
 #}
-<div class="locale-translation-update__wrapper" tabindex="0" role="button">
-  <span class="locale-translation-update__prefix visually-hidden">Show description</span>
+<div{{ bem('wrapper', [], 'locale-translation-update') }} tabindex="0" role="button">
+  <span{{ bem('prefix', [], 'locale-translation-update', ['visually-hidden']) }}>Show description</span>
   {% if modules %}
     {% set module_list = modules|safe_join(', ') %}
-    <span class="locale-translation-update__message">{% trans %}Updates for: {{ module_list }}{% endtrans %}</span>
+    <span{{ bem('message', [], 'locale-translation-update') }}>{% trans %}Updates for: {{ module_list }}{% endtrans %}</span>
   {% elseif not_found %}
-    <span class="locale-translation-update__message">
+    <span{{ bem('message', [], 'locale-translation-update') }}>
       {%- trans -%}
         Missing translations for one project
       {%- plural not_found|length -%}
@@ -28,7 +28,7 @@
     </span>
   {% endif %}
   {% if updates or not_found %}
-    <div class="locale-translation-update__details">
+    <div{{ bem('details', [], 'locale-translation-update') }}>
       {% if updates %}
         <ul>
           {% for update in updates %}

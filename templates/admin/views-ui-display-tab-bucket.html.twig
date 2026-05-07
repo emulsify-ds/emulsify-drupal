@@ -16,18 +16,17 @@
  */
 #}
 {%
-  set classes = [
-    'views-ui-display-tab-bucket',
-    name ? name|clean_class,
-    overridden ? 'overridden',
-  ]
+  set classes = bem('views-ui-display-tab-bucket', [], '', [
+    name ? name|clean_class : null,
+    overridden ? 'overridden' : null,
+  ])
 %}
 {% set display_tab_bucket_attributes = {
   class: classes,
 } %}
 <div{{ add_attributes(display_tab_bucket_attributes) }}>
   {% if title -%}
-    <h3 class="views-ui-display-tab-bucket__title">{{ title }}</h3>
+    <h3{{ bem('title', [], 'views-ui-display-tab-bucket') }}>{{ title }}</h3>
   {%- endif %}
   {% if actions -%}
     {{ actions }}

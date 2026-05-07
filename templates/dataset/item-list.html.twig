@@ -21,7 +21,7 @@
 #}
 {% if context.list_style %}
   {%- set item_list_attributes = {
-    class: 'item-list__' ~ context.list_style,
+    class: bem(context.list_style, [], 'item-list'),
   } %}
 {% endif %}
 {% if items or empty %}

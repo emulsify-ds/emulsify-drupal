@@ -31,15 +31,15 @@
 #}
 
 <h2>{{ 'General System Information'|t }}</h2>
-<div class="system-status-general-info__item">
-  <h3 class="system-status-general-info__item-title">{{ 'Drupal Version'|t }}</h3>
+<div{{ bem('item', [], 'system-status-general-info') }}>
+  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Drupal Version'|t }}</h3>
   {{ drupal.value }}
   {% if drupal.description %}
     {{ drupal.description }}
   {% endif %}
 </div>
-<div class="system-status-general-info__item">
-  <h3 class="system-status-general-info__item-title">{{ 'Last Cron Run'|t }}</h3>
+<div{{ bem('item', [], 'system-status-general-info') }}>
+  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Last Cron Run'|t }}</h3>
   {{ cron.value }}
   {% if cron.run_cron %}
     {{ cron.run_cron }}
@@ -48,15 +48,15 @@
     {{ cron.description }}
   {% endif %}
 </div>
-<div class="system-status-general-info__item">
-  <h3 class="system-status-general-info__item-title">{{ 'Web Server'|t }}</h3>
+<div{{ bem('item', [], 'system-status-general-info') }}>
+  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Web Server'|t }}</h3>
   {{ webserver.value }}
   {% if webserver.description %}
     {{ webserver.description }}
   {% endif %}
 </div>
-<div class="system-status-general-info__item">
-  <h3 class="system-status-general-info__item-title">{{ 'PHP'|t }}</h3>
+<div{{ bem('item', [], 'system-status-general-info') }}>
+  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'PHP'|t }}</h3>
   <h4>{{ 'Version'|t }}</h4> {{ php.value }}
   {% if php.description %}
     {{ php.description }}
@@ -67,8 +67,8 @@
     {{ php_memory_limit.description }}
   {% endif %}
 </div>
-<div class="system-status-general-info__item">
-  <h3 class="system-status-general-info__item-title">{{ 'Database'|t }}</h3>
+<div{{ bem('item', [], 'system-status-general-info') }}>
+  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Database'|t }}</h3>
   <h4>{{ 'Version'|t }}</h4>{{ database_system_version.value }}
   {% if database_system_version.description %}
     {{ database_system_version.description }}

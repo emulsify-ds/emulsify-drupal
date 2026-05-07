@@ -35,12 +35,12 @@
   } only %}
 
   {% set top_bar_page_actions_menu_attributes = {
-    class: 'toolbar-dropdown__menu',
+    class: bem('menu', [], 'toolbar-dropdown'),
     id: dropdown_id,
   } %}
   <div{{ add_attributes(top_bar_page_actions_menu_attributes) }}>
     {% set top_bar_page_actions_list_attributes = {
-      class: 'toolbar-dropdown__list',
+      class: bem('list', [], 'toolbar-dropdown'),
     } %}
     <ul{{ add_attributes(top_bar_page_actions_list_attributes) }}>
       {% for page_action in page_actions %}

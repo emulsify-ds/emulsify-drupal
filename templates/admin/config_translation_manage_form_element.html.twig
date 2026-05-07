@@ -10,11 +10,11 @@
  *
  */
 #}
-<div class="translation-set clearfix">
-  <div class="layout-column layout-column--half translation-set__source">
+<div{{ bem('translation-set', [], '', ['clearfix']) }}>
+  <div{{ bem('source', [], 'translation-set', ['layout-column', 'layout-column--half']) }}>
     {{ element.source }}
   </div>
-  <div class="layout-column layout-column--half translation-set__translated">
+  <div{{ bem('translated', [], 'translation-set', ['layout-column', 'layout-column--half']) }}>
     {{ element.translation }}
   </div>
 </div>

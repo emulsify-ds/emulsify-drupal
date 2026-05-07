@@ -11,7 +11,7 @@
 #}
 {{ attach_library('navigation/internal.navigation-messages') }}
 {% set navigation_messages_attributes = {
-  class: 'toolbar-block__list',
+  class: bem('list', [], 'toolbar-block'),
 } %}
 <div{{ add_attributes(navigation_messages_attributes) }}>
   {% for message in message_list %}

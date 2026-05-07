@@ -5,10 +5,7 @@
  */
 #}
 {%
-  set classes = [
-    'layout',
-    'layout--' ~ layout.id|clean_class,
-  ]
+  set classes = bem('layout', [layout.id|clean_class])
 %}
 {% set layout_attributes_data = {
   class: classes,
@@ -19,7 +16,7 @@
       {% if content[region] %}
         {% with { attributes: region_attributes[region] } %}
           {% set layout_region_attributes = {
-            class: ['layout__region', 'layout__region--' ~ region|clean_class],
+            class: bem('region', [region|clean_class], 'layout'),
           } %}
           <div{{ add_attributes(layout_region_attributes) }}>
             {{ content[region] }}

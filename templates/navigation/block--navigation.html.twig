@@ -29,10 +29,10 @@
  */
 #}
 {% set navigation_block_attributes = {
-  class: 'toolbar-block',
+  class: bem('toolbar-block'),
 } %}
 {% set navigation_block_title_attributes = {
-  class: 'toolbar-block__title',
+  class: bem('title', [], 'toolbar-block'),
   'data-drupal-tooltip': configuration.label,
   'data-drupal-tooltip-class': 'toolbar-block__title-tooltip',
 } %}

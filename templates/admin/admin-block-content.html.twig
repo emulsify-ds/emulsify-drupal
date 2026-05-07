@@ -17,10 +17,7 @@
  */
 #}
 {%
-  set classes = [
-    'list-group',
-    compact ? 'compact',
-  ]
+  set classes = bem('list-group', [], '', [compact ? 'compact' : null])
 %}
 {% set admin_block_content_attributes = {
   class: classes,
@@ -28,9 +25,9 @@
 {% if content %}
   <dl{{ add_attributes(admin_block_content_attributes) }}>
     {% for item in content %}
-      <dt class="list-group__link">{{ item.link }}</dt>
+      <dt{{ bem('link', [], 'list-group') }}>{{ item.link }}</dt>
       {% if item.description %}
-        <dd class="list-group__description">{{ item.description }}</dd>
+        <dd{{ bem('description', [], 'list-group') }}>{{ item.description }}</dd>
       {% endif %}
     {% endfor %}
   </dl>

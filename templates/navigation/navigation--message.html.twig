@@ -10,10 +10,7 @@
  */
 #}
 {%
-  set classes = [
-    'toolbar-message',
-    'toolbar-message--type--' ~ type,
-  ]
+  set classes = bem('toolbar-message', ['type--' ~ type])
 %}
 {% set navigation_message_link_attributes = {
   class: classes,
@@ -28,14 +25,14 @@
 {% if url is not empty %}
   <a{{ add_attributes(navigation_message_link_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
-    <div class="toolbar-message__label">
+    <div{{ bem('label', [], 'toolbar-message') }}>
       {{ content }}
     </div>
   </a>
 {% else %}
   <div{{ add_attributes(navigation_message_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
-    <div class="toolbar-message__label">
+    <div{{ bem('label', [], 'toolbar-message') }}>
       {{ content }}
     </div>
   </div>

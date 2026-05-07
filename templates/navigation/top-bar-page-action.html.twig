@@ -8,7 +8,7 @@
  */
 #}
 {% set top_bar_page_action_attributes = {
-  class: 'toolbar-dropdown__item',
+  class: bem('item', [], 'toolbar-dropdown'),
 } %}
 <li{{ add_attributes(top_bar_page_action_attributes) }}>
   {{ link|add_class('toolbar-dropdown__link') }}

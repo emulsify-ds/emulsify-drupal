@@ -12,7 +12,7 @@
 #}
 {% if items is not empty %}
   {% set navigation_content_top_attributes = {
-    class: 'admin-toolbar__content-top',
+    class: bem('content-top', [], 'admin-toolbar'),
   } %}
   <div{{ add_attributes(navigation_content_top_attributes) }}>
     {{ items }}

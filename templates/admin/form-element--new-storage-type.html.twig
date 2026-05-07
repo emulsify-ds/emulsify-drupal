@@ -21,7 +21,7 @@
 {%
   set classes = [
   errors ? 'form-item--error',
-  variant ? variant ~ '__item'
+  variant ? bem('item', [], variant)
 ]
 %}
 {% set new_storage_type_attributes = {

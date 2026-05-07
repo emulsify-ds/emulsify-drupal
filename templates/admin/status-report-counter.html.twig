@@ -9,6 +9,6 @@
  * - severity: The severity of the counter.
  */
 #}
-<span class="system-status-counter__status-icon system-status-counter__status-icon--{{ severity }}"></span>
+<span{{ bem('status-icon', [severity], 'system-status-counter') }}></span>
 <span>{{ amount }} {{ text }}</span>
 <a href="#{{ severity }}"><span class="visually-hidden">{{ text }} </span>{{ 'Details'|t }}</a>

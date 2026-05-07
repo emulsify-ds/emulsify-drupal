@@ -14,7 +14,7 @@
 #}
 {% set attributes = create_attribute() %}
 {% set top_bar_attributes = {
-  class: 'top-bar',
+  class: bem('top-bar'),
   'data-drupal-admin-styles': '',
   'aria-labelledby': 'top-bar__title',
   'data-offset-top': true,
@@ -27,23 +27,23 @@
     } %}
     <h3{{ add_attributes(top_bar_title_attributes) }}>{{ 'Administrative top bar'|t }}</h3>
     {% set top_bar_content_attributes = {
-      class: 'top-bar__content',
+      class: bem('content', [], 'top-bar'),
     } %}
     <div{{ add_attributes(top_bar_content_attributes) }}>
       {% set top_bar_tools_attributes = {
-        class: 'top-bar__tools',
+        class: bem('tools', [], 'top-bar'),
       } %}
       <div{{ add_attributes(top_bar_tools_attributes) }}>
         {{- tools -}}
       </div>
       {% set top_bar_context_attributes = {
-        class: 'top-bar__context',
+        class: bem('context', [], 'top-bar'),
       } %}
       <div{{ add_attributes(top_bar_context_attributes) }}>
         {{- context -}}
       </div>
       {% set top_bar_actions_attributes = {
-        class: 'top-bar__actions',
+        class: bem('actions', [], 'top-bar'),
       } %}
       <div{{ add_attributes(top_bar_actions_attributes) }}>
         {{- actions -}}

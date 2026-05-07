@@ -18,27 +18,27 @@
  */
 #}
 {% set admin_toolbar_control_bar_attributes = {
-  class: 'admin-toolbar-control-bar',
+  class: bem('admin-toolbar-control-bar'),
   'data-drupal-admin-styles': '',
 } %}
 {% set admin_toolbar_attributes = {
-  class: 'admin-toolbar',
+  class: bem('admin-toolbar'),
   id: 'admin-toolbar',
   'data-drupal-admin-styles': true,
   role: 'presentation',
 } %}
 {% set admin_toolbar_content_attributes = {
-  class: 'admin-toolbar__content',
+  class: bem('content', [], 'admin-toolbar'),
   id: 'menu-builder',
 } %}
 {% set admin_toolbar_footer_attributes = {
-  class: 'admin-toolbar__footer',
+  class: bem('footer', [], 'admin-toolbar'),
   id: 'menu-footer',
 } %}
 {% with { attributes: create_attribute() } %}
   <div{{ add_attributes(admin_toolbar_control_bar_attributes) }}>
     {% set admin_toolbar_control_bar_content_attributes = {
-      class: 'admin-toolbar-control-bar__content',
+      class: bem('content', [], 'admin-toolbar-control-bar'),
     } %}
     <div{{ add_attributes(admin_toolbar_control_bar_content_attributes) }}>
       {% include 'navigation:toolbar-button' with {
@@ -57,12 +57,12 @@
 <aside{{ add_attributes(admin_toolbar_attributes) }}>
   {# This lil' div will get the Drupal.displace() attributes added to it via JS. #}
   {% set admin_toolbar_displace_placeholder_attributes = {
-    class: 'admin-toolbar__displace-placeholder',
+    class: bem('displace-placeholder', [], 'admin-toolbar'),
   } %}
   <div{{ add_attributes(admin_toolbar_displace_placeholder_attributes) }}></div>
 
   {% set admin_toolbar_scroll_wrapper_attributes = {
-    class: 'admin-toolbar__scroll-wrapper',
+    class: bem('scroll-wrapper', [], 'admin-toolbar'),
     'aria-label': 'Administrative sidebar'|t,
   } %}
   <nav{{ add_attributes(admin_toolbar_scroll_wrapper_attributes) }}>
@@ -72,12 +72,12 @@
       <div{{ add_attributes(admin_toolbar_content_attributes) }}>
         {# @todo - Needs to be placed here so we can have the header footer on mobile. #}
         {% set admin_toolbar_header_attributes = {
-          class: 'admin-toolbar__header',
+          class: bem('header', [], 'admin-toolbar'),
         } %}
         <div{{ add_attributes(admin_toolbar_header_attributes) }}>
           {% if not settings.hide_logo %}
             {% set admin_toolbar_logo_attributes = {
-              class: 'admin-toolbar__logo',
+              class: bem('logo', [], 'admin-toolbar'),
             } %}
             <a href="{{ path('<front>') }}"{{ add_attributes(admin_toolbar_logo_attributes) }}>
               {% if settings.logo_path is not null %}
@@ -121,7 +121,7 @@
         {{ content.footer }}
         {% set admin_toolbar_expand_button_attributes = {
           'aria-controls': 'admin-toolbar',
-          class: 'admin-toolbar__expand-button',
+          class: bem('expand-button', [], 'admin-toolbar'),
           type: 'button',
         } %}
         <button{{ add_attributes(admin_toolbar_expand_button_attributes) }}>

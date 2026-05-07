@@ -24,27 +24,27 @@
  */
 #}
 {% set update_version_attributes = {
-  class: 'project-update__version',
+  class: bem('version', [], 'project-update'),
 } %}
 <div{{ add_attributes(update_version_attributes) }}>
   <div class="clearfix">
-    <div class="project-update__version-title layout-column layout-column--quarter">{{ title }}</div>
-    <div class="project-update__version-details layout-column layout-column--quarter">
+    <div{{ bem('version-title', [], 'project-update', ['layout-column', 'layout-column--quarter']) }}>{{ title }}</div>
+    <div{{ bem('version-details', [], 'project-update', ['layout-column', 'layout-column--quarter']) }}>
       <a href="{{ version.release_link }}">{{ version.version }}</a>
-      <span class="project-update__version-date">({{ version.date|date('Y-M-d') }})</span>
+      <span{{ bem('version-date', [], 'project-update') }}>({{ version.date|date('Y-M-d') }})</span>
     </div>
     <div class="layout-column layout-column--half">
-      <ul class="project-update__version-links">
+      <ul{{ bem('version-links', [], 'project-update') }}>
         {% if version.core_compatible is not defined or version.core_compatible %}
-          <li class="project-update__download-link">
+          <li{{ bem('download-link', [], 'project-update') }}>
             <a href="{{ version.download_link }}">{{ 'Download'|t }}</a>
           </li>
         {% endif %}
-        <li class="project-update__release-notes-link">
+        <li{{ bem('release-notes-link', [], 'project-update') }}>
           <a href="{{ version.release_link }}">{{ 'Release notes'|t }}</a>
         </li>
         {% if core_compatibility_details %}
-          <li class="project-update__compatibility-details">
+          <li{{ bem('compatibility-details', [], 'project-update') }}>
             {{ core_compatibility_details }}
           </li>
         {% endif %}

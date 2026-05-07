@@ -32,7 +32,7 @@
   {% for theme_group in theme_groups %}
     {%
       set theme_group_classes = [
-        'system-themes-list',
+        bem('system-themes-list'),
         'system-themes-list-' ~ theme_group.state,
         'clearfix',
       ]
@@ -42,7 +42,7 @@
         class: theme_group_classes,
       } %}
       <div{{ add_attributes(theme_group_wrapper_attributes) }}>
-        <h2 class="system-themes-list__header">{{ theme_group.title }}</h2>
+        <h2{{ bem('header', [], 'system-themes-list') }}>{{ theme_group.title }}</h2>
         {% for theme in theme_group.themes %}
           {%
             set theme_classes = [
@@ -60,14 +60,14 @@
               {% if theme.screenshot %}
                 {{ theme.screenshot }}
               {% endif %}
-              <div class="theme-info">
-                <h3 class="theme-info__header">
+              <div{{ bem('theme-info') }}>
+                <h3{{ bem('header', [], 'theme-info') }}>
                   {{- theme.name }} {{ theme.version -}}
                   {% if theme.notes %}
                     ({{ theme.notes|safe_join(', ') }})
                   {%- endif -%}
                 </h3>
-                <div class="theme-info__description">{{ theme.description }}</div>
+                <div{{ bem('description', [], 'theme-info') }}>{{ theme.description }}</div>
                 {# Display operation links if the theme is compatible. #}
                 {% if theme.incompatible %}
                   <div class="incompatible">{{ theme.incompatible }}</div>

@@ -10,13 +10,13 @@
  */
 #}
 {% if counters|length == 3 %}
-  {% set element_width_class = ' system-status-report-counters__item--third-width' %}
+  {% set counter_item_modifiers = ['third-width'] %}
 {% elseif counters|length == 2 %}
-  {% set element_width_class = ' system-status-report-counters__item--half-width' %}
+  {% set counter_item_modifiers = ['half-width'] %}
 {% endif %}
-<div class="system-status-report-counters">
+<div{{ bem('system-status-report-counters') }}>
   {% for counter in counters %}
-    <div class="system-status-report-counters__item{{ element_width_class }}">
+    <div{{ bem('item', counter_item_modifiers|default([]), 'system-status-report-counters') }}>
       {{ counter }}
     </div>
   {% endfor %}
