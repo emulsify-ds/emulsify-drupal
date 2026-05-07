@@ -88,6 +88,7 @@ $generator = new FaviconPackageGenerator(
   \Drupal::service('config.factory'),
   \Drupal::service('cache_tags.invalidator'),
   \Drupal::service('datetime.time'),
+  \Drupal::service('lock'),
 );
 $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
 $realpath = \Drupal::service('file_system')->realpath($definition['path']);

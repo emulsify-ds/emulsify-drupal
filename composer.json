@@ -21,12 +21,5 @@
     "require": {
         "drupal/core": "^11.3",
 		"drupal/emulsify_tools": "^2.0"
-    },
-    "extra": {
-        "drush": {
-            "services": {
-                "drush.services.yml": "^10 || ^11"
-            }
-        }
     }
 }

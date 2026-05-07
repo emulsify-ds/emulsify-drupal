@@ -9,12 +9,11 @@ use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\emulsify\Favicon\FaviconHeadBuilder;
-use Drupal\emulsify\Favicon\FaviconPackageGenerator;
-use Drupal\emulsify\Favicon\FaviconSettings;
-use Drupal\file\Entity\File;
+use Drupal\emulsify\Favicon\FaviconThemeManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -30,7 +29,7 @@ final class FaviconHooks {
   /**
    * Generates missing runtime packages from portable SVG config.
    */
-  private FaviconPackageGenerator $packageGenerator;
+  private FaviconThemeManager $faviconThemeManager;
 
   /**
    * Logger channel for runtime favicon generation failures.
@@ -42,21 +41,24 @@ final class FaviconHooks {
    */
   public function __construct(
     private readonly ThemeManagerInterface $themeManager,
-    private readonly ThemeSettingsProvider $themeSettingsProvider,
+    ThemeSettingsProvider $themeSettingsProvider,
     private readonly ConfigFactoryInterface $configFactory,
     FileSystemInterface $fileSystem,
     CacheTagsInvalidatorInterface $cacheTagsInvalidator,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     FileUrlGeneratorInterface $fileUrlGenerator,
     TimeInterface $time,
+    LockBackendInterface $lock,
   ) {
     $this->headBuilder = new FaviconHeadBuilder($fileUrlGenerator);
-    $this->packageGenerator = new FaviconPackageGenerator(
-      $fileSystem,
-      $fileUrlGenerator,
+    $this->faviconThemeManager = new FaviconThemeManager(
+      $themeSettingsProvider,
       $configFactory,
+      $fileSystem,
       $cacheTagsInvalidator,
+      $fileUrlGenerator,
       $time,
+      $lock,
     );
     $this->logger = $loggerChannelFactory->get('emulsify');
   }
@@ -67,11 +69,7 @@ final class FaviconHooks {
   #[Hook('page_attachments_alter')]
   public function pageAttachmentsAlter(array &$attachments): void {
     $theme_name = $this->themeManager->getActiveTheme()->getName();
-    $settings = FaviconSettings::loadThemeSettings(
-      $theme_name,
-      $this->themeSettingsProvider,
-      $this->getSiteName(),
-    );
+    $settings = $this->faviconThemeManager->loadThemeSettings($theme_name);
 
     if (empty($settings['favicon_package_enabled'])) {
       return;
@@ -93,12 +91,12 @@ final class FaviconHooks {
       return $this->doResolveRuntimePackageSettings($theme_name, $settings);
     }
     catch (\Throwable $exception) {
-      $this->logger->error('Unable to resolve runtime favicon package for %theme: @message', [
+      $this->logger->warning('Unable to resolve runtime favicon package for %theme: @message', [
         '%theme' => $theme_name,
         '@message' => $exception->getMessage(),
       ]);
 
-      return !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path']) ? $settings : NULL;
+      return !empty($settings['favicon_package_path']) && $this->faviconThemeManager->getPackageGenerator()->packageExists($settings['favicon_package_path']) ? $settings : NULL;
     }
   }
 
@@ -106,71 +104,38 @@ final class FaviconHooks {
    * Resolves package settings when a portable SVG source is available.
    */
   private function doResolveRuntimePackageSettings(string $theme_name, array $settings): ?array {
-    $source_svg = FaviconSettings::getPortableSourceSvg($settings);
-    $source_metadata = [
-      'filename' => (string) ($settings['favicon_source_filename'] ?? 'favicon.svg'),
-    ];
-    $source_fid = FaviconSettings::getSourceFileId($settings);
-    $source_file = $source_fid ? File::load($source_fid) : NULL;
-    $source_analysis = $source_file ? $this->resolveRuntimeSourceFileAnalysis($source_file, $source_svg) : NULL;
+    $source_file = $this->faviconThemeManager->resolveStoredSourceFile($settings);
+    $package_status = $this->faviconThemeManager->buildPackageStatus($theme_name, $settings, $source_file);
 
-    if ($source_analysis !== NULL) {
-      $source_svg = (string) $source_analysis['sanitized_svg'];
-      $source_metadata['file_id'] = (int) $source_file->id();
-      $source_metadata['filename'] = $source_file->getFilename();
-    }
-
-    if ($source_svg !== '') {
-      $analysis = $this->packageGenerator->validateSourceSvg($source_svg, FALSE);
-      $source_svg = (string) $analysis['sanitized_svg'];
-    }
-
-    if ($source_svg === '') {
-      return !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path'])
-        ? $settings
-        : NULL;
-    }
-
-    $definition = $this->packageGenerator->getPackageDefinition($theme_name, $settings, $source_svg);
-    $settings['favicon_package_hash'] = $definition['hash'];
-    $settings['favicon_package_path'] = $definition['path'];
-
-    if (!$this->packageGenerator->packageExists($definition['path'])) {
-      $result = $this->packageGenerator->generateFromSvg($theme_name, $source_svg, $settings, $source_metadata);
-      $settings['favicon_package_generated_at'] = $result['generated_at'];
+    if ($package_status['package_exists']) {
+      $settings['favicon_package_hash'] = $package_status['hash'];
+      $settings['favicon_package_path'] = $package_status['path'];
+      $settings['favicon_package_generated_at'] = (int) ($package_status['generated_at'] ?? 0);
       return $settings;
     }
 
-    $metadata = $this->packageGenerator->readPackageMetadata($definition['path']);
-    if (is_array($metadata) && isset($metadata['generated_at'])) {
-      $settings['favicon_package_generated_at'] = (int) $metadata['generated_at'];
+    if (!$package_status['source_available']) {
+      return NULL;
+    }
+
+    if (!empty($package_status['path'])) {
+      $this->logger->notice('Attempting runtime fallback favicon generation for %theme at %path.', [
+        '%theme' => $theme_name,
+        '%path' => $package_status['path'],
+      ]);
+    }
+
+    $generation = $this->faviconThemeManager->generatePackage($theme_name, $settings, FALSE);
+    $settings = $generation['settings'];
+
+    if (!empty($settings['favicon_package_path'])) {
+      $this->logger->notice('Runtime fallback regenerated the missing favicon package for %theme at %path.', [
+        '%theme' => $theme_name,
+        '%path' => $settings['favicon_package_path'],
+      ]);
     }
 
     return $settings;
-  }
-
-  /**
-   * Validates a managed source file or falls back to stored SVG config.
-   *
-   * @return array<string, mixed>|null
-   *   The validated source analysis, or NULL when config fallback should be used.
-   */
-  private function resolveRuntimeSourceFileAnalysis(File $source_file, string $source_svg): ?array {
-    try {
-      return $this->packageGenerator->validateSourceFile($source_file, FALSE);
-    }
-    catch (\InvalidArgumentException $exception) {
-      if ($source_svg === '') { throw $exception; }
-    }
-
-    return NULL;
-  }
-
-  /**
-   * Returns the current site name.
-   */
-  private function getSiteName(): string {
-    return (string) $this->configFactory->get('system.site')->get('name');
   }
 
 }

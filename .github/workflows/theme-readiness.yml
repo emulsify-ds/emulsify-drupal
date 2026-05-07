@@ -5,7 +5,8 @@ on:
   push:
     branches:
       - main
-      - 6.x
+      - 7.x
+      - release-7
   workflow_dispatch:
 
 concurrency:
@@ -35,13 +36,23 @@ jobs:
         run: bash .github/scripts/setup-fixture-site.sh "${{ env.DRUPAL_VERSION }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Verify Emulsify ships the full stable9 template surface
-        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE" "$RUNNER_TEMP/emulsify-template-parity.md"
+
+      - name: Upload stable9 parity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stable9-template-parity
+          path: ${{ runner.temp }}/emulsify-template-parity.md
 
       - name: Smoke test base theme page rendering
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
       - name: Smoke test generated favicon package
         run: bash .github/scripts/favicon-smoke.sh /tmp/emulsify-fixture emulsify
+
+      - name: Smoke test favicon portability and sanitizer coverage
+        run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Generate and enable a Whisk-derived theme
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme

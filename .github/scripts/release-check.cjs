@@ -204,6 +204,9 @@ function runStaticChecks() {
     ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
     ensure(themeReadinessWorkflow.includes(`DRUPAL_VERSION: '${minCoreVersion}.*'`), 'theme-readiness.yml should smoke test the supported Drupal patch line.');
     ensure(themeReadinessWorkflow.includes("PHP_VERSION: '8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x.');
+    ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
+    ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     return `Root theme metadata and CI readiness checks align to Drupal ${minCoreVersion} on PHP 8.4.`;
   });
 
@@ -277,6 +280,7 @@ function runSmokeChecks() {
     addResult('SKIP', 'Base theme render smoke', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Generated theme smoke test', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Favicon generation', 'Skipped with --skip-smoke.');
+    addResult('SKIP', 'Favicon portability and sanitizer coverage', 'Skipped with --skip-smoke.');
     return;
   }
 
@@ -284,6 +288,7 @@ function runSmokeChecks() {
   const baseFixture = path.join(smokeRoot, 'base-fixture');
   const generatedThemeFixture = path.join(smokeRoot, 'generated-theme-fixture');
   const faviconFixture = path.join(smokeRoot, 'favicon-fixture');
+  const faviconPortabilityFixture = path.join(smokeRoot, 'favicon-portability-fixture');
   const baseThemeOutput = path.join(smokeRoot, 'base-theme-output');
   const generatedThemeOutput = path.join(smokeRoot, 'generated-theme-output');
 
@@ -306,6 +311,7 @@ function runSmokeChecks() {
     addResult('FAIL', 'Base theme render smoke', 'Unable to build the Drupal fixture site for smoke testing.');
     addResult('FAIL', 'Generated theme smoke test', 'Unable to build the Drupal fixture site for smoke testing.');
     addResult('FAIL', 'Favicon generation', 'Unable to build the Drupal fixture site for smoke testing.');
+    addResult('FAIL', 'Favicon portability and sanitizer coverage', 'Unable to build the Drupal fixture site for smoke testing.');
     return;
   }
 
@@ -341,6 +347,15 @@ function runSmokeChecks() {
     [path.join(repoRoot, '.github/scripts/favicon-smoke.sh'), faviconFixture, 'emulsify'],
     repoRoot,
     { passMessage: 'Verified export-backed favicon package generation and head attachment smoke.' },
+  );
+
+  copyDirectory(baseFixture, faviconPortabilityFixture);
+  runSmokeCheck(
+    'Favicon portability and sanitizer coverage',
+    'bash',
+    [path.join(repoRoot, '.github/scripts/favicon-portability-smoke.sh'), faviconPortabilityFixture, 'emulsify'],
+    repoRoot,
+    { passMessage: 'Verified portable favicon regeneration, reset, and sanitizer portability coverage.' },
   );
 }
 

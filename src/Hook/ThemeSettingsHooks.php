@@ -11,12 +11,14 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\emulsify\Favicon\FaviconPackageGenerator;
 use Drupal\emulsify\Favicon\FaviconPreviewBuilder;
 use Drupal\emulsify\Favicon\FaviconSettings;
+use Drupal\emulsify\Favicon\FaviconThemeManager;
 use Drupal\file\Entity\File;
 use Psr\Log\LoggerInterface;
 
@@ -40,6 +42,7 @@ final class ThemeSettingsHooks {
     'source_diagnostics_notice',
     'status',
     'package_status_notice',
+    'environment_status_notice',
     'maskable_info',
     'maskable_icon_notice',
     'generation_hint',
@@ -50,7 +53,7 @@ final class ThemeSettingsHooks {
   /**
    * Generates favicon packages from uploaded theme assets.
    */
-  private FaviconPackageGenerator $packageGenerator;
+  private FaviconThemeManager $faviconThemeManager;
 
   /**
    * Builds admin previews for generated favicon assets.
@@ -66,21 +69,24 @@ final class ThemeSettingsHooks {
    * Creates the theme settings hook handler.
    */
   public function __construct(
-    private readonly ThemeSettingsProvider $themeSettingsProvider,
+    ThemeSettingsProvider $themeSettingsProvider,
     private readonly ConfigFactoryInterface $configFactory,
-    private readonly FileSystemInterface $fileSystem,
-    private readonly CacheTagsInvalidatorInterface $cacheTagsInvalidator,
+    FileSystemInterface $fileSystem,
+    CacheTagsInvalidatorInterface $cacheTagsInvalidator,
     private readonly MessengerInterface $messenger,
     LoggerChannelFactoryInterface $loggerChannelFactory,
     FileUrlGeneratorInterface $fileUrlGenerator,
     TimeInterface $time,
+    LockBackendInterface $lock,
   ) {
-    $this->packageGenerator = new FaviconPackageGenerator(
-      $fileSystem,
-      $fileUrlGenerator,
+    $this->faviconThemeManager = new FaviconThemeManager(
+      $themeSettingsProvider,
       $configFactory,
+      $fileSystem,
       $cacheTagsInvalidator,
+      $fileUrlGenerator,
       $time,
+      $lock,
     );
     $this->previewBuilder = new FaviconPreviewBuilder($fileUrlGenerator);
     $this->logger = $loggerChannelFactory->get('emulsify');
@@ -93,8 +99,8 @@ final class ThemeSettingsHooks {
   public function formSystemThemeSettingsAlter(array &$form, FormStateInterface $form_state): void {
     $site_name = $this->getSiteName();
     $theme_name = FaviconSettings::resolveThemeName($form_state);
-    $settings = FaviconSettings::loadThemeSettings($theme_name, $this->themeSettingsProvider, $site_name);
-    $source_file = $this->resolveStoredSourceFile($settings);
+    $settings = $this->faviconThemeManager->loadThemeSettings($theme_name);
+    $source_file = $this->faviconThemeManager->resolveStoredSourceFile($settings);
     $package_status = $this->buildPackageStatus($theme_name, $settings, $source_file);
     $has_generated_package = $package_status['package_exists'];
     $has_preview_source = $package_status['source_available'] || $has_generated_package;
@@ -178,7 +184,7 @@ final class ThemeSettingsHooks {
       '#type' => 'details',
       '#title' => $this->t('Favicon'),
       '#open' => TRUE,
-      '#description' => $this->t('Upload one source SVG, configure platform-specific framing, and save the form to generate a modern favicon package. The sanitized SVG source is stored with theme settings so configuration imports can regenerate the package in other environments.'),
+      '#description' => $this->t('Upload one source SVG, configure platform-specific framing, and save the form to generate a modern favicon package. The sanitized SVG source is stored with theme settings so configuration imports can regenerate the package in other environments. Admin saves are the primary generation path, drush emulsify_tools:favicon-generate [theme_name] is the deployment path when the helper module is installed, and runtime generation should remain a guarded fallback only.'),
     ];
 
     $form['emulsify_favicon']['favicon_package_enabled'] = [
@@ -243,6 +249,11 @@ final class ThemeSettingsHooks {
       '#type' => 'item',
       '#title' => $this->t('Current generated package'),
       '#markup' => $package_status['status_markup'],
+    ];
+    $form['emulsify_favicon']['environment_status_notice'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Environment and deployment status'),
+      '#markup' => $this->buildEnvironmentStatusMarkup($settings, $package_status),
     ];
 
     $form['emulsify_favicon']['browser'] = [
@@ -429,7 +440,7 @@ final class ThemeSettingsHooks {
     $form_state->setValue('favicon_manifest_display', 'standalone');
 
     try {
-      $source_context = $this->resolveSourceContext(
+      $source_context = $this->faviconThemeManager->resolveSourceContext(
         $settings,
         !empty($settings['favicon_package_enabled']),
       );
@@ -465,7 +476,7 @@ final class ThemeSettingsHooks {
     $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
 
     try {
-      $source_context = $this->resolveSourceContext(
+      $source_context = $this->faviconThemeManager->resolveSourceContext(
         $settings,
         !empty($settings['favicon_package_enabled']),
       );
@@ -489,39 +500,25 @@ final class ThemeSettingsHooks {
     }
 
     try {
-      $definition = $this->packageGenerator->getPackageDefinition(
+      $generation = $this->faviconThemeManager->generatePackage(
         $theme_name,
         $settings,
-        $source_context['source_svg'],
+        $this->isRegenerationRequest($form_state),
       );
-      $metadata = $this->packageGenerator->readPackageMetadata($definition['path']);
-      $should_generate = $this->isRegenerationRequest($form_state)
-        || $settings['favicon_package_hash'] !== $definition['hash']
-        || $settings['favicon_package_path'] !== $definition['path']
-        || !$this->packageGenerator->packageExists($definition['path']);
-
-      $form_state->setValue('favicon_package_hash', $definition['hash']);
-      $form_state->setValue('favicon_package_path', $definition['path']);
-      if (is_array($metadata) && isset($metadata['generated_at'])) {
-        $form_state->setValue('favicon_package_generated_at', (int) $metadata['generated_at']);
+      foreach ([
+        'favicon_source_svg',
+        'favicon_source_filename',
+        'favicon_package_hash',
+        'favicon_package_path',
+        'favicon_package_generated_at',
+      ] as $key) {
+        $form_state->setValue($key, $generation['settings'][$key]);
       }
 
-      if (!$should_generate) {
+      if (!$generation['generated']) {
         return;
       }
 
-      $result = $this->packageGenerator->generateFromSvg(
-        $theme_name,
-        $source_context['source_svg'],
-        $settings,
-        [
-          'file_id' => $source_context['source_file'] instanceof File ? (int) $source_context['source_file']->id() : 0,
-          'filename' => $source_context['source_filename'],
-        ],
-      );
-      $form_state->setValue('favicon_package_hash', $result['hash']);
-      $form_state->setValue('favicon_package_path', $result['path']);
-      $form_state->setValue('favicon_package_generated_at', $result['generated_at']);
       $this->messenger->addStatus($this->t('Generated the favicon package for %theme.', ['%theme' => $theme_name]));
     }
     catch (\Throwable $exception) {
@@ -540,33 +537,10 @@ final class ThemeSettingsHooks {
     $form_state->set('emulsify_favicon_reset', TRUE);
 
     $theme_name = FaviconSettings::resolveThemeName($form_state);
-    $settings = FaviconSettings::loadThemeSettings($theme_name, $this->themeSettingsProvider, $this->getSiteName());
-    $source_file = $this->resolveStoredSourceFile($settings);
-    $package_status = $this->buildPackageStatus($theme_name, $settings, $source_file);
-
-    $package_paths = array_unique(array_filter([
-      $settings['favicon_package_path'],
-      $package_status['path'],
-    ]));
-    foreach ($package_paths as $package_path) {
-      $realpath = $this->fileSystem->realpath($package_path);
-      if ($realpath && is_dir($realpath)) {
-        $this->fileSystem->deleteRecursive($realpath);
-      }
-    }
-
-    $config = $this->configFactory->getEditable($theme_name . '.settings');
-    foreach (FaviconSettings::DEFAULTS as $key => $value) {
-      $config->set($key, $value);
+    $defaults = $this->faviconThemeManager->resetThemeSettings($theme_name);
+    foreach ($defaults as $key => $value) {
       $form_state->setValue($key, $value);
     }
-    $config
-      ->set('features.favicon', TRUE)
-      ->set('favicon.use_default', TRUE)
-      ->set('favicon.path', '')
-      ->save();
-
-    $this->cacheTagsInvalidator->invalidateTags(['rendered']);
     $this->messenger->addStatus($this->t('Reset the generated favicon package and restored the theme default favicon behavior.'));
   }
 
@@ -579,131 +553,21 @@ final class ThemeSettingsHooks {
   }
 
   /**
-   * Resolves a stored managed file source when it still exists.
-   */
-  private function resolveStoredSourceFile(array $settings): ?File {
-    $source_fid = FaviconSettings::getSourceFileId($settings);
-    if (!$source_fid) {
-      return NULL;
-    }
-
-    $source_file = File::load($source_fid);
-    return $source_file instanceof File ? $source_file : NULL;
-  }
-
-  /**
-   * Resolves the current source context from form or config values.
-   *
-   * @return array<string, mixed>
-   *   The resolved source context, or an empty array if no source exists.
-   */
-  private function resolveSourceContext(array $settings, bool $requires_rasterization): array {
-    $source_svg = FaviconSettings::getPortableSourceSvg($settings);
-    $source_filename = (string) ($settings['favicon_source_filename'] ?: 'favicon.svg');
-    $source_fid = FaviconSettings::getSourceFileId($settings);
-    $source_file = $source_fid ? File::load($source_fid) : NULL;
-    if ($source_fid && !$source_file && $source_svg === '') {
-      throw new \InvalidArgumentException('The uploaded icon file could not be loaded.');
-    }
-
-    $analysis = $source_file
-      ? $this->resolveSourceFileAnalysis($source_file, $source_svg, $requires_rasterization)
-      : NULL;
-
-    if ($analysis !== NULL) {
-      $source_filename = $source_file->getFilename();
-    }
-
-    if ($analysis === NULL && $source_svg === '') {
-      return [];
-    }
-
-    if ($analysis === NULL) {
-      $source_file = NULL;
-      $analysis = $this->packageGenerator->validateSourceSvg($source_svg, $requires_rasterization);
-    }
-
-    return [
-      'source_file' => $source_file,
-      'source_svg' => (string) $analysis['sanitized_svg'],
-      'source_filename' => $source_filename,
-      'analysis' => $analysis,
-    ];
-  }
-
-  /**
-   * Validates a managed source file or falls back to stored SVG config.
-   *
-   * @return array<string, mixed>|null
-   *   The validated source analysis, or NULL when config fallback should be used.
-   */
-  private function resolveSourceFileAnalysis(File $source_file, string $source_svg, bool $requires_rasterization): ?array {
-    try {
-      return $this->packageGenerator->validateSourceFile($source_file, $requires_rasterization);
-    }
-    catch (\InvalidArgumentException $exception) {
-      if ($source_svg === '') { throw $exception; }
-    }
-
-    return NULL;
-  }
-
-  /**
    * Builds package freshness and source diagnostics for the admin UI.
    *
    * @return array<string, mixed>
    *   Status and diagnostic metadata for the current theme.
    */
   private function buildPackageStatus(string $theme_name, array $settings, ?File $source_file): array {
-    $status = [
-      'state' => 'missing',
-      'hash' => (string) ($settings['favicon_package_hash'] ?? ''),
-      'path' => (string) ($settings['favicon_package_path'] ?? ''),
-      'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path']),
-      'source_available' => FALSE,
-      'portable_source_missing' => FALSE,
-      'portable_source_available' => FaviconSettings::hasPortableSource($settings),
-      'source_diagnostics' => '',
-      'status_markup' => '',
-    ];
-
+    $status = $this->faviconThemeManager->buildPackageStatus($theme_name, $settings, $source_file);
     try {
-      $source_context = [];
-      if ($source_file) {
-        $source_context = $this->resolveSourceContext($settings, FALSE);
-		$status['portable_source_missing'] = !$status['portable_source_available'];
-      }
-      elseif ($status['portable_source_available']) {
-        $source_context = $this->resolveSourceContext($settings, FALSE);
-      }
-
-      if ($source_context !== []) {
-        $status['source_available'] = TRUE;
-        $definition = $this->packageGenerator->getPackageDefinition(
-          $theme_name,
-          $settings,
-          $source_context['source_svg'],
-        );
-        $status['hash'] = $definition['hash'];
-        $status['path'] = $definition['path'];
-        $status['package_exists'] = $this->packageGenerator->packageExists($definition['path']);
-        $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup(
-          $source_context['analysis']['warnings'] ?? [],
-          $status['portable_source_missing'],
-        );
-
-        if ($status['package_exists'] && $settings['favicon_package_hash'] === $definition['hash'] && $settings['favicon_package_path'] === $definition['path']) {
-          $status['state'] = 'current';
-        }
-        elseif ($status['package_exists']) {
-          $status['state'] = 'stale';
-        }
-        else {
-          $status['state'] = 'missing';
-        }
-      }
-      elseif ($status['package_exists']) {
-        $status['state'] = 'legacy';
+      $status['portable_source_missing'] = $source_file instanceof File && empty($status['portable_source_available']);
+      $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup(
+        $status['analysis_warnings'] ?? [],
+        (bool) $status['portable_source_missing'],
+        (int) ($status['portable_source_size'] ?? 0),
+      );
+      if (($status['state'] ?? '') === 'legacy') {
         $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup([], TRUE);
       }
     }
@@ -721,7 +585,9 @@ final class ThemeSettingsHooks {
    */
   private function buildPortableSourceDescription(array $package_status): string {
     if ($package_status['portable_source_available']) {
-      return (string) $this->t('The sanitized SVG source is saved in theme config and can be regenerated after configuration import.');
+      return (string) $this->t('The sanitized SVG source is saved in theme config (@size) and can be regenerated after configuration import.', [
+        '@size' => $this->formatBytes((int) $package_status['portable_source_size']),
+      ]);
     }
 
     if ($package_status['portable_source_missing']) {
@@ -737,13 +603,19 @@ final class ThemeSettingsHooks {
    * @param string[] $warnings
    *   Source warnings to render.
    */
-  private function buildSourceDiagnosticsMarkup(array $warnings, bool $portable_source_missing): string {
+  private function buildSourceDiagnosticsMarkup(array $warnings, bool $portable_source_missing, int $portable_source_size = 0): string {
     $items = [];
     foreach ($warnings as $warning) {
       $items[] = '<li>' . Html::escape($warning) . '</li>';
     }
     if ($portable_source_missing) {
       $items[] = '<li>' . Html::escape((string) $this->t('Save this form once to store a portable SVG source in theme config for future configuration exports.')) . '</li>';
+    }
+    if ($portable_source_size > FaviconPackageGenerator::PORTABLE_SOURCE_ADVISORY_SIZE) {
+      $items[] = '<li>' . Html::escape((string) $this->t('The sanitized portable SVG stored in config is currently @size. Keep portable sources below @recommended when possible so config exports stay reviewable.', [
+        '@size' => $this->formatBytes($portable_source_size),
+        '@recommended' => $this->formatBytes(FaviconPackageGenerator::PORTABLE_SOURCE_ADVISORY_SIZE),
+      ])) . '</li>';
     }
 
     if ($items === []) {
@@ -763,11 +635,63 @@ final class ThemeSettingsHooks {
 
     return match ($status['state']) {
       'current' => '<div class="messages messages--status" role="status"><div>' . $this->t('Generated package is current: @path', ['@path' => $path]) . '</div></div>',
-      'stale' => '<div class="messages messages--warning" role="status"><div>' . $this->t('Generated package is out of date. Save the form or click Regenerate package to rebuild @path from the latest source and platform settings.', ['@path' => $path]) . '</div></div>',
+      'stale' => '<div class="messages messages--warning" role="status"><div>' . $this->t('Generated package is out of date. Save the form or click Regenerate package to rebuild @path from the latest source and platform settings before traffic depends on runtime fallback.', ['@path' => $path]) . '</div></div>',
       'legacy' => '<div class="messages messages--warning" role="status"><div>' . $this->t('A generated package exists, but no portable SVG source is saved in theme config yet. Save this form once to make configuration exports portable.') . '</div></div>',
       'invalid' => '<div class="messages messages--error" role="alert"><div>' . $this->t('The saved SVG source is invalid and cannot currently generate a favicon package.') . '</div></div>',
-      default => '<div class="messages messages--warning" role="status"><div>' . $this->t('No generated package exists for this environment yet. Save the form or click Generate package to build it from the saved SVG source and platform settings.') . '</div></div>',
+      default => '<div class="messages messages--warning" role="status"><div>' . $this->t('No generated package exists for this environment yet. Save the form or click Generate package to build it from the saved SVG source and platform settings. Runtime generation remains a guarded fallback if requests arrive before deployment tasks recreate the package.') . '</div></div>',
     };
+  }
+
+  /**
+   * Builds dependency and deployment guidance for the current environment.
+   */
+  private function buildEnvironmentStatusMarkup(array $settings, array $package_status): string {
+    $dependencies = $this->faviconThemeManager->getRuntimeDependencyStatus();
+    $portable_source_size = (int) ($package_status['portable_source_size'] ?? 0);
+
+    $items = [
+      $this->t('Generated favicon package enabled: @value', ['@value' => $this->formatBooleanStatus((bool) $settings['favicon_package_enabled'])]),
+      $this->t('GD available: @value', ['@value' => $this->formatBooleanStatus($dependencies['gd'])]),
+      $this->t('Imagick available: @value', ['@value' => $this->formatBooleanStatus($dependencies['imagick'])]),
+      $this->t('Active theme package exists: @value', ['@value' => $this->formatBooleanStatus((bool) $package_status['package_exists'])]),
+      $this->t('Portable SVG source available: @value', ['@value' => $this->formatBooleanStatus((bool) $package_status['portable_source_available'])]),
+    ];
+
+    if (!empty($package_status['portable_source_available'])) {
+      $items[] = $this->t('Portable SVG source size: @size', ['@size' => $this->formatBytes($portable_source_size)]);
+    }
+
+    $markup_items = [];
+    foreach ($items as $item) {
+      $markup_items[] = '<li>' . Html::escape((string) $item) . '</li>';
+    }
+
+    return '<div class="messages messages--status" role="status"><div>'
+      . '<p>' . Html::escape((string) $this->t('Recommended deployment flow: generate favicon packages on admin save, regenerate them during deployment with drush emulsify_tools:favicon-generate [theme_name] before public traffic reaches the environment when the helper module is installed, and rely on runtime generation only as a lock-protected fallback.')) . '</p>'
+      . '<ul>' . implode('', $markup_items) . '</ul>'
+      . '</div></div>';
+  }
+
+  /**
+   * Formats a boolean status for operator-facing diagnostics.
+   */
+  private function formatBooleanStatus(bool $value): string {
+    return $value ? 'Yes' : 'No';
+  }
+
+  /**
+   * Formats a byte count for admin diagnostics.
+   */
+  private function formatBytes(int $bytes): string {
+    if ($bytes < 1024) {
+      return $bytes . ' B';
+    }
+
+    if ($bytes < 1048576) {
+      return round($bytes / 1024, 1) . ' KB';
+    }
+
+    return round($bytes / 1048576, 1) . ' MB';
   }
 
   /**

@@ -7,6 +7,7 @@ use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\file\Entity\File;
 
 /**
@@ -18,6 +19,11 @@ final class FaviconPackageGenerator {
    * Maximum allowed upload size in bytes.
    */
   public const MAX_FILE_SIZE = 5242880;
+
+  /**
+   * Portable SVG config larger than this should be treated as review noise.
+   */
+  public const PORTABLE_SOURCE_ADVISORY_SIZE = 262144;
 
   /**
    * The file system service.
@@ -45,6 +51,11 @@ final class FaviconPackageGenerator {
   private TimeInterface $time;
 
   /**
+   * Coordinates package generation across concurrent requests and commands.
+   */
+  private LockBackendInterface $lock;
+
+  /**
    * Creates a generator instance.
    */
   public function __construct(
@@ -53,12 +64,14 @@ final class FaviconPackageGenerator {
     ConfigFactoryInterface $config_factory,
     CacheTagsInvalidatorInterface $cache_tags_invalidator,
     TimeInterface $time,
+    LockBackendInterface $lock,
   ) {
     $this->fileSystem = $file_system;
     $this->fileUrlGenerator = $file_url_generator;
     $this->configFactory = $config_factory;
     $this->cacheTagsInvalidator = $cache_tags_invalidator;
     $this->time = $time;
+    $this->lock = $lock;
   }
 
   /**
@@ -124,7 +137,9 @@ final class FaviconPackageGenerator {
    */
   public function packageExists(string $package_directory): bool {
     $realpath = $this->fileSystem->realpath($package_directory);
-    return is_string($realpath) && is_dir($realpath);
+    return is_string($realpath)
+      && is_dir($realpath)
+      && is_file($realpath . '/metadata.json');
   }
 
   /**
@@ -148,12 +163,25 @@ final class FaviconPackageGenerator {
   }
 
   /**
+   * Reports whether the current PHP environment can rasterize generated assets.
+   *
+   * @return array{gd: bool, imagick: bool}
+   *   Dependency availability keyed by extension name.
+   */
+  public function getRuntimeDependencyStatus(): array {
+    return [
+      'gd' => function_exists('imagecreatefromstring') && function_exists('imagecreatetruecolor'),
+      'imagick' => class_exists('Imagick'),
+    ];
+  }
+
+  /**
    * Generates a full favicon package from a managed file.
    *
    * @return array{hash: string, path: string, generated_at: int}
    *   Generated package metadata.
    */
-  public function generate(string $theme_name, File $source_file, array $settings): array {
+  public function generate(string $theme_name, File $source_file, array $settings, bool $overwrite = FALSE): array {
     $analysis = $this->validateSourceFile($source_file, TRUE);
 
     return $this->generateFromSvg(
@@ -164,6 +192,7 @@ final class FaviconPackageGenerator {
         'file_id' => (int) $source_file->id(),
         'filename' => $source_file->getFilename(),
       ],
+      $overwrite,
     );
   }
 
@@ -176,7 +205,7 @@ final class FaviconPackageGenerator {
    * @return array{hash: string, path: string, generated_at: int}
    *   Generated package metadata.
    */
-  public function generateFromSvg(string $theme_name, string $source_data, array $settings, array $source = []): array {
+  public function generateFromSvg(string $theme_name, string $source_data, array $settings, array $source = [], bool $overwrite = FALSE): array {
     $normalized = FaviconSettings::normalize(
       $settings,
       (string) $this->configFactory->get('system.site')->get('name'),
@@ -187,119 +216,140 @@ final class FaviconPackageGenerator {
     $package_hash = $definition['hash'];
     $package_directory = $definition['path'];
     $generated_at = $this->time->getRequestTime();
+    $lock_id = $this->buildGenerationLockId($theme_name, $package_hash);
+    if (!$this->lock->acquire($lock_id, 30.0)) {
+      if (!$overwrite && $this->packageExists($package_directory)) {
+        return $this->buildExistingPackageResult($package_hash, $package_directory);
+      }
 
-    $this->fileSystem->prepareDirectory($package_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+      throw new \RuntimeException(sprintf('Favicon package generation is already in progress for theme %s.', $theme_name));
+    }
 
-    $browser_padding = min($normalized['favicon_ios_padding'], $normalized['favicon_android_padding']);
-    $this->writeBytes(
-      $package_directory . '/favicon.svg',
-      $this->buildSvgFavicon(
+    try {
+      if (!$overwrite && $this->packageExists($package_directory)) {
+        return $this->buildExistingPackageResult($package_hash, $package_directory);
+      }
+
+      $this->resetPackageDirectory($package_directory);
+
+      if (!$this->fileSystem->prepareDirectory($package_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
+        throw new \RuntimeException(sprintf('Unable to prepare generated favicon directory %s.', $package_directory));
+      }
+
+      $browser_padding = min($normalized['favicon_ios_padding'], $normalized['favicon_android_padding']);
+      $this->writeBytes(
+        $package_directory . '/favicon.svg',
+        $this->buildSvgFavicon(
+          'image/svg+xml',
+          $source_svg,
+          $normalized['favicon_background_color'],
+          $browser_padding,
+          FALSE,
+        ),
+      );
+
+      $browser_png_32 = $this->renderPng(
         'image/svg+xml',
         $source_svg,
+        32,
         $normalized['favicon_background_color'],
         $browser_padding,
-        FALSE,
-      ),
-    );
-
-    $browser_png_32 = $this->renderPng(
-      'image/svg+xml',
-      $source_svg,
-      32,
-      $normalized['favicon_background_color'],
-      $browser_padding,
-    );
-    $browser_png_96 = $this->renderPng(
-      'image/svg+xml',
-      $source_svg,
-      96,
-      $normalized['favicon_background_color'],
-      $browser_padding,
-    );
-    $this->writeBytes($package_directory . '/favicon.ico', $this->createIcoFile($browser_png_32, 32));
-    $this->writeBytes($package_directory . '/favicon-96x96.png', $browser_png_96);
-
-    $this->writeBytes(
-      $package_directory . '/apple-touch-icon.png',
-      $this->renderPng(
+      );
+      $browser_png_96 = $this->renderPng(
         'image/svg+xml',
         $source_svg,
-        180,
-        $normalized['favicon_ios_background_color'],
-        $normalized['favicon_ios_padding'],
-      ),
-    );
+        96,
+        $normalized['favicon_background_color'],
+        $browser_padding,
+      );
+      $this->writeBytes($package_directory . '/favicon.ico', $this->createIcoFile($browser_png_32, 32));
+      $this->writeBytes($package_directory . '/favicon-96x96.png', $browser_png_96);
 
-    $this->writeBytes(
-      $package_directory . '/web-app-manifest-192x192.png',
-      $this->renderPng(
-        'image/svg+xml',
-        $source_svg,
-        192,
-        $normalized['favicon_android_background_color'],
-        $normalized['favicon_android_padding'],
-      ),
-    );
+      $this->writeBytes(
+        $package_directory . '/apple-touch-icon.png',
+        $this->renderPng(
+          'image/svg+xml',
+          $source_svg,
+          180,
+          $normalized['favicon_ios_background_color'],
+          $normalized['favicon_ios_padding'],
+        ),
+      );
 
-    $this->writeBytes(
-      $package_directory . '/web-app-manifest-512x512.png',
-      $this->renderPng(
-        'image/svg+xml',
-        $source_svg,
-        512,
-        $normalized['favicon_android_background_color'],
-        $normalized['favicon_android_padding'],
-      ),
-    );
+      $this->writeBytes(
+        $package_directory . '/web-app-manifest-192x192.png',
+        $this->renderPng(
+          'image/svg+xml',
+          $source_svg,
+          192,
+          $normalized['favicon_android_background_color'],
+          $normalized['favicon_android_padding'],
+        ),
+      );
 
-    $maskable_padding = max($normalized['favicon_android_padding'], 20);
-    $this->writeBytes(
-      $package_directory . '/web-app-manifest-512x512-maskable.png',
-      $this->renderPng(
-        'image/svg+xml',
-        $source_svg,
-        512,
-        $normalized['favicon_android_background_color'],
-        $maskable_padding,
-      ),
-    );
+      $this->writeBytes(
+        $package_directory . '/web-app-manifest-512x512.png',
+        $this->renderPng(
+          'image/svg+xml',
+          $source_svg,
+          512,
+          $normalized['favicon_android_background_color'],
+          $normalized['favicon_android_padding'],
+        ),
+      );
 
-    $manifest = $this->buildManifest($package_directory, $normalized);
-    $this->writeBytes(
-      $package_directory . '/site.webmanifest',
-      $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-    );
+      $maskable_padding = max($normalized['favicon_android_padding'], 20);
+      $this->writeBytes(
+        $package_directory . '/web-app-manifest-512x512-maskable.png',
+        $this->renderPng(
+          'image/svg+xml',
+          $source_svg,
+          512,
+          $normalized['favicon_android_background_color'],
+          $maskable_padding,
+        ),
+      );
 
-    $metadata = [
-      'theme' => $theme_name,
-      'hash' => $package_hash,
-      'generated_at' => $generated_at,
-      'source' => $this->buildSourceMetadata($source, (string) $analysis['source_hash']),
-      'settings' => $normalized,
-      'warnings' => $analysis['warnings'],
-      'files' => [
-        'favicon.svg',
-        'favicon.ico',
-        'favicon-96x96.png',
-        'apple-touch-icon.png',
-        'web-app-manifest-192x192.png',
-        'web-app-manifest-512x512.png',
-        'web-app-manifest-512x512-maskable.png',
-        'site.webmanifest',
-      ],
-    ];
-    $this->writeBytes(
-      $package_directory . '/metadata.json',
-      $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
-    );
+      $manifest = $this->buildManifest($package_directory, $normalized);
+      $this->writeBytes(
+        $package_directory . '/site.webmanifest',
+        $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+      );
 
-    $this->cacheTagsInvalidator->invalidateTags(['rendered']);
+      $metadata = [
+        'theme' => $theme_name,
+        'hash' => $package_hash,
+        'generated_at' => $generated_at,
+        'source' => $this->buildSourceMetadata($source, (string) $analysis['source_hash']),
+        'settings' => $normalized,
+        'warnings' => $analysis['warnings'],
+        'files' => [
+          'favicon.svg',
+          'favicon.ico',
+          'favicon-96x96.png',
+          'apple-touch-icon.png',
+          'web-app-manifest-192x192.png',
+          'web-app-manifest-512x512.png',
+          'web-app-manifest-512x512-maskable.png',
+          'site.webmanifest',
+        ],
+      ];
+      $this->writeBytes(
+        $package_directory . '/metadata.json',
+        $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+      );
 
-    return [
-      'hash' => $package_hash,
-      'path' => $package_directory,
-      'generated_at' => $generated_at,
-    ];
+      $this->cacheTagsInvalidator->invalidateTags(['rendered']);
+
+      return [
+        'hash' => $package_hash,
+        'path' => $package_directory,
+        'generated_at' => $generated_at,
+      ];
+    }
+    finally {
+      $this->lock->release($lock_id);
+    }
   }
 
   /**
@@ -453,6 +503,38 @@ final class FaviconPackageGenerator {
    */
   private function buildPackageDirectory(string $theme_name, string $package_hash): string {
     return sprintf('public://favicon-package/%s/%s', $theme_name, $package_hash);
+  }
+
+  /**
+   * Builds the shared lock ID used for deterministic package writes.
+   */
+  private function buildGenerationLockId(string $theme_name, string $package_hash): string {
+    return sprintf('emulsify:favicon_package:%s:%s', $theme_name, $package_hash);
+  }
+
+  /**
+   * Returns existing package metadata when another process already generated it.
+   */
+  private function buildExistingPackageResult(string $package_hash, string $package_directory): array {
+    $metadata = $this->readPackageMetadata($package_directory);
+
+    return [
+      'hash' => $package_hash,
+      'path' => $package_directory,
+      'generated_at' => (int) ($metadata['generated_at'] ?? $this->time->getRequestTime()),
+    ];
+  }
+
+  /**
+   * Removes an existing or partial package directory before regeneration.
+   */
+  private function resetPackageDirectory(string $package_directory): void {
+    $realpath = $this->fileSystem->realpath($package_directory);
+    if (!is_string($realpath) || !is_dir($realpath)) {
+      return;
+    }
+
+    $this->fileSystem->deleteRecursive($realpath);
   }
 
   /**

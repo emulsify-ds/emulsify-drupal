@@ -76,6 +76,21 @@ npm run develop
 
 Do not enable `whisk` directly. It is a generation-only starter source.
 
+### Manage generated favicon packages
+
+The generated favicon workflow is built around one portable SVG source stored in theme settings.
+
+1. Save the theme settings form to generate or update the package during normal admin changes.
+2. After configuration import or deploy, regenerate missing package files with `drush emulsify_tools:favicon-generate [theme_name]` before public traffic reaches the environment.
+3. Use `drush emulsify_tools:favicon-status [theme_name]` or the theme settings UI to inspect dependency, package, and portable-source status.
+4. Use `drush emulsify_tools:favicon-reset [theme_name]` if you need to remove generated assets and restore the theme default favicon behavior.
+
+Runtime generation remains a lock-protected fallback if a request reaches an environment before deployment tasks regenerate the package. Fallback failures are logged and do not break page rendering.
+
+Generated favicon packages require the PHP `gd` extension and the `Imagick` extension for SVG rasterization. If either extension is unavailable, the uploaded SVG can still be stored in configuration, but PNG and ICO package generation will fail until those extensions are installed.
+
+The theme settings UI surfaces the current dependency, portable-source, and package status. Portable SVG copies larger than 256 KB are flagged because very large config payloads are awkward to review and deploy.
+
 ## Contributing
 
 ### [Code of Conduct](https://github.com/emulsify-ds/emulsify-drupal/blob/main/CODE_OF_CONDUCT.md)
