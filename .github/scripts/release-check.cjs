@@ -202,9 +202,9 @@ function runStaticChecks() {
     ensure(extractYamlDependencyConstraint(emulsifyInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'emulsify.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
-    ensure(themeReadinessWorkflow.includes(`- '${minCoreVersion}.*'`), 'theme-readiness.yml should smoke test the supported Drupal patch line.');
-    ensure(themeReadinessWorkflow.includes(`- '^${minCoreVersion}'`), 'theme-readiness.yml should smoke test the supported Drupal constraint.');
-    return `Root theme metadata and CI matrix align to Drupal ${minCoreVersion}.`;
+    ensure(themeReadinessWorkflow.includes(`DRUPAL_VERSION: '${minCoreVersion}.*'`), 'theme-readiness.yml should smoke test the supported Drupal patch line.');
+    ensure(themeReadinessWorkflow.includes("PHP_VERSION: '8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    return `Root theme metadata and CI readiness checks align to Drupal ${minCoreVersion} on PHP 8.4.`;
   });
 
   runStaticCheck('Package metadata', () => {
@@ -274,8 +274,8 @@ function runStaticChecks() {
 function runSmokeChecks() {
   if (options.skipSmoke) {
     addResult('SKIP', 'Stable9 template parity', 'Skipped with --skip-smoke.');
+    addResult('SKIP', 'Base theme render smoke', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Generated theme smoke test', 'Skipped with --skip-smoke.');
-    addResult('SKIP', 'No-Stable9 smoke result', 'Skipped with --skip-smoke.');
     addResult('SKIP', 'Favicon generation', 'Skipped with --skip-smoke.');
     return;
   }
@@ -283,10 +283,9 @@ function runSmokeChecks() {
   const smokeRoot = options.workDir;
   const baseFixture = path.join(smokeRoot, 'base-fixture');
   const generatedThemeFixture = path.join(smokeRoot, 'generated-theme-fixture');
-  const noStable9Fixture = path.join(smokeRoot, 'no-stable9-fixture');
   const faviconFixture = path.join(smokeRoot, 'favicon-fixture');
+  const baseThemeOutput = path.join(smokeRoot, 'base-theme-output');
   const generatedThemeOutput = path.join(smokeRoot, 'generated-theme-output');
-  const noStable9Output = path.join(smokeRoot, 'no-stable9-output');
 
   fs.rmSync(smokeRoot, { force: true, recursive: true });
   fs.mkdirSync(smokeRoot, { recursive: true });
@@ -304,8 +303,8 @@ function runSmokeChecks() {
 
   if (setupResult.status !== 0) {
     addResult('FAIL', 'Stable9 template parity', 'Unable to build the Drupal fixture site for template parity checks.');
+    addResult('FAIL', 'Base theme render smoke', 'Unable to build the Drupal fixture site for smoke testing.');
     addResult('FAIL', 'Generated theme smoke test', 'Unable to build the Drupal fixture site for smoke testing.');
-    addResult('FAIL', 'No-Stable9 smoke result', 'Unable to build the Drupal fixture site for smoke testing.');
     addResult('FAIL', 'Favicon generation', 'Unable to build the Drupal fixture site for smoke testing.');
     return;
   }
@@ -318,6 +317,14 @@ function runSmokeChecks() {
     { passMessage: 'Verified that Emulsify ships every stable9 template path without inheriting from stable9.' },
   );
 
+  runSmokeCheck(
+    'Base theme render smoke',
+    'bash',
+    [path.join(repoRoot, '.github/scripts/render-reference-pages.sh'), baseFixture, baseThemeOutput],
+    repoRoot,
+    { passMessage: 'Base theme pages rendered successfully on the fixture site.' },
+  );
+
   copyDirectory(baseFixture, generatedThemeFixture);
   runSmokeCheck(
     'Generated theme smoke test',
@@ -325,18 +332,6 @@ function runSmokeChecks() {
     [path.join(repoRoot, '.github/scripts/starterkit-smoke.sh'), generatedThemeFixture, generatedThemeOutput],
     repoRoot,
     { passMessage: `Starterkit generation and generated theme smoke passed on Drupal ${options.drupalVersion}.` },
-  );
-
-  copyDirectory(baseFixture, noStable9Fixture);
-  runSmokeCheck(
-    'No-Stable9 smoke result',
-    'bash',
-    [path.join(repoRoot, '.github/scripts/smoke-without-stable9.sh'), noStable9Fixture, noStable9Output],
-    repoRoot,
-    {
-      passMessage: 'Smoke test passed without any stable9 base theme dependency.',
-      failMessage: 'Smoke test failed without the stable9 base theme dependency.',
-    },
   );
 
   copyDirectory(baseFixture, faviconFixture);

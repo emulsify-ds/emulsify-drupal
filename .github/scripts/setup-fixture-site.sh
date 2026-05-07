@@ -11,6 +11,10 @@ drupal_version="$1"
 fixture_dir="$2"
 theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
+emulsify_tools_repo="${EMULSIFY_TOOLS_REPOSITORY:-https://github.com/emulsify-ds/emulsify_tools.git}"
+emulsify_tools_ref="${EMULSIFY_TOOLS_REF:-release-2}"
+theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
+emulsify_tools_dir="${fixture_dir}/web/modules/contrib/emulsify_tools"
 
 export COMPOSER_MEMORY_LIMIT=-1
 
@@ -22,8 +26,20 @@ rm -rf "$fixture_dir"
 
 cd "$fixture_dir"
 
-"$composer_bin" config repositories.emulsify "{\"type\":\"path\",\"url\":\"${theme_source_dir}\",\"options\":{\"symlink\":false}}"
-"$composer_bin" require --no-interaction drush/drush:^13 emulsify-ds/emulsify-drupal:@dev
+mkdir -p "$(dirname "$theme_dir")" "$(dirname "$emulsify_tools_dir")"
+rsync -a \
+  --exclude '.git/' \
+  --exclude '.github/' \
+  --exclude 'node_modules/' \
+  --exclude 'vendor/' \
+  "${theme_source_dir}/" "${theme_dir}/"
+
+# Readiness checks should exercise the local theme code and the in-flight
+# Emulsify Tools 2.x branch instead of depending on a published package.
+git clone --depth 1 --branch "$emulsify_tools_ref" "$emulsify_tools_repo" "$emulsify_tools_dir"
+rm -rf "${emulsify_tools_dir}/.git"
+
+"$composer_bin" require --no-interaction drush/drush:^13
 
 ./vendor/bin/drush site:install standard \
   --db-url=sqlite://sites/default/files/.ht.sqlite \

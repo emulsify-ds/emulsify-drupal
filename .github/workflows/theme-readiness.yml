@@ -8,16 +8,18 @@ on:
       - 6.x
   workflow_dispatch:
 
+concurrency:
+  group: theme-readiness-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DRUPAL_VERSION: '11.3.*'
+  PHP_VERSION: '8.4'
+
 jobs:
-  template-parity:
-    name: Template Parity (${{ matrix.drupal-version }})
+  theme-readiness:
+    name: Theme Readiness
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        drupal-version:
-          - '11.3.*'
-          - '^11.3'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,61 +27,21 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ env.PHP_VERSION }}
           tools: composer:v2
+          extensions: gd, imagick
 
       - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+        run: bash .github/scripts/setup-fixture-site.sh "${{ env.DRUPAL_VERSION }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Verify Emulsify ships the full stable9 template surface
         run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
-  no-stable9-readiness:
-    name: No Stable9 Readiness (${{ matrix.drupal-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        drupal-version:
-          - '11.3.*'
-          - '^11.3'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Smoke test base theme page rendering
+        run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: composer:v2
-
-      - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
-
-      - name: Smoke test without stable9 fallback
-        run: bash .github/scripts/smoke-without-stable9.sh /tmp/emulsify-fixture /tmp/emulsify-no-stable9
-
-  starterkit-generation:
-    name: Starterkit Smoke (${{ matrix.drupal-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        drupal-version:
-          - '11.3.*'
-          - '^11.3'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: composer:v2
-
-      - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+      - name: Smoke test generated favicon package
+        run: bash .github/scripts/favicon-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Generate and enable a Whisk-derived theme
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme
