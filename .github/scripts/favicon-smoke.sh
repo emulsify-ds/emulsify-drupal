@@ -13,5 +13,6 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 (
   cd "$fixture_dir"
-  ./vendor/bin/drush php:script "${script_dir}/favicon-smoke.php" -- "$theme_name"
+  EMULSIFY_FAVICON_THEME="$theme_name" \
+    ./vendor/bin/drush php:eval "require '${script_dir}/favicon-smoke.php';"
 )
