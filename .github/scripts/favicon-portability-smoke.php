@@ -73,6 +73,13 @@ function emulsify_favicon_load_settings(string $theme_name, string $site_name): 
 }
 
 /**
+ * Returns normalized default favicon settings for the current site.
+ */
+function emulsify_favicon_default_settings(string $site_name): array {
+  return FaviconSettings::normalize(FaviconSettings::DEFAULTS, $site_name);
+}
+
+/**
  * Persists generated package metadata back to theme settings.
  */
 function emulsify_favicon_save_generated_state(string $theme_name, array $settings): void {
@@ -230,7 +237,7 @@ switch ($mode) {
 
   case 'assert-reset':
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
-    foreach (FaviconSettings::DEFAULTS as $key => $expected_value) {
+    foreach (emulsify_favicon_default_settings($site_name) as $key => $expected_value) {
       emulsify_favicon_assert($settings[$key] === $expected_value, sprintf('Expected %s to reset to its default value.', $key));
     }
     fwrite(STDOUT, "Verified favicon reset defaults for {$theme_name}.\n");
