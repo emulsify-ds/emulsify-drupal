@@ -42,7 +42,6 @@ final class ThemeSettingsHooks {
     'source_diagnostics_notice',
     'status',
     'package_status_notice',
-    'environment_status_notice',
     'maskable_info',
     'maskable_icon_notice',
     'generation_hint',
@@ -249,11 +248,6 @@ final class ThemeSettingsHooks {
       '#type' => 'item',
       '#title' => $this->t('Current generated package'),
       '#markup' => $package_status['status_markup'],
-    ];
-    $form['emulsify_favicon']['environment_status_notice'] = [
-      '#type' => 'item',
-      '#title' => $this->t('Environment and deployment status'),
-      '#markup' => $this->buildEnvironmentStatusMarkup($settings, $package_status),
     ];
 
     $form['emulsify_favicon']['browser'] = [
@@ -640,43 +634,6 @@ final class ThemeSettingsHooks {
       'invalid' => '<div class="messages messages--error" role="alert"><div>' . $this->t('The saved SVG source is invalid and cannot currently generate a favicon package.') . '</div></div>',
       default => '<div class="messages messages--warning" role="status"><div>' . $this->t('No generated package exists for this environment yet. Save the form or click Generate package to build it from the saved SVG source and platform settings. Runtime generation remains a guarded fallback if requests arrive before deployment tasks recreate the package.') . '</div></div>',
     };
-  }
-
-  /**
-   * Builds dependency and deployment guidance for the current environment.
-   */
-  private function buildEnvironmentStatusMarkup(array $settings, array $package_status): string {
-    $dependencies = $this->faviconThemeManager->getRuntimeDependencyStatus();
-    $portable_source_size = (int) ($package_status['portable_source_size'] ?? 0);
-
-    $items = [
-      $this->t('Generated favicon package enabled: @value', ['@value' => $this->formatBooleanStatus((bool) $settings['favicon_package_enabled'])]),
-      $this->t('GD available: @value', ['@value' => $this->formatBooleanStatus($dependencies['gd'])]),
-      $this->t('Imagick available: @value', ['@value' => $this->formatBooleanStatus($dependencies['imagick'])]),
-      $this->t('Active theme package exists: @value', ['@value' => $this->formatBooleanStatus((bool) $package_status['package_exists'])]),
-      $this->t('Portable SVG source available: @value', ['@value' => $this->formatBooleanStatus((bool) $package_status['portable_source_available'])]),
-    ];
-
-    if (!empty($package_status['portable_source_available'])) {
-      $items[] = $this->t('Portable SVG source size: @size', ['@size' => $this->formatBytes($portable_source_size)]);
-    }
-
-    $markup_items = [];
-    foreach ($items as $item) {
-      $markup_items[] = '<li>' . Html::escape((string) $item) . '</li>';
-    }
-
-    return '<div class="messages messages--status" role="status"><div>'
-      . '<p>' . Html::escape((string) $this->t('Recommended deployment flow: generate favicon packages on admin save, regenerate them during deployment with drush emulsify_tools:favicon-generate [theme_name] before public traffic reaches the environment when the helper module is installed, and rely on runtime generation only as a lock-protected fallback.')) . '</p>'
-      . '<ul>' . implode('', $markup_items) . '</ul>'
-      . '</div></div>';
-  }
-
-  /**
-   * Formats a boolean status for operator-facing diagnostics.
-   */
-  private function formatBooleanStatus(bool $value): string {
-    return $value ? 'Yes' : 'No';
   }
 
   /**
