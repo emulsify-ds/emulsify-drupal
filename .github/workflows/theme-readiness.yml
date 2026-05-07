@@ -13,14 +13,18 @@ concurrency:
   group: theme-readiness-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  DRUPAL_VERSION: '11.3.*'
-  PHP_VERSION: '8.4'
-
 jobs:
   theme-readiness:
-    name: Theme Readiness
+    name: Theme Readiness (Drupal ${{ matrix.drupal-version }} / PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - drupal-version: '11.3.*'
+            php-version: '8.4'
+          - drupal-version: 'dev-main'
+            php-version: '8.5'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,12 +32,12 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ env.PHP_VERSION }}
+          php-version: ${{ matrix.php-version }}
           tools: composer:v2
           extensions: gd, imagick
 
       - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "${{ env.DRUPAL_VERSION }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Verify Emulsify ships the full stable9 template surface
         run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE" "$RUNNER_TEMP/emulsify-template-parity.md"

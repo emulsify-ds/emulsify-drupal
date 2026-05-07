@@ -15,6 +15,11 @@ emulsify_tools_repo="${EMULSIFY_TOOLS_REPOSITORY:-https://github.com/emulsify-ds
 emulsify_tools_ref="${EMULSIFY_TOOLS_REF:-release-2}"
 theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
 emulsify_tools_dir="${fixture_dir}/web/modules/contrib/emulsify_tools"
+drush_constraint="^13"
+
+if [ "$drupal_version" = "dev-main" ]; then
+  drush_constraint="^14"
+fi
 
 export COMPOSER_MEMORY_LIMIT=-1
 
@@ -39,7 +44,7 @@ rsync -a \
 git clone --depth 1 --branch "$emulsify_tools_ref" "$emulsify_tools_repo" "$emulsify_tools_dir"
 rm -rf "${emulsify_tools_dir}/.git"
 
-"$composer_bin" require --no-interaction drush/drush:^13
+"$composer_bin" require --no-interaction --with-all-dependencies "drush/drush:${drush_constraint}"
 
 ./vendor/bin/drush site:install standard \
   --db-url=sqlite://sites/default/files/.ht.sqlite \
@@ -50,7 +55,10 @@ rm -rf "${emulsify_tools_dir}/.git"
 ./vendor/bin/drush en emulsify_tools -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
-./vendor/bin/drush en contact -y
+
+if [ -d "${fixture_dir}/web/core/modules/contact" ]; then
+  ./vendor/bin/drush en contact -y
+fi
 
 ./vendor/bin/drush php:eval '
 use Drupal\node\Entity\Node;

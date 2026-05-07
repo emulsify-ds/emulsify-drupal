@@ -8,9 +8,9 @@ const { spawnSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
 const options = {
-  drupalVersion: process.env.RELEASE_CHECK_DRUPAL_VERSION || '11.3.*',
+  drupalVersion: process.env.RELEASE_CHECK_DRUPAL_VERSION || null,
   skipSmoke: args.has('--skip-smoke'),
-  workDir: process.env.RELEASE_CHECK_WORKDIR || path.join(os.tmpdir(), 'emulsify-release-check'),
+  workDir: process.env.RELEASE_CHECK_WORKDIR || fs.mkdtempSync(path.join(os.tmpdir(), 'emulsify-release-check-')),
 };
 
 const results = [];
@@ -36,6 +36,33 @@ function ensure(condition, message) {
 function normalizeConstraintVersion(constraint) {
   const match = String(constraint).match(/(\d+\.\d+)/);
   return match ? match[1] : String(constraint).trim();
+}
+
+function extractSupportedDrupalTestLines(constraint) {
+  const lines = String(constraint)
+    .split('||')
+    .map((segment) => segment.trim())
+    .map((segment) => {
+      const match = segment.match(/\^(\d+)(?:\.(\d+))?/);
+      if (!match) {
+        return null;
+      }
+
+      return match[2] ? `${match[1]}.${match[2]}.*` : `${match[1]}.*`;
+    })
+    .filter(Boolean);
+
+  return [...new Set(lines)];
+}
+
+function mapDrupalLineToSmokeTarget(line) {
+  if (line === '12.*') {
+    // Drupal 12 currently ships from recommended-project's dev-main branch
+    // until the first stable 12.0.0 tag is published.
+    return 'dev-main';
+  }
+
+  return line;
 }
 
 function semver(value) {
@@ -193,21 +220,33 @@ function runStaticChecks() {
   const themeReadinessWorkflow = readFile('.github/workflows/theme-readiness.yml');
   const coreConstraint = composer.require['drupal/core'];
   const minCoreVersion = normalizeConstraintVersion(coreConstraint);
+  const supportedDrupalLines = extractSupportedDrupalTestLines(coreConstraint);
+  const supportedDrupalSmokeTargets = supportedDrupalLines.map(mapDrupalLineToSmokeTarget);
+
+  if (!options.drupalVersion) {
+    options.drupalVersion = supportedDrupalSmokeTargets[supportedDrupalSmokeTargets.length - 1] || `${minCoreVersion}.*`;
+  }
 
   runStaticCheck('Composer constraints', () => {
     ensure(coreConstraint, 'composer.json must declare drupal/core.');
+    ensure(supportedDrupalLines.length > 0, 'composer.json must expose at least one supported Drupal core test line.');
     ensure(composer.require['drupal/emulsify_tools'], 'composer.json must declare drupal/emulsify_tools.');
     ensure(extractYamlValue(emulsifyInfo, 'core_version_requirement') === coreConstraint, 'emulsify.info.yml must match composer drupal/core.');
     ensure(extractYamlValue(whiskInfo, 'core_version_requirement') === coreConstraint, 'whisk.info.yml must match composer drupal/core.');
     ensure(extractYamlDependencyConstraint(emulsifyInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'emulsify.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
-    ensure(themeReadinessWorkflow.includes(`DRUPAL_VERSION: '${minCoreVersion}.*'`), 'theme-readiness.yml should smoke test the supported Drupal patch line.');
-    ensure(themeReadinessWorkflow.includes("PHP_VERSION: '8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    for (const drupalTarget of supportedDrupalSmokeTargets) {
+      ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
+    }
+    ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    if (supportedDrupalSmokeTargets.includes('dev-main')) {
+      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run Drupal 12 readiness smoke checks on PHP 8.5.');
+    }
     ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x.');
     ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
-    return `Root theme metadata and CI readiness checks align to Drupal ${minCoreVersion} on PHP 8.4.`;
+    return `Root theme metadata and CI readiness checks align to Drupal ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets.`;
   });
 
   runStaticCheck('Package metadata', () => {
@@ -240,9 +279,12 @@ function runStaticChecks() {
   });
 
   runStaticCheck('README version references', () => {
-    ensure(readme.includes(`Drupal ${minCoreVersion}+`), `README.md should mention Drupal ${minCoreVersion}+.`);
+    ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
+    if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
+      ensure(readme.includes('Drupal 12'), 'README.md should mention Drupal 12 support.');
+    }
     ensure(readme.includes(`${rootPackage.version.split('.')[0]}.x series`), `README.md should mention the ${rootPackage.version.split('.')[0]}.x series.`);
-    return `README.md matches Drupal ${minCoreVersion}+ and the current major release line.`;
+    return `README.md matches the supported Drupal ${supportedDrupalLines.join(', ')} window and the current major release line.`;
   });
 
   runStaticCheck('Base theme independence', () => {
