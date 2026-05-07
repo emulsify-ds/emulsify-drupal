@@ -34,9 +34,11 @@
     project.status == constant('Drupal\\update\\UpdateManagerInterface::CURRENT') ? 'current',
   ]|filter(v => v is not empty)
 %}
+{% set project_update_block = 'project-update' %}
+{% set project_updates_block = 'project-updates' %}
 {% with { attributes: status.attributes } %}
   {% set project_status_attributes = {
-    class: bem('status', status_modifiers, 'project-update'),
+    class: bem('status', status_modifiers, project_update_block),
   } %}
   <div{{ add_attributes(project_status_attributes) }}>
     {%- if status.label -%}
@@ -44,13 +46,13 @@
     {%- else -%}
       {{ status.reason }}
     {%- endif %}
-    <span{{ bem('status-icon', [], 'project-update') }}>
+    <span{{ bem('status-icon', [], project_update_block) }}>
       {{ status.icon }}
     </span>
   </div>
 {% endwith %}
 
-<div{{ bem('title', [], 'project-update') }}>
+<div{{ bem('title', [], project_update_block) }}>
   {%- if url -%}
     <a href="{{ url }}">{{ title }}</a>
   {%- else -%}
@@ -58,7 +60,7 @@
   {%- endif %}
   {{ existing_version }}
   {% if install_type == 'dev' and datestamp %}
-    <span{{ bem('version-date', [], 'project-update') }}>({{ datestamp }})</span>
+    <span{{ bem('version-date', [], project_update_block) }}>({{ datestamp }})</span>
   {% endif %}
 </div>
 
@@ -75,7 +77,7 @@
     project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_SUPPORTED') ? 'project-not-supported',
   ]
 %}
-<div{{ bem('details', [], 'project-updates') }}>
+<div{{ bem('details', [], project_updates_block) }}>
   {% if extras %}
     <div class="extra">
       {% for extra in extras %}

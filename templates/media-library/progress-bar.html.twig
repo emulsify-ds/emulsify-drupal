@@ -11,11 +11,20 @@
  * - message: A string containing information to be displayed.
  */
 #}
-<div{{ bem('progress') }} data-drupal-progress>
+{% set progress_block = 'progress' %}
+{% set progress_attributes = {
+  class: bem(progress_block),
+  'data-drupal-progress': true,
+} %}
+{% set progress_bar_attributes = {
+  class: bem('bar', [], progress_block),
+  style: 'width: ' ~ percent ~ '%',
+} %}
+<div{{ add_attributes(progress_attributes) }}>
   {% if label %}
-    <div{{ bem('label', [], 'progress') }}>{{ label }}</div>
+    <div{{ bem('label', [], progress_block) }}>{{ label }}</div>
   {% endif %}
-  <div{{ bem('track', [], 'progress') }}><div{{ bem('bar', [], 'progress') }} style="width: {{ percent }}%"></div></div>
-  <div{{ bem('percentage', [], 'progress') }}>{{ percent }}%</div>
-  <div{{ bem('description', [], 'progress') }}>{{ message }}</div>
+  <div{{ bem('track', [], progress_block) }}><div{{ add_attributes(progress_bar_attributes) }}></div></div>
+  <div{{ bem('percentage', [], progress_block) }}>{{ percent }}%</div>
+  <div{{ bem('description', [], progress_block) }}>{{ message }}</div>
 </div>

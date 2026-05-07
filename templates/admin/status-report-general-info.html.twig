@@ -29,17 +29,18 @@
  *     server.
  */
 #}
+{% set system_status_general_info_block = 'system-status-general-info' %}
 
 <h2>{{ 'General System Information'|t }}</h2>
-<div{{ bem('item', [], 'system-status-general-info') }}>
-  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Drupal Version'|t }}</h3>
+<div{{ bem('item', [], system_status_general_info_block) }}>
+  <h3{{ bem('item-title', [], system_status_general_info_block) }}>{{ 'Drupal Version'|t }}</h3>
   {{ drupal.value }}
   {% if drupal.description %}
     {{ drupal.description }}
   {% endif %}
 </div>
-<div{{ bem('item', [], 'system-status-general-info') }}>
-  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Last Cron Run'|t }}</h3>
+<div{{ bem('item', [], system_status_general_info_block) }}>
+  <h3{{ bem('item-title', [], system_status_general_info_block) }}>{{ 'Last Cron Run'|t }}</h3>
   {{ cron.value }}
   {% if cron.run_cron %}
     {{ cron.run_cron }}
@@ -48,15 +49,15 @@
     {{ cron.description }}
   {% endif %}
 </div>
-<div{{ bem('item', [], 'system-status-general-info') }}>
-  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Web Server'|t }}</h3>
+<div{{ bem('item', [], system_status_general_info_block) }}>
+  <h3{{ bem('item-title', [], system_status_general_info_block) }}>{{ 'Web Server'|t }}</h3>
   {{ webserver.value }}
   {% if webserver.description %}
     {{ webserver.description }}
   {% endif %}
 </div>
-<div{{ bem('item', [], 'system-status-general-info') }}>
-  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'PHP'|t }}</h3>
+<div{{ bem('item', [], system_status_general_info_block) }}>
+  <h3{{ bem('item-title', [], system_status_general_info_block) }}>{{ 'PHP'|t }}</h3>
   <h4>{{ 'Version'|t }}</h4> {{ php.value }}
   {% if php.description %}
     {{ php.description }}
@@ -67,8 +68,8 @@
     {{ php_memory_limit.description }}
   {% endif %}
 </div>
-<div{{ bem('item', [], 'system-status-general-info') }}>
-  <h3{{ bem('item-title', [], 'system-status-general-info') }}>{{ 'Database'|t }}</h3>
+<div{{ bem('item', [], system_status_general_info_block) }}>
+  <h3{{ bem('item-title', [], system_status_general_info_block) }}>{{ 'Database'|t }}</h3>
   <h4>{{ 'Version'|t }}</h4>{{ database_system_version.value }}
   {% if database_system_version.description %}
     {{ database_system_version.description }}

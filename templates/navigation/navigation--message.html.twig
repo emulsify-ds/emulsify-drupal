@@ -9,8 +9,9 @@
  * @ingroup themeable
  */
 #}
+{% set toolbar_message_block = 'toolbar-message' %}
 {%
-  set classes = bem('toolbar-message', ['type--' ~ type])
+  set classes = bem(toolbar_message_block, ['type--' ~ type])
 %}
 {% set navigation_message_link_attributes = {
   class: classes,
@@ -25,14 +26,14 @@
 {% if url is not empty %}
   <a{{ add_attributes(navigation_message_link_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
-    <div{{ bem('label', [], 'toolbar-message') }}>
+    <div{{ bem('label', [], toolbar_message_block) }}>
       {{ content }}
     </div>
   </a>
 {% else %}
   <div{{ add_attributes(navigation_message_attributes) }}>
     {{ icon('navigation', type, { class: 'toolbar-message__icon', size: 20 }) }}
-    <div{{ bem('label', [], 'toolbar-message') }}>
+    <div{{ bem('label', [], toolbar_message_block) }}>
       {{ content }}
     </div>
   </div>
