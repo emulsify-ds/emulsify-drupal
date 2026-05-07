@@ -361,7 +361,7 @@ final class ThemeSettingsHooks {
 
         $form['emulsify_favicon']['actions']['regenerate_package'] = [
           '#type' => 'submit',
-		'#name' => 'regenerate_package',
+          '#name' => 'regenerate_package',
           '#value' => $default_label,
           '#button_type' => $package_status['state'] === 'current' ? 'secondary' : 'primary',
           '#attributes' => [
