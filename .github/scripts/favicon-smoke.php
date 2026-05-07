@@ -13,7 +13,10 @@ use Drupal\emulsify\Favicon\FaviconSettings;
 use Drupal\emulsify\Hook\FaviconHooks;
 
 $argv = $_SERVER['argv'] ?? [];
-$theme_name = (string) ($argv[1] ?? getenv('EMULSIFY_FAVICON_THEME') ?: 'emulsify');
+$theme_name = getenv('EMULSIFY_FAVICON_THEME');
+$theme_name = is_string($theme_name) && $theme_name !== ''
+  ? $theme_name
+  : (string) ($argv[1] ?? 'emulsify');
 $site_name = (string) \Drupal::config('system.site')->get('name');
 $svg = <<<'SVG'
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
