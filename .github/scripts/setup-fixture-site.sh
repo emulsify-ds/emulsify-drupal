@@ -11,6 +11,7 @@ drupal_version="$1"
 fixture_dir="$2"
 theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
+theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
 
 export COMPOSER_MEMORY_LIMIT=-1
 
@@ -18,12 +19,24 @@ if [ -d "$fixture_dir" ]; then
   chmod -R u+w "$fixture_dir" 2>/dev/null || true
 fi
 rm -rf "$fixture_dir"
-"$composer_bin" create-project --no-interaction "drupal/recommended-project:${drupal_version}" "$fixture_dir"
+"$composer_bin" create-project --no-interaction --no-audit --no-security-blocking "drupal/recommended-project:${drupal_version}" "$fixture_dir"
 
 cd "$fixture_dir"
 
-"$composer_bin" config repositories.emulsify "{\"type\":\"path\",\"url\":\"${theme_source_dir}\",\"options\":{\"symlink\":false}}"
-"$composer_bin" require --no-interaction drush/drush:^13 emulsify-ds/emulsify-drupal:@dev
+"$composer_bin" config --no-interaction audit.block-insecure false
+
+mkdir -p "$(dirname "$theme_dir")"
+rsync -a \
+  --exclude '.git/' \
+  --exclude '.github/' \
+  --exclude 'node_modules/' \
+  --exclude 'vendor/' \
+  "${theme_source_dir}/" "$theme_dir/"
+
+"$composer_bin" require --no-interaction --no-audit --no-security-blocking --with-all-dependencies \
+  drush/drush:^13 \
+  drupal/components:^3.0@beta \
+  drupal/emulsify_tools:^1.0
 
 ./vendor/bin/drush site:install standard \
   --db-url=sqlite://sites/default/files/.ht.sqlite \
@@ -34,7 +47,10 @@ cd "$fixture_dir"
 ./vendor/bin/drush en components emulsify_tools -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
-./vendor/bin/drush en contact -y
+
+if [ -d "${fixture_dir}/web/core/modules/contact" ]; then
+  ./vendor/bin/drush en contact -y
+fi
 
 ./vendor/bin/drush php:eval '
 use Drupal\node\Entity\Node;

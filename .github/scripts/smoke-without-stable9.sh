@@ -10,6 +10,19 @@ fi
 fixture_dir="$1"
 output_dir="$2"
 theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
+theme_info_backup="$(mktemp)"
+
+cleanup() {
+  cp "$theme_info_backup" "$theme_info_file" 2>/dev/null || true
+  (
+    cd "$fixture_dir"
+    ./vendor/bin/drush cr -y >/dev/null 2>&1 || true
+  )
+  rm -f "$theme_info_backup"
+}
+
+cp "$theme_info_file" "$theme_info_backup"
+trap cleanup EXIT
 
 php -r '
 $file = $argv[1];
@@ -18,9 +31,9 @@ if ($contents === false) {
   fwrite(STDERR, "Unable to read theme info file.\n");
   exit(1);
 }
-$updated = preg_replace("/^base theme: stable9\\n/m", "", $contents, 1);
+$updated = preg_replace("/^base theme: stable9$/m", "base theme: false", $contents, 1);
 if ($updated === null || $updated === $contents) {
-  fwrite(STDERR, "Unable to remove stable9 fallback from theme info.\n");
+  fwrite(STDERR, "Unable to replace stable9 fallback in theme info.\n");
   exit(1);
 }
 file_put_contents($file, $updated);

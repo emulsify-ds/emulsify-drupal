@@ -26,8 +26,11 @@ $replacements = [
   '/value="[^"]*"(?=[^>]*name="form_token")/i' => 'value="__FORM_TOKEN__"',
   '/name="form_build_id" value="[^"]*"/i' => 'name="form_build_id" value="__FORM_BUILD_ID__"',
   '/name="form_token" value="[^"]*"/i' => 'name="form_token" value="__FORM_TOKEN__"',
+  '/data-drupal-selector="form-[^"]+"/i' => 'data-drupal-selector="form-__FORM_BUILD_ID__"',
+  '/js-view-dom-id-[a-f0-9]+/i' => 'js-view-dom-id-__HASH__',
   '/\?v=[^"\']+/i' => '',
-  '/https?:\/\/127\.0\.0\.1:8888/i' => '__BASE_URL__',
+  '/https?:\/\/127\.0\.0\.1:\d+/i' => '__BASE_URL__',
+  '/>\s+</s' => '><',
   '/\s+/s' => ' ',
 ];
 

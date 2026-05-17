@@ -11,7 +11,7 @@ hidden: false
 
 dependencies:
   - 'drupal:components (^3.0)'
-  - 'drupal:emulsify_tools (^4.0)'
+  - 'drupal:emulsify_tools (^1.0)'
 
 libraries:
   - whisk/global
