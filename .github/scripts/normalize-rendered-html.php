@@ -41,4 +41,23 @@ if ($normalized === null) {
   exit(1);
 }
 
+$normalized = preg_replace_callback(
+  '/class="([^"]*)"/i',
+  static function (array $matches): string {
+    $classes = preg_split('/\s+/', trim($matches[1])) ?: [];
+    $classes = array_filter(
+      $classes,
+      static fn(string $class): bool => !str_starts_with($class, 'form-type-')
+    );
+
+    return 'class="' . implode(' ', $classes) . '"';
+  },
+  $normalized
+);
+
+if ($normalized === null) {
+  fwrite(STDERR, "Class normalization failed for {$input}\n");
+  exit(1);
+}
+
 file_put_contents($output, trim($normalized) . PHP_EOL);
