@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# Smoke-renders the fixture after replacing the Stable9 base theme with false.
+# This catches missing templates/hooks before the full parity comparison runs.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <output-dir>" >&2
   exit 1
@@ -12,6 +14,8 @@ output_dir="$2"
 theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
 theme_info_backup="$(mktemp)"
 
+# Keep this smoke test isolated: restore the theme info file and rebuild caches
+# so later workflow steps are not affected by the temporary base-theme change.
 cleanup() {
   cp "$theme_info_backup" "$theme_info_file" 2>/dev/null || true
   (
@@ -24,6 +28,8 @@ cleanup() {
 cp "$theme_info_file" "$theme_info_backup"
 trap cleanup EXIT
 
+# Drupal 11 requires an explicit base theme value, so use false rather than
+# removing the base theme key.
 php -r '
 $file = $argv[1];
 $contents = file_get_contents($file);
@@ -44,4 +50,5 @@ file_put_contents($file, $updated);
   ./vendor/bin/drush cr -y
 )
 
+# A successful render proves the theme can bootstrap without Stable9 fallback.
 bash "${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/render-reference-pages.sh" "$fixture_dir" "$output_dir"

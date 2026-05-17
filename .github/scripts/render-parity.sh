@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# Verifies that removing Stable9 as the base theme does not materially change
+# rendered output for the fixture pages captured by render-reference-pages.sh.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <work-dir>" >&2
   exit 1
@@ -17,6 +19,8 @@ theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
 normalizer="${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/normalize-rendered-html.php"
 theme_info_backup="$(mktemp)"
 
+# The script mutates emulsify.info.yml inside the fixture. Restore it and clear
+# Drupal caches on every exit so follow-up smoke tests see the original theme.
 cleanup() {
   cp "$theme_info_backup" "$theme_info_file" 2>/dev/null || true
   (
@@ -32,8 +36,11 @@ trap cleanup EXIT
 rm -rf "$work_dir"
 mkdir -p "$before_dir" "$after_dir" "$before_normalized_dir" "$after_normalized_dir"
 
+# Capture the Stable9-backed baseline before mutating the fixture theme.
 bash "${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/render-reference-pages.sh" "$fixture_dir" "$before_dir"
 
+# Drupal 11 requires an explicit base theme key, so replace stable9 with false
+# instead of deleting the setting outright.
 php -r '
 $file = $argv[1];
 $contents = file_get_contents($file);
@@ -54,6 +61,8 @@ file_put_contents($file, $updated);
   ./vendor/bin/drush cr -y
 )
 
+# Capture the same pages after the base theme change, normalize expected
+# request/runtime noise, and diff the normalized trees.
 bash "${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/render-reference-pages.sh" "$fixture_dir" "$after_dir"
 
 for file in "$before_dir"/*.html; do

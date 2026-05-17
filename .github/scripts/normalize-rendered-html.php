@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+// Normalizes Drupal-rendered HTML before parity diffs. The goal is to compare
+// template output while ignoring request-specific assets, tokens, hashes, and
+// small Stable9 compatibility differences that do not represent regressions.
 if ($argc !== 3) {
   fwrite(STDERR, "Usage: php normalize-rendered-html.php <input> <output>\n");
   exit(1);
@@ -18,18 +21,24 @@ if ($html === false) {
 }
 
 $replacements = [
+  // Asset tags are sensitive to aggregation state and library ordering.
   '/<script\b[^>]*>.*?<\/script>/si' => '',
   '/<link\b[^>]*>/si' => '',
   '/<style\b[^>]*>.*?<\/style>/si' => '',
   '/<meta[^>]+charset[^>]*>/si' => '',
+  // Form identifiers and CSRF tokens are regenerated per request.
   '/value="[^"]*"(?=[^>]*name="form_build_id")/i' => 'value="__FORM_BUILD_ID__"',
   '/value="[^"]*"(?=[^>]*name="form_token")/i' => 'value="__FORM_TOKEN__"',
   '/name="form_build_id" value="[^"]*"/i' => 'name="form_build_id" value="__FORM_BUILD_ID__"',
   '/name="form_token" value="[^"]*"/i' => 'name="form_token" value="__FORM_TOKEN__"',
   '/data-drupal-selector="form-[^"]+"/i' => 'data-drupal-selector="form-__FORM_BUILD_ID__"',
+  // Views and PHP built-in server details vary between otherwise equivalent
+  // captures.
   '/js-view-dom-id-[a-f0-9]+/i' => 'js-view-dom-id-__HASH__',
   '/\?v=[^"\']+/i' => '',
   '/https?:\/\/127\.0\.0\.1:\d+/i' => '__BASE_URL__',
+  // Collapse formatting-only whitespace so Twig indentation changes do not
+  // overwhelm parity diffs.
   '/>\s+</s' => '><',
   '/\s+/s' => ' ',
 ];
@@ -45,6 +54,8 @@ $normalized = preg_replace_callback(
   '/class="([^"]*)"/i',
   static function (array $matches): string {
     $classes = preg_split('/\s+/', trim($matches[1])) ?: [];
+    // Stable9 adds legacy form-type-* wrapper classes in Drupal 10; the
+    // no-Stable9 path intentionally drops them.
     $classes = array_filter(
       $classes,
       static fn(string $class): bool => !str_starts_with($class, 'form-type-')
