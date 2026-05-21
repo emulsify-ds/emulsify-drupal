@@ -2,16 +2,17 @@ name: Theme Readiness
 
 on:
   pull_request:
-  # Push coverage is for integration branches. Same-repo PR head branches are
-  # covered by pull_request, which avoids duplicate readiness runs per commit.
+  # Keep 7.x push coverage because this release branch owns the readiness
+  # workflow before it lands on main.
   push:
     branches:
       - main
+      - 7.x
       - release-7
   workflow_dispatch:
 
 concurrency:
-  group: theme-readiness-${{ github.event.pull_request.number || github.ref }}
+  group: theme-readiness-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
