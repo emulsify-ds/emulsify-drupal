@@ -2,10 +2,11 @@ name: Theme Readiness
 
 on:
   pull_request:
+  # Push coverage is for integration branches. Same-repo PR head branches are
+  # covered by pull_request, which avoids duplicate readiness runs per commit.
   push:
     branches:
       - main
-      - 7.x
       - release-7
   workflow_dispatch:
 

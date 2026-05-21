@@ -264,8 +264,9 @@ function runStaticChecks() {
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
       ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
-    ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x.');
+    ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
     ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
+    ensure(!themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should not duplicate pull_request readiness runs with a 7.x push trigger.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     return `Root theme metadata and CI readiness checks align to Drupal ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
   });
