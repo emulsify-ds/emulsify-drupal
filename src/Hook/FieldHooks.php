@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Hook;
 
 use Drupal\paragraphs\ParagraphInterface;
@@ -26,8 +28,9 @@ final class FieldHooks {
           isset($item['content']['#paragraph'])
           && $item['content']['#paragraph'] instanceof ParagraphInterface
         ) {
-          // Persist the render order for paragraph-level preprocess/template use.
-          $item['content']['#paragraph']->index = $delta++;
+          // Persist render order on the render array instead of mutating the
+          // paragraph entity with temporary dynamic state.
+          $item['content']['#emulsify_paragraph_index'] = $delta++;
         }
       }
       // Break the reference from foreach by-reference iteration.

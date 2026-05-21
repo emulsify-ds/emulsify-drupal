@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Hook;
 
 /**
@@ -16,9 +18,11 @@ final class FormHooks {
    *   Variables passed to the form suggestion alter hook.
    */
   public static function themeSuggestionsFormAlter(array &$suggestions, array $variables): void {
-    if (!empty($variables['element']['#id'])) {
-      // Drupal form IDs often include dashes; Twig suggestions use underscores.
-      $form_id = str_replace('-', '_', $variables['element']['#id']);
+    $form_id = $variables['element']['#form_id'] ?? $variables['element']['#id'] ?? NULL;
+
+    if ($form_id) {
+      // Prefer the stable form_id when present; Twig suggestions use underscores.
+      $form_id = str_replace('-', '_', (string) $form_id);
 
       // Allow form--{form_id}.html.twig templates.
       $suggestions[] = "form__{$form_id}";

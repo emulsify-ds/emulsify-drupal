@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Hook;
 
 /**
@@ -70,8 +72,18 @@ final class ViewsHooks {
    *   Variables passed to the suggestion alter hook.
    */
   public static function themeSuggestionsViewsMiniPagerAlter(array &$suggestions, array $variables): void {
-    // Keep a consistent mini pager override name across views.
-    $suggestions[] = 'views_mini_pager';
+    $view = $variables['view'] ?? NULL;
+
+    if (!is_object($view) || !method_exists($view, 'id') || empty($view->current_display)) {
+      return;
+    }
+
+    $view_id = str_replace('-', '_', (string) $view->id());
+    $display = str_replace('-', '_', (string) $view->current_display);
+
+    // Add useful per-view pager overrides; the base hook is already available.
+    $suggestions[] = "views_mini_pager__{$view_id}";
+    $suggestions[] = "views_mini_pager__{$view_id}__{$display}";
   }
 
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Hook;
 
 use Drupal\node\NodeInterface;
@@ -18,8 +20,9 @@ final class ParagraphHooks {
   public static function preprocessParagraph(array &$variables): void {
     $paragraph = $variables['paragraph'];
 
-    // Index is populated in field preprocess and reused by paragraph templates.
-    $variables['paragraph_index'] = $paragraph->index;
+    // Index is populated in field preprocess when the paragraph is rendered
+    // from a field item. Standalone paragraph renders will not have one.
+    $variables['paragraph_index'] = $variables['elements']['#emulsify_paragraph_index'] ?? NULL;
 
     if ($parent = $paragraph->getParentEntity()) {
       // Expose parent metadata for contextual template decisions.
