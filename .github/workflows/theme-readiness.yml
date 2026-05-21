@@ -1,0 +1,56 @@
+name: Theme Readiness
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 6.x
+  workflow_dispatch:
+
+concurrency:
+  group: theme-readiness-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  theme-readiness:
+    name: Theme Readiness (Drupal ${{ matrix.drupal-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep package compatibility at ^10.3 || ^11 for existing 6.x installs.
+        # CI covers currently relevant Drupal 10/11 minors, not every supported
+        # compatibility-floor version.
+        drupal-version:
+          - '10.5.*'
+          - '10.6.*'
+          - '11.3.*'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      - name: Build fixture site
+        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+
+      - name: Verify baseline template parity
+        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture
+
+      - name: Smoke test stable9-backed base theme rendering
+        run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
+
+      - name: Smoke test without stable9 fallback
+        run: bash .github/scripts/smoke-without-stable9.sh /tmp/emulsify-fixture /tmp/emulsify-no-stable9
+
+      - name: Compare render output before and after removing stable9
+        run: bash .github/scripts/render-parity.sh /tmp/emulsify-fixture /tmp/emulsify-render-parity
+
+      # Drupal core Starterkit generation is intentionally not tested in 6.x CI.
+      # It is being prepared for the 7.x release line, while Emulsify Tools
+      # remains the supported public child-theme generation workflow for 6.x.

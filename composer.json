@@ -1,6 +1,6 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "The official Drupal base theme for Emulsify that generates custom themes with Storybook development + Webpack Build",
+    "description": "The official Drupal parent theme for Emulsify that generates custom themes with Storybook development + Webpack build",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",
@@ -23,7 +23,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/core": "^10 || ^11",
+        "drupal/core": "^10.3 || ^11",
         "drupal/components": "^3.0@beta",
         "drupal/emulsify_tools": "^1.0"
     },

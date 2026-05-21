@@ -1,7 +1,7 @@
 {
   "name": "whisk",
   "version": "1.0.0",
-  "description": "Storybook development + Webpack Build",
+  "description": "Storybook development + Webpack build + Drupal 10.3+/11 starter theme",
   "keywords": [
     "component library",
     "design system",
@@ -41,6 +41,6 @@
     "webpack": "webpack --watch --config node_modules/@emulsify/core/config/webpack/webpack.dev.js"
   },
   "dependencies": {
-    "@emulsify/core": "^3.3.1"
+    "@emulsify/core": "^3.5.0"
   }
 }
