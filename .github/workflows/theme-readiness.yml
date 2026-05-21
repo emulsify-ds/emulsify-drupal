@@ -23,10 +23,12 @@ jobs:
       matrix:
         include:
           - label: Drupal 11.3
+            artifact-suffix: drupal-11-3-php-8-4
             drupal-version: '11.3.*'
             php-version: '8.4'
             experimental: false
           - label: Drupal Dev Branch
+            artifact-suffix: drupal-dev-main-php-8-5
             drupal-version: 'dev-main'
             php-version: '8.5'
             experimental: true
@@ -42,32 +44,40 @@ jobs:
           extensions: gd, imagick
 
       - name: Build fixture site
+        id: build_fixture
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
+      # Once the fixture exists, run each readiness slice independently. A
+      # render regression should not hide favicon or starterkit signal on PRs.
       - name: Verify Emulsify ships the full stable9 template surface
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE" "$RUNNER_TEMP/emulsify-template-parity.md"
 
       - name: Upload stable9 parity report
-        if: always()
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
-          name: stable9-template-parity
+          name: stable9-template-parity-${{ matrix.artifact-suffix }}
           path: ${{ runner.temp }}/emulsify-template-parity.md
 
       - name: Smoke test base theme page rendering
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
       - name: Smoke test generated favicon package
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Smoke test favicon portability and sanitizer coverage
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Generate and enable a Whisk-derived theme
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme

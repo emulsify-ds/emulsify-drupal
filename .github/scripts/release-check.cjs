@@ -7,6 +7,10 @@ const { spawnSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
+
+// release:check is both a local release guard and a CI sanity check. Static
+// checks always run; smoke checks build disposable Drupal projects unless the
+// caller explicitly skips them.
 const options = {
   drupalVersion: process.env.RELEASE_CHECK_DRUPAL_VERSION || null,
   skipSmoke: args.has('--skip-smoke'),
@@ -57,12 +61,24 @@ function extractSupportedDrupalTestLines(constraint) {
 
 function mapDrupalLineToSmokeTarget(line) {
   if (line === '12.*') {
-    // Drupal 12 currently ships from recommended-project's dev-main branch
-    // until the first stable 12.0.0 tag is published.
+    // Until Drupal 12 has tagged beta/stable recommended-project releases,
+    // dev-main is the only useful forward-compatibility smoke target.
     return 'dev-main';
   }
 
   return line;
+}
+
+function isStableSmokeTarget(target) {
+  return !String(target).startsWith('dev-');
+}
+
+function chooseDefaultSmokeTarget(smokeTargets, fallbackVersion) {
+  // Local release checks should block on the newest tagged/stable Drupal line.
+  // Forward-looking dev branches remain opt-in locally because upstream core
+  // churn can fail independently of this theme.
+  const stableTargets = smokeTargets.filter(isStableSmokeTarget);
+  return stableTargets[stableTargets.length - 1] || smokeTargets[0] || `${fallbackVersion}.*`;
 }
 
 function semver(value) {
@@ -80,6 +96,8 @@ function runStaticCheck(name, callback) {
 }
 
 function runSmokeCheck(name, command, argsList, cwd, options = {}) {
+  // Keep smoke steps isolated in the summary: one failure should not prevent
+  // later fixture copies from proving unrelated release surfaces.
   const result = spawnSync(command, argsList, {
     cwd,
     encoding: 'utf8',
@@ -97,6 +115,9 @@ function runSmokeCheck(name, command, argsList, cwd, options = {}) {
 }
 
 function extractJsonObjectSegment(text, key) {
+  // JSON.parse cannot report duplicate keys because later keys overwrite
+  // earlier ones. This scanner extracts the raw object text so duplicate script
+  // keys can be detected before parsing changes the shape.
   const keyPattern = new RegExp(`"${key}"\\s*:\\s*\\{`);
   const match = keyPattern.exec(text);
   if (!match) {
@@ -224,7 +245,7 @@ function runStaticChecks() {
   const supportedDrupalSmokeTargets = supportedDrupalLines.map(mapDrupalLineToSmokeTarget);
 
   if (!options.drupalVersion) {
-    options.drupalVersion = supportedDrupalSmokeTargets[supportedDrupalSmokeTargets.length - 1] || `${minCoreVersion}.*`;
+    options.drupalVersion = chooseDefaultSmokeTarget(supportedDrupalSmokeTargets, minCoreVersion);
   }
 
   runStaticCheck('Composer constraints', () => {
@@ -241,12 +262,12 @@ function runStaticChecks() {
     }
     ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
-      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run Drupal 12 readiness smoke checks on PHP 8.5.');
+      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
     ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x.');
     ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
-    return `Root theme metadata and CI readiness checks align to Drupal ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets.`;
+    return `Root theme metadata and CI readiness checks align to Drupal ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
   });
 
   runStaticCheck('Package metadata', () => {
@@ -334,6 +355,9 @@ function runSmokeChecks() {
   const baseThemeOutput = path.join(smokeRoot, 'base-theme-output');
   const generatedThemeOutput = path.join(smokeRoot, 'generated-theme-output');
 
+  // Build one clean Drupal fixture, then copy it for stateful smoke slices.
+  // Favicon generation and starterkit enabling intentionally mutate config and
+  // files, so copies keep those assertions from contaminating each other.
   fs.rmSync(smokeRoot, { force: true, recursive: true });
   fs.mkdirSync(smokeRoot, { recursive: true });
 

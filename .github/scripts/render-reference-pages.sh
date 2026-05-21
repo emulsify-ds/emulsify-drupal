@@ -4,7 +4,9 @@ set -euo pipefail
 
 # Captures a small, representative set of Drupal-rendered pages from a fixture.
 # The generated HTML files are used as smoke-test evidence for parent-theme
-# rendering and template coverage.
+# rendering and template coverage. This deliberately avoids screenshot or visual
+# diff tooling; the release risk here is whether Drupal can bootstrap and render
+# the theme across core template surfaces.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <output-dir>" >&2
   exit 1

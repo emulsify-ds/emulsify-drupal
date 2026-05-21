@@ -24,6 +24,8 @@ emulsify_tools_dir="${fixture_dir}/web/modules/contrib/emulsify_tools"
 drush_constraint="^13"
 
 if [ "$drupal_version" = "dev-main" ]; then
+  # Drupal core's development branch can require newer Drush internals than the
+  # current stable core line, so keep the constraint explicit per fixture.
   drush_constraint="^14"
 fi
 
@@ -85,8 +87,8 @@ fi
 ./vendor/bin/drush php:eval '
 use Drupal\node\Entity\Node;
 
-# Create fixture content idempotently so local reruns remain safe if a caller
-# points at a pre-existing fixture directory.
+// Create fixture content idempotently so local reruns remain safe if a caller
+// points at a pre-existing fixture directory.
 $storage = \Drupal::entityTypeManager()->getStorage("node");
 if (!$storage->loadByProperties(["title" => "Emulsify fixture page"])) {
   $node = Node::create([
@@ -120,6 +122,8 @@ if (!$storage->loadByProperties(["title" => "Emulsify fixture page 2"])) {
 # Add a non-admin account so user-template hooks have a real user entity
 # available in the fixture.
 ./vendor/bin/drush php:eval '
+// Keep user-template coverage independent from the administrator account that
+// site:install creates.
 $storage = \Drupal::entityTypeManager()->getStorage("user");
 if (!$storage->loadByProperties(["name" => "fixture-user"])) {
   $user = $storage->create([
@@ -133,6 +137,8 @@ if (!$storage->loadByProperties(["name" => "fixture-user"])) {
 
 # Route the front page to the node listing captured by the render smoke tests.
 ./vendor/bin/drush php:eval '
+// The render smoke captures /node because it exercises list, node teaser, view,
+// and pager-adjacent template surfaces in a compact request.
 \Drupal::configFactory()
   ->getEditable("system.site")
   ->set("page.front", "/node")

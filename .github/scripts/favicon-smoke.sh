@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Thin wrapper around favicon-smoke.php. Running through Drush gives the PHP
+# script a fully bootstrapped Drupal container while keeping the CI workflow
+# shell-readable.
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <fixture-dir> [theme-name]" >&2
   exit 1

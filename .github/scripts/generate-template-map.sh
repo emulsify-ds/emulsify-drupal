@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Maintenance utility for docs/template-map.md. It intentionally shares the
+# stable9 path-contract logic with template-parity.sh, but writes an explanatory
+# Markdown map instead of acting as a regular PR gate.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <repo-root> [output-file]" >&2
   exit 1
@@ -56,6 +59,8 @@ reason_for_template() {
   local modified="$2"
   local stable9_path="$3"
 
+  # Keep the reason taxonomy broad and stable. The map is meant to orient
+  # maintainers during release review, not to encode every line-level override.
   if [ ! -f "$stable9_path" ]; then
     echo "Outside stable9 parity contract"
     return

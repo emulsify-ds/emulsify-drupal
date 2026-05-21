@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+# Verifies Emulsify owns the same template path surface that stable9 provides
+# without inheriting stable9 as a base theme. This is a path-contract check:
+# templates may intentionally differ in content, but missing stable9 paths would
+# reintroduce hidden fallback behavior in Drupal 11/12 readiness testing.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <repo-root> [report-file]" >&2
   exit 1
@@ -39,6 +43,8 @@ if grep -Eq "^base theme: stable9$" "${repo_root}/emulsify.info.yml"; then
   exit 1
 fi
 
+# Build sorted relative path lists before comparison so the comm-based missing
+# path check is deterministic across local macOS and Linux CI filesystems.
 (
   cd "$stable9_templates_dir"
   find . -type f -name '*.html.twig' | sort
@@ -61,6 +67,8 @@ while IFS= read -r relative_path; do
   stable9_path="${stable9_templates_dir}/${relative_path#./}"
   repo_path="${repo_templates_dir}/${relative_path#./}"
 
+  # The report separates exact copies from intentional overrides. Both are
+  # acceptable for parity; only a missing stable9 path fails the test.
   if [ ! -f "$stable9_path" ]; then
     echo "$relative_path" >>"$emulsify_only_list"
   elif cmp -s "$stable9_path" "$repo_path"; then

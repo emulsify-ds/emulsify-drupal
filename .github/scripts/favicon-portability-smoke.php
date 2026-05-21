@@ -5,6 +5,14 @@ declare(strict_types=1);
 use Drupal\emulsify\Favicon\FaviconPackageGenerator;
 use Drupal\emulsify\Favicon\FaviconSettings;
 
+/**
+ * Mode-driven favicon portability smoke helper.
+ *
+ * The shell wrapper runs this script multiple times through Drush so each phase
+ * starts with a fresh PHP process. That makes the test closer to real deploy
+ * flows where config import, package regeneration, missing-file recovery, and
+ * reset operations happen as separate commands.
+ */
 $mode = getenv('EMULSIFY_FAVICON_MODE') ?: 'assert-generated';
 $theme_name = getenv('EMULSIFY_FAVICON_THEME');
 $theme_name = is_string($theme_name) && $theme_name !== ''
@@ -17,6 +25,16 @@ $svg = <<<'SVG'
   <path d="M256 112c79.5 0 144 64.5 144 144s-64.5 144-144 144-144-64.5-144-144 64.5-144 144-144Zm0 78c-36.5 0-66 29.5-66 66s29.5 66 66 66 66-29.5 66-66-29.5-66-66-66Z" fill="#ffffff"/>
 </svg>
 SVG;
+
+if (!class_exists('Imagick')) {
+  fwrite(STDERR, "Imagick is required for favicon portability smoke tests.\n");
+  exit(1);
+}
+
+if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
+  fwrite(STDERR, "GD is required for favicon portability smoke tests.\n");
+  exit(1);
+}
 
 /**
  * Creates the generator used by the smoke assertions.
@@ -99,6 +117,7 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   $gradients = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>';
   $raster = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z5x8AAAAASUVORK5CYII=" width="64" height="64"/></svg>';
 
+  // Allowed SVG features used by real design-system icons.
   $analysis = $generator->validateSourceSvg($simple, FALSE);
   emulsify_favicon_assert(($analysis['sanitized_svg'] ?? '') !== '', 'Simple square SVG should be accepted.');
 
@@ -111,6 +130,7 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   $analysis = $generator->validateSourceSvg($raster, FALSE);
   emulsify_favicon_assert(!empty($analysis['has_embedded_raster_images']), 'Base64 embedded raster images should be detected.');
 
+  // Dangerous markup should be stripped without rejecting otherwise usable SVGs.
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script><rect width="64" height="64"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains((string) $analysis['sanitized_svg'], '<script'), 'Script tags should be stripped from sanitized SVG output.');
 
@@ -130,6 +150,7 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onclick='), 'Inline event handlers should be stripped.');
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onload='), 'Root event handlers should be stripped.');
 
+  // Hard rejects protect package generation from non-square or excessive input.
   emulsify_favicon_assert_invalid(
     fn() => $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32"/></svg>', FALSE),
     'square viewBox',
@@ -146,6 +167,8 @@ $generator = emulsify_favicon_generator();
 
 switch ($mode) {
   case 'prepare':
+    // Store every portable setting needed to regenerate the package from config
+    // alone, then clear package metadata so generate must create fresh files.
     \Drupal::configFactory()
       ->getEditable($theme_name . '.settings')
       ->set('favicon_package_enabled', TRUE)
@@ -171,6 +194,8 @@ switch ($mode) {
     return;
 
   case 'delete-package':
+    // Simulate a deploy/filesystem state where config references a package but
+    // generated files are missing and need to be recreated.
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
     $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
     $realpath = \Drupal::service('file_system')->realpath($definition['path']);
@@ -182,6 +207,8 @@ switch ($mode) {
     return;
 
   case 'generate':
+    // Generate from the portable SVG stored in config instead of from an upload
+    // entity, which is the critical behavior after config import.
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
     $source_svg = FaviconSettings::getPortableSourceSvg($settings);
     emulsify_favicon_assert($source_svg !== '', 'Expected a portable SVG source before generation.');
@@ -202,6 +229,8 @@ switch ($mode) {
     return;
 
   case 'assert-generated':
+    // Verify deterministic package metadata and the actual file payload. The
+    // sanitizer matrix runs here so it is covered after each generation path.
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
     $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
     emulsify_favicon_assert($settings['favicon_package_hash'] === $definition['hash'], 'Theme config should store the deterministic favicon package hash.');
@@ -236,6 +265,8 @@ switch ($mode) {
     return;
 
   case 'assert-reset':
+    // Reset should return theme settings to schema defaults, not just delete
+    // files from the public filesystem.
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
     foreach (emulsify_favicon_default_settings($site_name) as $key => $expected_value) {
       emulsify_favicon_assert($settings[$key] === $expected_value, sprintf('Expected %s to reset to its default value.', $key));
@@ -244,6 +275,9 @@ switch ($mode) {
     return;
 
   case 'reset':
+    // Remove both the stored package path and the deterministic package path
+    // derived from the portable source so stale generated directories do not
+    // survive a reset operation.
     $settings = emulsify_favicon_load_settings($theme_name, $site_name);
     $package_paths = array_filter([(string) ($settings['favicon_package_path'] ?? '')]);
     $source_svg = FaviconSettings::getPortableSourceSvg($settings);
