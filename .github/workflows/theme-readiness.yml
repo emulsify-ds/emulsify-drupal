@@ -35,6 +35,9 @@ jobs:
       - name: Build fixture site
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
+      - name: Verify baseline template parity
+        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture
+
       - name: Smoke test stable9-backed base theme rendering
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
