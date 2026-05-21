@@ -48,7 +48,7 @@ final class FieldHooks {
    * @param string $hook
    *   The hook name currently being altered.
    */
-  public static function themeSuggestionsFieldAlter(array &$suggestions, array $variables, $hook): void {
+  public static function themeSuggestionsFieldAlter(array &$suggestions, array $variables, string $hook): void {
     if ($hook !== 'field') {
       return;
     }

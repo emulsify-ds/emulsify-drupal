@@ -17,6 +17,6 @@ function emulsify_preprocess_field(array &$variables) {
 /**
  * Implements hook_theme_suggestions_field_alter().
  */
-function emulsify_theme_suggestions_field_alter(array &$suggestions, array $variables, $hook) {
+function emulsify_theme_suggestions_field_alter(array &$suggestions, array $variables, string $hook) {
   FieldHooks::themeSuggestionsFieldAlter($suggestions, $variables, $hook);
 }
