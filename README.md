@@ -22,6 +22,7 @@ In the 6.x series, `stable9` remains a fallback base theme while Emulsify progre
 
 1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
 2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
+3. [Preparing existing 6.x projects for 7.x](docs/preparing-for-7.md)
 
 ## Demo
 
