@@ -38,12 +38,41 @@ final class ViewsHooks {
    *   Variables passed to the suggestion alter hook.
    */
   public static function themeSuggestionsViewsViewAlter(array &$suggestions, array $variables): void {
-    $view_id = $variables['view']->id();
-    $display = $variables['view']->current_display;
+    $view = $variables['view'] ?? NULL;
 
-    // Support global and per-display overrides.
-    $suggestions[] = "views_view__{$view_id}";
-    $suggestions[] = "views_view__{$view_id}__{$display}";
+    if (!is_object($view) || !method_exists($view, 'id')) {
+      return;
+    }
+
+    $view_id = str_replace('-', '_', (string) $view->id());
+    $display = str_replace('-', '_', (string) ($view->current_display ?? ''));
+    $display_type = NULL;
+
+    if (isset($view->display_handler) && is_object($view->display_handler)) {
+      $display_handler = $view->display_handler;
+
+      if (method_exists($display_handler, 'getPluginId')) {
+        $display_type = $display_handler->getPluginId();
+      }
+      elseif (isset($display_handler->display) && is_array($display_handler->display)) {
+        $display_type = $display_handler->display['display_plugin'] ?? NULL;
+      }
+    }
+
+    $display_type = $display_type ? str_replace('-', '_', (string) $display_type) : '';
+
+    // Support global, display-type, and specific display overrides.
+    if ($view_id) {
+      self::addSuggestion($suggestions, "views_view__{$view_id}");
+    }
+
+    if ($view_id && $display_type) {
+      self::addSuggestion($suggestions, "views_view__{$view_id}__{$display_type}");
+    }
+
+    if ($view_id && $display) {
+      self::addSuggestion($suggestions, "views_view__{$view_id}__{$display}");
+    }
   }
 
   /**
@@ -84,6 +113,20 @@ final class ViewsHooks {
     // Add useful per-view pager overrides; the base hook is already available.
     $suggestions[] = "views_mini_pager__{$view_id}";
     $suggestions[] = "views_mini_pager__{$view_id}__{$display}";
+  }
+
+  /**
+   * Adds a suggestion if it is not already present.
+   *
+   * @param array $suggestions
+   *   Theme hook suggestions.
+   * @param string $suggestion
+   *   Suggestion to add.
+   */
+  private static function addSuggestion(array &$suggestions, string $suggestion): void {
+    if (!in_array($suggestion, $suggestions, TRUE)) {
+      $suggestions[] = $suggestion;
+    }
   }
 
 }
