@@ -10,7 +10,7 @@
 
 The 6.x compatibility floor is Drupal `^10.3 || ^11` for existing installs. Release readiness CI targets currently relevant Drupal 10 and 11 minors rather than presenting Drupal 10.3 as the recommended production target.
 
-`emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the starter source used to generate subthemes and is not intended to be enabled directly on a site.
+`emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the source used by Emulsify Tools to generate subthemes and is not intended to be enabled directly on a site.
 
 In the 6.x series, `stable9` remains a fallback base theme while Emulsify progressively takes ownership of the template and render layer it previously inherited.
 

@@ -1,11 +1,8 @@
-# Browsers we support for Emulsify 6.x.
+# Browsers that we support
 
-[production]
-defaults
-not IE 11
-not op_mini all
-
-[development]
-last 1 chrome version
-last 1 firefox version
-last 1 safari version
+> 1%
+last 2 versions
+Firefox ESR
+Chrome 41 # Support for Googlebot
+not dead
+not IE 9-11 # For IE 9-11 support, remove 'not'.
