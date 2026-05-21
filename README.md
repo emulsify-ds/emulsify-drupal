@@ -4,11 +4,11 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Vite build, and Drupal 11.3 / Drupal 12.x theme
+### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Vite](https://vite.dev/) development environment, and a starter kit theme that supports Drupal 11.3.x and Drupal 12.x.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
 
-The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal base theme.
+The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
 ## Documentation
 
@@ -20,6 +20,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
 3. [Upgrade guide](./UPGRADE.md)
 4. [Template override map](./docs/template-map.md)
+5. [Favicon generation lifecycle](./docs/favicon-generation.md)
 
 ## Demo
 
@@ -29,7 +30,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 
 ### Generate a child theme
 
-If `emulsify_tools` is installed, you can generate a subtheme with the helper-module Drush command:
+If `emulsify_tools` is installed, you can generate a child theme with the helper-module Drush command:
 
 ```bash
 drush emulsify my_theme
@@ -41,7 +42,7 @@ The helper module also exposes the fully qualified command name:
 drush emulsify_tools:bake my_theme
 ```
 
-You can also generate the same subtheme with Drupal core's standard Starterkit command from the root of your Drupal site:
+You can also generate the same child theme with Drupal core's standard Starterkit command from the root of your Drupal site:
 
 ```bash
 php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path themes/custom
@@ -82,16 +83,25 @@ Do not enable `whisk` directly. It is a generation-only starter source.
 
 The generated favicon workflow is built around one portable SVG source stored in theme settings.
 
-1. Save the theme settings form to generate or update the package during normal admin changes.
-2. After configuration import or deploy, regenerate missing package files with `drush emulsify_tools:favicon-generate [theme_name]` before public traffic reaches the environment.
-3. Use `drush emulsify_tools:favicon-status [theme_name]` to inspect dependency, package, and portable-source status, or use the theme settings UI for package and source diagnostics.
-4. Use `drush emulsify_tools:favicon-reset [theme_name]` if you need to remove generated assets and restore the theme default favicon behavior.
+Emulsify Drupal owns the theme-facing parts of that workflow: the theme settings form, config defaults and schema, admin previews, frontend head tags, generated asset references in `<theme>.settings`, and sanitized SVG storage for config portability.
 
-Runtime generation remains a lock-protected fallback if a request reaches an environment before deployment tasks regenerate the package. Fallback failures are logged and do not break page rendering.
+1. Configure the package in the theme settings form for `emulsify` or an Emulsify child theme.
+2. Save the theme settings form to generate or update the package during normal admin changes.
+3. Review package and portable-source diagnostics in the theme settings UI.
+
+Emulsify Tools owns deployment-oriented Drush operations for those same
+settings. After configuration import or deploy, use the Emulsify Tools favicon
+commands to generate, inspect, or reset environment-local package files before
+public traffic reaches the environment. See the Emulsify Tools README for the
+full command documentation.
+
+Runtime page requests never generate favicon files. If the configured package is missing, Emulsify skips favicon head tags until the theme settings form or the Emulsify Tools generate command creates the package.
 
 Generated favicon packages require the PHP `gd` extension and the `Imagick` extension for SVG rasterization. If either extension is unavailable, the uploaded SVG can still be stored in configuration, but PNG and ICO package generation will fail until those extensions are installed.
 
 The theme settings UI surfaces the current portable-source and package status. Portable SVG copies larger than 256 KB are flagged because very large config payloads are awkward to review and deploy.
+
+See [docs/favicon-generation.md](./docs/favicon-generation.md) for generated files, package location, generator limits, and deployment expectations.
 
 ## Contributing
 
@@ -117,13 +127,13 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 
 ### Release Readiness
 
-Run the release guard before merging packaging or starterkit changes:
+Run the release guard before merging packaging, starterkit, favicon settings, or release metadata changes, and before preparing a 7.x release:
 
 ```bash
 npm run release:check
 ```
 
-Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks.
+Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks. The static checks verify that favicon settings stay aligned across `FaviconSettings::DEFAULTS`, `config/install/emulsify.settings.yml`, and `config/schema/emulsify.schema.yml`.
 
 ## Author
 

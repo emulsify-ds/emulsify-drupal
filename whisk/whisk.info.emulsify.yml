@@ -3,7 +3,7 @@ base theme: emulsify
 core_version_requirement: '^11.3 || ^12'
 
 name: whisk
-description: A subtheme build upon the Emulsify Design System.
+description: A child theme built upon the Emulsify Design System.
 package: 'Emulsify'
 screenshot: screenshot.png
 version: VERSION

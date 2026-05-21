@@ -3,7 +3,7 @@ base theme: emulsify
 core_version_requirement: '^11.3 || ^12'
 
 name: Whisk Starter
-description: Generation-only starter source for Emulsify subthemes.
+description: Generation-only starter source for Emulsify child themes.
 package: 'Emulsify'
 screenshot: screenshot.png
 hidden: true

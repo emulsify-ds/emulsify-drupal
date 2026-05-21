@@ -1,7 +1,7 @@
 {
   "name": "whisk",
   "version": "1.0.0",
-  "description": "Storybook development + Vite Build",
+  "description": "Storybook and a Vite-based build workflow powered by Emulsify Core 4",
   "keywords": [
     "component library",
     "design system",

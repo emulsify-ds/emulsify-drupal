@@ -1,6 +1,6 @@
 name: Emulsify
 type: theme
-description: The official base theme for Emulsify and its flexible component-driven development.
+description: The official Drupal parent theme for Emulsify component-driven development.
 base theme: false
 core_version_requirement: '^11.3 || ^12'
 package: emulsify

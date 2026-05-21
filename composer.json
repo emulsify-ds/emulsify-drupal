@@ -1,6 +1,6 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "The official Drupal base theme for Emulsify that generates custom themes with Storybook development + Vite Build",
+    "description": "The official Drupal theme for Emulsify, with Storybook and a Vite-based build workflow for generated child themes",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",

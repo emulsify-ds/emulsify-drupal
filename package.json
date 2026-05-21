@@ -1,7 +1,7 @@
 {
   "name": "emulsify-drupal",
   "version": "7.0.0",
-  "description": "Storybook development + Vite Build + Drupal 11.3-12.x theme",
+  "description": "Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility",
   "keywords": [
     "component library",
     "design system",

@@ -1,4 +1,8 @@
+# Drupal validates starterkit path patterns against files that exist in the
+# source theme. Keep optional files out of these rules until they are committed.
 ignore:
+  # Starter-only files are used by Emulsify Drupal or Drupal core generation and
+  # should not be copied into generated child themes.
   - '/.DS_Store'
   - '/assets/.DS_Store'
   - '/config/.DS_Store'
@@ -7,5 +11,17 @@ ignore:
   - '/whisk.info.emulsify.yml'
   - '/whisk.starterkit.yml'
 
+no_edit:
+  # These files are copied as build/tooling inputs. Automatic starterkit content
+  # replacement can corrupt package-managed config or binary data.
+  - '/config/emulsify-core/**'
+  - '/screenshot.png'
+
+no_rename:
+  # Emulsify Core config paths are tool conventions, not theme machine-name
+  # conventions, and should remain stable in generated themes.
+  - '/config/emulsify-core/**'
+
 info:
+  core_version_requirement: '^11.3 || ^12'
   hidden: null
