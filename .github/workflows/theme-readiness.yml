@@ -42,9 +42,11 @@ jobs:
           extensions: gd, imagick
 
       - name: Build fixture site
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Verify Emulsify ships the full stable9 template surface
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE" "$RUNNER_TEMP/emulsify-template-parity.md"
 
       - name: Upload stable9 parity report
@@ -55,13 +57,17 @@ jobs:
           path: ${{ runner.temp }}/emulsify-template-parity.md
 
       - name: Smoke test base theme page rendering
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
       - name: Smoke test generated favicon package
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Smoke test favicon portability and sanitizer coverage
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
       - name: Generate and enable a Whisk-derived theme
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme
