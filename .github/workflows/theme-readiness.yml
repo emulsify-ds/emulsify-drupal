@@ -45,6 +45,10 @@ jobs:
           tools: composer:v2
           extensions: gd, imagick
 
+      - { name: Setup Node, uses: actions/setup-node@v4, with: { node-version: 24 } }
+
+      - { name: Run static release check, run: 'npm run release:check -- --skip-smoke' }
+
       - name: Build fixture site
         id: build_fixture
         continue-on-error: ${{ matrix.experimental }}
@@ -64,7 +68,7 @@ jobs:
           name: stable9-template-parity-${{ matrix.artifact-suffix }}
           path: ${{ runner.temp }}/emulsify-template-parity.md
 
-      - name: Smoke test base theme page rendering
+      - name: Smoke test parent theme page rendering
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
@@ -79,7 +83,6 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
-      - name: Generate and enable a Whisk-derived theme
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
-        continue-on-error: ${{ matrix.experimental }}
-        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme
+      - { name: Generate and enable a Whisk-derived theme, id: starterkit_smoke, if: "${{ !cancelled() && steps.build_fixture.outcome == 'success' }}", continue-on-error: "${{ matrix.experimental }}", run: 'bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme"' }
+
+      - { name: Upload generated theme smoke artifacts, if: "${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_smoke.outcome == 'failure' }}", uses: actions/upload-artifact@v4, with: { name: "generated-theme-smoke-${{ matrix.artifact-suffix }}", if-no-files-found: warn, path: "${{ runner.temp }}/emulsify-generated-theme" } }

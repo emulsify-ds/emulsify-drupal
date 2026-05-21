@@ -67,7 +67,7 @@ reason_for_template() {
   fi
 
   if [ "$modified" = "No" ]; then
-    echo "Parent parity"
+    echo "Core baseline parity"
     return
   fi
 

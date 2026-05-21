@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Verifies Emulsify owns the same template path surface that stable9 provides
-# without inheriting stable9 as a base theme. This is a path-contract check:
+# without inheriting stable9 as a parent theme. This is a path-contract check:
 # templates may intentionally differ in content, but missing stable9 paths would
 # reintroduce hidden fallback behavior in Drupal 11/12 readiness testing.
 if [ "$#" -lt 2 ]; then
@@ -39,7 +39,7 @@ if [ ! -d "$repo_templates_dir" ]; then
 fi
 
 if grep -Eq "^base theme: stable9$" "${repo_root}/emulsify.info.yml"; then
-  echo "emulsify.info.yml should not declare stable9 as a base theme." >&2
+  echo "emulsify.info.yml should not declare stable9 as its parent theme." >&2
   exit 1
 fi
 
