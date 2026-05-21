@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Component\Utility\Html;

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Mode-driven favicon portability smoke helper.
+ */
+
 declare(strict_types=1);
 
 use Drupal\emulsify\Favicon\FaviconPackageGenerator;
@@ -75,7 +80,10 @@ function emulsify_favicon_assert_invalid(callable $callback, string $expected_me
     $callback();
   }
   catch (\InvalidArgumentException $exception) {
-    emulsify_favicon_assert(str_contains($exception->getMessage(), $expected_message), sprintf('Expected exception containing "%s", got "%s".', $expected_message, $exception->getMessage()));
+    emulsify_favicon_assert(
+      str_contains($exception->getMessage(), $expected_message),
+      sprintf('Expected exception containing "%s", got "%s".', $expected_message, $exception->getMessage()),
+    );
     return;
   }
 
@@ -128,9 +136,12 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], 'linearGradient'), 'Inline gradients should be preserved.');
 
   $analysis = $generator->validateSourceSvg($raster, FALSE);
-  emulsify_favicon_assert(!empty($analysis['has_embedded_raster_images']), 'Base64 embedded raster images should be detected.');
+  emulsify_favicon_assert(
+    !empty($analysis['has_embedded_raster_images']),
+    'Base64 embedded raster images should be detected.',
+  );
 
-  // Dangerous markup should be stripped without rejecting otherwise usable SVGs.
+  // Dangerous markup should be stripped without rejecting usable SVGs.
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script><rect width="64" height="64"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains((string) $analysis['sanitized_svg'], '<script'), 'Script tags should be stripped from sanitized SVG output.');
 

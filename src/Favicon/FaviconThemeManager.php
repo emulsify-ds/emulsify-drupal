@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Component\Datetime\TimeInterface;
@@ -41,13 +43,6 @@ final class FaviconThemeManager {
       $time,
       $lock,
     );
-  }
-
-  /**
-   * Returns the package generator used by this manager.
-   */
-  public function getPackageGenerator(): FaviconPackageGenerator {
-    return $this->packageGenerator;
   }
 
   /**
@@ -216,7 +211,7 @@ final class FaviconThemeManager {
    *   result: array{hash: string, path: string, generated_at: int},
    *   settings: array<string, mixed>,
    *   source_context: array<string, mixed>
-   * }
+   *   }
    *   The generation outcome and normalized settings to persist.
    */
   public function generatePackage(string $theme_name, array $settings, bool $overwrite = FALSE): array {
@@ -309,9 +304,13 @@ final class FaviconThemeManager {
    * Validates a managed source file or falls back to stored SVG config.
    *
    * @return array<string, mixed>|null
-   *   The validated source analysis, or NULL when config fallback should be used.
+   *   The validated source analysis, or NULL for config fallback.
    */
-  private function resolveSourceFileAnalysis(File $source_file, string $source_svg, bool $requires_rasterization): ?array {
+  private function resolveSourceFileAnalysis(
+    File $source_file,
+    string $source_svg,
+    bool $requires_rasterization,
+  ): ?array {
     try {
       return $this->packageGenerator->validateSourceFile($source_file, $requires_rasterization);
     }

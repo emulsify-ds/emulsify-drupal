@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Core\File\FileUrlGeneratorInterface;
@@ -39,23 +41,27 @@ final class FaviconHeadBuilder {
       'rel' => 'icon',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/favicon.ico'),
       'sizes' => 'any',
-    ], 'emulsify_favicon_ico'];
+    ], 'emulsify_favicon_ico',
+    ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'icon',
       'type' => 'image/svg+xml',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/favicon.svg'),
-    ], 'emulsify_favicon_svg'];
+    ], 'emulsify_favicon_svg',
+    ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'apple-touch-icon',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/apple-touch-icon.png'),
-    ], 'emulsify_favicon_ios'];
+    ], 'emulsify_favicon_ios',
+    ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'manifest',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/site.webmanifest'),
-    ], 'emulsify_favicon_manifest'];
+    ], 'emulsify_favicon_manifest',
+    ];
 
     $attachments['#attached']['html_head'][] = [[
       '#tag' => 'meta',
@@ -63,7 +69,8 @@ final class FaviconHeadBuilder {
         'name' => 'theme-color',
         'content' => $theme_color,
       ],
-    ], 'emulsify_favicon_theme_color'];
+    ], 'emulsify_favicon_theme_color',
+    ];
 
     if ($icon_name !== '') {
       $attachments['#attached']['html_head'][] = [[
@@ -72,7 +79,8 @@ final class FaviconHeadBuilder {
           'name' => 'apple-mobile-web-app-title',
           'content' => $icon_name,
         ],
-      ], 'emulsify_favicon_ios_title'];
+      ], 'emulsify_favicon_ios_title',
+      ];
     }
   }
 

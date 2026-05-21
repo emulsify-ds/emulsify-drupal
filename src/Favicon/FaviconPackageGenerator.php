@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Component\Datetime\TimeInterface;
@@ -112,7 +114,7 @@ final class FaviconPackageGenerator {
   }
 
   /**
-   * Returns the deterministic package hash and directory for a source/settings pair.
+   * Returns the deterministic package hash and directory.
    *
    * @return array{hash: string, path: string, source_hash: string}
    *   The expected package definition.
@@ -199,8 +201,16 @@ final class FaviconPackageGenerator {
   /**
    * Generates a full favicon package from portable SVG source markup.
    *
+   * @param string $theme_name
+   *   Theme machine name.
+   * @param string $source_data
+   *   Portable SVG source markup.
+   * @param array<string, mixed> $settings
+   *   Favicon package settings.
    * @param array<string, mixed> $source
    *   Optional source metadata such as file ID or filename.
+   * @param bool $overwrite
+   *   Whether to replace an existing package directory.
    *
    * @return array{hash: string, path: string, generated_at: int}
    *   Generated package metadata.
@@ -509,13 +519,20 @@ final class FaviconPackageGenerator {
    * Builds the shared lock ID used for deterministic package writes.
    */
   private function buildGenerationLockId(string $theme_name, string $package_hash): string {
-    return sprintf('emulsify:favicon_package:%s:%s', $theme_name, $package_hash);
+    return sprintf(
+      'emulsify:favicon_package:%s:%s',
+      $theme_name,
+      $package_hash,
+    );
   }
 
   /**
-   * Returns existing package metadata when another process already generated it.
+   * Returns existing package metadata when already generated.
    */
-  private function buildExistingPackageResult(string $package_hash, string $package_directory): array {
+  private function buildExistingPackageResult(
+    string $package_hash,
+    string $package_directory,
+  ): array {
     $metadata = $this->readPackageMetadata($package_directory);
 
     return [
@@ -919,8 +936,7 @@ SVG,
     imagepng($canvas);
     $png = (string) ob_get_clean();
 
-    imagedestroy($source_image);
-    imagedestroy($canvas);
+    unset($source_image, $canvas);
 
     return $png;
   }
@@ -928,7 +944,7 @@ SVG,
   /**
    * Creates a GD image resource from the uploaded source.
    */
-  private function createSourceImage(string $mime_type, string $source_data, int $target_size) {
+  private function createSourceImage(string $mime_type, string $source_data, int $target_size): \GdImage {
     if ($mime_type === 'image/svg+xml') {
       if (!class_exists('Imagick')) {
         throw new \RuntimeException('The Imagick extension is required to rasterize SVG icons.');

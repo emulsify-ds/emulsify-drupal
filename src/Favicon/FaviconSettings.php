@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\emulsify\Favicon;
 
 use Drupal\Core\Extension\ThemeSettingsProvider;
@@ -132,24 +134,6 @@ final class FaviconSettings {
    */
   public static function hasPortableSource(array $settings): bool {
     return self::getPortableSourceSvg($settings) !== '';
-  }
-
-  /**
-   * Returns the portable SVG source stored in config.
-   *
-   * @todo Remove in Emulsify 8.x after callers move to getPortableSourceSvg().
-   */
-  public static function getSourceSvg(array $settings): string {
-    return self::getPortableSourceSvg($settings);
-  }
-
-  /**
-   * Indicates whether a portable SVG source is available.
-   *
-   * @todo Remove in Emulsify 8.x after callers move to hasPortableSource().
-   */
-  public static function hasExportableSource(array $settings): bool {
-    return self::hasPortableSource($settings);
   }
 
   /**

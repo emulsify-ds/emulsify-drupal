@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Runtime favicon package attachment smoke helper.
+ */
+
 declare(strict_types=1);
 
 use Drupal\emulsify\Favicon\FaviconPackageGenerator;
@@ -7,12 +12,12 @@ use Drupal\emulsify\Favicon\FaviconSettings;
 use Drupal\emulsify\Hook\FaviconHooks;
 
 /**
- * Smoke-tests runtime favicon package generation for a bootstrapped theme.
+ * Smoke-tests favicon package attachment for a bootstrapped theme.
  *
- * favicon-smoke.sh executes this file through `drush php:eval`, so Drupal
+ * Favicon-smoke.sh executes this file through `drush php:eval`, so Drupal
  * services, config, and theme hooks are available exactly as they are during a
- * request. The test stores a portable SVG in theme config, lets the page
- * attachment hook generate the package, then verifies files and head tags.
+ * request. The test proves page attachments do not generate missing files,
+ * then pre-generates a package and verifies existing package head tags.
  */
 $argv = $_SERVER['argv'] ?? [];
 $theme_name = getenv('EMULSIFY_FAVICON_THEME');
@@ -29,15 +34,29 @@ $svg = <<<'SVG'
 </svg>
 SVG;
 
+/**
+ * Fails the smoke script with a clear message.
+ */
 function emulsify_favicon_smoke_fail(string $message): void {
   fwrite(STDERR, $message . PHP_EOL);
   exit(1);
 }
 
+/**
+ * Asserts a condition and exits if it fails.
+ */
 function emulsify_favicon_smoke_assert(bool $condition, string $message): void {
   if (!$condition) {
     emulsify_favicon_smoke_fail($message);
   }
+}
+
+/**
+ * Loads normalized theme settings.
+ */
+function emulsify_favicon_smoke_load_settings(string $theme_name, string $site_name): array {
+  $stored = \Drupal::configFactory()->get($theme_name . '.settings')->getRawData();
+  return FaviconSettings::normalize(is_array($stored) ? $stored : [], $site_name);
 }
 
 // The generator can store SVG config without these extensions, but producing
@@ -50,8 +69,8 @@ if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetr
   emulsify_favicon_smoke_fail('GD is required for favicon smoke tests.');
 }
 
-// Reset package metadata before invoking the hook so this smoke proves package
-// creation rather than accepting files from a previous fixture run.
+// Reset package metadata before invoking the hook so this smoke proves page
+// requests do not create missing package files.
 $config = \Drupal::configFactory()->getEditable($theme_name . '.settings');
 $config
   ->set('favicon_package_enabled', TRUE)
@@ -74,9 +93,23 @@ $config
   ->set('favicon_package_generated_at', 0)
   ->save();
 
-/** @var \Drupal\Core\Theme\ThemeInitializationInterface $theme_initialization */
+$generator = new FaviconPackageGenerator(
+  \Drupal::service('file_system'),
+  \Drupal::service('file_url_generator'),
+  \Drupal::service('config.factory'),
+  \Drupal::service('cache_tags.invalidator'),
+  \Drupal::service('datetime.time'),
+  \Drupal::service('lock'),
+);
+$settings = emulsify_favicon_smoke_load_settings($theme_name, $site_name);
+$definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
+$realpath = \Drupal::service('file_system')->realpath($definition['path']);
+if ($realpath && is_dir($realpath)) {
+  \Drupal::service('file_system')->deleteRecursive($realpath);
+}
+
 $theme_initialization = \Drupal::service('theme.initialization');
-/** @var \Drupal\Core\Theme\ThemeManagerInterface $theme_manager */
+
 $theme_manager = \Drupal::service('theme.manager');
 $theme_manager->setActiveTheme($theme_initialization->initTheme($theme_name));
 
@@ -90,28 +123,31 @@ $attachments = [
   ],
 ];
 
-/** @var \Drupal\emulsify\Hook\FaviconHooks $hook_handler */
 $hook_handler = \Drupal::service('class_resolver')->getInstanceFromDefinition(FaviconHooks::class);
 $hook_handler->pageAttachmentsAlter($attachments);
 
-$settings = [];
-foreach (FaviconSettings::DEFAULTS as $key => $default) {
-  $settings[$key] = $config->get($key);
-}
-$settings = FaviconSettings::normalize($settings, $site_name);
+emulsify_favicon_smoke_assert(!$generator->packageExists($definition['path']), 'Runtime page attachments must not generate missing favicon package files.');
+emulsify_favicon_smoke_assert($attachments['#attached']['html_head_link'] === [], 'Runtime page attachments should skip missing favicon packages.');
+emulsify_favicon_smoke_assert($attachments['#attached']['html_head'] === [], 'Runtime page attachments should not add favicon metadata for missing packages.');
 
-$generator = new FaviconPackageGenerator(
-  \Drupal::service('file_system'),
-  \Drupal::service('file_url_generator'),
-  \Drupal::service('config.factory'),
-  \Drupal::service('cache_tags.invalidator'),
-  \Drupal::service('datetime.time'),
-  \Drupal::service('lock'),
+$result = $generator->generateFromSvg(
+  $theme_name,
+  $svg,
+  $settings,
+  [
+    'filename' => 'release-check.svg',
+  ],
 );
-$definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
-$realpath = \Drupal::service('file_system')->realpath($definition['path']);
+$config = \Drupal::configFactory()->getEditable($theme_name . '.settings');
+$config
+  ->set('favicon_package_hash', $result['hash'])
+  ->set('favicon_package_path', $result['path'])
+  ->set('favicon_package_generated_at', $result['generated_at'])
+  ->save();
 
-emulsify_favicon_smoke_assert((bool) $realpath && is_dir($realpath), "Expected generated favicon package at {$definition['path']}.");
+$realpath = \Drupal::service('file_system')->realpath($result['path']);
+
+emulsify_favicon_smoke_assert((bool) $realpath && is_dir($realpath), "Expected generated favicon package at {$result['path']}.");
 
 $expected_files = [
   'favicon.svg',
@@ -135,6 +171,14 @@ emulsify_favicon_smoke_assert(is_array($manifest_data), 'Generated site.webmanif
 emulsify_favicon_smoke_assert(($manifest_data['display'] ?? '') === 'standalone', 'Generated site.webmanifest is missing the standalone display mode.');
 emulsify_favicon_smoke_assert(($manifest_data['theme_color'] ?? '') === '#005b99', 'Generated site.webmanifest is missing the expected theme color.');
 
+$attachments = [
+  '#attached' => [
+    'html_head' => [],
+    'html_head_link' => [],
+  ],
+];
+$hook_handler->pageAttachmentsAlter($attachments);
+
 $rels = [];
 foreach ($attachments['#attached']['html_head_link'] as $item) {
   $rel = $item[0]['rel'] ?? NULL;
@@ -157,4 +201,4 @@ foreach (['theme-color', 'apple-mobile-web-app-title'] as $required_meta) {
   emulsify_favicon_smoke_assert(in_array($required_meta, $meta_names, TRUE), "Missing {$required_meta} meta tag.");
 }
 
-fwrite(STDOUT, "Verified favicon package generation and head attachments at {$realpath}.\n");
+fwrite(STDOUT, "Verified favicon package attachment without runtime generation at {$realpath}.\n");
