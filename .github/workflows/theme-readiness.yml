@@ -15,16 +15,21 @@ concurrency:
 
 jobs:
   theme-readiness:
-    name: Theme Readiness (Drupal ${{ matrix.drupal-version }} / PHP ${{ matrix.php-version }})
+    name: Theme Readiness (${{ matrix.label }} / PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - drupal-version: '11.3.*'
+          - label: Drupal 11.3
+            drupal-version: '11.3.*'
             php-version: '8.4'
-          - drupal-version: 'dev-main'
+            experimental: false
+          - label: Drupal Dev Branch
+            drupal-version: 'dev-main'
             php-version: '8.5'
+            experimental: true
     steps:
       - name: Checkout
         uses: actions/checkout@v5
