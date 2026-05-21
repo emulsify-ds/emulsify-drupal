@@ -19,8 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Keep package compatibility at ^10.3 || ^11 for existing 6.x installs.
+        # CI covers currently relevant Drupal 10/11 minors, not every supported
+        # compatibility-floor version.
         drupal-version:
-          - '10.3.*'
+          - '10.5.*'
+          - '10.6.*'
           - '11.3.*'
     steps:
       - name: Checkout

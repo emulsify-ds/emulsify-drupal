@@ -29,9 +29,8 @@ rm -rf "$fixture_dir"
 cd "$fixture_dir"
 
 # Composer 2.9 blocks vulnerable historical Drupal minors by default. These
-# fixtures intentionally exercise the supported 6.x release floors in throwaway
-# CI installs, so audit blocking is disabled here instead of weakening project
-# dependencies.
+# fixtures intentionally exercise current Drupal minors in throwaway CI installs
+# while package metadata keeps its ^10.3 || ^11 compatibility floor.
 "$composer_bin" config --no-interaction audit.block-insecure false
 
 # Copy the current checkout into the fixture as a contrib theme. This avoids
