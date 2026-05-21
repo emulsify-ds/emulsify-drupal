@@ -15,6 +15,9 @@ fi
 fixture_dir="$1"
 web_root="${fixture_dir}/web"
 theme_root="${web_root}/themes/contrib/emulsify"
+
+# Store normalized upstream and Emulsify templates outside the fixture so the
+# comparison never mutates installed Drupal or theme files.
 work_dir="$(mktemp -d)"
 
 cleanup() {
@@ -27,6 +30,8 @@ normalize_template() {
   local source="$1"
   local output="$2"
 
+  # Twig comments differ across Drupal minors and do not affect rendered markup.
+  # Strip them before diffing so the check protects output, not copied docblocks.
   php -r '
 $source = $argv[1];
 $output = $argv[2];
@@ -51,6 +56,9 @@ compare_template() {
   local label="$1"
   local upstream="$2"
   local emulsify="$3"
+
+  # Use label-specific filenames so a failed run leaves readable diff paths in
+  # the error output.
   local expected="${work_dir}/${label}.expected.twig"
   local actual="${work_dir}/${label}.actual.twig"
 
@@ -67,6 +75,8 @@ compare_template() {
   normalize_template "$upstream" "$expected"
   normalize_template "$emulsify" "$actual"
 
+  # diff -u keeps failures reviewable in GitHub Actions logs without requiring
+  # artifact downloads.
   if ! diff_output="$(diff -u "$expected" "$actual")"; then
     echo "Template parity mismatch for ${label}." >&2
     echo "Upstream: ${upstream}" >&2
@@ -76,6 +86,8 @@ compare_template() {
   fi
 }
 
+# Stable9 owns these layout/field/form templates in the supported 6.x runtime,
+# so Emulsify copies must stay render-equivalent while Stable9 remains fallback.
 compare_template \
   "field" \
   "${web_root}/core/themes/stable9/templates/field/field.html.twig" \

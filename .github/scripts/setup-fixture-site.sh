@@ -12,6 +12,9 @@ fi
 
 drupal_version="$1"
 fixture_dir="$2"
+
+# Local callers can pass the checkout path explicitly. In CI this is
+# $GITHUB_WORKSPACE, and locally it defaults to the current working directory.
 theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
 theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
@@ -26,6 +29,8 @@ fi
 rm -rf "$fixture_dir"
 "$composer_bin" create-project --no-interaction --no-audit --no-security-blocking "drupal/recommended-project:${drupal_version}" "$fixture_dir"
 
+# All subsequent commands run inside the disposable Drupal project, not the
+# source checkout.
 cd "$fixture_dir"
 
 # Composer 2.9 blocks vulnerable historical Drupal minors by default. These
@@ -61,6 +66,9 @@ rsync -a \
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 
+# Contact is optional across Drupal install profiles/versions. Enable it when
+# present so form-render coverage is broader, but do not make the fixture depend
+# on the module existing.
 if [ -d "${fixture_dir}/web/core/modules/contact" ]; then
   ./vendor/bin/drush en contact -y
 fi
@@ -70,6 +78,8 @@ fi
 ./vendor/bin/drush php:eval '
 use Drupal\node\Entity\Node;
 
+// Create fixture content idempotently so local reruns remain safe if a caller
+// points at a pre-existing fixture directory.
 $storage = \Drupal::entityTypeManager()->getStorage("node");
 if (!$storage->loadByProperties(["title" => "Emulsify fixture page"])) {
   $node = Node::create([
@@ -103,6 +113,8 @@ if (!$storage->loadByProperties(["title" => "Emulsify fixture page 2"])) {
 # Add a non-admin account so user-template hooks have a real user entity
 # available in the fixture.
 ./vendor/bin/drush php:eval '
+// The user does not need credentials for these tests; it only needs to exist so
+// user preprocess and template-suggestion paths have a real entity to inspect.
 $storage = \Drupal::entityTypeManager()->getStorage("user");
 if (!$storage->loadByProperties(["name" => "fixture-user"])) {
   $user = $storage->create([
@@ -116,10 +128,14 @@ if (!$storage->loadByProperties(["name" => "fixture-user"])) {
 
 # Route the front page to the node listing captured by the render smoke tests.
 ./vendor/bin/drush php:eval '
+// Use /node so the frontpage capture exercises the default Views listing rather
+// than a static node route.
 \Drupal::configFactory()
   ->getEditable("system.site")
   ->set("page.front", "/node")
   ->save();
 '
 
+# Rebuild caches after content/config changes so the render scripts start from a
+# stable, warm Drupal state.
 ./vendor/bin/drush cr -y

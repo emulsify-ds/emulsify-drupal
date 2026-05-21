@@ -13,6 +13,8 @@ if ($argc !== 3) {
 $input = $argv[1];
 $output = $argv[2];
 
+// Read the captured HTML as raw text. These fixtures are intentionally small,
+// so full-file normalization keeps the script simple and easy to diff.
 $html = file_get_contents($input);
 
 if ($html === false) {
@@ -26,23 +28,28 @@ $replacements = [
   '/<link\b[^>]*>/si' => '',
   '/<style\b[^>]*>.*?<\/style>/si' => '',
   '/<meta[^>]+charset[^>]*>/si' => '',
+
   // Form identifiers and CSRF tokens are regenerated per request.
   '/value="[^"]*"(?=[^>]*name="form_build_id")/i' => 'value="__FORM_BUILD_ID__"',
   '/value="[^"]*"(?=[^>]*name="form_token")/i' => 'value="__FORM_TOKEN__"',
   '/name="form_build_id" value="[^"]*"/i' => 'name="form_build_id" value="__FORM_BUILD_ID__"',
   '/name="form_token" value="[^"]*"/i' => 'name="form_token" value="__FORM_TOKEN__"',
   '/data-drupal-selector="form-[^"]+"/i' => 'data-drupal-selector="form-__FORM_BUILD_ID__"',
+
   // Views and PHP built-in server details vary between otherwise equivalent
   // captures.
   '/js-view-dom-id-[a-f0-9]+/i' => 'js-view-dom-id-__HASH__',
   '/\?v=[^"\']+/i' => '',
   '/https?:\/\/127\.0\.0\.1:\d+/i' => '__BASE_URL__',
+
   // Collapse formatting-only whitespace so Twig indentation changes do not
   // overwhelm parity diffs.
   '/>\s+</s' => '><',
   '/\s+/s' => ' ',
 ];
 
+// Apply broad text substitutions first. Class-specific cleanup happens below
+// because classes need tokenization rather than a single regex replacement.
 $normalized = preg_replace(array_keys($replacements), array_values($replacements), $html);
 
 if ($normalized === null) {
@@ -71,4 +78,6 @@ if ($normalized === null) {
   exit(1);
 }
 
+// End every normalized file with exactly one newline so directory diffs are
+// stable across local and CI environments.
 file_put_contents($output, trim($normalized) . PHP_EOL);

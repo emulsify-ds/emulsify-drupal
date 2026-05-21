@@ -12,6 +12,9 @@ fi
 fixture_dir="$1"
 output_dir="$2"
 theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
+
+# A temp-file backup is safer than editing in place and attempting a reverse
+# substitution, because future info.yml changes may touch nearby lines.
 theme_info_backup="$(mktemp)"
 
 # Keep this smoke test isolated: restore the theme info file and rebuild caches
@@ -30,6 +33,8 @@ trap cleanup EXIT
 
 # Drupal 11 requires an explicit base theme value, so use false rather than
 # removing the base theme key.
+# Keep the mutation narrow: if stable9 is not present, fail instead of producing
+# a misleading successful smoke test.
 php -r '
 $file = $argv[1];
 $contents = file_get_contents($file);
@@ -47,6 +52,8 @@ file_put_contents($file, $updated);
 
 (
   cd "$fixture_dir"
+  # The theme extension list is cached, so clear caches after changing the base
+  # theme before attempting any render.
   ./vendor/bin/drush cr -y
 )
 

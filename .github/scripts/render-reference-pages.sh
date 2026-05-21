@@ -17,6 +17,8 @@ output_dir="$2"
 # port so parallel matrix jobs do not collide on the same runner.
 if [ "$#" -ge 3 ]; then
   base_url="$3"
+  # Extract the port from http://host:port[/path] so the built-in server binds
+  # to the same URL that the caller asked this script to capture.
   server_port="${base_url##*:}"
   server_port="${server_port%%/*}"
 else
@@ -27,6 +29,8 @@ web_root="${fixture_dir}/web"
 server_log="${output_dir}/php-server.log"
 cookie_file="${output_dir}/cookies.txt"
 
+# The output directory also stores transient server logs and cookies. Keeping
+# these beside the captured HTML makes failed CI artifacts easier to inspect.
 mkdir -p "$output_dir"
 
 # The built-in server is only needed for this capture; always terminate it when
@@ -42,6 +46,8 @@ trap cleanup EXIT
 
 (
   cd "$web_root"
+  # Drupal's .ht.router.php lets the PHP built-in server route clean URLs like
+  # /node and /user/login without Apache or Nginx.
   php -S "127.0.0.1:${server_port}" .ht.router.php >"$server_log" 2>&1
 ) &
 server_pid="$!"
@@ -63,6 +69,8 @@ if [ "$ready" -ne 1 ]; then
   exit 1
 fi
 
+# Capture the page list that exercises the baseline templates owned in 6.x:
+# html/page wrappers, fields, views output, forms, users, and messages.
 curl -fsSL "${base_url}/node" >"${output_dir}/frontpage-view.html"
 # A fixture resolving to the installer means Drupal settings were not loaded;
 # fail fast because subsequent diffs would compare installer markup.
@@ -80,6 +88,8 @@ curl -fsSL \
 
 # Submit the login form with bad credentials to exercise form rebuild/error
 # rendering, which catches regressions that a plain GET does not expose.
+# The token extraction stays intentionally shell-only so this script can run on
+# GitHub-hosted runners without additional parser dependencies.
 form_build_id="$(grep -o 'name="form_build_id" value="[^"]*"' "${output_dir}/user-login.html" | sed 's/^.*value="//; s/"$//')"
 form_token="$(grep -o 'name="form_token" value="[^"]*"' "${output_dir}/user-login.html" | sed 's/^.*value="//; s/"$//' || true)"
 
@@ -105,4 +115,6 @@ if [ -n "$form_token" ]; then
   post_args+=(--data-urlencode "form_token=${form_token}")
 fi
 
+# Write the rebuilt form with status/error messages to a separate capture so
+# parity diffs can isolate initial render differences from validation output.
 curl "${post_args[@]}" "${base_url}/user/login" >"${output_dir}/user-login-error.html"

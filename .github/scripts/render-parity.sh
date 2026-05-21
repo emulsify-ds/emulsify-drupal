@@ -11,10 +11,14 @@ fi
 
 fixture_dir="$1"
 work_dir="$2"
+
+# Keep raw and normalized captures separate so a failed diff can be inspected
+# without rerunning the fixture build.
 before_dir="${work_dir}/before"
 after_dir="${work_dir}/after"
 before_normalized_dir="${work_dir}/before-normalized"
 after_normalized_dir="${work_dir}/after-normalized"
+
 theme_info_file="${fixture_dir}/web/themes/contrib/emulsify/emulsify.info.yml"
 normalizer="${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/normalize-rendered-html.php"
 theme_info_backup="$(mktemp)"
@@ -33,6 +37,8 @@ cleanup() {
 cp "$theme_info_file" "$theme_info_backup"
 trap cleanup EXIT
 
+# Remove the full work directory on each run so stale captures cannot mask a
+# missing page or failed render from the current run.
 rm -rf "$work_dir"
 mkdir -p "$before_dir" "$after_dir" "$before_normalized_dir" "$after_normalized_dir"
 
@@ -58,6 +64,8 @@ file_put_contents($file, $updated);
 
 (
   cd "$fixture_dir"
+  # Theme discovery caches the base theme setting, so rebuild before capturing
+  # the no-Stable9 output.
   ./vendor/bin/drush cr -y
 )
 
@@ -67,8 +75,11 @@ bash "${GITHUB_WORKSPACE:-$(pwd)}/.github/scripts/render-reference-pages.sh" "$f
 
 for file in "$before_dir"/*.html; do
   filename="$(basename "$file")"
+  # Normalize file pairs under the same basename so diff -ru reports a concise
+  # per-page mismatch if markup parity drifts.
   php "$normalizer" "$file" "${before_normalized_dir}/${filename}"
   php "$normalizer" "${after_dir}/${filename}" "${after_normalized_dir}/${filename}"
 done
 
+# A non-zero diff means removing Stable9 changed rendered markup materially.
 diff -ru "$before_normalized_dir" "$after_normalized_dir"
