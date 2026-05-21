@@ -41,17 +41,7 @@ The helper module also exposes the fully qualified command name:
 drush emulsify_tools:bake my_theme
 ```
 
-You can also generate the same subtheme with Drupal core's standard Starterkit command from the root of your Drupal site:
-
-```bash
-php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path themes/custom
-```
-
-These generation methods should be treated as equivalent:
-
-1. They generate the theme into `web/themes/custom/my_theme`.
-2. They use the `whisk` starter source.
-3. They keep `emulsify` as the runtime parent theme for the generated theme.
+Drupal core Starterkit-based generation is being prepared for the 7.x release line. In 6.x, Emulsify Tools remains the primary supported workflow for generating child themes.
 
 After generation:
 

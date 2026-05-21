@@ -44,5 +44,6 @@ jobs:
       - name: Compare render output before and after removing stable9
         run: bash .github/scripts/render-parity.sh /tmp/emulsify-fixture /tmp/emulsify-render-parity
 
-      - name: Generate and enable a Whisk-derived theme
-        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture /tmp/emulsify-generated-theme
+      # Drupal core Starterkit generation is intentionally not tested in 6.x CI.
+      # It is being prepared for the 7.x release line, while Emulsify Tools
+      # remains the supported public child-theme generation workflow for 6.x.
