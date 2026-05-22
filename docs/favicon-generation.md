@@ -9,7 +9,7 @@ Generated PNG and ICO assets require both PHP extensions:
 - GD
 - Imagick
 
-The uploaded source must be an SVG file with a square `viewBox`. If root `width` and `height` values are present, they must also describe a square. The generator accepts embedded raster image data inside the SVG, but the theme settings UI warns that fully vector sources usually scale more cleanly.
+The uploaded source must be an SVG file with a `viewBox`. Non-square sources are centered on a square canvas before package generation so the original aspect ratio is preserved across browser, iOS, and Android assets. The generator accepts embedded raster image data inside the SVG, but the theme settings UI warns that fully vector sources usually scale more cleanly.
 
 Source uploads are limited to 5 MB. The sanitized portable SVG copy is stored in theme config for portability; copies larger than 256 KB are allowed but flagged as review noise because they make config exports harder to inspect.
 

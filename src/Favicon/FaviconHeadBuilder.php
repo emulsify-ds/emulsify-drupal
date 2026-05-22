@@ -41,26 +41,26 @@ final class FaviconHeadBuilder {
       'rel' => 'icon',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/favicon.ico'),
       'sizes' => 'any',
-    ], 'emulsify_favicon_ico',
+    ], FALSE,
     ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'icon',
       'type' => 'image/svg+xml',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/favicon.svg'),
-    ], 'emulsify_favicon_svg',
+    ], FALSE,
     ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'apple-touch-icon',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/apple-touch-icon.png'),
-    ], 'emulsify_favicon_ios',
+    ], FALSE,
     ];
 
     $attachments['#attached']['html_head_link'][] = [[
       'rel' => 'manifest',
       'href' => $this->fileUrlGenerator->generateString($package_path . '/site.webmanifest'),
-    ], 'emulsify_favicon_manifest',
+    ], FALSE,
     ];
 
     $attachments['#attached']['html_head'][] = [[

@@ -252,7 +252,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
           'extensions' => 'svg',
         ],
       ],
-      '#description' => $this->t('Use a square SVG with a square viewBox. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
+      '#description' => $this->t('Use an SVG icon file. Non-square sources are centered on a square canvas. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
     ];
     $form['emulsify_favicon']['source']['portable_source_notice'] = [
       '#type' => 'item',
@@ -466,6 +466,10 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
    * Validates the generated favicon package settings.
    */
   private function doValidateFaviconSettings(FormStateInterface $form_state): void {
+    if ($this->isFaviconSourceRemoveRequest($form_state)) {
+      return;
+    }
+
     $site_name = $this->getSiteName();
     $settings = FaviconSettings::normalize($form_state->getValues(), $site_name);
     $form_state->setValue('favicon_theme_color', $settings['favicon_android_background_color']);
@@ -495,6 +499,20 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     if ($source_context === []) {
       $form_state->setErrorByName('favicon_source_fid', $this->t('Upload an SVG icon file before enabling the generated favicon package.'));
     }
+  }
+
+  /**
+   * Returns whether the managed file remove button submitted this rebuild.
+   */
+  private function isFaviconSourceRemoveRequest(FormStateInterface $form_state): bool {
+    $trigger = $form_state->getTriggeringElement();
+    if (!is_array($trigger)) {
+      return FALSE;
+    }
+
+    $array_parents = $trigger['#array_parents'] ?? [];
+    return in_array('favicon_source_fid', $array_parents, TRUE)
+      && end($array_parents) === 'remove_button';
   }
 
   /**

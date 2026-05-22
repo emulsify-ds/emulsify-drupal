@@ -161,12 +161,17 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onclick='), 'Inline event handlers should be stripped.');
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onload='), 'Root event handlers should be stripped.');
 
-  // Hard rejects protect package generation from non-square or excessive input.
-  emulsify_favicon_assert_invalid(
-    fn() => $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32"/></svg>', FALSE),
-    'square viewBox',
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32"/></svg>', FALSE);
+  emulsify_favicon_assert(
+    ($analysis['view_box'] ?? []) === [0.0, -16.0, 64.0, 64.0],
+    'Non-square SVG sources should be centered on a square viewBox.',
+  );
+  emulsify_favicon_assert(
+    str_contains((string) $analysis['sanitized_svg'], 'width="64" height="64"'),
+    'Non-square SVG sources should receive square root dimensions.',
   );
 
+  // Hard rejects protect package generation from excessive input.
   $oversized_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><desc>' . str_repeat('x', FaviconPackageGenerator::MAX_FILE_SIZE) . '</desc></svg>';
   emulsify_favicon_assert_invalid(
     fn() => $generator->validateSourceSvg($oversized_svg, FALSE),

@@ -620,17 +620,20 @@ SVG,
     if ($view_box === NULL) {
       throw new \InvalidArgumentException('The uploaded SVG must define a viewBox.');
     }
-    if (!$this->isSquare($view_box[2], $view_box[3])) {
-      throw new \InvalidArgumentException('The uploaded SVG must use a square viewBox.');
-    }
 
     $declared_dimensions = $this->extractDeclaredDimensions($root);
-    if ($declared_dimensions['width'] !== NULL && $declared_dimensions['height'] !== NULL && !$this->isSquare($declared_dimensions['width'], $declared_dimensions['height'])) {
-      throw new \InvalidArgumentException('The uploaded SVG must declare square width and height values.');
-    }
+    $view_box_was_normalized = !$this->isSquare($view_box[2], $view_box[3]);
+    $dimensions_were_normalized = $declared_dimensions['width'] !== NULL
+      && $declared_dimensions['height'] !== NULL
+      && !$this->isSquare($declared_dimensions['width'], $declared_dimensions['height']);
 
     $has_embedded_raster_images = $this->documentHasRasterImages($document);
     $uses_transparency = $this->documentUsesTransparency($document);
+
+    if ($view_box_was_normalized || $dimensions_were_normalized) {
+      $view_box = $this->normalizeSvgCanvas($root, $view_box);
+      $declared_dimensions = $this->extractDeclaredDimensions($root);
+    }
 
     $this->stripDisallowedSvgNodes($document);
     $this->stripDisallowedSvgAttributes($document);
@@ -641,6 +644,9 @@ SVG,
     }
 
     $warnings = [];
+    if ($view_box_was_normalized || $dimensions_were_normalized) {
+      $warnings[] = 'This SVG was centered on a square canvas so generated favicon assets keep the original aspect ratio.';
+    }
     if ($uses_transparency) {
       $warnings[] = 'This SVG appears to use transparency. Check the browser, iOS, and Android previews against their configured backgrounds.';
     }
@@ -657,6 +663,43 @@ SVG,
       'has_embedded_raster_images' => $has_embedded_raster_images,
       'warnings' => $warnings,
     ];
+  }
+
+  /**
+   * Centers a non-square SVG root on a square canvas.
+   *
+   * @param float[] $view_box
+   *   Parsed min-x, min-y, width, and height values.
+   *
+   * @return float[]
+   *   The normalized square viewBox.
+   */
+  private function normalizeSvgCanvas(\DOMElement $root, array $view_box): array {
+    $size = max($view_box[2], $view_box[3]);
+    $normalized_view_box = [
+      $view_box[0] - (($size - $view_box[2]) / 2),
+      $view_box[1] - (($size - $view_box[3]) / 2),
+      $size,
+      $size,
+    ];
+    $formatted_size = $this->formatSvgNumber($size);
+
+    $root->setAttribute('viewBox', implode(' ', array_map(
+      fn (float $value): string => $this->formatSvgNumber($value),
+      $normalized_view_box,
+    )));
+    $root->setAttribute('width', $formatted_size);
+    $root->setAttribute('height', $formatted_size);
+
+    return $normalized_view_box;
+  }
+
+  /**
+   * Formats an SVG number without unnecessary trailing zeroes.
+   */
+  private function formatSvgNumber(float $value): string {
+    $formatted = rtrim(rtrim(sprintf('%.6F', $value), '0'), '.');
+    return $formatted === '-0' ? '0' : $formatted;
   }
 
   /**
