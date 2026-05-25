@@ -33,6 +33,20 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 - Frontend workflow references should move from Webpack-based build workflow commands and docs to the Vite-based build workflow shipped in 7.x.
 - `whisk` remains a starter source only. Do not enable it as a runtime parent theme.
 
+## Twig Story Migration Audit
+
+Generated themes include an audit command for reviewing older Twig stories that
+should move to Emulsify Core's preferred `renderTwig()` helper:
+
+```bash
+npm run audit:twig-stories
+```
+
+The command prints a report of likely legacy Storybook files and links to the
+Emulsify Core Storybook migration documentation. Existing Twig stories that
+return HTML strings can continue rendering during the upgrade, but actively
+maintained stories should be migrated to `renderTwig()` as they are touched.
+
 ## Theme Architecture Changes
 
 - `stable9` is no longer the parent theme. Emulsify now ships its own full template layer.
