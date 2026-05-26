@@ -1,10 +1,10 @@
-// Change the name of this file to postcss.config.js
-// for Emulsify Core to recognize and fully override
-// its provided configuration.
-const autoprefixer    = require('autoprefixer');
+// Rename this file to postcss.config.cjs when a project needs its own PostCSS
+// setup, then point Vite to it from plugins.js with extendConfig().
 
 module.exports = {
   plugins: [
-    autoprefixer(),
+    // Example:
+    //
+    // require('autoprefixer')(),
   ],
 };

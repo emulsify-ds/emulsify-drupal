@@ -1,32 +1,29 @@
-// Change the name of this file to plugins.js
-// for Emulsify Core to recognize and fully override
-// its provided configuration.
+// Rename this file to plugins.js, plugins.mjs, or plugins.cjs when the project
+// needs to extend Emulsify Core's Vite config.
+//
+// This file is intentionally a no-op example. Uncomment only the pieces your
+// project needs.
 
-/**
- * Export a function that returns extra Vite plugins.
- * You can import any Vite plugin here (e.g., vite-plugin-inspect).
- */
+// Example: add Vite plugins from project dependencies.
+//
 // import Inspect from 'vite-plugin-inspect';
+//
+// export default function projectPlugins({ env }) {
+//   return [
+//     Inspect(),
+//   ];
+// }
 
-export default function projectPlugins(ctx) {
-  // const { env } = ctx; // env is what resolveEnvironment() returned
-  return [
-    // Inspect(), // uncomment if you want Vite Inspector
-  ];
-}
+export default [];
 
-/**
- * Option B: Patch the final Vite config.
- * Great for enabling Tailwind by setting a PostCSS config path.
- *
- * You can also inject other config tweaks here (aliases, define, etc.)
- */
-export function extendConfig(base, { env }) {
-  return {
-    css: {
-      // Point PostCSS to the project's Tailwind config if present:
-      // (You can also keep a root-level postcss.config.*; this overrides it.)
-      postcss: './.config/emulsify-core/vite/postcss.config.cjs',
-    },
-  };
-}
+// Example: patch the final Vite config after Emulsify Core assembles it.
+// Prefer plugin exports for normal framework integration; use extendConfig()
+// when a Vite option cannot be expressed through a plugin.
+//
+// export function extendConfig(config, { env }) {
+//   return {
+//     css: {
+//       postcss: './config/emulsify-core/vite/postcss.config.cjs',
+//     },
+//   };
+// }

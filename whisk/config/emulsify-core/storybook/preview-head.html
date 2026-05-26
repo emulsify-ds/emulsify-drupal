@@ -1,1 +1,37 @@
-<!-- Add scripts or css files to render for every stories.js file within the preview window. -->
+<!--
+  This file is appended to Storybook's preview iframe <head>.
+
+  Use it for browser assets that rendered stories need: fonts, meta tags,
+  third-party scripts, or CSS expected by Twig/React components. Storybook UI
+  chrome belongs in manager-head.html instead.
+-->
+
+<!-- Example: add viewport or rendering metadata for stories. -->
+<!--
+<meta name="theme-color" content="#00405B" />
+-->
+
+<!-- Example: load a font used by project components. -->
+<!--
+<link rel="preconnect" href="https://fonts.example.com" />
+<link
+  rel="stylesheet"
+  href="https://fonts.example.com/css2?family=Example+Serif:wght@400;700&display=swap"
+/>
+-->
+
+<!-- Example: expose small preview-only CSS variables to every story. -->
+<!--
+<style>
+  :root {
+    --project-color-primary: #00405B;
+    --project-color-accent: #FCB817;
+  }
+</style>
+-->
+
+<!-- Example: load a script required by rendered components. Prefer npm imports
+     from preview.js when the script is bundled with the project. -->
+<!--
+<script src="https://cdn.example.com/component-runtime.js" defer></script>
+-->

@@ -59,6 +59,14 @@ assert_missing_file() {
   fi
 }
 
+assert_existing_file() {
+  local relative_path="$1"
+
+  if [ ! -f "${generated_theme_dir}/${relative_path}" ]; then
+    fail "Starterkit output should include ${relative_path}."
+  fi
+}
+
 assert_missing_glob() {
   local glob_pattern="$1"
 
@@ -87,13 +95,25 @@ if grep -Eq '^hidden:[[:space:]]*true[[:space:]]*$' "$generated_theme_info"; the
   fail "Generated theme should not remain hidden."
 fi
 
-assert_missing_file "project.emulsify.json"
+assert_existing_file "project.emulsify.json"
 assert_missing_file "whisk.starterkit.yml"
 assert_missing_file "whisk.info.emulsify.yml"
 assert_missing_file "${generated_theme}.starterkit.yml"
 assert_missing_file "${generated_theme}.info.emulsify.yml"
 assert_missing_glob "*.starterkit.yml"
 assert_missing_glob "*.info.emulsify.yml"
+
+if ! grep -q '"platform": "drupal"' "${generated_theme_dir}/project.emulsify.json"; then
+  fail "Generated theme project.emulsify.json must preserve the Drupal platform adapter."
+fi
+
+if ! grep -q '"singleDirectoryComponents": true' "${generated_theme_dir}/project.emulsify.json"; then
+  fail "Generated theme project.emulsify.json must preserve SDC behavior."
+fi
+
+if ! grep -q "\"machineName\": \"${generated_theme}\"" "${generated_theme_dir}/project.emulsify.json"; then
+  fail "Generated theme project.emulsify.json must use the generated theme machine name."
+fi
 
 (
   cd "$fixture_dir"

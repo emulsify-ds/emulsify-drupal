@@ -1,1 +1,39 @@
-<!-- Add scripts or css files to render for the entire storybook instance outside the preview window. -->
+<!--
+  This file is appended to Storybook's manager document <head>.
+
+  Use it for Storybook UI chrome only: sidebar, toolbar, addon panels, manager
+  fonts, analytics for the documentation UI, or CSS variables consumed by
+  theme.js. Markup here does not run inside the story preview iframe.
+-->
+
+<!-- Example: load a manager-only font used by theme.js. -->
+<!--
+<link rel="preconnect" href="https://fonts.example.com" />
+<link
+  rel="stylesheet"
+  href="https://fonts.example.com/css2?family=Example+Sans:wght@400;600;700&display=swap"
+/>
+-->
+
+<!-- Example: make small Storybook chrome adjustments. -->
+<!--
+<style>
+  :root {
+    --project-storybook-focus: #FCB817;
+  }
+
+  .sidebar-container a:focus-visible {
+    outline: 2px solid var(--project-storybook-focus);
+    outline-offset: 2px;
+  }
+</style>
+-->
+
+<!-- Example: add a manager-only script. Avoid scripts that stories depend on. -->
+<!--
+<script>
+  window.projectStorybookManager = {
+    environment: 'local',
+  };
+</script>
+-->

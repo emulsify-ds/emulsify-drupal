@@ -7,7 +7,6 @@ ignore:
   - '/assets/.DS_Store'
   - '/config/.DS_Store'
   - '/config/emulsify-core/.DS_Store'
-  - '/project.emulsify.json'
   - '/whisk.info.emulsify.yml'
   - '/whisk.starterkit.yml'
 

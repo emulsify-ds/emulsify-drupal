@@ -607,18 +607,22 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Starterkit generation', () => {
-    for (const requiredIgnore of ['/project.emulsify.json', '/whisk.info.emulsify.yml', '/whisk.starterkit.yml']) {
+    for (const requiredIgnore of ['/whisk.info.emulsify.yml', '/whisk.starterkit.yml']) {
       ensure(whiskStarterkit.includes(requiredIgnore), `whisk.starterkit.yml should ignore ${requiredIgnore}.`);
     }
+    ensure(!whiskStarterkit.includes('/project.emulsify.json'), 'whisk.starterkit.yml should copy project.emulsify.json into generated themes.');
     for (const requiredNoEdit of ['/config/emulsify-core/**', '/screenshot.png']) {
       ensure(yamlTopLevelListContains(whiskStarterkit, 'no_edit', requiredNoEdit), `whisk.starterkit.yml should not edit ${requiredNoEdit}.`);
     }
     ensure(yamlTopLevelListContains(whiskStarterkit, 'no_rename', '/config/emulsify-core/**'), 'whisk.starterkit.yml should not rename Emulsify Core config files.');
     ensure(whiskStarterkit.includes(`core_version_requirement: '${coreConstraint}'`), 'whisk.starterkit.yml should align generated theme core compatibility with composer.json.');
     ensure(/^\s*hidden:\s+null\s*$/m.test(whiskStarterkit), 'whisk.starterkit.yml should expose hidden: null in the starterkit info overrides.');
-    for (const starterOnlyFile of ['project.emulsify.json', 'whisk.starterkit.yml', 'whisk.info.emulsify.yml']) {
+    for (const starterOnlyFile of ['whisk.starterkit.yml', 'whisk.info.emulsify.yml']) {
       ensure(starterkitSmoke.includes(starterOnlyFile), `starterkit-smoke.sh should assert ${starterOnlyFile} is not retained.`);
     }
+    ensure(starterkitSmoke.includes('assert_existing_file "project.emulsify.json"'), 'starterkit-smoke.sh should require project.emulsify.json in generated themes.');
+    ensure(starterkitSmoke.includes('"platform": "drupal"'), 'starterkit-smoke.sh should assert the generated Emulsify project uses the Drupal platform adapter.');
+    ensure(starterkitSmoke.includes('"singleDirectoryComponents": true'), 'starterkit-smoke.sh should assert generated theme SDC behavior.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated theme Vite-based build workflow.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
     ensure(starterkitSmoke.includes('generated-theme-info.yml'), 'starterkit-smoke.sh should copy generated theme info into smoke artifacts.');
