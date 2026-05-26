@@ -43,5 +43,10 @@
   },
   "dependencies": {
     "@emulsify/core": "^4.0.0"
+  },
+  "overrides": {
+    "glob": "^13.0.6",
+    "locutus": "^3.0.36",
+    "minimatch@3.0.x": "^3.1.5"
   }
 }
