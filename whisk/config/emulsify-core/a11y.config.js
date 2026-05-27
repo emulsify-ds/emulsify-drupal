@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   // A11y linting is done on a component-by-component
   // basis, which results in the linter reporting some errors that
   // should be ignored. These codes and descriptions allow for those
