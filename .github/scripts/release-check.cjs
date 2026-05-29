@@ -455,10 +455,33 @@ function ensureNoRuntimeFaviconGeneration() {
   ensure(faviconHooks.includes('packageExists('), 'FaviconHooks should only attach existing generated favicon packages.');
 }
 
+function getReleasePluginOptions(releaseConfig, pluginName) {
+  const plugin = releaseConfig.plugins.find((candidate) => {
+    if (Array.isArray(candidate)) {
+      return candidate[0] === pluginName;
+    }
+
+    return candidate === pluginName;
+  });
+
+  ensure(plugin, `release.config.js must include ${pluginName}.`);
+  return Array.isArray(plugin) ? plugin[1] || {} : {};
+}
+
+function ensureBreakingHeaderParser(label, parserOpts) {
+  ensure(parserOpts && parserOpts.breakingHeaderPattern instanceof RegExp, `${label} must define breakingHeaderPattern.`);
+  ensure(parserOpts.breakingHeaderPattern.test('feat!: drop legacy compatibility'), `${label} must treat type!: headers as breaking changes.`);
+  ensure(parserOpts.breakingHeaderPattern.test('refactor(theme)!: drop legacy compatibility'), `${label} must treat type(scope)!: headers as breaking changes.`);
+  ensure(parserOpts.noteKeywords.includes('BREAKING CHANGE'), `${label} must preserve BREAKING CHANGE footer parsing.`);
+  ensure(parserOpts.noteKeywords.includes('BREAKING CHANGES'), `${label} must preserve BREAKING CHANGES footer parsing.`);
+  ensure(parserOpts.noteKeywords.includes('BREAKING'), `${label} must preserve BREAKING footer parsing.`);
+}
+
 function runStaticChecks() {
   const rootPackage = readJson('package.json');
   const whiskPackage = readJson('whisk/package.json');
   const composer = readJson('composer.json');
+  const releaseConfig = require(path.join(repoRoot, 'release.config.js'));
   const readme = readFile('README.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
@@ -468,6 +491,7 @@ function runStaticChecks() {
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
   const starterkitSmoke = readFile('.github/scripts/starterkit-smoke.sh');
   const themeReadinessWorkflow = readFile('.github/workflows/theme-readiness.yml');
+  const semanticReleaseWorkflow = readFile('.github/workflows/semantic-release.yml');
   const coreConstraint = composer.require['drupal/core'];
   const minCoreVersion = normalizeConstraintVersion(coreConstraint);
   const supportedDrupalLines = extractSupportedDrupalTestLines(coreConstraint);
@@ -503,6 +527,23 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     return `Root and generated theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
+  });
+
+  runStaticCheck('Semantic release configuration', () => {
+    const analyzerOptions = getReleasePluginOptions(releaseConfig, '@semantic-release/commit-analyzer');
+    const notesOptions = getReleasePluginOptions(releaseConfig, '@semantic-release/release-notes-generator');
+
+    ensure(releaseConfig.tagFormat === '${version}', 'release.config.js should emit non-prefixed semver tags.');
+    ensure(Array.isArray(releaseConfig.branches), 'release.config.js branches must be an array.');
+    ensure(releaseConfig.branches.length === 1 && releaseConfig.branches[0] === 'main', 'release.config.js should publish only from main.');
+    ensure(analyzerOptions.preset === 'angular', '@semantic-release/commit-analyzer should use the angular preset.');
+    ensure(notesOptions.preset === 'angular', '@semantic-release/release-notes-generator should use the angular preset.');
+    ensureBreakingHeaderParser('@semantic-release/commit-analyzer parserOpts', analyzerOptions.parserOpts);
+    ensureBreakingHeaderParser('@semantic-release/release-notes-generator parserOpts', notesOptions.parserOpts);
+    ensure(semanticReleaseWorkflow.includes('branches:\n      - "main"'), 'semantic-release.yml should run on pushes to main.');
+    ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
+    ensure(semanticReleaseWorkflow.includes("steps.semantic.outputs.new_release_published == 'true'"), 'semantic-release.yml should sync Drupal.org tags only after semantic-release publishes.');
+    return 'Semantic release runs from main, emits non-prefixed tags, and treats Conventional Commit ! headers as major releases.';
   });
 
   runStaticCheck('Package metadata', () => {
