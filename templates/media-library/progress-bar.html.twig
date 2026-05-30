@@ -14,13 +14,12 @@
 {% set progress_block = 'progress' %}
 {% set progress_attributes = {
   class: bem(progress_block),
-  'data-drupal-progress': true,
 } %}
 {% set progress_bar_attributes = {
   class: bem('bar', [], progress_block),
   style: 'width: ' ~ percent ~ '%',
 } %}
-<div{{ add_attributes(progress_attributes) }}>
+<div{{ add_attributes(progress_attributes) }} data-drupal-progress>
   {% if label %}
     <div{{ bem('label', [], progress_block) }}>{{ label }}</div>
   {% endif %}

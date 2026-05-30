@@ -14,10 +14,8 @@
 #}
 {% set status_message_wrapper_attributes = attributes.toArray %}
 {% with { attributes: create_attribute() } %}
-  {% set status_messages_attributes = {
-    'data-drupal-messages': true,
-  } %}
-  <div{{ add_attributes(status_messages_attributes) }}>
+  {% set status_messages_attributes = {} %}
+  <div{{ add_attributes(status_messages_attributes) }} data-drupal-messages>
 {% endwith %}
   {% for type, messages in message_list %}
     {% with { attributes: create_attribute(status_message_wrapper_attributes) } %}
@@ -28,16 +26,20 @@
       <div{{ add_attributes(status_message_attributes) }}>
     {% endwith %}
       {% if type == 'error' %}
-        {% set status_message_alert_attributes = {
-          role: 'alert',
-        } %}
-        <div{{ add_attributes(status_message_alert_attributes) }}>
+        {% with { attributes: create_attribute() } %}
+          {% set status_message_alert_attributes = {
+            role: 'alert',
+          } %}
+          <div{{ add_attributes(status_message_alert_attributes) }}>
+        {% endwith %}
       {% endif %}
       {% if status_headings[type] %}
-        {% set status_message_heading_attributes = {
-          class: 'visually-hidden',
-        } %}
-        <h2{{ add_attributes(status_message_heading_attributes) }}>{{ status_headings[type] }}</h2>
+        {% with { attributes: create_attribute() } %}
+          {% set status_message_heading_attributes = {
+            class: 'visually-hidden',
+          } %}
+          <h2{{ add_attributes(status_message_heading_attributes) }}>{{ status_headings[type] }}</h2>
+        {% endwith %}
       {% endif %}
       {% if messages|length > 1 %}
         <ul>

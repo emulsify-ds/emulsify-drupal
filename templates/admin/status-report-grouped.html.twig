@@ -28,9 +28,8 @@
       {% for requirement in group.items %}
         {% set status_report_entry_attributes = {
           class: bem('entry', [], 'system-status-report'),
-          open: 'open',
         } %}
-        <details{{ add_attributes(status_report_entry_attributes) }}>
+        <details{{ add_attributes(status_report_entry_attributes) }} open>
           {%
             set summary_classes = [
               bem('status-title', [], 'system-status-report'),

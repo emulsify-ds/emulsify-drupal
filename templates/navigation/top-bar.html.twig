@@ -15,12 +15,10 @@
 {% set attributes = create_attribute() %}
 {% set top_bar_attributes = {
   class: bem('top-bar'),
-  'data-drupal-admin-styles': '',
   'aria-labelledby': 'top-bar__title',
-  'data-offset-top': true,
 } %}
 {% if tools or context|render or actions|render %}
-  <aside{{ add_attributes(top_bar_attributes) }}>
+  <aside{{ add_attributes(top_bar_attributes) }} data-drupal-admin-styles data-offset-top>
     {% set top_bar_title_attributes = {
       id: 'top-bar__title',
       class: 'visually-hidden',

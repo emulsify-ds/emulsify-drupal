@@ -19,12 +19,10 @@
 #}
 {% set admin_toolbar_control_bar_attributes = {
   class: bem('admin-toolbar-control-bar'),
-  'data-drupal-admin-styles': '',
 } %}
 {% set admin_toolbar_attributes = {
   class: bem('admin-toolbar'),
   id: 'admin-toolbar',
-  'data-drupal-admin-styles': true,
   role: 'presentation',
 } %}
 {% set admin_toolbar_content_attributes = {
@@ -36,7 +34,7 @@
   id: 'menu-footer',
 } %}
 {% with { attributes: create_attribute() } %}
-  <div{{ add_attributes(admin_toolbar_control_bar_attributes) }}>
+  <div{{ add_attributes(admin_toolbar_control_bar_attributes) }} data-drupal-admin-styles>
     {% set admin_toolbar_control_bar_content_attributes = {
       class: bem('content', [], 'admin-toolbar-control-bar'),
     } %}
@@ -54,7 +52,7 @@
   </div>
 {% endwith %}
 
-<aside{{ add_attributes(admin_toolbar_attributes) }}>
+<aside{{ add_attributes(admin_toolbar_attributes) }} data-drupal-admin-styles>
   {# This lil' div will get the Drupal.displace() attributes added to it via JS. #}
   {% set admin_toolbar_displace_placeholder_attributes = {
     class: bem('displace-placeholder', [], 'admin-toolbar'),
@@ -128,9 +126,8 @@
           {{ icon('navigation', 'chevron', { class: 'admin-toolbar__expand-button-chevron', size: 16 }) }}
           {% set admin_toolbar_expand_button_text_attributes = {
             class: 'visually-hidden',
-            'data-toolbar-text': '',
           } %}
-          <span{{ add_attributes(admin_toolbar_expand_button_text_attributes) }}>{{ 'Collapse sidebar'|t }}</span>
+          <span{{ add_attributes(admin_toolbar_expand_button_text_attributes) }} data-toolbar-text>{{ 'Collapse sidebar'|t }}</span>
         </button>
       </div>
     {% endwith %}
@@ -139,9 +136,8 @@
 {% set admin_toolbar_overlay_attributes = {
   class: 'admin-toolbar-overlay',
   'aria-controls': 'admin-toolbar',
-  'data-drupal-admin-styles': '',
 } %}
-<div{{ add_attributes(admin_toolbar_overlay_attributes) }}></div>
+<div{{ add_attributes(admin_toolbar_overlay_attributes) }} data-drupal-admin-styles></div>
 <script>
   if (localStorage.getItem('Drupal.navigation.sidebarExpanded') !== 'false' && (window.matchMedia('(min-width: 1024px)').matches)) {
     document.documentElement.setAttribute('data-admin-toolbar', 'expanded');
