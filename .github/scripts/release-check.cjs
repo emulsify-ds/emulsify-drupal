@@ -541,9 +541,12 @@ function runStaticChecks() {
     ensureBreakingHeaderParser('@semantic-release/commit-analyzer parserOpts', analyzerOptions.parserOpts);
     ensureBreakingHeaderParser('@semantic-release/release-notes-generator parserOpts', notesOptions.parserOpts);
     ensure(semanticReleaseWorkflow.includes('branches:\n      - "main"'), 'semantic-release.yml should run on pushes to main.');
+    ensure(semanticReleaseWorkflow.includes('fetch-depth: 0'), 'semantic-release.yml should fetch full history and tags before publishing.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
-    ensure(semanticReleaseWorkflow.includes("steps.semantic.outputs.new_release_published == 'true'"), 'semantic-release.yml should sync Drupal.org tags only after semantic-release publishes.');
-    return 'Semantic release runs from main, emits non-prefixed tags, and treats Conventional Commit ! headers as major releases.';
+    ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');
+    ensure(!semanticReleaseWorkflow.includes('DRUPAL_REPO_URL'), 'semantic-release.yml should leave Drupal.org syncing manual.');
+    ensure(!semanticReleaseWorkflow.includes('drupal-org'), 'semantic-release.yml should leave Drupal.org syncing manual.');
+    return 'Semantic release runs from main, fetches full history, emits non-prefixed tags, and treats Conventional Commit ! headers as major releases.';
   });
 
   runStaticCheck('Package metadata', () => {
