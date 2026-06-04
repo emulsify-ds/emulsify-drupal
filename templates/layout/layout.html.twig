@@ -1,0 +1,28 @@
+{#
+/**
+ * @file
+ * Template for a generic layout.
+ */
+#}
+{%
+  set classes = bem('layout', [layout.id|clean_class])
+%}
+{% set layout_attributes_data = {
+  class: classes,
+} %}
+{% if content %}
+  <div{{ add_attributes(layout_attributes_data) }}>
+    {% for region in layout.getRegionNames %}
+      {% if content[region] %}
+        {% with { attributes: region_attributes[region] } %}
+          {% set layout_region_attributes = {
+            class: bem('region', [region|clean_class], 'layout'),
+          } %}
+          <div{{ add_attributes(layout_region_attributes) }}>
+            {{ content[region] }}
+          </div>
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}

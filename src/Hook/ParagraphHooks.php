@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\emulsify\Hook;
 
+use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\node\NodeInterface;
 
 /**
@@ -17,7 +18,8 @@ final class ParagraphHooks {
    * @param array $variables
    *   Variables passed to paragraph templates.
    */
-  public static function preprocessParagraph(array &$variables): void {
+  #[Hook('preprocess_paragraph')]
+  public function preprocessParagraph(array &$variables): void {
     $paragraph = $variables['paragraph'];
 
     // Index is populated in field preprocess when the paragraph is rendered

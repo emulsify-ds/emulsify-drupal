@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Theme override for the admin index page.
+ *
+ * Available variables:
+ * - system_compact_link: Themed link to toggle compact view.
+ * - containers: A list of administrative containers keyed by position: left or
+ *   right. Each container in the list contains:
+ *   - blocks: A list of administrative blocks, rendered
+ *     through admin-block.html.twig.
+ *
+ * @see \Drupal\system\Theme\SystemAdminThemePreprocess::preprocessSystemAdminIndex()
+ */
+#}
+{% set system_admin_index_attributes = {
+  class: ['admin', 'clearfix'],
+} %}
+<div{{ add_attributes(system_admin_index_attributes) }}>
+  {{ system_compact_link }}
+  {% for position, blocks in containers %}
+    {% set system_admin_index_container_attributes = {
+      class: [position, 'clearfix'],
+    } %}
+    <div{{ add_attributes(system_admin_index_container_attributes) }}>
+      {% for block in blocks %}
+        {{ block }}
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>

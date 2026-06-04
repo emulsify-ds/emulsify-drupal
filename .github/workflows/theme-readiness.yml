@@ -2,30 +2,38 @@ name: Theme Readiness
 
 on:
   pull_request:
+  # Keep 7.x push coverage because this release branch owns the readiness
+  # workflow before it lands on main.
   push:
     branches:
       - main
-      - 6.x
+      - 7.x
+      - release-7
   workflow_dispatch:
 
 concurrency:
-  group: theme-readiness-${{ github.event.pull_request.number || github.ref }}
+  group: theme-readiness-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   theme-readiness:
-    name: Theme Readiness (Drupal ${{ matrix.drupal-version }})
+    name: Theme Readiness (${{ matrix.label }} / PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
-        # Keep package compatibility at ^10.3 || ^11 for existing 6.x installs.
-        # CI covers currently relevant Drupal 10/11 minors, not every supported
-        # compatibility-floor version.
-        drupal-version:
-          - '10.5.*'
-          - '10.6.*'
-          - '11.3.*'
+        include:
+          - label: Drupal 11.3
+            artifact-suffix: drupal-11-3-php-8-4
+            drupal-version: '11.3.*'
+            php-version: '8.4'
+            experimental: false
+          - label: Drupal Dev Branch
+            artifact-suffix: drupal-dev-main-php-8-5
+            drupal-version: 'dev-main'
+            php-version: '8.5'
+            experimental: true
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -33,24 +41,87 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php-version }}
           tools: composer:v2
+          extensions: gd, imagick
+
+      - { name: Setup Node, uses: actions/setup-node@v4, with: { node-version: 24 } }
+
+      - { name: Run static release check, run: 'npm run release:check -- --skip-smoke' }
 
       - name: Build fixture site
+        id: build_fixture
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
-      - name: Verify baseline template parity
-        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture
+      # Once the fixture exists, run each readiness slice independently. A
+      # render regression should not hide favicon or starterkit signal on PRs.
+      - name: Verify Emulsify ships the full stable9 template surface
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        run: bash .github/scripts/template-parity.sh /tmp/emulsify-fixture "$GITHUB_WORKSPACE" "$RUNNER_TEMP/emulsify-template-parity.md"
 
-      - name: Smoke test stable9-backed base theme rendering
+      - name: Upload stable9 parity report
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: stable9-template-parity-${{ matrix.artifact-suffix }}
+          path: ${{ runner.temp }}/emulsify-template-parity.md
+
+      - name: Smoke test parent theme page rendering
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/render-reference-pages.sh /tmp/emulsify-fixture /tmp/emulsify-base-theme
 
-      - name: Smoke test without stable9 fallback
-        run: bash .github/scripts/smoke-without-stable9.sh /tmp/emulsify-fixture /tmp/emulsify-no-stable9
+      - name: Smoke test generated favicon package
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        run: bash .github/scripts/favicon-smoke.sh /tmp/emulsify-fixture emulsify
 
-      - name: Compare render output before and after removing stable9
-        run: bash .github/scripts/render-parity.sh /tmp/emulsify-fixture /tmp/emulsify-render-parity
+      - name: Smoke test favicon portability and sanitizer coverage
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
-      # Drupal core Starterkit generation is intentionally not tested in 6.x CI.
-      # It is being prepared for the 7.x release line, while Emulsify Tools
-      # remains the supported public child-theme generation workflow for 6.x.
+      - name: 'Starterkit: generate Whisk-derived theme'
+        id: starterkit_generate
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 2
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" generate
+
+      - name: 'Starterkit: enable generated theme'
+        id: starterkit_enable
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_generate.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" enable
+
+      - name: 'Starterkit: render generated theme pages'
+        id: starterkit_render
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" render
+
+      - name: 'Starterkit: install frontend dependencies'
+        id: starterkit_frontend_install
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_render.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 15
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-install
+
+      - name: 'Starterkit: build frontend assets'
+        id: starterkit_frontend_build
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 5
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-build
+
+      - name: Upload generated theme smoke artifacts
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "generated-theme-smoke-${{ matrix.artifact-suffix }}"
+          if-no-files-found: warn
+          path: "${{ runner.temp }}/emulsify-generated-theme"

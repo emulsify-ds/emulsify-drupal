@@ -1,0 +1,194 @@
+{% import _self as menus %}
+{% set toolbar_menu_items_attributes = attributes %}
+{% set toolbar_block_list_attributes = {
+  class: bem('list', [], 'toolbar-block'),
+} %}
+<ul{{ add_attributes(toolbar_block_list_attributes) }}>
+  {{ menus.menu_items(items, toolbar_menu_items_attributes, 0) }}
+</ul>
+
+{% macro menu_items(items, attributes, menu_level) %}
+  {% for item in items %}
+
+    {% set item_link_tag = 'a' %}
+
+    {% if item.url.isRouted %}
+      {% if item.url.routeName == '<nolink>' %}
+        {% set item_link_tag = constant('\\Drupal\\Core\\GeneratedNoLink::TAG') %}
+      {% elseif item.url.routeName == '<button>' %}
+        {% set item_link_tag = constant('\\Drupal\\Core\\GeneratedButton::TAG') %}
+      {% endif %}
+    {% endif %}
+
+    {% if item.url.options.attributes is empty %}
+      {% set item_link_attributes = create_attribute() %}
+    {% else %}
+      {% set item_link_attributes = create_attribute(item.url.options.attributes) %}
+    {% endif %}
+
+    {% set item_id = ('navigation-link--' ~ item.original_link.pluginId)|clean_unique_id %}
+    {% if menu_level == 0 %}
+      {% if item.below is empty %}
+        {% with { attributes: item.attributes } %}
+          {% set navigation_menu_item_attributes = {
+            id: item_id,
+            class: bem('list-item', [], 'toolbar-block'),
+          } %}
+          <li{{ add_attributes(navigation_menu_item_attributes) }}>
+        {% endwith %}
+          {% include 'navigation:toolbar-button' with {
+            attributes: item_link_attributes.setAttribute('href', item.url|render|default(null)).setAttribute('data-drupal-tooltip', item.title).setAttribute('data-drupal-tooltip-class', 'admin-toolbar__tooltip'),
+            icon: item.icon,
+            html_tag: item_link_tag,
+            text: item.title,
+            modifiers: [
+              'collapsible',
+              item_link_tag == 'span' ? 'non-interactive' : null
+            ]|filter(v => v is not null),
+          } only %}
+        </li>
+      {% else %}
+        {% with { attributes: item.attributes } %}
+          {% set navigation_menu_item_attributes = {
+            id: item_id,
+            class: [bem('list-item', [], 'toolbar-block'), 'toolbar-popover'],
+          } %}
+          <li{{ add_attributes(navigation_menu_item_attributes) }} data-toolbar-popover>
+        {% endwith %}
+          {% include 'navigation:toolbar-button' with {
+            action: 'Extend'|t,
+            attributes: create_attribute({
+              'aria-expanded': 'false',
+              'aria-controls': item_id,
+              'data-toolbar-popover-control': true,
+              'data-has-safe-triangle': true,
+            }),
+            icon: item.icon,
+            text: item.title,
+            modifiers: [
+              'expand--side',
+              'collapsible',
+            ],
+            extra_classes: [
+              'toolbar-popover__control',
+            ],
+          } only %}
+          {% set toolbar_popover_wrapper_attributes = {
+            class: bem('wrapper', [], 'toolbar-popover'),
+          } %}
+          <div{{ add_attributes(toolbar_popover_wrapper_attributes) }} data-toolbar-popover-wrapper inert>
+            {% if item.url %}
+              {% include 'navigation:toolbar-button' with {
+                attributes: item_link_attributes.setAttribute('href', item.url|render),
+                html_tag: item_link_tag,
+                text: item.title,
+                modifiers: [
+                  'large',
+                  'dark',
+                ],
+                extra_classes: [
+                  'toolbar-popover__header',
+                ],
+              } only %}
+            {% else %}
+              {% include 'navigation:toolbar-button' with {
+                attributes: create_attribute(),
+                modifiers: [
+                  'large',
+                  'dark',
+                  'non-interactive',
+                ],
+                extra_classes: [
+                  'toolbar-popover__header',
+                ],
+                html_tag: 'span',
+                text: item.title,
+              } only %}
+            {% endif %}
+            {% set toolbar_popover_menu_attributes = {
+              class: [bem('toolbar-menu'), bem('menu', [], 'toolbar-popover')],
+            } %}
+            <ul{{ add_attributes(toolbar_popover_menu_attributes) }}>
+              {{ menus.menu_items(item.below, attributes, 1) }}
+            </ul>
+          </div>
+        </li>
+      {% endif %}
+
+    {% elseif menu_level == 1 %}
+      {% with { attributes: item.attributes } %}
+        {% set navigation_menu_item_attributes = {
+          class: bem('item', ['level-' ~ menu_level], 'toolbar-menu'),
+        } %}
+        <li{{ add_attributes(navigation_menu_item_attributes) }}>
+      {% endwith %}
+        {% if item.below is empty  %}
+          {% include 'navigation:toolbar-button' with {
+            attributes: item_link_attributes.setAttribute('href', item.url|render|default(null)),
+            text: item.title,
+            html_tag: item_link_tag,
+            extra_classes: [
+              item_link_tag == 'span' ? 'toolbar-button--non-interactive'
+            ],
+          } only %}
+        {% else %}
+          {% include 'navigation:toolbar-button' with {
+            attributes: create_attribute({
+              'aria-expanded': 'false',
+              'data-toolbar-menu-trigger': menu_level,
+            }),
+            text: item.title,
+            modifiers: ['expand--down'],
+          } only %}
+          {% set toolbar_menu_attributes = {
+            class: bem('toolbar-menu', ['level-' ~ (menu_level + 1)]),
+          } %}
+          <ul{{ add_attributes(toolbar_menu_attributes) }} inert>
+            {{ menus.menu_items(item.below, attributes, menu_level + 1) }}
+          </ul>
+        {% endif %}
+      </li>
+    {% else %}
+      {% with { attributes: item.attributes } %}
+        {% set navigation_menu_item_attributes = {
+          class: bem('item', ['level-' ~ menu_level], 'toolbar-menu'),
+        } %}
+        <li{{ add_attributes(navigation_menu_item_attributes) }}>
+      {% endwith %}
+        {% if item.below is empty  %}
+          {{ link(item.title, item.url, {
+            'class': [
+              'toolbar-menu__link',
+              'toolbar-menu__link--' ~ menu_level,
+            ],
+              'data-index-text': item.title|first|lower
+          }) }}
+        {% else %}
+          {% set toolbar_menu_trigger_attributes = {
+            class: bem('link', ['level-' ~ menu_level], 'toolbar-menu'),
+            'data-toolbar-menu-trigger': menu_level,
+            'aria-expanded': 'false',
+            'data-index-text': item.title|first|lower,
+          } %}
+          <button{{ add_attributes(toolbar_menu_trigger_attributes) }}>
+            {% set toolbar_menu_trigger_action_attributes = {
+              class: [bem('link-action', [], 'toolbar-menu'), 'visually-hidden'],
+            } %}
+            <span{{ add_attributes(toolbar_menu_trigger_action_attributes) }} data-toolbar-action>{{ 'Extend'|t }}</span>
+            {% set toolbar_menu_trigger_title_attributes = {
+              class: bem('link-title', [], 'toolbar-menu'),
+            } %}
+            <span{{ add_attributes(toolbar_menu_trigger_title_attributes) }}>{{ item.title }}</span>
+            {{ icon('navigation', 'chevron', { class: 'toolbar-menu__chevron', size: 16 }) }}
+          </button>
+          {% set toolbar_menu_attributes = {
+            class: bem('toolbar-menu', ['level-' ~ (menu_level + 1)]),
+          } %}
+          <ul{{ add_attributes(toolbar_menu_attributes) }} inert>
+            {{ menus.menu_items(item.below, attributes, menu_level + 1) }}
+          </ul>
+        {% endif %}
+      </li>
+    {% endif %}
+  {% endfor %}
+{% endmacro %}

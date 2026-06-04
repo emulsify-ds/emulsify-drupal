@@ -3,8 +3,10 @@
 set -euo pipefail
 
 # Captures a small, representative set of Drupal-rendered pages from a fixture.
-# The generated HTML files are used both as smoke-test evidence and as input for
-# Stable9 parity comparisons.
+# The generated HTML files are used as smoke-test evidence for parent-theme
+# rendering and template coverage. This deliberately avoids screenshot or visual
+# diff tooling; the release risk here is whether Drupal can bootstrap and render
+# the theme across core template surfaces.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <output-dir>" >&2
   exit 1
@@ -69,7 +71,7 @@ if [ "$ready" -ne 1 ]; then
   exit 1
 fi
 
-# Capture the page list that exercises the baseline templates owned in 6.x:
+# Capture the page list that exercises the baseline templates owned by Emulsify:
 # html/page wrappers, fields, views output, forms, users, and messages.
 curl -fsSL "${base_url}/node" >"${output_dir}/frontpage-view.html"
 # A fixture resolving to the installer means Drupal settings were not loaded;
@@ -116,5 +118,5 @@ if [ -n "$form_token" ]; then
 fi
 
 # Write the rebuilt form with status/error messages to a separate capture so
-# parity diffs can isolate initial render differences from validation output.
+# render checks can isolate initial output from validation output.
 curl "${post_args[@]}" "${base_url}/user/login" >"${output_dir}/user-login-error.html"

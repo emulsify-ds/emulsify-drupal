@@ -1,0 +1,7 @@
+<ul{{ bem('entity-moderation-form') }}>
+  <li{{ bem('item', [], 'entity-moderation-form') }}>{{ form.current }}</li>
+  <li{{ bem('item', [], 'entity-moderation-form') }}>{{ form.new_state }}</li>
+  <li{{ bem('item', [], 'entity-moderation-form') }}>{{ form.revision_log }}</li>
+  <li{{ bem('item', [], 'entity-moderation-form') }}>{{ form.submit }}</li>
+</ul>
+{{ form|without('current', 'new_state', 'revision_log', 'submit') }}

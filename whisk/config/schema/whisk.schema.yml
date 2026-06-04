@@ -3,3 +3,60 @@
 whisk.settings:
   type: theme_settings
   label: 'whisk settings'
+  mapping:
+    favicon_package_enabled:
+      type: boolean
+      label: 'Enable generated favicon package'
+    favicon_source_fid:
+      type: sequence
+      label: 'Icon file IDs'
+      sequence:
+        type: integer
+    favicon_source_svg:
+      type: text
+      label: 'Portable SVG source markup'
+    favicon_source_filename:
+      type: string
+      label: 'Source SVG filename'
+    favicon_background_color:
+      type: string
+      label: 'Icon background color'
+    favicon_theme_color:
+      type: string
+      label: 'Theme color metadata'
+    favicon_ios_background_color:
+      type: string
+      label: 'Icon background color'
+    favicon_ios_padding:
+      type: integer
+      label: 'Icon padding'
+    favicon_ios_icon_name:
+      type: string
+      label: 'iOS icon name'
+    favicon_android_background_color:
+      type: string
+      label: 'Icon background color'
+    favicon_android_padding:
+      type: integer
+      label: 'Icon padding'
+    favicon_android_maskable_enabled:
+      type: boolean
+      label: 'Always generate a maskable Android icon'
+    favicon_manifest_name:
+      type: string
+      label: 'Manifest application name (site name)'
+    favicon_manifest_short_name:
+      type: string
+      label: 'Android icon name'
+    favicon_manifest_display:
+      type: string
+      label: 'Manifest display mode (standalone)'
+    favicon_package_hash:
+      type: string
+      label: 'Generated favicon package hash'
+    favicon_package_path:
+      type: string
+      label: 'Generated favicon package path'
+    favicon_package_generated_at:
+      type: integer
+      label: 'Generated favicon package timestamp'

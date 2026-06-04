@@ -1,0 +1,15 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a single navigation top bar page action.
+ *
+ * Available variables:
+ * - link: Link render element.
+ */
+#}
+{% set top_bar_page_action_attributes = {
+  class: bem('item', [], 'toolbar-dropdown'),
+} %}
+<li{{ add_attributes(top_bar_page_action_attributes) }}>
+  {{ link|add_class('toolbar-dropdown__link') }}
+</li>

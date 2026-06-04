@@ -1,3 +1,18 @@
-# Default settings should not be located here. This file is only used to
-# override existing settings. If your theme is the one that introduces a new
-# theme setting, it should define those defaults in its own install config.
+favicon_package_enabled: false
+favicon_source_fid: []
+favicon_source_svg: ''
+favicon_source_filename: ''
+favicon_background_color: '#ffffff'
+favicon_theme_color: '#ffffff'
+favicon_ios_background_color: '#ffffff'
+favicon_ios_padding: 16
+favicon_ios_icon_name: ''
+favicon_android_background_color: '#ffffff'
+favicon_android_padding: 20
+favicon_android_maskable_enabled: true
+favicon_manifest_name: ''
+favicon_manifest_short_name: ''
+favicon_manifest_display: standalone
+favicon_package_hash: ''
+favicon_package_path: ''
+favicon_package_generated_at: 0

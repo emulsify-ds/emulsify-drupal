@@ -1,14 +1,10 @@
 {
     "name": "emulsify-ds/emulsify-drupal",
-    "description": "The official Drupal parent theme for Emulsify that generates custom themes with Storybook development + Webpack build",
+    "description": "The official Drupal theme for Emulsify, with Storybook and a Vite-based build workflow for generated child themes",
     "type": "drupal-theme",
     "homepage": "http://emulsify.info",
     "license": "GPL-2.0-only",
     "authors": [
-        {
-            "name": "Randy Oest",
-            "email": "randy@fourkitchens.com"
-        },
         {
             "name": "Callin Mullaney",
             "email": "callin@fourkitchens.com"
@@ -23,15 +19,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/core": "^10.3 || ^11",
-        "drupal/components": "^3.0@beta",
-        "drupal/emulsify_tools": "^1.0"
-    },
-    "extra": {
-        "drush": {
-            "services": {
-                "drush.services.yml": "^10 || ^11"
-            }
-        }
+        "drupal/core": "^11.3 || ^12",
+        "drupal/emulsify_tools": "^2.0"
     }
 }

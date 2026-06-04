@@ -1,0 +1,68 @@
+{#
+/**
+ * @file
+ * Theme override of grouped status report requirements.
+ *
+ * - grouped_requirements: Contains grouped requirements.
+ *   Each group contains:
+ *   - title: The title of the group.
+ *   - type: The severity of the group.
+ *   - items: The requirement instances.
+ *     Each requirement item contains:
+ *     - title: The title of the requirement.
+ *     - value: (optional) The requirement's status.
+ *     - description: (optional) The requirement's description.
+ *     - severity_title: The title of the severity.
+ *     - severity_status: Indicates the severity status.
+ */
+#}
+{{ attach_library('core/drupal.collapse') }}
+
+<div>
+  {% for group in grouped_requirements %}
+    <div>
+      {% set status_report_group_title_attributes = {
+        id: group.type,
+      } %}
+      <h3{{ add_attributes(status_report_group_title_attributes) }}>{{ group.title }}</h3>
+      {% for requirement in group.items %}
+        {% set status_report_entry_attributes = {
+          class: bem('entry', [], 'system-status-report'),
+        } %}
+        <details{{ add_attributes(status_report_entry_attributes) }} open>
+          {%
+            set summary_classes = [
+              bem('status-title', [], 'system-status-report'),
+              group.type in ['warning', 'error'] ? bem('status-icon', group.type, 'system-status-report')
+            ]
+          %}
+          {% set status_report_summary_attributes = {
+            class: summary_classes,
+            role: 'button',
+          } %}
+          <summary{{ add_attributes(status_report_summary_attributes) }}>
+            {% if requirement.severity_title %}
+              {% set status_report_severity_attributes = {
+                class: 'visually-hidden',
+              } %}
+              <span{{ add_attributes(status_report_severity_attributes) }}>{{ requirement.severity_title }}</span>
+            {% endif %}
+            {{ requirement.title }}
+          </summary>
+          {% set status_report_value_attributes = {
+            class: bem('entry__value', [], 'system-status-report'),
+          } %}
+          <div{{ add_attributes(status_report_value_attributes) }}>
+            {{ requirement.value }}
+            {% if requirement.description %}
+              {% set status_report_description_attributes = {
+                class: 'description',
+              } %}
+              <div{{ add_attributes(status_report_description_attributes) }}>{{ requirement.description }}</div>
+            {% endif %}
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>

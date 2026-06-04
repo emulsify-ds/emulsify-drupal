@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display messages in the navigation toolbar.
+ *
+ * Available variables:
+ * - messages: An array containing the messages to display.
+ *
+ * @ingroup themeable
+ */
+#}
+{{ attach_library('navigation/internal.navigation-messages') }}
+{% set navigation_messages_attributes = {
+  class: bem('list', [], 'toolbar-block'),
+} %}
+<div{{ add_attributes(navigation_messages_attributes) }}>
+  {% for message in message_list %}
+    {{ message }}
+  {% endfor %}
+</div>

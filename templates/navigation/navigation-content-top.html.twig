@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display the navigation content_top section.
+ *
+ * Available variables:
+ * - items: An associative array of renderable elements to display in the
+ *   content_top section.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if items is not empty %}
+  {% set navigation_content_top_attributes = {
+    class: bem('content-top', [], 'admin-toolbar'),
+  } %}
+  <div{{ add_attributes(navigation_content_top_attributes) }}>
+    {{ items }}
+  </div>
+{% endif %}

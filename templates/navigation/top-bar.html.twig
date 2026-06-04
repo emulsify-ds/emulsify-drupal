@@ -1,0 +1,51 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the navigation top bar.
+ *
+ * Available variables:
+ * - element: The top bar render element.
+ * - tools: The tools region of the top bar.
+ * - context: The context region of the top bar.
+ * - actions: The actions region of the top bar.
+ *
+ * @ingroup themeable
+ */
+#}
+{% set attributes = create_attribute() %}
+{% set top_bar_attributes = {
+  class: bem('top-bar'),
+  'aria-labelledby': 'top-bar__title',
+} %}
+{% if tools or context|render or actions|render %}
+  <aside{{ add_attributes(top_bar_attributes) }} data-drupal-admin-styles data-offset-top>
+    {% set top_bar_title_attributes = {
+      id: 'top-bar__title',
+      class: 'visually-hidden',
+    } %}
+    <h3{{ add_attributes(top_bar_title_attributes) }}>{{ 'Administrative top bar'|t }}</h3>
+    {% set top_bar_content_attributes = {
+      class: bem('content', [], 'top-bar'),
+    } %}
+    <div{{ add_attributes(top_bar_content_attributes) }}>
+      {% set top_bar_tools_attributes = {
+        class: bem('tools', [], 'top-bar'),
+      } %}
+      <div{{ add_attributes(top_bar_tools_attributes) }}>
+        {{- tools -}}
+      </div>
+      {% set top_bar_context_attributes = {
+        class: bem('context', [], 'top-bar'),
+      } %}
+      <div{{ add_attributes(top_bar_context_attributes) }}>
+        {{- context -}}
+      </div>
+      {% set top_bar_actions_attributes = {
+        class: bem('actions', [], 'top-bar'),
+      } %}
+      <div{{ add_attributes(top_bar_actions_attributes) }}>
+        {{- actions -}}
+      </div>
+    </div>
+  </aside>
+{% endif %}

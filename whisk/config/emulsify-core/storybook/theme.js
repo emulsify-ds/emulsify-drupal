@@ -1,40 +1,74 @@
-// To customize your Storybook theme, remove the following line and uncomment the code below.
-const storybookTheme = {};
+import { create } from 'storybook/theming';
 
-// import { create } from '@storybook/theming';
-// const storybookTheme = create({
-//   base: 'dark',
+// This file controls Storybook's manager UI: sidebar, toolbar, addon panels,
+// and branding. It does not style rendered components inside the preview iframe.
+//
+// To fall back to Emulsify Core's default manager theme, export an empty object:
+//
+// const storybookTheme = {};
+// export default storybookTheme;
+//
+// See https://storybook.js.org/docs/configure/user-interface/theming.
 
-//   // UI
-//   appBg: '#0000ff',
-//   appContentBg: '#eee',
-//   appBorderColor: '#ff0000',
-//   appBorderRadius: 4,
+const storybookTheme = create({
+  // Base mode. Use 'dark' or 'light' as Storybook's starting color mode.
+  base: 'dark',
 
-//   // Typography
-//   fontBase: '"Mona Sans", sans-serif',
-//   fontCode: 'monospace',
+  // Brand colors. These are used by links, selected states, and accent UI.
+  colorPrimary: '#00405B',
+  colorSecondary: '#FCB817',
 
-//   // Text colors
-//   textColor: 'white',
-//   textInverseColor: 'rgba(255,255,255,0.9)',
-//   textMutedColor: '#E6F5FC',
+  // App shell. These style Storybook's chrome, not project components.
+  appBg: '#00405B',
+  appContentBg: '#00202E',
+  appHoverBg: '#005F86',
+  appPreviewBg: '#ffffff',
+  appBorderColor: '#00405B',
+  appBorderRadius: 4,
 
-//   // Toolbar default and active colors
-//   barTextColor: '#0000ff',
-//   barSelectedColor: '#eeff00',
-//   barBg: '#eeff00',
+  // Typography. Load external fonts from manager-head.html if the font is not
+  // available through the browser or system font stack.
+  fontBase: '"Mona Sans", sans-serif',
+  fontCode: 'monospace',
 
-//   // Form colors
-//   inputBg: 'red',
-//   inputBorder: 'silver',
-//   inputTextColor: '#dddddd',
-//   inputBorderRadius: 4,
-//   // Branding
-//   brandTitle: 'Emulsify',
-//   brandUrl: 'https://emulsify.info',
-//   brandImage:
-//     'https://raw.githubusercontent.com/fourkitchens/emulsify-core/main/assets/images/emulsify-logo-sb.svg?token=GHSAT0AAAAAACIEXLVC5R3KBCX6HGKGTBBSZNYFWMA',
-// });
+  // Text colors
+  textColor: '#FFFFFF',
+  textInverseColor: '#00202E',
+  textMutedColor: '#E6F5FC',
+
+  // Toolbar
+  barTextColor: '#E6F5FC',
+  barSelectedColor: '#FCB817',
+  barHoverColor: '#FFFFFF',
+  barBg: '#00202E',
+
+  // Buttons
+  buttonBg: '#E6F5FC',
+  buttonBorder: '#00405B',
+
+  // Boolean controls
+  booleanBg: '#00141D',
+  booleanSelectedBg: '#FCB817',
+
+  // Form colors
+  inputBg: '#00141D',
+  inputBorder: '#00405B',
+  inputTextColor: '#FFFFFF',
+  inputBorderRadius: 4,
+
+  // Layout grid
+  gridCellSize: 8,
+
+  // Branding. Use a stable public URL or a file served from Storybook staticDirs.
+  brandTitle: 'Emulsify',
+  brandUrl: 'https://emulsify.info',
+  brandImage:
+    'https://raw.githubusercontent.com/emulsify-ds/.github/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png',
+  brandTarget: '_blank',
+
+  // Example: use a project asset instead of a remote image.
+  //
+  // brandImage: '/images/storybook-logo.svg',
+});
 
 export default storybookTheme;

@@ -4,15 +4,11 @@
 
 ## Emulsify is an open-source toolset for creating and implementing design systems on your website
 
-### Storybook development, Webpack build, and Drupal 10/11 parent theme
+### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, a [Webpack](https://webpack.js.org/) development environment, and a Drupal parent theme for Drupal 10 and 11.
+**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
 
-The 6.x compatibility floor is Drupal `^10.3 || ^11` for existing installs. Release readiness CI targets currently relevant Drupal 10 and 11 minors rather than presenting Drupal 10.3 as the recommended production target.
-
-`emulsify` remains the runtime parent theme for generated themes. The `whisk` directory is the source used by Emulsify Tools to generate subthemes and is not intended to be enabled directly on a site.
-
-In the 6.x series, `stable9` remains a fallback base theme while Emulsify progressively takes ownership of the template and render layer it previously inherited.
+The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
 ## Documentation
 
@@ -22,7 +18,9 @@ In the 6.x series, `stable9` remains a fallback base theme while Emulsify progre
 
 1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
 2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
-3. [Preparing existing 6.x projects for 7.x](docs/preparing-for-7.md)
+3. [Upgrade guide](./UPGRADE.md)
+4. [Template override map](./docs/template-map.md)
+5. [Favicon generation lifecycle](./docs/favicon-generation.md)
 
 ## Demo
 
@@ -32,7 +30,7 @@ In the 6.x series, `stable9` remains a fallback base theme while Emulsify progre
 
 ### Generate a child theme
 
-If `emulsify_tools` is installed, you can generate a subtheme with the helper-module Drush command:
+If `emulsify_tools` is installed, you can generate a child theme with the helper-module Drush command:
 
 ```bash
 drush emulsify my_theme
@@ -44,7 +42,17 @@ The helper module also exposes the fully qualified command name:
 drush emulsify_tools:bake my_theme
 ```
 
-Drupal core Starterkit-based generation is being prepared for the 7.x release line. In 6.x, Emulsify Tools remains the primary supported workflow for generating child themes.
+You can also generate the same child theme with Drupal core's standard Starterkit command from the root of your Drupal site:
+
+```bash
+php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path themes/custom
+```
+
+These generation methods should be treated as equivalent:
+
+1. They generate the theme into `web/themes/custom/my_theme`.
+2. They use the `whisk` starter source.
+3. They keep `emulsify` as the runtime parent theme for the generated theme.
 
 After generation:
 
@@ -71,6 +79,30 @@ npm run develop
 
 Do not enable `whisk` directly. It is a generation-only starter source.
 
+### Manage generated favicon packages
+
+The generated favicon workflow is built around one portable SVG source stored in theme settings.
+
+Emulsify Drupal owns the theme-facing parts of that workflow: the theme settings form, config defaults and schema, admin previews, frontend head tags, generated asset references in `<theme>.settings`, and sanitized SVG storage for config portability.
+
+1. Configure the package in the theme settings form for `emulsify` or an Emulsify child theme.
+2. Save the theme settings form to generate or update the package during normal admin changes.
+3. Review package and portable-source diagnostics in the theme settings UI.
+
+Emulsify Tools owns deployment-oriented Drush operations for those same
+settings. After configuration import or deploy, use the Emulsify Tools favicon
+commands to generate, inspect, or reset environment-local package files before
+public traffic reaches the environment. See the Emulsify Tools README for the
+full command documentation.
+
+Runtime page requests never generate favicon files. If the configured package is missing, Emulsify skips favicon head tags until the theme settings form or the Emulsify Tools generate command creates the package.
+
+Generated favicon packages require the PHP `gd` extension and the `Imagick` extension for SVG rasterization. If either extension is unavailable, the uploaded SVG can still be stored in configuration, but PNG and ICO package generation will fail until those extensions are installed.
+
+The theme settings UI surfaces the current portable-source and package status. Portable SVG copies larger than 256 KB are flagged because very large config payloads are awkward to review and deploy.
+
+See [docs/favicon-generation.md](./docs/favicon-generation.md) for generated files, package location, generator limits, and deployment expectations.
+
 ## Contributing
 
 ### [Code of Conduct](https://github.com/emulsify-ds/emulsify-drupal/blob/main/CODE_OF_CONDUCT.md)
@@ -92,6 +124,16 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
 2. Create a [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) message, either manually or with your preferred commit helper.
 3. Your commit message will be used to create the changelog for the next version that includes that commit.
+
+### Release Readiness
+
+Run the release guard before merging packaging, starterkit, favicon settings, or release metadata changes, and before preparing a 7.x release:
+
+```bash
+npm run release:check
+```
+
+Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks. The static checks verify that favicon settings stay aligned across `FaviconSettings::DEFAULTS`, `config/install/emulsify.settings.yml`, and `config/schema/emulsify.schema.yml`.
 
 ## Author
 

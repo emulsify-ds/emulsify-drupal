@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Theme override for a progress bar.
+ *
+ * Note that the core Batch API uses this only for non-JavaScript batch jobs.
+ *
+ * Available variables:
+ * - label: The label of the working task.
+ * - percent: The percentage of the progress.
+ * - message: A string containing information to be displayed.
+ */
+#}
+{% set progress_block = 'progress' %}
+{% set progress_attributes = {
+  class: bem(progress_block),
+} %}
+{% set progress_bar_attributes = {
+  class: bem('bar', [], progress_block),
+  style: 'width: ' ~ percent ~ '%',
+} %}
+<div{{ add_attributes(progress_attributes) }} data-drupal-progress>
+  {% if label %}
+    <div{{ bem('label', [], progress_block) }}>{{ label }}</div>
+  {% endif %}
+  <div{{ bem('track', [], progress_block) }}><div{{ add_attributes(progress_bar_attributes) }}></div></div>
+  <div{{ bem('percentage', [], progress_block) }}>{{ percent }}%</div>
+  <div{{ bem('description', [], progress_block) }}>{{ message }}</div>
+</div>

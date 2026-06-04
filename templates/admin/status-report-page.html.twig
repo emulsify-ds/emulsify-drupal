@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * Theme override for the status report page.
+ *
+ * Available variables:
+ * - counters: The list of counter elements.
+ * - general_info: A render array to create general info element.
+ * - requirements: A render array to create requirements table.
+ */
+#}
+{% if counters|length == 3 %}
+  {% set counter_item_modifiers = ['third-width'] %}
+{% elseif counters|length == 2 %}
+  {% set counter_item_modifiers = ['half-width'] %}
+{% endif %}
+<div{{ bem('system-status-report-counters') }}>
+  {% for counter in counters %}
+    <div{{ bem('item', counter_item_modifiers|default([]), 'system-status-report-counters') }}>
+      {{ counter }}
+    </div>
+  {% endfor %}
+</div>
+
+{{ general_info }}
+{{ requirements }}

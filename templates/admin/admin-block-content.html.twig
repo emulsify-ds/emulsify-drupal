@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Theme override for the content of an administrative block.
+ *
+ * Available variables:
+ * - content: List of administrative menu items. Each menu item contains:
+ *   - link: Link to the admin section.
+ *   - title: Short name of the section.
+ *   - description: Description of the administrative menu item.
+ *   - url: URI to the admin section.
+ *   - options: URL options. See \Drupal\Core\Url::fromUri() for details.
+ * - attributes: HTML attributes to be added to the element.
+ * - compact: Boolean indicating whether compact mode is turned on or not.
+ *
+ * @see \Drupal\system\Theme\SystemAdminThemePreprocess::preprocessAdminBlockContent()
+ */
+#}
+{%
+  set classes = bem('list-group', [], '', [compact ? 'compact' : null])
+%}
+{% set admin_block_content_attributes = {
+  class: classes,
+} %}
+{% if content %}
+  <dl{{ add_attributes(admin_block_content_attributes) }}>
+    {% for item in content %}
+      <dt{{ bem('link', [], 'list-group') }}>{{ item.link }}</dt>
+      {% if item.description %}
+        <dd{{ bem('description', [], 'list-group') }}>{{ item.description }}</dd>
+      {% endif %}
+    {% endfor %}
+  </dl>
+{% endif %}

@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * Theme override to display a file form widget.
+ *
+ * Available variables:
+ * - element: Form element for the file upload.
+ * - attributes: HTML attributes for the containing element.
+ *
+ * @see \Drupal\file\Hook\FileThemeHooks::preprocessManagedFile()
+ */
+#}
+{%
+  set classes = [
+    'js-form-managed-file',
+    'form-managed-file',
+  ]
+%}
+{% set managed_file_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(managed_file_attributes) }}>
+  {{ element }}
+</div>

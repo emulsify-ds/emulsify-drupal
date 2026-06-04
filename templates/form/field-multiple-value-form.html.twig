@@ -1,0 +1,50 @@
+{#
+/**
+ * @file
+ * Theme override for an individual form element.
+ *
+ * Available variables for all fields:
+ * - multiple: Whether there are multiple instances of the field.
+ *
+ * Available variables for single cardinality fields:
+ * - elements: Form elements to be rendered.
+ *
+ * Available variables when there are multiple fields.
+ * - table: Table of field items.
+ * - description: The description element containing the following properties:
+ *   - content: The description content of the form element.
+ *   - attributes: HTML attributes to apply to the description container.
+ * - button: "Add another item" button.
+ *
+ * @see \Drupal\Core\Field\FieldPreprocess::preprocessFieldMultipleValueForm()
+ */
+#}
+{% if multiple %}
+  {%
+    set classes = [
+      'js-form-item',
+      'form-item'
+    ]
+  %}
+  {% set multiple_value_form_attributes = {
+    class: classes,
+  } %}
+  <div{{ add_attributes(multiple_value_form_attributes) }}>
+    {{ table }}
+    {% if description.content %}
+      {% with { attributes: description.attributes } %}
+        {% set multiple_value_description_attributes = {
+          class: 'description',
+        } %}
+        <div{{ add_attributes(multiple_value_description_attributes) }}>{{ description.content }}</div>
+      {% endwith %}
+    {% endif %}
+    {% if button %}
+      <div class="clearfix">{{ button }}</div>
+    {% endif %}
+  </div>
+{% else %}
+  {% for element in elements %}
+    {{ element }}
+  {% endfor %}
+{% endif %}

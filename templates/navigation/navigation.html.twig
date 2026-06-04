@@ -1,0 +1,145 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a navigation layout.
+ *
+ * Available variables:
+ * - content: The content for this layout.
+ * - attributes: HTML attributes for the layout <div>.
+ * - settings: layout settings. The following are related to the logo:
+ *   - hide_logo: Whether to hide the logo.
+ *   - logo_path: The path to the logo image if logo_managed
+ *     in navigation.settings configuration has been set.
+ *   - logo_width: The width of the logo image. Available if
+ *     logo_path points to a valid image file.
+ *   - settings.logo_height: The height of the logo image. Available if
+ *     logo_path points to a valid image file.
+ * @ingroup themeable
+ */
+#}
+{% set admin_toolbar_control_bar_attributes = {
+  class: bem('admin-toolbar-control-bar'),
+} %}
+{% set admin_toolbar_attributes = {
+  class: bem('admin-toolbar'),
+  id: 'admin-toolbar',
+  role: 'presentation',
+} %}
+{% set admin_toolbar_content_attributes = {
+  class: bem('content', [], 'admin-toolbar'),
+  id: 'menu-builder',
+} %}
+{% set admin_toolbar_footer_attributes = {
+  class: bem('footer', [], 'admin-toolbar'),
+  id: 'menu-footer',
+} %}
+{% with { attributes: create_attribute() } %}
+  <div{{ add_attributes(admin_toolbar_control_bar_attributes) }} data-drupal-admin-styles>
+    {% set admin_toolbar_control_bar_content_attributes = {
+      class: bem('content', [], 'admin-toolbar-control-bar'),
+    } %}
+    <div{{ add_attributes(admin_toolbar_control_bar_content_attributes) }}>
+      {% include 'navigation:toolbar-button' with {
+        attributes: create_attribute({'aria-expanded': 'false', 'aria-controls': 'admin-toolbar', 'type': 'button'}),
+        icon: { icon_id: 'burger' },
+        text: 'Expand sidebar'|t,
+        modifiers: ['small-offset'],
+        extra_classes: [
+          'admin-toolbar-control-bar__burger',
+        ],
+      } only %}
+    </div>
+  </div>
+{% endwith %}
+
+<aside{{ add_attributes(admin_toolbar_attributes) }} data-drupal-admin-styles>
+  {# This lil' div will get the Drupal.displace() attributes added to it via JS. #}
+  {% set admin_toolbar_displace_placeholder_attributes = {
+    class: bem('displace-placeholder', [], 'admin-toolbar'),
+  } %}
+  <div{{ add_attributes(admin_toolbar_displace_placeholder_attributes) }}></div>
+
+  {% set admin_toolbar_scroll_wrapper_attributes = {
+    class: bem('scroll-wrapper', [], 'admin-toolbar'),
+    'aria-label': 'Administrative sidebar'|t,
+  } %}
+  <nav{{ add_attributes(admin_toolbar_scroll_wrapper_attributes) }}>
+    {% set title_menu = 'admin-toolbar-title'|clean_unique_id %}
+    {# @todo - We should get rid of this ID below. #}
+    {% with { attributes: region_attributes.content } %}
+      <div{{ add_attributes(admin_toolbar_content_attributes) }}>
+        {# @todo - Needs to be placed here so we can have the header footer on mobile. #}
+        {% set admin_toolbar_header_attributes = {
+          class: bem('header', [], 'admin-toolbar'),
+        } %}
+        <div{{ add_attributes(admin_toolbar_header_attributes) }}>
+          {% if not settings.hide_logo %}
+            {% set admin_toolbar_logo_attributes = {
+              class: bem('logo', [], 'admin-toolbar'),
+            } %}
+            <a href="{{ path('<front>') }}"{{ add_attributes(admin_toolbar_logo_attributes) }}>
+              {% if settings.logo_path is not null %}
+                {% set admin_toolbar_logo_image_attributes = {
+                  alt: 'Navigation logo'|t,
+                  src: settings.logo_path,
+                  loading: 'eager',
+                  width: settings.logo_width|default(40),
+                  height: settings.logo_height|default(40),
+                } %}
+                <img{{ add_attributes(admin_toolbar_logo_image_attributes) }}>
+              {% else %}
+                {% include '@navigation/logo.svg.twig' with {
+                  label: 'Navigation logo'|t
+                } only %}
+              {% endif %}
+            </a>
+          {% endif %}
+          {% include 'navigation:toolbar-button' with {
+            attributes: create_attribute({ 'data-toolbar-back-control': true, 'tabindex': '-1' }),
+            extra_classes: ['admin-toolbar__back-button'],
+            icon: { icon_id: 'arrow-left' },
+            text: 'Back'|t,
+          } only %}
+          {% include 'navigation:toolbar-button' with {
+            action: 'Collapse sidebar'|t,
+            attributes: create_attribute({ 'aria-controls': 'admin-toolbar', 'tabindex': '-1', 'type': 'button' }),
+            extra_classes: ['admin-toolbar__close-button'],
+            icon: { icon_id: 'cross' },
+          } only %}
+        </div>
+
+        {{ content.content_top }}
+        {{ content.content }}
+      </div>
+    {% endwith %}
+
+    {% set title_menu_footer = 'admin-toolbar-footer'|clean_unique_id %}
+    {% with { attributes: region_attributes.footer } %}
+      <div{{ add_attributes(admin_toolbar_footer_attributes) }}>
+        {{ content.footer }}
+        {% set admin_toolbar_expand_button_attributes = {
+          'aria-controls': 'admin-toolbar',
+          class: bem('expand-button', [], 'admin-toolbar'),
+          type: 'button',
+        } %}
+        <button{{ add_attributes(admin_toolbar_expand_button_attributes) }}>
+          {{ icon('navigation', 'chevron', { class: 'admin-toolbar__expand-button-chevron', size: 16 }) }}
+          {% set admin_toolbar_expand_button_text_attributes = {
+            class: 'visually-hidden',
+          } %}
+          <span{{ add_attributes(admin_toolbar_expand_button_text_attributes) }} data-toolbar-text>{{ 'Collapse sidebar'|t }}</span>
+        </button>
+      </div>
+    {% endwith %}
+  </nav>
+</aside>
+{% set admin_toolbar_overlay_attributes = {
+  class: 'admin-toolbar-overlay',
+  'aria-controls': 'admin-toolbar',
+} %}
+<div{{ add_attributes(admin_toolbar_overlay_attributes) }} data-drupal-admin-styles></div>
+<script>
+  if (localStorage.getItem('Drupal.navigation.sidebarExpanded') !== 'false' && (window.matchMedia('(min-width: 1024px)').matches)) {
+    document.documentElement.setAttribute('data-admin-toolbar', 'expanded');
+  }
+</script>

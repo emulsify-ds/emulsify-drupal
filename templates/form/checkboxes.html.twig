@@ -1,0 +1,18 @@
+{#
+/**
+ * @file
+ * Theme override for a 'checkboxes' #type form element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The rendered checkboxes.
+ *
+ * @see\Drupal\Core\Form\FormPreprocess::preprocessCheckboxes()
+ */
+ @todo: remove this file once https://www.drupal.org/node/1819284 is resolved.
+ This is identical to core/modules/system/templates/container.html.twig
+#}
+{% set checkboxes_attributes = {
+  class: 'form-checkboxes',
+} %}
+<div{{ add_attributes(checkboxes_attributes) }}>{{ children }}</div>

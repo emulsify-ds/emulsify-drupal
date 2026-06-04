@@ -1,47 +1,58 @@
 {#
 /**
  * @file
- * Default theme implementation for status messages.
+ * Theme override for status messages.
  *
- * Displays status, error, and warning messages, grouped by type.
- *
- * An invisible heading identifies the messages for assistive technology.
- * Sighted users see a colored box. See http://www.w3.org/TR/WCAG-TECHS/H69.html
- * for info.
- *
- * Add an ARIA label to the contentinfo area so that assistive technology
- * user agents will better describe this landmark.
+ * This keeps the default Drupal message structure local to Emulsify so message
+ * rendering does not need to fall through to stable9.
  *
  * Available variables:
- * - message_list: List of messages to be displayed, grouped by type.
- * - status_headings: List of all status types.
- * - attributes: HTML attributes for the element, including:
- *   - class: HTML classes.
- *
- * @ingroup themeable
+ * - message_list: Messages grouped by type.
+ * - status_headings: Human-readable headings for each message type.
+ * - attributes: HTML attributes for the message wrapper.
  */
 #}
-<div data-drupal-messages>
-{% for type, messages in message_list %}
-  <div role="contentinfo" aria-label="{{ status_headings[type] }}"{{ attributes|without('role', 'aria-label') }}>
-    {% if type == 'error' %}
-      <div role="alert">
-    {% endif %}
-    {% if status_headings[type] %}
-      <h2 class="visually-hidden">{{ status_headings[type] }}</h2>
-    {% endif %}
-    {% if messages|length > 1 %}
-      <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      {{ messages|first }}
-    {% endif %}
-    {% if type == 'error' %}
+{% set status_message_wrapper_attributes = attributes.toArray %}
+{% with { attributes: create_attribute() } %}
+  {% set status_messages_attributes = {} %}
+  <div{{ add_attributes(status_messages_attributes) }} data-drupal-messages>
+{% endwith %}
+  {% for type, messages in message_list %}
+    {% with { attributes: create_attribute(status_message_wrapper_attributes) } %}
+      {% set status_message_attributes = {
+        role: 'contentinfo',
+        'aria-label': status_headings[type],
+      } %}
+      <div{{ add_attributes(status_message_attributes) }}>
+    {% endwith %}
+      {% if type == 'error' %}
+        {% with { attributes: create_attribute() } %}
+          {% set status_message_alert_attributes = {
+            role: 'alert',
+          } %}
+          <div{{ add_attributes(status_message_alert_attributes) }}>
+        {% endwith %}
+      {% endif %}
+      {% if status_headings[type] %}
+        {% with { attributes: create_attribute() } %}
+          {% set status_message_heading_attributes = {
+            class: 'visually-hidden',
+          } %}
+          <h2{{ add_attributes(status_message_heading_attributes) }}>{{ status_headings[type] }}</h2>
+        {% endwith %}
+      {% endif %}
+      {% if messages|length > 1 %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {{ messages|first }}
+      {% endif %}
+      {% if type == 'error' %}
+        </div>
+      {% endif %}
       </div>
-    {% endif %}
-  </div>
-{% endfor %}
+  {% endfor %}
 </div>

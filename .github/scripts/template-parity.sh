@@ -2,113 +2,120 @@
 
 set -euo pipefail
 
-# Compares Emulsify's parent-owned baseline templates with the installed
-# Stable9/core source templates in a fixture site. The only expected upstream
-# differences across Drupal 10.3 and 11.3 are non-rendering Twig comments
-# such as docblocks and @see references, so comments are stripped before diffing
-# to keep this check focused on rendered markup parity.
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <fixture-dir>" >&2
+# Verifies Emulsify owns the same template path surface that stable9 provides
+# without inheriting stable9 as a parent theme. This is a path-contract check:
+# templates may intentionally differ in content, but missing stable9 paths would
+# reintroduce hidden fallback behavior in Drupal 11/12 readiness testing.
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <fixture-dir> <repo-root> [report-file]" >&2
   exit 1
 fi
 
 fixture_dir="$1"
-web_root="${fixture_dir}/web"
-theme_root="${web_root}/themes/contrib/emulsify"
-
-# Store normalized upstream and Emulsify templates outside the fixture so the
-# comparison never mutates installed Drupal or theme files.
-work_dir="$(mktemp -d)"
+repo_root="$2"
+report_file="${3:-}"
+stable9_templates_dir="${fixture_dir}/web/core/themes/stable9/templates"
+repo_templates_dir="${repo_root}/templates"
+stable9_list="$(mktemp)"
+repo_list="$(mktemp)"
+exact_matches_list="$(mktemp)"
+modified_matches_list="$(mktemp)"
+emulsify_only_list="$(mktemp)"
 
 cleanup() {
-  rm -rf "$work_dir"
+  rm -f "$stable9_list" "$repo_list" "$exact_matches_list" "$modified_matches_list" "$emulsify_only_list"
 }
 
 trap cleanup EXIT
 
-normalize_template() {
-  local source="$1"
-  local output="$2"
+if [ ! -d "$stable9_templates_dir" ]; then
+  echo "Unable to locate stable9 templates in the fixture." >&2
+  exit 1
+fi
 
-  # Twig comments differ across Drupal minors and do not affect rendered markup.
-  # Strip them before diffing so the check protects output, not copied docblocks.
-  php -r '
-$source = $argv[1];
-$output = $argv[2];
+if [ ! -d "$repo_templates_dir" ]; then
+  echo "Unable to locate the repo templates directory." >&2
+  exit 1
+fi
 
-$template = file_get_contents($source);
-if ($template === false) {
-  fwrite(STDERR, "Unable to read {$source}\n");
-  exit(1);
-}
+if grep -Eq "^base theme: stable9$" "${repo_root}/emulsify.info.yml"; then
+  echo "emulsify.info.yml should not declare stable9 as its parent theme." >&2
+  exit 1
+fi
 
-$template = preg_replace("/\{#.*?#\}/s", "", $template);
-if ($template === null) {
-  fwrite(STDERR, "Unable to normalize Twig comments in {$source}\n");
-  exit(1);
-}
+# Build sorted relative path lists before comparison so the comm-based missing
+# path check is deterministic across local macOS and Linux CI filesystems.
+(
+  cd "$stable9_templates_dir"
+  find . -type f -name '*.html.twig' | sort
+) >"$stable9_list"
 
-file_put_contents($output, $template);
-' "$source" "$output"
-}
+(
+  cd "$repo_templates_dir"
+  find . -type f -name '*.html.twig' | sort
+) >"$repo_list"
 
-compare_template() {
-  local label="$1"
-  local upstream="$2"
-  local emulsify="$3"
+missing_templates="$(comm -23 "$stable9_list" "$repo_list" || true)"
 
-  # Use label-specific filenames so a failed run leaves readable diff paths in
-  # the error output.
-  local expected="${work_dir}/${label}.expected.twig"
-  local actual="${work_dir}/${label}.actual.twig"
+if [ -n "$missing_templates" ]; then
+  echo "Emulsify is missing stable9 template paths:" >&2
+  echo "$missing_templates" >&2
+  exit 1
+fi
 
-  if [ ! -f "$upstream" ]; then
-    echo "Missing upstream template for ${label}: ${upstream}" >&2
-    exit 1
+while IFS= read -r relative_path; do
+  stable9_path="${stable9_templates_dir}/${relative_path#./}"
+  repo_path="${repo_templates_dir}/${relative_path#./}"
+
+  # The report separates exact copies from intentional overrides. Both are
+  # acceptable for parity; only a missing stable9 path fails the test.
+  if [ ! -f "$stable9_path" ]; then
+    echo "$relative_path" >>"$emulsify_only_list"
+  elif cmp -s "$stable9_path" "$repo_path"; then
+    echo "$relative_path" >>"$exact_matches_list"
+  else
+    echo "$relative_path" >>"$modified_matches_list"
   fi
+done <"$repo_list"
 
-  if [ ! -f "$emulsify" ]; then
-    echo "Missing Emulsify template for ${label}: ${emulsify}" >&2
-    exit 1
-  fi
+if [ -n "$report_file" ]; then
+  mkdir -p "$(dirname "$report_file")"
+  {
+    echo "# Stable9 template parity report"
+    echo
+    echo "- Stable9 template paths mirrored: $(wc -l <"$stable9_list" | tr -d ' ')"
+    echo "- Exact baseline copies: $(wc -l <"$exact_matches_list" | tr -d ' ')"
+    echo "- Modified relative to stable9: $(wc -l <"$modified_matches_list" | tr -d ' ')"
+    echo "- Emulsify-only template paths: $(wc -l <"$emulsify_only_list" | tr -d ' ')"
+    echo
+    echo "## Exact baseline copies"
+    echo
+    if [ -s "$exact_matches_list" ]; then
+      sed 's#^\./#- `#; s#$#`#' "$exact_matches_list"
+    else
+      echo "None."
+    fi
+    echo
+    echo "## Modified relative to stable9"
+    echo
+    echo "These paths mirror the stable9 contract but intentionally differ in content."
+    echo
+    if [ -s "$modified_matches_list" ]; then
+      sed 's#^\./#- `#; s#$#`#' "$modified_matches_list"
+    else
+      echo "None."
+    fi
+    echo
+    echo "## Emulsify-only template paths"
+    echo
+    echo "These paths are outside the stable9 parity contract."
+    echo
+    if [ -s "$emulsify_only_list" ]; then
+      sed 's#^\./#- `#; s#$#`#' "$emulsify_only_list"
+    else
+      echo "None."
+    fi
+  } >"$report_file"
+fi
 
-  normalize_template "$upstream" "$expected"
-  normalize_template "$emulsify" "$actual"
-
-  # diff -u keeps failures reviewable in GitHub Actions logs without requiring
-  # artifact downloads.
-  if ! diff_output="$(diff -u "$expected" "$actual")"; then
-    echo "Template parity mismatch for ${label}." >&2
-    echo "Upstream: ${upstream}" >&2
-    echo "Emulsify: ${emulsify}" >&2
-    printf '%s\n' "$diff_output" >&2
-    exit 1
-  fi
-}
-
-# Stable9 owns these layout/field/form templates in the supported 6.x runtime,
-# so Emulsify copies must stay render-equivalent while Stable9 remains fallback.
-compare_template \
-  "field" \
-  "${web_root}/core/themes/stable9/templates/field/field.html.twig" \
-  "${theme_root}/templates/field/field.html.twig"
-
-compare_template \
-  "html" \
-  "${web_root}/core/themes/stable9/templates/layout/html.html.twig" \
-  "${theme_root}/templates/layout/html.html.twig"
-
-compare_template \
-  "page" \
-  "${web_root}/core/themes/stable9/templates/layout/page.html.twig" \
-  "${theme_root}/templates/layout/page.html.twig"
-
-compare_template \
-  "form" \
-  "${web_root}/core/themes/stable9/templates/form/form.html.twig" \
-  "${theme_root}/templates/form/form.html.twig"
-
-compare_template \
-  "status-messages" \
-  "${web_root}/core/modules/system/templates/status-messages.html.twig" \
-  "${theme_root}/templates/misc/status-messages.html.twig"
+echo "Emulsify includes every stable9 template path and no longer depends on stable9."

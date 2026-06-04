@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\emulsify\Hook;
 
+use Drupal\Core\Hook\Attribute\Hook;
+
 /**
  * Theme hook handlers for Views templates.
  */
@@ -15,7 +17,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to Views templates.
    */
-  public static function preprocessViewsView(array &$variables): void {
+  #[Hook('preprocess_views_view')]
+  public function preprocessViewsView(array &$variables): void {
     $view = $variables['view'];
 
     // Provide the current request path to simplify path-aware templates.
@@ -37,7 +40,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsViewAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_view_alter')]
+  public function themeSuggestionsViewsViewAlter(array &$suggestions, array $variables): void {
     $view = $variables['view'] ?? NULL;
 
     if (!is_object($view) || !method_exists($view, 'id')) {
@@ -63,15 +67,15 @@ final class ViewsHooks {
 
     // Support global, display-type, and specific display overrides.
     if ($view_id) {
-      self::addSuggestion($suggestions, "views_view__{$view_id}");
+      $this->addSuggestion($suggestions, "views_view__{$view_id}");
     }
 
     if ($view_id && $display_type) {
-      self::addSuggestion($suggestions, "views_view__{$view_id}__{$display_type}");
+      $this->addSuggestion($suggestions, "views_view__{$view_id}__{$display_type}");
     }
 
     if ($view_id && $display) {
-      self::addSuggestion($suggestions, "views_view__{$view_id}__{$display}");
+      $this->addSuggestion($suggestions, "views_view__{$view_id}__{$display}");
     }
   }
 
@@ -83,7 +87,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsViewUnformattedAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_view_unformatted_alter')]
+  public function themeSuggestionsViewsViewUnformattedAlter(array &$suggestions, array $variables): void {
     $view_id = $variables['view']->id();
     $display = $variables['view']->current_display;
 
@@ -100,7 +105,8 @@ final class ViewsHooks {
    * @param array $variables
    *   Variables passed to the suggestion alter hook.
    */
-  public static function themeSuggestionsViewsMiniPagerAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_views_mini_pager_alter')]
+  public function themeSuggestionsViewsMiniPagerAlter(array &$suggestions, array $variables): void {
     $view = $variables['view'] ?? NULL;
 
     if (!is_object($view) || !method_exists($view, 'id') || empty($view->current_display)) {
@@ -123,7 +129,7 @@ final class ViewsHooks {
    * @param string $suggestion
    *   Suggestion to add.
    */
-  private static function addSuggestion(array &$suggestions, string $suggestion): void {
+  private function addSuggestion(array &$suggestions, string $suggestion): void {
     if (!in_array($suggestion, $suggestions, TRUE)) {
       $suggestions[] = $suggestion;
     }

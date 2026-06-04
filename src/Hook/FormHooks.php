@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\emulsify\Hook;
 
+use Drupal\Core\Hook\Attribute\Hook;
+
 /**
  * Theme hook handlers for form templates.
  */
@@ -17,7 +19,8 @@ final class FormHooks {
    * @param array $variables
    *   Variables passed to the form suggestion alter hook.
    */
-  public static function themeSuggestionsFormAlter(array &$suggestions, array $variables): void {
+  #[Hook('theme_suggestions_form_alter')]
+  public function themeSuggestionsFormAlter(array &$suggestions, array $variables): void {
     $form_id = $variables['element']['#form_id'] ?? $variables['element']['#id'] ?? NULL;
 
     if ($form_id) {

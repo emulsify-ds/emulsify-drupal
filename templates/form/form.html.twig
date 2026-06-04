@@ -1,13 +1,14 @@
 {#
 /**
  * @file
- * Theme override for a 'form' element.
+ * Theme override for a form.
  *
- * Available variables
- * - attributes: A list of HTML attributes for the wrapper element.
+ * Available variables:
+ * - attributes: A list of HTML attributes for the form element.
  * - children: The child elements of the form.
  *
- * @see template_preprocess_form()
+ * This preserves Drupal's default form wrapper output while moving ownership
+ * into the Emulsify parent theme.
  */
 #}
 <form{{ attributes }}>

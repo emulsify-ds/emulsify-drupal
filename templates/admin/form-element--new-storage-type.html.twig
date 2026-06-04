@@ -1,0 +1,54 @@
+{#
+/**
+ * @file
+ * Theme override for a storage type option form element.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the containing element.
+ * - errors: (optional) Any errors for this form element, may not be set.
+ * - label: A rendered label element.
+ * - description: (optional) A list of description properties containing:
+ *    - content: A description of the form element, may not be set.
+ *    - attributes: (optional) A list of HTML attributes to apply to the
+ *      description content wrapper. Will only be set when description is set.
+ * - variant: specifies option type. Typically 'field-option' or 'field-suboption'.
+ *
+ * @see\Drupal\Core\Form\FormPreprocess::preprocessFormElement()
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set classes = [
+  errors ? 'form-item--error',
+  variant ? bem('item', [], variant)
+]
+%}
+{% set new_storage_type_attributes = {
+  class: classes,
+} %}
+<div{{ add_attributes(new_storage_type_attributes) }}>
+  {% if variant == 'field-option' %}
+    {{ label }}
+    <div{{ description.attributes }}>
+      {{ description.content }}
+    </div>
+  {% endif %}
+  {{ children }}
+  {% if variant == 'field-suboption' %}
+    {{ label }}
+    {% with { attributes: description.attributes } %}
+      {% set new_storage_type_description_attributes = {
+        class: description_classes|default([]),
+      } %}
+      <div{{ add_attributes(new_storage_type_description_attributes) }}>
+        {{ description.content }}
+      </div>
+    {% endwith %}
+  {% endif %}
+  {% if errors %}
+    <div class="form-item--error-message">
+      {{ errors }}
+    </div>
+  {% endif %}
+</div>

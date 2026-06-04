@@ -1,0 +1,116 @@
+{#
+/**
+ * @file
+ * Theme override for the project status report.
+ *
+ * Available variables:
+ * - title: The project title.
+ * - url: The project URL.
+ * - status: The project status.
+ *   - label: The project status label.
+ *   - attributes: HTML attributes for the project status.
+ *   - reason: The reason you should update the project.
+ *   - icon: The project status version indicator icon.
+ * - existing_version: The version of the installed project.
+ * - versions: The available versions of the project.
+ * - install_type: The type of project (e.g., dev).
+ * - datestamp: The date/time of a project version's release.
+ * - extras: HTML attributes and additional information about the project.
+ *   - attributes: HTML attributes for the extra item.
+ *   - label: The label for an extra item.
+ *   - data: The data about an extra item.
+ * - includes: The projects within the project.
+ * - disabled: The currently disabled projects in the project.
+ *
+ * @see \Drupal\update\Hook\UpdateThemeHooks::preprocessUpdateProjectStatus()
+ */
+#}
+{%
+  set status_modifiers = [
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_SECURE') ? 'security-error',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::REVOKED') ? 'revoked',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_SUPPORTED') ? 'not-supported',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_CURRENT') ? 'not-current',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::CURRENT') ? 'current',
+  ]|filter(v => v is not empty)
+%}
+{% set project_update_block = 'project-update' %}
+{% set project_updates_block = 'project-updates' %}
+{% with { attributes: status.attributes } %}
+  {% set project_status_attributes = {
+    class: bem('status', status_modifiers, project_update_block),
+  } %}
+  <div{{ add_attributes(project_status_attributes) }}>
+    {%- if status.label -%}
+      <span>{{ status.label }}</span>
+    {%- else -%}
+      {{ status.reason }}
+    {%- endif %}
+    <span{{ bem('status-icon', [], project_update_block) }}>
+      {{ status.icon }}
+    </span>
+  </div>
+{% endwith %}
+
+<div{{ bem('title', [], project_update_block) }}>
+  {%- if url -%}
+    <a href="{{ url }}">{{ title }}</a>
+  {%- else -%}
+    {{ title }}
+  {%- endif %}
+  {{ existing_version }}
+  {% if install_type == 'dev' and datestamp %}
+    <span{{ bem('version-date', [], project_update_block) }}>({{ datestamp }})</span>
+  {% endif %}
+</div>
+
+{% if versions %}
+  {% for version in versions %}
+    {{ version }}
+  {% endfor %}
+{% endif %}
+
+{%
+  set extra_classes = [
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_SECURE') ? 'project-not-secure',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::REVOKED') ? 'project-revoked',
+    project.status == constant('Drupal\\update\\UpdateManagerInterface::NOT_SUPPORTED') ? 'project-not-supported',
+  ]
+%}
+<div{{ bem('details', [], project_updates_block) }}>
+  {% if extras %}
+    <div class="extra">
+      {% for extra in extras %}
+        {% with { attributes: extra.attributes } %}
+          {% set project_extra_attributes = {
+            class: extra_classes,
+          } %}
+          <div{{ add_attributes(project_extra_attributes) }}>
+            {{ extra.label }}: {{ extra.data }}
+          </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% set includes = includes|join(', ') %}
+  {% if disabled %}
+    {{ 'Includes:'|t }}
+    <ul>
+      <li>
+        {% trans %}
+          Enabled: {{ includes|placeholder }}
+        {% endtrans %}
+      </li>
+      <li>
+        {% set disabled = disabled|join(', ') %}
+        {% trans %}
+          Disabled: {{ disabled|placeholder }}
+        {% endtrans %}
+      </li>
+    </ul>
+  {% else %}
+    {% trans %}
+      Includes: {{ includes|placeholder }}
+    {% endtrans %}
+  {% endif %}
+</div>
