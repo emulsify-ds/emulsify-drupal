@@ -82,6 +82,23 @@ if [ -d "${fixture_dir}/web/core/modules/contact" ]; then
   ./vendor/bin/drush en contact -y
 fi
 
+# Drupal dev snapshots may change the standard profile's default content types.
+# Keep the render fixture independent by ensuring the seeded bundle exists.
+./vendor/bin/drush php:eval '
+use Drupal\node\Entity\NodeType;
+
+$storage = \Drupal::entityTypeManager()->getStorage("node_type");
+if (!$storage->load("page")) {
+  $type = NodeType::create([
+    "type" => "page",
+    "name" => "Basic page",
+    "description" => "Fixture page content type for Emulsify readiness checks.",
+    "display_submitted" => FALSE,
+  ]);
+  $type->save();
+}
+'
+
 # Seed stable pages for render-reference-pages.sh. The second promoted page
 # keeps the frontpage node listing from collapsing to a single-item edge case.
 ./vendor/bin/drush php:eval '

@@ -83,6 +83,45 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
-      - { name: Generate and enable a Whisk-derived theme, id: starterkit_smoke, if: "${{ !cancelled() && steps.build_fixture.outcome == 'success' }}", continue-on-error: "${{ matrix.experimental }}", run: 'bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme"' }
+      - name: 'Starterkit: generate Whisk-derived theme'
+        id: starterkit_generate
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 2
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" generate
 
-      - { name: Upload generated theme smoke artifacts, if: "${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_smoke.outcome == 'failure' }}", uses: actions/upload-artifact@v4, with: { name: "generated-theme-smoke-${{ matrix.artifact-suffix }}", if-no-files-found: warn, path: "${{ runner.temp }}/emulsify-generated-theme" } }
+      - name: 'Starterkit: enable generated theme'
+        id: starterkit_enable
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_generate.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" enable
+
+      - name: 'Starterkit: render generated theme pages'
+        id: starterkit_render
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" render
+
+      - name: 'Starterkit: install frontend dependencies'
+        id: starterkit_frontend_install
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_render.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 15
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-install
+
+      - name: 'Starterkit: build frontend assets'
+        id: starterkit_frontend_build
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 5
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-build
+
+      - name: Upload generated theme smoke artifacts
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "generated-theme-smoke-${{ matrix.artifact-suffix }}"
+          if-no-files-found: warn
+          path: "${{ runner.temp }}/emulsify-generated-theme"

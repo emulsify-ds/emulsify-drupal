@@ -485,6 +485,7 @@ function runStaticChecks() {
   const readme = readFile('README.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
+  const setupFixture = readFile('.github/scripts/setup-fixture-site.sh');
   const emulsifyInfo = readFile('emulsify.info.yml');
   const whiskInfo = readFile('whisk/whisk.info.yml');
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
@@ -526,6 +527,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
+    ensure(setupFixture.includes('NodeType::create'), 'setup-fixture-site.sh should create the page node type when install profiles omit it.');
     return `Root and generated theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
   });
 
@@ -667,9 +669,18 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('assert_existing_file "project.emulsify.json"'), 'starterkit-smoke.sh should require project.emulsify.json in generated themes.');
     ensure(starterkitSmoke.includes('"platform": "drupal"'), 'starterkit-smoke.sh should assert the generated Emulsify project uses the Drupal platform adapter.');
     ensure(starterkitSmoke.includes('"singleDirectoryComponents": true'), 'starterkit-smoke.sh should assert generated theme SDC behavior.');
+    ensure(starterkitSmoke.includes('phase="${3:-all}"'), 'starterkit-smoke.sh should support split CI phases while preserving all-in-one local runs.');
+    ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated theme Vite-based build workflow.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
     ensure(starterkitSmoke.includes('generated-theme-info.yml'), 'starterkit-smoke.sh should copy generated theme info into smoke artifacts.');
+    ensure(whiskPackage.scripts.build.includes('vite build --config'), 'whisk/package.json build script should run a finite Vite production build.');
+    for (const sourceEntry of ['foundation.scss', 'layout.scss', 'tokens.scss']) {
+      ensure(fs.existsSync(path.join(repoRoot, 'whisk/src', sourceEntry)), `whisk/src/${sourceEntry} should exist so generated Vite builds produce the global library assets.`);
+    }
+    ensure(themeReadinessWorkflow.includes("Starterkit: generate Whisk-derived theme"), 'theme-readiness.yml should split starterkit smoke into a generate step.');
+    ensure(themeReadinessWorkflow.includes("Starterkit: install frontend dependencies"), 'theme-readiness.yml should split starterkit smoke into a frontend install step.');
+    ensure(themeReadinessWorkflow.includes('timeout-minutes'), 'theme-readiness.yml should bound starterkit smoke phases with timeouts.');
     ensure(themeReadinessWorkflow.includes('Upload generated theme smoke artifacts'), 'theme-readiness.yml should upload generated theme smoke artifacts on failure.');
     ensure(extractYamlValue(whiskInfo, 'base theme') === 'emulsify', 'whisk.info.yml should keep emulsify as the generated child theme parent.');
     ensure(extractYamlValue(whiskInfo, 'hidden') === 'true', 'whisk.info.yml should remain hidden.');
