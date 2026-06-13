@@ -6,7 +6,7 @@ set -euo pipefail
 # installable, renderable, and compatible with the Vite-based build workflow
 # powered by Emulsify Core 4.
 if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|storybook-build]" >&2
+  echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|frontend-test|frontend-tokens|frontend-a11y|storybook-build]" >&2
   exit 1
 fi
 
@@ -20,11 +20,17 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 artifact_info="${output_dir}/generated-theme-info.yml"
 npm_install_log="${output_dir}/npm-install.log"
 npm_build_log="${output_dir}/npm-build.log"
+npm_test_log="${output_dir}/npm-test.log"
+npm_tokens_log="${output_dir}/npm-tokens.log"
+npm_a11y_log="${output_dir}/npm-a11y.log"
 storybook_build_log="${output_dir}/storybook-build.log"
 
 mkdir -p "$output_dir"
 [ -f "$npm_install_log" ] || printf 'npm install has not run yet.\n' >"$npm_install_log"
 [ -f "$npm_build_log" ] || printf 'npm run build has not run yet.\n' >"$npm_build_log"
+[ -f "$npm_test_log" ] || printf 'npm run test has not run yet.\n' >"$npm_test_log"
+[ -f "$npm_tokens_log" ] || printf 'npm run tokens:build has not run yet.\n' >"$npm_tokens_log"
+[ -f "$npm_a11y_log" ] || printf 'npm run a11y has not run yet.\n' >"$npm_a11y_log"
 [ -f "$storybook_build_log" ] || printf 'npm run storybook-build has not run.\n' >"$storybook_build_log"
 
 fail() {
@@ -170,6 +176,30 @@ build_frontend() {
   )
 }
 
+test_frontend() {
+  require_generated_theme
+  (
+    cd "$generated_theme_dir"
+    run_logged "$npm_test_log" npm run test
+  )
+}
+
+build_tokens() {
+  require_generated_theme
+  (
+    cd "$generated_theme_dir"
+    run_logged "$npm_tokens_log" npm run tokens:build
+  )
+}
+
+check_accessibility() {
+  require_generated_theme
+  (
+    cd "$generated_theme_dir"
+    run_logged "$npm_a11y_log" npm run a11y
+  )
+}
+
 build_storybook() {
   require_generated_theme
   (
@@ -194,6 +224,15 @@ case "$phase" in
   frontend-build)
     build_frontend
     ;;
+  frontend-test)
+    test_frontend
+    ;;
+  frontend-tokens)
+    build_tokens
+    ;;
+  frontend-a11y)
+    check_accessibility
+    ;;
   storybook-build)
     build_storybook
     ;;
@@ -203,13 +242,22 @@ case "$phase" in
     render_theme
     install_frontend
     build_frontend
+    if [ "${EMULSIFY_STARTERKIT_TEST:-0}" = "1" ]; then
+      test_frontend
+    fi
+    if [ "${EMULSIFY_STARTERKIT_TOKENS:-0}" = "1" ]; then
+      build_tokens
+    fi
     if [ "${EMULSIFY_STARTERKIT_STORYBOOK_BUILD:-0}" = "1" ]; then
       build_storybook
+    fi
+    if [ "${EMULSIFY_STARTERKIT_A11Y:-0}" = "1" ]; then
+      check_accessibility
     fi
     ;;
   *)
     echo "Unknown starterkit smoke phase: ${phase}" >&2
-    echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|storybook-build]" >&2
+    echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|frontend-test|frontend-tokens|frontend-a11y|storybook-build]" >&2
     exit 1
     ;;
 esac

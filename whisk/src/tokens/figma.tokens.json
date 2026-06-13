@@ -1,0 +1,14 @@
+{
+  "global": {
+    "color": {
+      "text": {
+        "$type": "color",
+        "$value": "#111111"
+      },
+      "background": {
+        "$type": "color",
+        "$value": "#ffffff"
+      }
+    }
+  }
+}

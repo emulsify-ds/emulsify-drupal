@@ -1,0 +1,10 @@
+{
+  "color-text": {
+    "value": "#111111",
+    "type": "color"
+  },
+  "color-background": {
+    "value": "#ffffff",
+    "type": "color"
+  }
+}

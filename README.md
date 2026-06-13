@@ -53,6 +53,7 @@ These generation methods should be treated as equivalent:
 1. They generate the theme into `web/themes/custom/my_theme`.
 2. They use the `whisk` starter source.
 3. They keep `emulsify` as the runtime parent theme for the generated theme.
+4. They preserve `project.emulsify.json` so Emulsify Core can identify the generated Drupal project structure.
 
 After generation:
 
