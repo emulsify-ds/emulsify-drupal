@@ -6,7 +6,7 @@
 
 ### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** provides a [Storybook](https://storybook.js.org/) component library, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
+**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides a [Storybook](https://storybook.js.org/) component library, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
@@ -32,7 +32,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 
 ### Generate a child theme
 
-If `emulsify_tools` is installed, you can generate a child theme with the helper-module Drush command:
+Emulsify Tools is required by the Emulsify Drupal parent theme. Use its Drush helper command to generate a child theme:
 
 ```bash
 drush emulsify my_theme
@@ -44,6 +44,8 @@ The helper module also exposes the fully qualified command name:
 drush emulsify_tools:bake my_theme
 ```
 
+The `whisk` directory is the generation-only starterkit source used by both generation methods. Do not enable `whisk` directly; generated child themes keep `emulsify` as their runtime parent theme.
+
 You can also generate the same child theme with Drupal core's standard Starterkit command from the root of your Drupal site:
 
 ```bash
@@ -53,7 +55,7 @@ php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path th
 These generation methods should be treated as equivalent:
 
 1. They generate the theme into `web/themes/custom/my_theme`.
-2. They use the `whisk` starter source.
+2. They use the `whisk` starterkit source.
 3. They keep `emulsify` as the runtime parent theme for the generated theme.
 4. They preserve `project.emulsify.json` so Emulsify Core can identify the generated Drupal project structure.
 
@@ -80,7 +82,38 @@ npm install
 npm run develop
 ```
 
-Do not enable `whisk` directly. It is a generation-only starter source.
+Generated child themes use the Vite build workflow and Emulsify Core 4 scripts shipped by the `whisk` starterkit source.
+
+### Verify your generated child theme
+
+Run these commands from the generated child theme directory, not from `whisk`:
+
+```bash
+cd web/themes/custom/my_theme
+node --version
+npm install
+npm run build
+npm run storybook-build
+npm run test
+```
+
+Generated child themes require Node.js 24 or newer. Use `npm install` for the first local install, or `npm ci` when the generated child theme already has a committed `package-lock.json`.
+
+These checks verify the expected local workflow:
+
+1. `node --version` confirms the Node.js runtime satisfies the generated theme requirement.
+2. `npm install` installs Emulsify Core 4 and the generated theme tooling.
+3. `npm run build` compiles Drupal-facing assets with the Vite build workflow.
+4. `npm run storybook-build` verifies the static Storybook build.
+5. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+
+Optional browser-based accessibility check:
+
+```bash
+npm run a11y
+```
+
+`npm run a11y` builds Storybook and runs the Emulsify Core accessibility check. Use it in local or CI environments that can run the required browser-based tooling.
 
 ### Manage generated favicon packages
 
@@ -88,7 +121,7 @@ The generated favicon workflow is built around one portable SVG source stored in
 
 Emulsify Drupal owns the theme-facing parts of that workflow: the theme settings form, config defaults and schema, admin previews, frontend head tags, generated asset references in `<theme>.settings`, and sanitized SVG storage for config portability.
 
-1. Configure the package in the theme settings form for `emulsify` or an Emulsify child theme.
+1. Configure the package in the theme settings form for `emulsify` or a generated child theme.
 2. Save the theme settings form to generate or update the package during normal admin changes.
 3. Review package and portable-source diagnostics in the theme settings UI.
 

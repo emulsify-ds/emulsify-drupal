@@ -1,6 +1,6 @@
 # Optional Design-Token Integration
 
-Whisk does not ship a default design-token pipeline. Generated child themes get
+The `whisk` starterkit source does not ship a default design-token pipeline. Generated child themes get
 plain Sass entry points such as `src/tokens.scss`, but they do not assume Figma,
 Style Dictionary, Token Transformer, or any other token source.
 
