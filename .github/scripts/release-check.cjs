@@ -565,6 +565,9 @@ function runStaticChecks() {
     ensureBreakingHeaderParser('@semantic-release/release-notes-generator parserOpts', notesOptions.parserOpts);
     ensure(semanticReleaseWorkflow.includes('branches:\n      - "main"'), 'semantic-release.yml should run on pushes to main.');
     ensure(semanticReleaseWorkflow.includes('fetch-depth: 0'), 'semantic-release.yml should fetch full history and tags before publishing.');
+    ensure(semanticReleaseWorkflow.includes('contents: write'), 'semantic-release.yml should grant release permissions explicitly.');
+    ensure(semanticReleaseWorkflow.includes('cycjimmy/semantic-release-action@v6'), 'semantic-release.yml should use a semantic-release action version that supports semantic-release 25.');
+    ensure(semanticReleaseWorkflow.includes('semantic_version: 25.0.3'), 'semantic-release.yml should pin semantic-release 25.0.3 in CI.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_REPO_URL'), 'semantic-release.yml should leave Drupal.org syncing manual.');
@@ -585,6 +588,7 @@ function runStaticChecks() {
     ensure(rootPackage.homepage, 'package.json homepage is required.');
     ensure(rootPackage.scripts && rootPackage.scripts.prepare, 'package.json prepare script is required.');
     ensure(rootPackage.scripts['release:check'], 'package.json should expose a release:check script.');
+    ensure(rootPackage.devDependencies && rootPackage.devDependencies['@semantic-release/npm'], 'package.json should declare @semantic-release/npm directly because release.config.js loads it as a plugin.');
     ensure(whiskPackage.name === 'whisk', 'whisk/package.json name should remain whisk.');
     ensure(semver(whiskPackage.version), 'whisk/package.json version must be a valid semver string.');
     ensure(whiskPackage.description, 'whisk/package.json description is required.');

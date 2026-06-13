@@ -4,6 +4,12 @@ on:
     branches:
       - "main"
   workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     name: Attempt Semantic Release
@@ -15,6 +21,8 @@ jobs:
           fetch-depth: 0
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          semantic_version: 25.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
