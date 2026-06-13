@@ -508,7 +508,9 @@ function runStaticChecks() {
   const designTokenIntegrationDoc = readFile('docs/design-token-integration.md');
   const setupFixture = readFile('.github/scripts/setup-fixture-site.sh');
   const emulsifyInfo = readFile('emulsify.info.yml');
+  const emulsifyBreakpoints = readFile('emulsify.breakpoints.yml');
   const whiskInfo = readFile('whisk/whisk.info.yml');
+  const whiskBreakpoints = readFile('whisk/whisk.breakpoints.yml');
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
   const starterkitSmoke = readFile('.github/scripts/starterkit-smoke.sh');
@@ -533,6 +535,9 @@ function runStaticChecks() {
     ensure(extractYamlDependencyConstraint(emulsifyInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'emulsify.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
+    ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
+    ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
+    ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
     for (const drupalTarget of supportedDrupalSmokeTargets) {
       ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
     }
@@ -583,6 +588,7 @@ function runStaticChecks() {
     ensure(rootPackage.description.includes('Vite-based build workflow'), 'package.json description should mention the Vite-based build workflow.');
     ensure(rootPackage.description.includes('Emulsify Core 4'), 'package.json description should mention Emulsify Core 4.');
     ensure(rootPackage.license, 'package.json license is required.');
+    ensure(rootPackage.engines && rootPackage.engines.node === '>=24.10', 'package.json engines.node should match the Node line required by release tooling.');
     ensure(rootPackage.repository && rootPackage.repository.url, 'package.json repository.url is required.');
     ensure(rootPackage.bugs && rootPackage.bugs.url, 'package.json bugs.url is required.');
     ensure(rootPackage.homepage, 'package.json homepage is required.');
