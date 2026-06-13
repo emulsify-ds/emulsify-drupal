@@ -743,13 +743,72 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       ? $status['path'] . ($status['hash'] !== '' ? ' (' . $status['hash'] . ')' : '')
       : '';
 
-    return match ($status['state']) {
-      'current' => '<div class="messages messages--status" role="status"><div>' . $this->t('Generated package is current: @path', ['@path' => $path]) . '</div></div>',
-      'stale' => '<div class="messages messages--warning" role="status"><div>' . $this->t('Generated package is out of date. Save the form or click Regenerate package to rebuild @path from the latest source and platform settings before traffic depends on stale assets.', ['@path' => $path]) . '</div></div>',
-      'legacy' => '<div class="messages messages--warning" role="status"><div>' . $this->t('A generated package exists, but no portable SVG source is saved in theme config yet. Save this form once to make configuration exports portable.') . '</div></div>',
-      'invalid' => '<div class="messages messages--error" role="alert"><div>' . $this->t('The saved SVG source is invalid and cannot currently generate a favicon package.') . '</div></div>',
-      default => '<div class="messages messages--warning" role="status"><div>' . $this->t('No generated package exists for this environment yet. Save the form, click Generate package, or run the Emulsify Tools Drush generate command to build it from the saved SVG source and platform settings. Page requests will not generate favicon files.') . '</div></div>',
+    $status_markup = match ($status['state']) {
+      'current' => $this->buildAdminMessageMarkup('status', 'status', $this->t('Generated package is current: @path', ['@path' => $path])),
+      'stale' => $this->buildAdminMessageMarkup('warning', 'status', $this->t('Generated package is out of date. Save the form or click Regenerate package to rebuild @path from the latest source and platform settings before traffic depends on stale assets.', ['@path' => $path])),
+      'legacy' => $this->buildAdminMessageMarkup('warning', 'status', $this->t('A generated package exists, but no portable SVG source is saved in theme config yet. Save this form once to make configuration exports portable.')),
+      'invalid' => $this->buildAdminMessageMarkup('error', 'alert', $this->t('The saved SVG source is invalid and cannot currently generate a favicon package. Review the source diagnostics, upload a valid SVG, or save the form again with a sanitized source.')),
+      default => $this->buildMissingPackageMarkup($status, $path),
     };
+
+    return $status_markup . $this->buildRuntimeRequirementsMarkup($status);
+  }
+
+  /**
+   * Builds package-missing diagnostics for the admin UI.
+   */
+  private function buildMissingPackageMarkup(array $status, string $path): string {
+    if ($this->savedPackageReferenceIsMissing($status)) {
+      return $this->buildAdminMessageMarkup('warning', 'status', $this->t('Theme config references a generated favicon package at @path, but those files are not present in this environment. Generated favicon files live in public files and are not created during page requests. Save this form, click Generate package, or run drush emulsify_tools:favicon-generate @theme after config import.', [
+        '@path' => $path,
+        '@theme' => (string) ($status['theme_name'] ?? 'emulsify'),
+      ]));
+    }
+
+    return $this->buildAdminMessageMarkup('warning', 'status', $this->t('No generated package exists for the current source and settings. Save this form, click Generate package, or run drush emulsify_tools:favicon-generate @theme to build it from the saved SVG source. Page requests will not generate favicon files.', [
+      '@theme' => (string) ($status['theme_name'] ?? 'emulsify'),
+    ]));
+  }
+
+  /**
+   * Determines whether config points at a package missing from public files.
+   */
+  private function savedPackageReferenceIsMissing(array $status): bool {
+    return !empty($status['saved_path'])
+      && empty($status['saved_package_exists'])
+      && (empty($status['path']) || $status['saved_path'] === $status['path']);
+  }
+
+  /**
+   * Builds extension availability diagnostics for package generation.
+   */
+  private function buildRuntimeRequirementsMarkup(array $status): string {
+    if (empty($status['package_enabled']) || empty($status['source_available'])) {
+      return '';
+    }
+
+    $requirements = $this->faviconThemeManager->getRuntimeDependencyStatus();
+    $items = [];
+    if (!$requirements['gd']) {
+      $items[] = '<li>' . Html::escape((string) $this->t('The GD PHP extension is missing. Favicon generation needs GD to write PNG and ICO assets.')) . '</li>';
+    }
+    if (!$requirements['imagick']) {
+      $items[] = '<li>' . Html::escape((string) $this->t('The Imagick PHP extension is missing. Favicon generation needs Imagick to rasterize SVG sources into PNG assets.')) . '</li>';
+    }
+
+    if ($items === []) {
+      return '';
+    }
+
+    $items[] = '<li>' . Html::escape((string) $this->t('Enable the missing extension in the PHP environment used by Drupal admin saves and Emulsify Tools Drush favicon generation, then regenerate the package.')) . '</li>';
+    return '<div class="messages messages--error" role="alert"><ul>' . implode('', $items) . '</ul></div>';
+  }
+
+  /**
+   * Builds a single Drupal admin message wrapper.
+   */
+  private function buildAdminMessageMarkup(string $type, string $role, string|\Stringable $message): string {
+    return '<div class="messages messages--' . Html::escape($type) . '" role="' . Html::escape($role) . '"><div>' . $message . '</div></div>';
   }
 
   /**

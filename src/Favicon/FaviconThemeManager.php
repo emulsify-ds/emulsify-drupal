@@ -138,11 +138,19 @@ final class FaviconThemeManager {
    */
   public function buildPackageStatus(string $theme_name, array $settings, ?File $source_file = NULL): array {
     $portable_source_svg = FaviconSettings::getPortableSourceSvg($settings);
+    $saved_path = (string) ($settings['favicon_package_path'] ?? '');
+    $saved_hash = (string) ($settings['favicon_package_hash'] ?? '');
+    $saved_package_exists = $saved_path !== '' && $this->packageGenerator->packageExistsForTheme($theme_name, $saved_path);
     $status = [
       'state' => 'missing',
-      'hash' => (string) ($settings['favicon_package_hash'] ?? ''),
-      'path' => (string) ($settings['favicon_package_path'] ?? ''),
-      'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExistsForTheme($theme_name, $settings['favicon_package_path']),
+      'theme_name' => $theme_name,
+      'hash' => $saved_hash,
+      'path' => $saved_path,
+      'saved_hash' => $saved_hash,
+      'saved_path' => $saved_path,
+      'saved_package_exists' => $saved_package_exists,
+      'package_enabled' => !empty($settings['favicon_package_enabled']),
+      'package_exists' => $saved_package_exists,
       'source_available' => FALSE,
       'portable_source_missing' => FALSE,
       'portable_source_available' => $portable_source_svg !== '',
