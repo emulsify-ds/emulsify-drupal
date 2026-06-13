@@ -9,6 +9,8 @@ on:
       - main
       - 7.x
       - release-7
+  schedule:
+    - cron: "17 9 * * 1"
   workflow_dispatch:
 
 concurrency:
@@ -45,9 +47,29 @@ jobs:
           tools: composer:v2
           extensions: gd, imagick
 
-      - { name: Setup Node, uses: actions/setup-node@v4, with: { node-version: 24 } }
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
 
-      - { name: Run static release check, run: 'npm run release:check -- --skip-smoke' }
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish
+
+      - name: Install root npm dependencies from lockfile
+        run: npm ci --ignore-scripts
+
+      - name: Audit runtime npm dependencies
+        run: npm audit --omit=dev
+
+      - name: Audit all npm dependencies
+        run: npm audit
+
+      - name: Lint PHP files
+        run: npm run lint:php
+
+      - name: Run static release check
+        run: npm run release:check -- --skip-smoke
 
       - name: Build fixture site
         id: build_fixture
@@ -132,3 +154,43 @@ jobs:
           name: "generated-theme-smoke-${{ matrix.artifact-suffix }}"
           if-no-files-found: warn
           path: "${{ runner.temp }}/emulsify-generated-theme"
+
+  starterkit-extended:
+    name: Starterkit Storybook and Accessibility
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+          extensions: gd, imagick
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build fixture site
+        run: bash .github/scripts/setup-fixture-site.sh "11.3.*" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+
+      - name: Run generated theme Storybook, test, and accessibility checks
+        timeout-minutes: 30
+        env:
+          EMULSIFY_STARTERKIT_TEST: "1"
+          EMULSIFY_STARTERKIT_STORYBOOK_BUILD: "1"
+          EMULSIFY_STARTERKIT_A11Y: "1"
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme-extended"
+
+      - name: Upload generated theme extended artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-theme-storybook-a11y
+          if-no-files-found: warn
+          path: "${{ runner.temp }}/emulsify-generated-theme-extended"
