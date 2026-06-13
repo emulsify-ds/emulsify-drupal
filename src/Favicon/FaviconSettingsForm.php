@@ -539,8 +539,19 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
 
     if ($source_context !== []) {
       if ($source_context['source_file'] instanceof File) {
-        $source_context['source_file']->setPermanent();
-        $source_context['source_file']->save();
+        try {
+          $this->persistSanitizedSourceFile($source_context['source_file'], $source_context['source_svg']);
+          $source_context['source_file']->setPermanent();
+          $source_context['source_file']->save();
+        }
+        catch (\Throwable $exception) {
+          $this->logger->error('Favicon source sanitization failed for %theme: @message', [
+            '%theme' => $theme_name,
+            '@message' => $exception->getMessage(),
+          ]);
+          $this->messenger->addError($this->t('Unable to save the sanitized favicon source. @message', ['@message' => $exception->getMessage()]));
+          return;
+        }
       }
 
       $form_state->setValue('favicon_source_svg', $source_context['source_svg']);
@@ -585,6 +596,23 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         '@message' => $exception->getMessage(),
       ]);
       $this->messenger->addError($this->t('Unable to generate the favicon package. @message', ['@message' => $exception->getMessage()]));
+    }
+  }
+
+  /**
+   * Rewrites the retained managed upload with the sanitized SVG source.
+   */
+  private function persistSanitizedSourceFile(File $source_file, string $source_svg): void {
+    $written = @file_put_contents($source_file->getFileUri(), $source_svg);
+    if ($written === FALSE) {
+      throw new \RuntimeException('Unable to persist the sanitized favicon source file.');
+    }
+
+    if (method_exists($source_file, 'setSize')) {
+      $source_file->setSize($written);
+    }
+    if (method_exists($source_file, 'setMimeType')) {
+      $source_file->setMimeType('image/svg+xml');
     }
   }
 
