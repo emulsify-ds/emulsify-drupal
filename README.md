@@ -22,6 +22,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 4. [Template override map](./docs/template-map.md)
 5. [Favicon generation lifecycle](./docs/favicon-generation.md)
 6. [Optional design-token integration](./docs/design-token-integration.md)
+7. [Release readiness checklist](./docs/release-readiness.md)
 
 ## Demo
 
@@ -121,7 +122,7 @@ Please also follow the issue template and pull request templates provided. See b
 
 ### Committing Changes
 
-To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when commiting your work to ensure semantic release can version correctly.
+To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when committing your work to ensure semantic release can version correctly.
 
 1. Stage your changes, ensuring they encompass exactly what you wish to change, no more.
 2. Create a [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) message, either manually or with your preferred commit helper.
@@ -134,6 +135,8 @@ Run the release guard before merging packaging, starterkit, favicon settings, or
 ```bash
 npm run release:check
 ```
+
+Use Node.js 24.10 or newer for local release tooling.
 
 Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks. The static checks verify that favicon settings stay aligned across `FaviconSettings::DEFAULTS`, `config/install/emulsify.settings.yml`, and `config/schema/emulsify.schema.yml`.
 
