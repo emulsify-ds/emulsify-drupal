@@ -33,10 +33,7 @@
     "prettier-fix": "prettier --config config/emulsify-core/prettierrc.config.json --ignore-path config/emulsify-core/.prettierignore --write --ignore-unknown --no-error-on-unmatched-pattern './config/**/*.{js,cjs,mjs,json,yml,scss,md,html}' './src/**/*.{js,cjs,mjs,json,yml,scss,md,html}' './components/**/*.{js,cjs,mjs,json,yml,scss,md,html}'",
     "storybook": "NODE_OPTIONS=--no-deprecation storybook dev -c node_modules/@emulsify/core/.storybook --ci -p 6006",
     "storybook-build": "npm run build && storybook build -c node_modules/@emulsify/core/.storybook -o .out",
-    "style-dictionary:build": "node ./src/tokens/tokensTransform.mjs --scss",
     "test": "jest --coverage --passWithNoTests --config ./config/jest.config.js",
-    "tokens:build": "node ./src/tokens/tokensTransform.mjs",
-    "tokens:transform": "node ./src/tokens/tokensTransform.mjs --json",
     "twatch": "jest --no-coverage --watch --verbose --passWithNoTests --config ./config/jest.config.js",
     "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js"
   },

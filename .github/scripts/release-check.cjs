@@ -460,12 +460,10 @@ function ensureWhiskPackageScriptTargets(whiskPackage) {
     ensure(fs.existsSync(path.join(repoRoot, 'whisk/config/jest.config.js')), 'whisk/package.json twatch script references missing whisk/config/jest.config.js.');
   }
 
-  if (scripts['tokens:transform'] || scripts['tokens:build'] || scripts['style-dictionary:build']) {
-    ensure(fs.existsSync(path.join(repoRoot, 'whisk/src/tokens/figma.tokens.json')), 'Whisk token scripts require whisk/src/tokens/figma.tokens.json.');
-    ensure(fs.existsSync(path.join(repoRoot, 'whisk/src/tokens/tokensTransform.mjs')), 'Whisk token scripts require whisk/src/tokens/tokensTransform.mjs.');
-    ensure(fs.existsSync(path.join(repoRoot, 'whisk/src/tokens/_generated.scss')), 'Whisk token scripts require a checked-in generated Sass fallback.');
-  }
-
+  ensure(!scripts['tokens:transform'], 'Whisk should not ship a default tokens:transform script because design-token tooling is project-specific.');
+  ensure(!scripts['tokens:build'], 'Whisk should not ship a default tokens:build script because design-token tooling is project-specific.');
+  ensure(!scripts['style-dictionary:build'], 'Whisk should not assume Style Dictionary is installed.');
+  ensure(!/\bstyle-dictionary\b/.test(scriptText), 'Whisk scripts should not assume Style Dictionary is installed.');
   ensure(!/\btoken-transformer\b/.test(scriptText), 'Whisk token scripts should not reference token-transformer unless it is declared as a direct dependency.');
   ensure(!/\bstorybook-to-ghpages\b/.test(scriptText), 'Whisk scripts should not reference storybook-to-ghpages unless it is declared as a direct dependency.');
 }
@@ -507,6 +505,7 @@ function runStaticChecks() {
   const readme = readFile('README.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
+  const designTokenIntegrationDoc = readFile('docs/design-token-integration.md');
   const setupFixture = readFile('.github/scripts/setup-fixture-site.sh');
   const emulsifyInfo = readFile('emulsify.info.yml');
   const whiskInfo = readFile('whisk/whisk.info.yml');
@@ -622,6 +621,8 @@ function runStaticChecks() {
       ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
     }
     ensure(readme.includes(`${rootPackage.version.split('.')[0]}.x series`), `README.md should mention the ${rootPackage.version.split('.')[0]}.x series.`);
+    ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
+    ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
     return 'README.md matches the Drupal core compatibility messaging and current major release line.';
   });
 
@@ -696,7 +697,7 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated theme Vite-based build workflow.');
     ensure(starterkitSmoke.includes('npm run test'), 'starterkit-smoke.sh should verify the generated theme test script.');
-    ensure(starterkitSmoke.includes('npm run tokens:build'), 'starterkit-smoke.sh should verify the generated theme token script.');
+    ensure(!starterkitSmoke.includes('frontend-tokens'), 'starterkit-smoke.sh should not assume a design-token pipeline.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
     ensure(starterkitSmoke.includes('generated-theme-info.yml'), 'starterkit-smoke.sh should copy generated theme info into smoke artifacts.');
     ensure(whiskPackage.scripts.build.includes('vite build --config'), 'whisk/package.json build script should run a finite Vite production build.');
@@ -706,7 +707,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes("Starterkit: generate Whisk-derived theme"), 'theme-readiness.yml should split starterkit smoke into a generate step.');
     ensure(themeReadinessWorkflow.includes("Starterkit: install frontend dependencies"), 'theme-readiness.yml should split starterkit smoke into a frontend install step.');
     ensure(themeReadinessWorkflow.includes("Starterkit: run frontend tests"), 'theme-readiness.yml should run the generated theme test script.');
-    ensure(themeReadinessWorkflow.includes("Starterkit: build design tokens"), 'theme-readiness.yml should run the generated theme token script.');
+    ensure(!themeReadinessWorkflow.includes("Starterkit: build design tokens"), 'theme-readiness.yml should not assume generated themes use a design-token pipeline.');
     ensure(themeReadinessWorkflow.includes('timeout-minutes'), 'theme-readiness.yml should bound starterkit smoke phases with timeouts.');
     ensure(themeReadinessWorkflow.includes('Upload generated theme smoke artifacts'), 'theme-readiness.yml should upload generated theme smoke artifacts on failure.');
     ensure(extractYamlValue(whiskInfo, 'base theme') === 'emulsify', 'whisk.info.yml should keep emulsify as the generated child theme parent.');

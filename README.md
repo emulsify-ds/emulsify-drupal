@@ -21,6 +21,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 3. [Upgrade guide](./UPGRADE.md)
 4. [Template override map](./docs/template-map.md)
 5. [Favicon generation lifecycle](./docs/favicon-generation.md)
+6. [Optional design-token integration](./docs/design-token-integration.md)
 
 ## Demo
 
