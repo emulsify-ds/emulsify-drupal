@@ -14,7 +14,7 @@
     "styleguide"
   ],
   "author": "Four Kitchens <shout@fourkitchens.com>",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emulsify-ds/emulsify-drupal.git"
@@ -26,6 +26,7 @@
   "scripts": {
     "husky:commit-msg": "commitlint --edit $1",
     "husky:pre-commit": "npm run lint",
+    "docs:check-commands": "node .github/scripts/docs-command-check.cjs",
     "lint": "npm run lint:php",
     "lint:php": "find ./ -name '*.php' -exec php -l {} \\;",
     "lint-staged": "lint-staged",
@@ -34,9 +35,6 @@
     "publish": "semantic-release --tag-format '${version}'",
     "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
     "semantic-release": "semantic-release"
-  },
-  "dependencies": {
-    "graceful-fs": "^4.2.10"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
