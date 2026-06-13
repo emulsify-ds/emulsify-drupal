@@ -91,6 +91,19 @@ function emulsify_favicon_assert_invalid(callable $callback, string $expected_me
 }
 
 /**
+ * Returns whether source analysis includes a diagnostic warning fragment.
+ */
+function emulsify_favicon_analysis_has_warning(array $analysis, string $expected_message): bool {
+  foreach (($analysis['warnings'] ?? []) as $warning) {
+    if (is_string($warning) && str_contains($warning, $expected_message)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
  * Loads normalized theme settings.
  */
 function emulsify_favicon_load_settings(string $theme_name, string $site_name): array {
@@ -144,6 +157,7 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   // Dangerous markup should be stripped without rejecting usable SVGs.
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script><rect width="64" height="64"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains((string) $analysis['sanitized_svg'], '<script'), 'Script tags should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Sanitized SVG cleanup should be reported as a warning.');
 
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><foreignObject><div>bad</div></foreignObject><rect width="64" height="64"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'foreignobject'), 'foreignObject nodes should be stripped from sanitized SVG output.');
@@ -160,6 +174,33 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" onload="alert(1)"><rect width="64" height="64" onclick="alert(1)"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onclick='), 'Inline event handlers should be stripped.');
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onload='), 'Root event handlers should be stripped.');
+
+  $style_element_svg = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>@import url("https://example.com/favicon.css"); rect { fill: url("javascript:alert(1)"); }</style>
+  <rect width="64" height="64"/>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($style_element_svg, FALSE);
+  $sanitized_svg = strtolower((string) $analysis['sanitized_svg']);
+  emulsify_favicon_assert(!str_contains($sanitized_svg, '<style'), 'Style elements should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(!str_contains($sanitized_svg, '@import'), 'CSS @import rules should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'https://example.com/favicon.css'), 'External CSS imports should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'javascript:'), 'CSS javascript: URLs should be stripped from sanitized SVG output.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" style="fill:url(https://example.com/icon.svg#mark);stroke:url(javascript:alert(1))"/></svg>', FALSE);
+  $sanitized_svg = strtolower((string) $analysis['sanitized_svg']);
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'style='), 'Inline style attributes should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'https://example.com/icon.svg'), 'External style attribute URLs should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'javascript:'), 'javascript: style attribute URLs should be stripped from sanitized SVG output.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect width="64" height="64" fill="url(#g)" filter="url(https://example.com/filter.svg#f)"/></svg>', FALSE);
+  $sanitized_svg = (string) $analysis['sanitized_svg'];
+  emulsify_favicon_assert(!str_contains($sanitized_svg, 'https://example.com/filter.svg'), 'External CSS url() attribute references should be stripped from sanitized SVG output.');
+  emulsify_favicon_assert(str_contains($sanitized_svg, 'fill="url(#g)"'), 'Local CSS url() fragment references should be preserved.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" filter="url(javascript:alert(1))"/></svg>', FALSE);
+  emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'javascript:'), 'javascript: CSS url() attribute references should be stripped from sanitized SVG output.');
 
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32"><rect width="64" height="32"/></svg>', FALSE);
   emulsify_favicon_assert(
