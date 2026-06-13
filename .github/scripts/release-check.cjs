@@ -135,6 +135,13 @@ function runSmokeCheck(name, command, argsList, cwd, options = {}) {
   return true;
 }
 
+function runCapturedCommand(command, argsList, cwd) {
+  return spawnSync(command, argsList, {
+    cwd,
+    encoding: 'utf8',
+  });
+}
+
 function extractJsonObjectSegment(text, key) {
   // JSON.parse cannot report duplicate keys because later keys overwrite
   // earlier ones. This scanner extracts the raw object text so duplicate script
@@ -244,6 +251,39 @@ function yamlTopLevelListContains(contents, section, value) {
   return false;
 }
 
+function extractYamlMappingKeys(contents, section, relativePath) {
+  const lines = contents.split(/\r?\n/);
+  const keys = [];
+  let inSection = false;
+  let foundSection = false;
+
+  for (const line of lines) {
+    if (/^\s*$/.test(line) || /^\s*#/.test(line)) {
+      continue;
+    }
+
+    const topLevelMatch = line.match(/^([A-Za-z0-9_.-]+):(?:\s.*)?$/);
+    if (topLevelMatch) {
+      inSection = topLevelMatch[1] === section;
+      foundSection = foundSection || inSection;
+      continue;
+    }
+
+    if (!inSection) {
+      continue;
+    }
+
+    const keyMatch = line.match(/^ {2}([A-Za-z0-9_.-]+):(?:\s.*)?$/);
+    if (keyMatch) {
+      keys.push(keyMatch[1]);
+    }
+  }
+
+  ensure(foundSection, `Unable to find ${section} in ${relativePath}.`);
+  ensure(keys.length > 0, `${relativePath} ${section} must declare at least one key.`);
+  return keys;
+}
+
 function extractYamlDependencyConstraint(contents, packageName) {
   const escaped = packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = contents.match(new RegExp(`^\\s*-\\s*'drupal:${escaped} \\(([^)]+)\\)'\\s*$`, 'm'));
@@ -323,6 +363,26 @@ function formatKeys(keys) {
   return keys.length ? keys.join(', ') : '(none)';
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripTwigComments(contents) {
+  return contents.replace(/\{#[\s\S]*?#\}/g, '');
+}
+
+function twigOutputReferencesPageRegion(template, region) {
+  const outputTags = stripTwigComments(template).match(/\{\{[\s\S]*?\}\}/g) || [];
+  const escapedRegion = escapeRegExp(region);
+  const regionReferencePatterns = [
+    new RegExp(`\\bpage\\s*\\.\\s*${escapedRegion}\\b`),
+    new RegExp(`\\bpage\\s*\\[\\s*['"]${escapedRegion}['"]\\s*\\]`),
+    new RegExp(`\\battribute\\s*\\(\\s*page\\s*,\\s*['"]${escapedRegion}['"]\\s*\\)`),
+  ];
+
+  return outputTags.some((outputTag) => regionReferencePatterns.some((pattern) => pattern.test(outputTag)));
+}
+
 function compareFaviconSettingKeySets(label, keySets) {
   const issues = [];
   const { defaults, install, schema } = keySets;
@@ -361,6 +421,19 @@ function compareFaviconSettingKeySets(label, keySets) {
     `Favicon settings key drift detected for ${label}.`,
     ...issues,
   ].join('\n'));
+}
+
+function ensureDeclaredRegionsRender({ metadataPath, metadataContents, templatePath }) {
+  const declaredRegions = extractYamlMappingKeys(metadataContents, 'regions', metadataPath);
+  const template = readFile(templatePath);
+  const missingRegions = declaredRegions.filter((region) => !twigOutputReferencesPageRegion(template, region));
+
+  ensure(missingRegions.length === 0, [
+    'Declared Drupal theme regions must be rendered in their page template.',
+    ...missingRegions.map((region) => `${region} is declared in ${metadataPath} but is not rendered in ${templatePath}. Add {{ page.${region} }} to the page template or remove the region declaration.`),
+  ].join('\n'));
+
+  return declaredRegions;
 }
 
 function copyDirectory(source, destination) {
@@ -448,6 +521,26 @@ function ensureFaviconSettingsFormDelegation() {
   ensure(faviconSettingsForm.includes("$container->get('lock')"), 'FaviconSettingsForm::create() must resolve the lock service explicitly.');
 }
 
+function ensureWhiskPackageScriptTargets(whiskPackage) {
+  const scripts = whiskPackage.scripts || {};
+  const scriptText = Object.values(scripts).join('\n');
+
+  if (scripts.test && scripts.test.includes('./config/jest.config.js')) {
+    ensure(fs.existsSync(path.join(repoRoot, 'whisk/config/jest.config.js')), 'whisk/package.json test script references missing whisk/config/jest.config.js.');
+  }
+
+  if (scripts.twatch && scripts.twatch.includes('./config/jest.config.js')) {
+    ensure(fs.existsSync(path.join(repoRoot, 'whisk/config/jest.config.js')), 'whisk/package.json twatch script references missing whisk/config/jest.config.js.');
+  }
+
+  ensure(!scripts['tokens:transform'], 'Whisk should not ship a default tokens:transform script because design-token tooling is project-specific.');
+  ensure(!scripts['tokens:build'], 'Whisk should not ship a default tokens:build script because design-token tooling is project-specific.');
+  ensure(!scripts['style-dictionary:build'], 'Whisk should not assume Style Dictionary is installed.');
+  ensure(!/\bstyle-dictionary\b/.test(scriptText), 'Whisk scripts should not assume Style Dictionary is installed.');
+  ensure(!/\btoken-transformer\b/.test(scriptText), 'Whisk token scripts should not reference token-transformer unless it is declared as a direct dependency.');
+  ensure(!/\bstorybook-to-ghpages\b/.test(scriptText), 'Whisk scripts should not reference storybook-to-ghpages unless it is declared as a direct dependency.');
+}
+
 function ensureNoRuntimeFaviconGeneration() {
   const faviconHooks = readFile('src/Hook/FaviconHooks.php');
   ensure(!faviconHooks.includes('generatePackage('), 'FaviconHooks must not generate favicon packages during page requests.');
@@ -485,9 +578,13 @@ function runStaticChecks() {
   const readme = readFile('README.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
+  const designTokenIntegrationDoc = readFile('docs/design-token-integration.md');
   const setupFixture = readFile('.github/scripts/setup-fixture-site.sh');
+  const renderReferencePages = readFile('.github/scripts/render-reference-pages.sh');
   const emulsifyInfo = readFile('emulsify.info.yml');
+  const emulsifyBreakpoints = readFile('emulsify.breakpoints.yml');
   const whiskInfo = readFile('whisk/whisk.info.yml');
+  const whiskBreakpoints = readFile('whisk/whisk.breakpoints.yml');
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
   const starterkitSmoke = readFile('.github/scripts/starterkit-smoke.sh');
@@ -512,6 +609,9 @@ function runStaticChecks() {
     ensure(extractYamlDependencyConstraint(emulsifyInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'emulsify.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfo, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.yml must match the composer emulsify_tools constraint.');
     ensure(extractYamlDependencyConstraint(whiskInfoStarter, 'emulsify_tools') === composer.require['drupal/emulsify_tools'], 'whisk.info.emulsify.yml must match the composer emulsify_tools constraint.');
+    ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
+    ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
+    ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
     for (const drupalTarget of supportedDrupalSmokeTargets) {
       ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
     }
@@ -520,9 +620,16 @@ function runStaticChecks() {
       ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
     ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
+    ensure(themeReadinessWorkflow.includes('schedule:'), 'theme-readiness.yml should run scheduled release-readiness coverage.');
+    ensure(themeReadinessWorkflow.includes('composer validate --no-check-publish'), 'theme-readiness.yml should validate Composer metadata.');
+    ensure(themeReadinessWorkflow.includes('npm ci --ignore-scripts'), 'theme-readiness.yml should install root npm dependencies from a clean lockfile.');
+    ensure(themeReadinessWorkflow.includes('npm audit --omit=dev'), 'theme-readiness.yml should run the runtime npm audit policy.');
+    ensure(/^        run: npm audit$/m.test(themeReadinessWorkflow), 'theme-readiness.yml should run the full npm audit while it is clean.');
+    ensure(themeReadinessWorkflow.includes('npm run lint:php'), 'theme-readiness.yml should lint PHP files.');
     ensure(themeReadinessWorkflow.includes('npm run release:check -- --skip-smoke'), 'theme-readiness.yml should run the static release check before fixture smoke tests.');
     ensure(themeReadinessWorkflow.includes('actions/setup-node@v4'), 'theme-readiness.yml should install Node for generated theme frontend smoke tests.');
     ensure(themeReadinessWorkflow.includes('node-version: 24'), 'theme-readiness.yml should use Node 24 for Whisk generated theme frontend smoke tests.');
+    ensure(themeReadinessWorkflow.includes('extensions: gd, imagick'), 'theme-readiness.yml should install GD and Imagick for favicon smoke tests.');
     ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x while this release branch owns the workflow.');
     ensure(themeReadinessWorkflow.includes('- release-7'), 'theme-readiness.yml should run on pushes to release-7.');
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
@@ -544,6 +651,21 @@ function runStaticChecks() {
     ensureBreakingHeaderParser('@semantic-release/release-notes-generator parserOpts', notesOptions.parserOpts);
     ensure(semanticReleaseWorkflow.includes('branches:\n      - "main"'), 'semantic-release.yml should run on pushes to main.');
     ensure(semanticReleaseWorkflow.includes('fetch-depth: 0'), 'semantic-release.yml should fetch full history and tags before publishing.');
+    ensure(semanticReleaseWorkflow.includes('contents: write'), 'semantic-release.yml should grant release permissions explicitly.');
+    ensure(semanticReleaseWorkflow.includes('release-readiness:'), 'semantic-release.yml should run a release-readiness job before publishing.');
+    ensure(semanticReleaseWorkflow.includes('needs: release-readiness'), 'semantic-release.yml release job should wait for release readiness.');
+    ensure(semanticReleaseWorkflow.includes('composer validate --no-check-publish'), 'semantic-release.yml should validate Composer metadata before publishing.');
+    ensure(semanticReleaseWorkflow.includes('npm ci --ignore-scripts'), 'semantic-release.yml should install npm dependencies from a clean lockfile before publishing.');
+    ensure(semanticReleaseWorkflow.includes('npm audit --omit=dev'), 'semantic-release.yml should run the runtime npm audit before publishing.');
+    ensure(/^        run: npm audit$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should run the full npm audit while it is clean.');
+    ensure(semanticReleaseWorkflow.includes('npm run lint:php'), 'semantic-release.yml should lint PHP files before publishing.');
+    ensure(semanticReleaseWorkflow.includes('npm run release:check -- --skip-smoke'), 'semantic-release.yml should run static release checks before full smoke coverage.');
+    ensure(/^        run: npm run release:check$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should run full release checks before publishing.');
+    ensure(semanticReleaseWorkflow.includes('extensions: gd, imagick'), 'semantic-release.yml should install GD and Imagick for favicon smoke coverage.');
+    ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'semantic-release.yml should enable release-only generated Storybook build coverage.');
+    ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'semantic-release.yml should enable generated starter test coverage in full release checks.');
+    ensure(semanticReleaseWorkflow.includes('cycjimmy/semantic-release-action@v6'), 'semantic-release.yml should use a semantic-release action version that supports semantic-release 25.');
+    ensure(semanticReleaseWorkflow.includes('semantic_version: 25.0.3'), 'semantic-release.yml should pin semantic-release 25.0.3 in CI.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_REPO_URL'), 'semantic-release.yml should leave Drupal.org syncing manual.');
@@ -558,28 +680,36 @@ function runStaticChecks() {
     ensurePreferredReleaseLanguage('package.json description', rootPackage.description);
     ensure(rootPackage.description.includes('Vite-based build workflow'), 'package.json description should mention the Vite-based build workflow.');
     ensure(rootPackage.description.includes('Emulsify Core 4'), 'package.json description should mention Emulsify Core 4.');
-    ensure(rootPackage.license, 'package.json license is required.');
+    ensure(rootPackage.license === 'GPL-3.0-only', 'package.json should align npm-side metadata with the repository LICENSE file.');
+    ensure(rootPackage.engines && rootPackage.engines.node === '>=24.10', 'package.json engines.node should match the Node line required by release tooling.');
     ensure(rootPackage.repository && rootPackage.repository.url, 'package.json repository.url is required.');
     ensure(rootPackage.bugs && rootPackage.bugs.url, 'package.json bugs.url is required.');
     ensure(rootPackage.homepage, 'package.json homepage is required.');
+    ensure(!rootPackage.dependencies || !rootPackage.dependencies['graceful-fs'], 'package.json should not declare unused graceful-fs as a direct dependency.');
     ensure(rootPackage.scripts && rootPackage.scripts.prepare, 'package.json prepare script is required.');
+    ensure(rootPackage.scripts['docs:check-commands'], 'package.json should expose a docs:check-commands script.');
     ensure(rootPackage.scripts['release:check'], 'package.json should expose a release:check script.');
+    ensure(rootPackage.devDependencies && rootPackage.devDependencies['@semantic-release/npm'], 'package.json should declare @semantic-release/npm directly because release.config.js loads it as a plugin.');
     ensure(whiskPackage.name === 'whisk', 'whisk/package.json name should remain whisk.');
     ensure(semver(whiskPackage.version), 'whisk/package.json version must be a valid semver string.');
     ensure(whiskPackage.description, 'whisk/package.json description is required.');
     ensurePreferredReleaseLanguage('whisk/package.json description', whiskPackage.description);
     ensure(whiskPackage.description.includes('Vite-based build workflow'), 'whisk/package.json description should mention the Vite-based build workflow.');
     ensure(whiskPackage.description.includes('Emulsify Core 4'), 'whisk/package.json description should mention Emulsify Core 4.');
-    ensure(whiskPackage.license, 'whisk/package.json license is required.');
+    ensure(whiskPackage.license === 'GPL-3.0-only', 'whisk/package.json should align generated starter metadata with the repository LICENSE file until maintainers choose otherwise.');
     ensure(whiskPackage.engines && whiskPackage.engines.node, 'whisk/package.json engines.node is required.');
     ensure(whiskPackage.type === 'module', 'whisk/package.json must remain an ES module package.');
     ensure(whiskPackage.dependencies && whiskPackage.dependencies['@emulsify/core'], 'whisk/package.json must declare @emulsify/core.');
     ensure(whiskPackage.dependencies['@emulsify/core'].startsWith('^4.'), 'whisk/package.json should target Emulsify Core 4.');
     ensure(whiskPackage.scripts.build.includes('config/vite/vite.config.js'), 'whisk/package.json build script should use the Emulsify Core Vite config.');
+    ensureWhiskPackageScriptTargets(whiskPackage);
     ensure(composer.description, 'composer.json description is required.');
     ensurePreferredReleaseLanguage('composer.json description', composer.description);
     ensure(composer.description.includes('Vite-based build workflow'), 'composer.json description should mention the Vite-based build workflow.');
     ensure(composer.description.includes('child themes'), 'composer.json description should mention child themes.');
+    ensure(composer.homepage === 'https://www.emulsify.info', 'composer.json homepage should use the canonical HTTPS Emulsify URL.');
+    ensure(readFile('docs/release-readiness.md').includes('GPL-2.0-only'), 'docs/release-readiness.md should document the unresolved Composer/Drupal.org license metadata question.');
+    ensure(readFile('docs/release-readiness.md').includes('GPL-3.0-only'), 'docs/release-readiness.md should document the npm-side license metadata decision.');
     return `Validated root package ${rootPackage.version} and whisk package ${whiskPackage.version}.`;
   });
 
@@ -592,6 +722,17 @@ function runStaticChecks() {
     return 'No duplicate script keys were found in package metadata.';
   });
 
+  runStaticCheck('Documented npm commands', () => {
+    const result = runCapturedCommand(
+      process.execPath,
+      [path.join(repoRoot, '.github/scripts/docs-command-check.cjs')],
+      repoRoot,
+    );
+    const output = [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
+    ensure(result.status === 0, output || 'Documented npm command validation failed.');
+    return output.split(/\r?\n/)[0] || 'Documented npm commands match package scripts.';
+  });
+
   runStaticCheck('README version references', () => {
     ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
@@ -599,6 +740,8 @@ function runStaticChecks() {
       ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
     }
     ensure(readme.includes(`${rootPackage.version.split('.')[0]}.x series`), `README.md should mention the ${rootPackage.version.split('.')[0]}.x series.`);
+    ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
+    ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
     return 'README.md matches the Drupal core compatibility messaging and current major release line.';
   });
 
@@ -606,6 +749,25 @@ function runStaticChecks() {
     ensure(!/^base theme:\s*stable9\s*$/m.test(emulsifyInfo), 'emulsify.info.yml should not depend on stable9.');
     ensure(readme.includes('no longer depends on `stable9`'), 'README.md should document the stable9 removal.');
     return 'Emulsify owns its template layer without a stable9 parent theme fallback.';
+  });
+
+  runStaticCheck('Theme region rendering', () => {
+    const checkedRegions = [
+      { metadataPath: 'emulsify.info.yml', metadataContents: emulsifyInfo, templatePath: 'templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'whisk/templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'whisk/templates/layout/page.html.twig' },
+    ].map(ensureDeclaredRegionsRender);
+    const smokeRegions = ['header', 'content_top', 'content', 'content_bottom', 'footer'];
+    const smokeRegionsMatch = renderReferencePages.match(/^region_smoke_regions=\(([^)]+)\)$/m);
+    ensure(smokeRegionsMatch, 'render-reference-pages.sh should declare region_smoke_regions for block placement smoke coverage.');
+    const coveredSmokeRegions = smokeRegionsMatch[1].trim().split(/\s+/);
+
+    for (const region of smokeRegions) {
+      ensure(coveredSmokeRegions.includes(region), `render-reference-pages.sh should place and assert a region smoke marker for ${region}.`);
+    }
+    ensure(renderReferencePages.includes('assert_region_smoke_markers'), 'render-reference-pages.sh should fail when placed region smoke blocks do not render.');
+
+    return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} declared region references across parent and Whisk page templates.`;
   });
 
   runStaticCheck('Hook attribute migration', () => {
@@ -629,7 +791,16 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Favicon runtime behavior', () => {
+    const faviconPackageGenerator = readFile('src/Favicon/FaviconPackageGenerator.php');
+    const faviconThemeManager = readFile('src/Favicon/FaviconThemeManager.php');
+    const faviconSettingsForm = readFile('src/Favicon/FaviconSettingsForm.php');
+    const faviconHooks = readFile('src/Hook/FaviconHooks.php');
     ensureNoRuntimeFaviconGeneration();
+    ensure(faviconPackageGenerator.includes("public const PACKAGE_BASE_DIRECTORY = 'public://favicon-package'"), 'FaviconPackageGenerator should centralize the package base directory.');
+    ensure(faviconPackageGenerator.includes('public static function isManagedPackagePath'), 'FaviconPackageGenerator should expose a managed package path validator.');
+    ensure(faviconThemeManager.includes('FaviconPackageGenerator::isManagedPackagePath($package_path, $theme_name)'), 'FaviconThemeManager reset should only delete managed package paths owned by the theme.');
+    ensure(faviconHooks.includes('FaviconPackageGenerator::isManagedPackagePath'), 'FaviconHooks should only attach managed package paths owned by the active theme.');
+    ensure(faviconSettingsForm.includes('persistSanitizedSourceFile'), 'FaviconSettingsForm should rewrite retained uploads with sanitized SVG markup.');
     ensure(readme.includes('Runtime page requests never generate favicon files'), 'README.md should document that page requests do not generate favicon files.');
     ensure(readme.includes('docs/favicon-generation.md'), 'README.md should link to the favicon generation lifecycle documentation.');
     for (const expectedText of [
@@ -672,6 +843,8 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('phase="${3:-all}"'), 'starterkit-smoke.sh should support split CI phases while preserving all-in-one local runs.');
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated theme Vite-based build workflow.');
+    ensure(starterkitSmoke.includes('npm run test'), 'starterkit-smoke.sh should verify the generated theme test script.');
+    ensure(!starterkitSmoke.includes('frontend-tokens'), 'starterkit-smoke.sh should not assume a design-token pipeline.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
     ensure(starterkitSmoke.includes('generated-theme-info.yml'), 'starterkit-smoke.sh should copy generated theme info into smoke artifacts.');
     ensure(whiskPackage.scripts.build.includes('vite build --config'), 'whisk/package.json build script should run a finite Vite production build.');
@@ -680,6 +853,12 @@ function runStaticChecks() {
     }
     ensure(themeReadinessWorkflow.includes("Starterkit: generate Whisk-derived theme"), 'theme-readiness.yml should split starterkit smoke into a generate step.');
     ensure(themeReadinessWorkflow.includes("Starterkit: install frontend dependencies"), 'theme-readiness.yml should split starterkit smoke into a frontend install step.');
+    ensure(themeReadinessWorkflow.includes("Starterkit: run frontend tests"), 'theme-readiness.yml should run the generated theme test script.');
+    ensure(themeReadinessWorkflow.includes('Starterkit Storybook and Accessibility'), 'theme-readiness.yml should expose scheduled/manual generated Storybook and a11y coverage.');
+    ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'theme-readiness.yml should enable generated Storybook build coverage in extended checks.');
+    ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_A11Y'), 'theme-readiness.yml should enable generated accessibility coverage in extended checks.');
+    ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'theme-readiness.yml should enable generated starter test coverage in extended checks.');
+    ensure(!themeReadinessWorkflow.includes("Starterkit: build design tokens"), 'theme-readiness.yml should not assume generated themes use a design-token pipeline.');
     ensure(themeReadinessWorkflow.includes('timeout-minutes'), 'theme-readiness.yml should bound starterkit smoke phases with timeouts.');
     ensure(themeReadinessWorkflow.includes('Upload generated theme smoke artifacts'), 'theme-readiness.yml should upload generated theme smoke artifacts on failure.');
     ensure(extractYamlValue(whiskInfo, 'base theme') === 'emulsify', 'whisk.info.yml should keep emulsify as the generated child theme parent.');

@@ -2,6 +2,9 @@
   "name": "emulsify-drupal",
   "version": "7.0.0",
   "description": "Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility",
+  "engines": {
+    "node": ">=24.10"
+  },
   "keywords": [
     "component library",
     "design system",
@@ -11,7 +14,7 @@
     "styleguide"
   ],
   "author": "Four Kitchens <shout@fourkitchens.com>",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emulsify-ds/emulsify-drupal.git"
@@ -23,6 +26,7 @@
   "scripts": {
     "husky:commit-msg": "commitlint --edit $1",
     "husky:pre-commit": "npm run lint",
+    "docs:check-commands": "node .github/scripts/docs-command-check.cjs",
     "lint": "npm run lint:php",
     "lint:php": "find ./ -name '*.php' -exec php -l {} \\;",
     "lint-staged": "lint-staged",
@@ -32,9 +36,6 @@
     "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
     "semantic-release": "semantic-release"
   },
-  "dependencies": {
-    "graceful-fs": "^4.2.10"
-  },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
@@ -42,6 +43,7 @@
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",

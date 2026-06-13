@@ -30,10 +30,67 @@ fi
 web_root="${fixture_dir}/web"
 server_log="${output_dir}/php-server.log"
 cookie_file="${output_dir}/cookies.txt"
+region_smoke_regions=(header content_top content content_bottom footer)
+region_smoke_label_prefix="Emulsify smoke region"
 
 # The output directory also stores transient server logs and cookies. Keeping
 # these beside the captured HTML makes failed CI artifacts easier to inspect.
 mkdir -p "$output_dir"
+
+place_region_smoke_blocks() {
+  (
+    cd "$fixture_dir"
+    # Use a core block plugin so region coverage does not depend on custom block
+    # content fixtures or external services.
+    ./vendor/bin/drush php:eval '
+use Drupal\block\Entity\Block;
+
+$theme = \Drupal::config("system.theme")->get("default");
+$regions = ["header", "content_top", "content", "content_bottom", "footer"];
+
+foreach ($regions as $weight => $region) {
+  $block_id = "emulsify_region_smoke_" . $theme . "_" . $region;
+  $values = [
+    "id" => $block_id,
+    "theme" => $theme,
+    "region" => $region,
+    "weight" => -100 + $weight,
+    "status" => TRUE,
+    "plugin" => "system_powered_by_block",
+    "visibility" => [],
+  ];
+  $settings = [
+    "id" => "system_powered_by_block",
+    "label" => "Emulsify smoke region " . $region,
+    "label_display" => "visible",
+    "provider" => "system",
+  ];
+  $block = Block::load($block_id) ?: Block::create($values + ["settings" => $settings]);
+  foreach ($values as $key => $value) {
+    $block->set($key, $value);
+  }
+  $block->set("settings", $settings);
+  $block->save();
+}
+'
+    ./vendor/bin/drush cr -y
+  )
+}
+
+assert_region_smoke_markers() {
+  local capture_file="${output_dir}/frontpage-view.html"
+
+  for region in "${region_smoke_regions[@]}"; do
+    local marker="${region_smoke_label_prefix} ${region}"
+    if ! grep -Fq "$marker" "$capture_file"; then
+      echo "Missing region smoke marker '${marker}' in ${capture_file}." >&2
+      echo "The current default theme must render blocks placed in the ${region} region." >&2
+      exit 1
+    fi
+  done
+}
+
+place_region_smoke_blocks
 
 # The built-in server is only needed for this capture; always terminate it when
 # the script exits, including failures from curl or form parsing.
@@ -81,6 +138,8 @@ if grep -q "Drupal already installed" "${output_dir}/frontpage-view.html"; then
   sed -n '1,160p' "$server_log" >&2 || true
   exit 1
 fi
+
+assert_region_smoke_markers
 
 curl -fsSL "${base_url}/node/1" >"${output_dir}/node.html"
 curl -fsSL \

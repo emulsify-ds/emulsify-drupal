@@ -28,6 +28,21 @@ final class FaviconPackageGenerator {
   public const PORTABLE_SOURCE_ADVISORY_SIZE = 262144;
 
   /**
+   * Stream-wrapper base directory for generated favicon packages.
+   */
+  public const PACKAGE_BASE_DIRECTORY = 'public://favicon-package';
+
+  /**
+   * Theme machine names accepted for package path generation.
+   */
+  private const THEME_MACHINE_NAME_PATTERN = '/^[a-z][a-z0-9_]*$/';
+
+  /**
+   * Package hash directory names accepted for generated packages.
+   */
+  private const PACKAGE_HASH_PATTERN = '/^[a-f0-9]{12}$/';
+
+  /**
    * The file system service.
    */
   private FileSystemInterface $fileSystem;
@@ -132,6 +147,43 @@ final class FaviconPackageGenerator {
       'path' => $this->buildPackageDirectory($theme_name, $package_hash),
       'source_hash' => (string) $analysis['source_hash'],
     ];
+  }
+
+  /**
+   * Determines whether a package URI is owned by the expected theme.
+   */
+  public static function isManagedPackagePath(string $package_directory, string $theme_name): bool {
+    if (!preg_match(self::THEME_MACHINE_NAME_PATTERN, $theme_name)) {
+      return FALSE;
+    }
+
+    $escaped_theme_name = preg_quote($theme_name, '/');
+    return preg_match(
+      '/^public:\/\/favicon-package\/' . $escaped_theme_name . '\/[a-f0-9]{12}$/',
+      rtrim($package_directory, '/'),
+    ) === 1;
+  }
+
+  /**
+   * Determines whether a generated package directory exists for a theme.
+   */
+  public function packageExistsForTheme(string $theme_name, string $package_directory): bool {
+    return self::isManagedPackagePath($package_directory, $theme_name)
+      && $this->packageExists($package_directory);
+  }
+
+  /**
+   * Reads generated metadata for an existing package owned by a theme.
+   *
+   * @return array<string, mixed>|null
+   *   The decoded metadata, or NULL if it is unavailable or outside scope.
+   */
+  public function readPackageMetadataForTheme(string $theme_name, string $package_directory): ?array {
+    if (!self::isManagedPackagePath($package_directory, $theme_name)) {
+      return NULL;
+    }
+
+    return $this->readPackageMetadata($package_directory);
   }
 
   /**
@@ -240,7 +292,7 @@ final class FaviconPackageGenerator {
         return $this->buildExistingPackageResult($package_hash, $package_directory);
       }
 
-      $this->resetPackageDirectory($package_directory);
+      $this->resetPackageDirectory($theme_name, $package_directory);
 
       if (!$this->fileSystem->prepareDirectory($package_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
         throw new \RuntimeException(sprintf('Unable to prepare generated favicon directory %s.', $package_directory));
@@ -389,15 +441,37 @@ final class FaviconPackageGenerator {
 
     $analysis = $this->inspectSvgMarkup($source_data);
     if ($requires_rasterization) {
-      if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
-        throw new \InvalidArgumentException('The GD PHP extension is required to generate favicon PNG assets.');
-      }
-      if (!class_exists('Imagick')) {
-        throw new \InvalidArgumentException('SVG source files require the Imagick PHP extension for PNG generation.');
-      }
+      $this->assertRasterizationRequirements();
     }
 
     return $analysis;
+  }
+
+  /**
+   * Ensures the current PHP process can generate PNG and ICO assets.
+   */
+  private function assertRasterizationRequirements(): void {
+    $requirements = $this->getRuntimeDependencyStatus();
+    if (!$requirements['gd']) {
+      throw new \InvalidArgumentException($this->getMissingGdMessage());
+    }
+    if (!$requirements['imagick']) {
+      throw new \InvalidArgumentException($this->getMissingImagickMessage());
+    }
+  }
+
+  /**
+   * Builds the admin-facing GD requirement message.
+   */
+  private function getMissingGdMessage(): string {
+    return 'The GD PHP extension is required to generate favicon PNG and ICO assets. Enable GD in the PHP environment used for Drupal admin saves and Emulsify Tools Drush favicon generation.';
+  }
+
+  /**
+   * Builds the admin-facing Imagick requirement message.
+   */
+  private function getMissingImagickMessage(): string {
+    return 'The Imagick PHP extension is required to rasterize SVG favicon sources into PNG and ICO assets. Enable Imagick in the PHP environment used for Drupal admin saves and Emulsify Tools Drush favicon generation.';
   }
 
   /**
@@ -512,7 +586,14 @@ final class FaviconPackageGenerator {
    * Builds the package directory URI for a hash.
    */
   private function buildPackageDirectory(string $theme_name, string $package_hash): string {
-    return sprintf('public://favicon-package/%s/%s', $theme_name, $package_hash);
+    if (!preg_match(self::THEME_MACHINE_NAME_PATTERN, $theme_name)) {
+      throw new \InvalidArgumentException(sprintf('Invalid theme machine name "%s".', $theme_name));
+    }
+    if (!preg_match(self::PACKAGE_HASH_PATTERN, $package_hash)) {
+      throw new \InvalidArgumentException('Invalid generated favicon package hash.');
+    }
+
+    return sprintf('%s/%s/%s', self::PACKAGE_BASE_DIRECTORY, $theme_name, $package_hash);
   }
 
   /**
@@ -545,7 +626,11 @@ final class FaviconPackageGenerator {
   /**
    * Removes an existing or partial package directory before regeneration.
    */
-  private function resetPackageDirectory(string $package_directory): void {
+  private function resetPackageDirectory(string $theme_name, string $package_directory): void {
+    if (!self::isManagedPackagePath($package_directory, $theme_name)) {
+      throw new \InvalidArgumentException(sprintf('Refusing to reset favicon package outside %s.', self::PACKAGE_BASE_DIRECTORY));
+    }
+
     $realpath = $this->fileSystem->realpath($package_directory);
     if (!is_string($realpath) || !is_dir($realpath)) {
       return;
@@ -635,8 +720,8 @@ SVG,
       $declared_dimensions = $this->extractDeclaredDimensions($root);
     }
 
-    $this->stripDisallowedSvgNodes($document);
-    $this->stripDisallowedSvgAttributes($document);
+    $removed_node_count = $this->stripDisallowedSvgNodes($document);
+    $removed_attribute_count = $this->stripDisallowedSvgAttributes($document);
 
     $sanitized = $document->saveXML($document->documentElement) ?: '';
     if ($sanitized === '') {
@@ -644,6 +729,9 @@ SVG,
     }
 
     $warnings = [];
+    if ($removed_node_count > 0 || $removed_attribute_count > 0) {
+      $warnings[] = 'Unsafe SVG markup was removed from the favicon source before storage and generation.';
+    }
     if ($view_box_was_normalized || $dimensions_were_normalized) {
       $warnings[] = 'This SVG was centered on a square canvas so generated favicon assets keep the original aspect ratio.';
     }
@@ -874,11 +962,11 @@ SVG,
   /**
    * Removes unsafe SVG nodes.
    */
-  private function stripDisallowedSvgNodes(\DOMDocument $document): void {
+  private function stripDisallowedSvgNodes(\DOMDocument $document): int {
     $removable = [];
     foreach ($document->getElementsByTagName('*') as $element) {
       $tag_name = strtolower($element->localName ?? $element->nodeName);
-      if (in_array($tag_name, ['script', 'foreignobject', 'iframe', 'audio', 'video'], TRUE)) {
+      if (in_array($tag_name, ['script', 'style', 'foreignobject', 'iframe', 'audio', 'video'], TRUE)) {
         $removable[] = $element;
       }
     }
@@ -888,12 +976,15 @@ SVG,
         $element->parentNode->removeChild($element);
       }
     }
+
+    return count($removable);
   }
 
   /**
    * Removes unsafe attributes and external references from SVG elements.
    */
-  private function stripDisallowedSvgAttributes(\DOMDocument $document): void {
+  private function stripDisallowedSvgAttributes(\DOMDocument $document): int {
+    $removed_count = 0;
     foreach ($document->getElementsByTagName('*') as $element) {
       $attributes = [];
       if ($element->hasAttributes()) {
@@ -908,14 +999,24 @@ SVG,
 
         if (str_starts_with($name, 'on')) {
           $element->removeAttributeNode($attribute);
+          $removed_count++;
+          continue;
+        }
+
+        if ($name === 'style' || $this->svgAttributeContainsCssImport($value) || $this->svgAttributeHasUnsafeCssUrl($value)) {
+          $element->removeAttributeNode($attribute);
+          $removed_count++;
           continue;
         }
 
         if (in_array($name, ['href', 'xlink:href'], TRUE) && !$this->isSafeSvgHref($value)) {
           $element->removeAttributeNode($attribute);
+          $removed_count++;
         }
       }
     }
+
+    return $removed_count;
   }
 
   /**
@@ -928,6 +1029,33 @@ SVG,
 
     if (str_starts_with($href, 'data:')) {
       return (bool) preg_match('/^data:image\/(png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+\/]+=*$/', $href);
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Checks whether an attribute contains CSS import syntax.
+   */
+  private function svgAttributeContainsCssImport(string $value): bool {
+    return (bool) preg_match('/@import\b/i', $value);
+  }
+
+  /**
+   * Checks whether CSS url() references leave the current SVG document.
+   */
+  private function svgAttributeHasUnsafeCssUrl(string $value): bool {
+    if (!preg_match_all('/url\(\s*([^)]+?)\s*\)/i', $value, $matches)) {
+      return FALSE;
+    }
+
+    foreach ($matches[1] as $raw_target) {
+      $target = trim((string) $raw_target, " \t\n\r\0\x0B\"'");
+      $target = html_entity_decode($target, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+      if ($target === '' || !str_starts_with($target, '#')) {
+        return TRUE;
+      }
     }
 
     return FALSE;
@@ -990,7 +1118,7 @@ SVG,
   private function createSourceImage(string $mime_type, string $source_data, int $target_size): \GdImage {
     if ($mime_type === 'image/svg+xml') {
       if (!class_exists('Imagick')) {
-        throw new \RuntimeException('The Imagick extension is required to rasterize SVG icons.');
+        throw new \RuntimeException($this->getMissingImagickMessage());
       }
 
       $image = new \Imagick();

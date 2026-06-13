@@ -2,7 +2,7 @@
     "name": "emulsify-ds/emulsify-drupal",
     "description": "The official Drupal theme for Emulsify, with Storybook and a Vite-based build workflow for generated child themes",
     "type": "drupal-theme",
-    "homepage": "http://emulsify.info",
+    "homepage": "https://www.emulsify.info",
     "license": "GPL-2.0-only",
     "authors": [
         {

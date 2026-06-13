@@ -1,6 +1,6 @@
 # Favicon Package Generation
 
-Emulsify 7.x generates a complete favicon package from one SVG source configured in the Drupal theme settings form for `emulsify` or an Emulsify child theme.
+Emulsify 7.x generates a complete favicon package from one SVG source configured in the Drupal theme settings form for `emulsify` or a generated child theme.
 
 ## Requirements
 
