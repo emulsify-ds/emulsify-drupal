@@ -28,6 +28,21 @@ final class FaviconPackageGenerator {
   public const PORTABLE_SOURCE_ADVISORY_SIZE = 262144;
 
   /**
+   * Stream-wrapper base directory for generated favicon packages.
+   */
+  public const PACKAGE_BASE_DIRECTORY = 'public://favicon-package';
+
+  /**
+   * Theme machine names accepted for package path generation.
+   */
+  private const THEME_MACHINE_NAME_PATTERN = '/^[a-z][a-z0-9_]*$/';
+
+  /**
+   * Package hash directory names accepted for generated packages.
+   */
+  private const PACKAGE_HASH_PATTERN = '/^[a-f0-9]{12}$/';
+
+  /**
    * The file system service.
    */
   private FileSystemInterface $fileSystem;
@@ -132,6 +147,43 @@ final class FaviconPackageGenerator {
       'path' => $this->buildPackageDirectory($theme_name, $package_hash),
       'source_hash' => (string) $analysis['source_hash'],
     ];
+  }
+
+  /**
+   * Determines whether a package URI is owned by the expected theme.
+   */
+  public static function isManagedPackagePath(string $package_directory, string $theme_name): bool {
+    if (!preg_match(self::THEME_MACHINE_NAME_PATTERN, $theme_name)) {
+      return FALSE;
+    }
+
+    $escaped_theme_name = preg_quote($theme_name, '/');
+    return preg_match(
+      '/^public:\/\/favicon-package\/' . $escaped_theme_name . '\/[a-f0-9]{12}$/',
+      rtrim($package_directory, '/'),
+    ) === 1;
+  }
+
+  /**
+   * Determines whether a generated package directory exists for a theme.
+   */
+  public function packageExistsForTheme(string $theme_name, string $package_directory): bool {
+    return self::isManagedPackagePath($package_directory, $theme_name)
+      && $this->packageExists($package_directory);
+  }
+
+  /**
+   * Reads generated metadata for an existing package owned by a theme.
+   *
+   * @return array<string, mixed>|null
+   *   The decoded metadata, or NULL if it is unavailable or outside scope.
+   */
+  public function readPackageMetadataForTheme(string $theme_name, string $package_directory): ?array {
+    if (!self::isManagedPackagePath($package_directory, $theme_name)) {
+      return NULL;
+    }
+
+    return $this->readPackageMetadata($package_directory);
   }
 
   /**
@@ -240,7 +292,7 @@ final class FaviconPackageGenerator {
         return $this->buildExistingPackageResult($package_hash, $package_directory);
       }
 
-      $this->resetPackageDirectory($package_directory);
+      $this->resetPackageDirectory($theme_name, $package_directory);
 
       if (!$this->fileSystem->prepareDirectory($package_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
         throw new \RuntimeException(sprintf('Unable to prepare generated favicon directory %s.', $package_directory));
@@ -512,7 +564,14 @@ final class FaviconPackageGenerator {
    * Builds the package directory URI for a hash.
    */
   private function buildPackageDirectory(string $theme_name, string $package_hash): string {
-    return sprintf('public://favicon-package/%s/%s', $theme_name, $package_hash);
+    if (!preg_match(self::THEME_MACHINE_NAME_PATTERN, $theme_name)) {
+      throw new \InvalidArgumentException(sprintf('Invalid theme machine name "%s".', $theme_name));
+    }
+    if (!preg_match(self::PACKAGE_HASH_PATTERN, $package_hash)) {
+      throw new \InvalidArgumentException('Invalid generated favicon package hash.');
+    }
+
+    return sprintf('%s/%s/%s', self::PACKAGE_BASE_DIRECTORY, $theme_name, $package_hash);
   }
 
   /**
@@ -545,7 +604,11 @@ final class FaviconPackageGenerator {
   /**
    * Removes an existing or partial package directory before regeneration.
    */
-  private function resetPackageDirectory(string $package_directory): void {
+  private function resetPackageDirectory(string $theme_name, string $package_directory): void {
+    if (!self::isManagedPackagePath($package_directory, $theme_name)) {
+      throw new \InvalidArgumentException(sprintf('Refusing to reset favicon package outside %s.', self::PACKAGE_BASE_DIRECTORY));
+    }
+
     $realpath = $this->fileSystem->realpath($package_directory);
     if (!is_string($realpath) || !is_dir($realpath)) {
       return;

@@ -657,7 +657,16 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Favicon runtime behavior', () => {
+    const faviconPackageGenerator = readFile('src/Favicon/FaviconPackageGenerator.php');
+    const faviconThemeManager = readFile('src/Favicon/FaviconThemeManager.php');
+    const faviconSettingsForm = readFile('src/Favicon/FaviconSettingsForm.php');
+    const faviconHooks = readFile('src/Hook/FaviconHooks.php');
     ensureNoRuntimeFaviconGeneration();
+    ensure(faviconPackageGenerator.includes("public const PACKAGE_BASE_DIRECTORY = 'public://favicon-package'"), 'FaviconPackageGenerator should centralize the package base directory.');
+    ensure(faviconPackageGenerator.includes('public static function isManagedPackagePath'), 'FaviconPackageGenerator should expose a managed package path validator.');
+    ensure(faviconThemeManager.includes('FaviconPackageGenerator::isManagedPackagePath($package_path, $theme_name)'), 'FaviconThemeManager reset should only delete managed package paths owned by the theme.');
+    ensure(faviconHooks.includes('FaviconPackageGenerator::isManagedPackagePath'), 'FaviconHooks should only attach managed package paths owned by the active theme.');
+    ensure(faviconSettingsForm.includes('persistSanitizedSourceFile'), 'FaviconSettingsForm should rewrite retained uploads with sanitized SVG markup.');
     ensure(readme.includes('Runtime page requests never generate favicon files'), 'README.md should document that page requests do not generate favicon files.');
     ensure(readme.includes('docs/favicon-generation.md'), 'README.md should link to the favicon generation lifecycle documentation.');
     for (const expectedText of [

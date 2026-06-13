@@ -11,6 +11,7 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\emulsify\Favicon\FaviconHeadBuilder;
+use Drupal\emulsify\Favicon\FaviconPackageGenerator;
 use Drupal\emulsify\Favicon\FaviconSettings;
 
 /**
@@ -58,7 +59,11 @@ final class FaviconHooks {
       return;
     }
 
-    if (empty($settings['favicon_package_path']) || !$this->packageExists($settings['favicon_package_path'])) {
+    if (
+      empty($settings['favicon_package_path'])
+      || !FaviconPackageGenerator::isManagedPackagePath($settings['favicon_package_path'], $theme_name)
+      || !$this->packageExists($settings['favicon_package_path'])
+    ) {
       return;
     }
 

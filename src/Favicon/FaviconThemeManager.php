@@ -142,7 +142,7 @@ final class FaviconThemeManager {
       'state' => 'missing',
       'hash' => (string) ($settings['favicon_package_hash'] ?? ''),
       'path' => (string) ($settings['favicon_package_path'] ?? ''),
-      'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExists($settings['favicon_package_path']),
+      'package_exists' => !empty($settings['favicon_package_path']) && $this->packageGenerator->packageExistsForTheme($theme_name, $settings['favicon_package_path']),
       'source_available' => FALSE,
       'portable_source_missing' => FALSE,
       'portable_source_available' => $portable_source_svg !== '',
@@ -190,7 +190,7 @@ final class FaviconThemeManager {
         $status['state'] = 'legacy';
       }
 
-      $metadata = $status['path'] !== '' ? $this->packageGenerator->readPackageMetadata($status['path']) : NULL;
+      $metadata = $status['path'] !== '' ? $this->packageGenerator->readPackageMetadataForTheme($theme_name, $status['path']) : NULL;
       if (is_array($metadata) && isset($metadata['generated_at'])) {
         $status['generated_at'] = (int) $metadata['generated_at'];
       }
@@ -279,6 +279,10 @@ final class FaviconThemeManager {
       $package_status['path'],
     ]));
     foreach ($package_paths as $package_path) {
+      if (!FaviconPackageGenerator::isManagedPackagePath($package_path, $theme_name)) {
+        continue;
+      }
+
       $realpath = $this->fileSystem->realpath($package_path);
       if ($realpath && is_dir($realpath)) {
         $this->fileSystem->deleteRecursive($realpath);
