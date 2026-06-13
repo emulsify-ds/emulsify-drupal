@@ -118,8 +118,15 @@ jobs:
         timeout-minutes: 5
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-build
 
+      - name: 'Starterkit: run frontend tests'
+        id: starterkit_frontend_test
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-test
+
       - name: Upload generated theme smoke artifacts
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure') }}
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
         uses: actions/upload-artifact@v4
         with:
           name: "generated-theme-smoke-${{ matrix.artifact-suffix }}"

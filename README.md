@@ -21,6 +21,7 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 3. [Upgrade guide](./UPGRADE.md)
 4. [Template override map](./docs/template-map.md)
 5. [Favicon generation lifecycle](./docs/favicon-generation.md)
+6. [Optional design-token integration](./docs/design-token-integration.md)
 
 ## Demo
 
@@ -53,6 +54,7 @@ These generation methods should be treated as equivalent:
 1. They generate the theme into `web/themes/custom/my_theme`.
 2. They use the `whisk` starter source.
 3. They keep `emulsify` as the runtime parent theme for the generated theme.
+4. They preserve `project.emulsify.json` so Emulsify Core can identify the generated Drupal project structure.
 
 After generation:
 
