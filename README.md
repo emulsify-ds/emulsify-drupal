@@ -19,10 +19,11 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
 2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
 3. [Upgrade guide](./UPGRADE.md)
-4. [Template override map](./docs/template-map.md)
-5. [Favicon generation lifecycle](./docs/favicon-generation.md)
-6. [Optional design-token integration](./docs/design-token-integration.md)
-7. [Release readiness checklist](./docs/release-readiness.md)
+4. [Twig component includes](./docs/twig-component-includes.md)
+5. [Template override map](./docs/template-map.md)
+6. [Favicon generation lifecycle](./docs/favicon-generation.md)
+7. [Optional design-token integration](./docs/design-token-integration.md)
+8. [Release readiness checklist](./docs/release-readiness.md)
 
 ## Demo
 
@@ -83,6 +84,31 @@ npm run develop
 ```
 
 Generated child themes use the Vite build workflow and Emulsify Core 4 scripts shipped by the `whisk` starterkit source.
+
+### Write Twig component includes
+
+For new project Twig, prefer Drupal Single Directory Component names:
+
+```twig
+{% include "my_theme:list" with {
+  items: items,
+} only %}
+```
+
+The Twig function form is also supported:
+
+```twig
+{{ include("my_theme:list", {
+  items: items,
+}, with_context = false) }}
+```
+
+Replace `my_theme` with the generated theme machine name. Legacy namespace
+includes such as `{% include "@components/button/button.twig" %}` are still
+valid for existing projects and migrations, but they are not the recommended
+default for new project components. See
+[docs/twig-component-includes.md](./docs/twig-component-includes.md) for the
+component include guidance.
 
 ### Verify your generated child theme
 

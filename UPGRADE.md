@@ -85,6 +85,30 @@ Existing Twig stories that return HTML strings can continue rendering during the
 upgrade, but actively maintained stories should be migrated to `renderTwig()` as
 they are touched.
 
+When updating project Twig includes, prefer Drupal Single Directory Component
+names for new component work:
+
+```twig
+{% include "my_theme:list" with {
+  items: items,
+} only %}
+```
+
+The Twig function form is also supported:
+
+```twig
+{{ include("my_theme:list", {
+  items: items,
+}, with_context = false) }}
+```
+
+Legacy namespace includes such as
+`{% include "@components/button/button.twig" %}` remain valid for existing
+templates and migration work, but they are no longer the recommended default for
+new project components. See
+[docs/twig-component-includes.md](docs/twig-component-includes.md) for the
+component include guidance.
+
 ## Theme Architecture Changes
 
 - `stable9` is no longer the parent theme. Emulsify now ships its own full template layer.
