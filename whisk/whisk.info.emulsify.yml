@@ -24,7 +24,17 @@ regions:
 
 logo: assets/images/logo.svg
 
-# Uncomment the namespaces below that best fit your project.
+# Legacy Twig namespace support.
+#
+# Prefer Drupal Single Directory Component names for new project Twig, such as:
+#   {% include "whisk:list" with { items: items } only %}
+#
+# The namespace mappings below are still valid for existing templates that use
+# legacy include paths such as:
+#   {% include "@components/button/button.twig" %}
+#
+# Uncomment only the namespaces needed by existing project code or migration
+# work. New project components should use SDC names instead.
 # components:
 #   namespaces:
 #     base: components/00-base

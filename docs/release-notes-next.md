@@ -50,6 +50,7 @@ Title: `7.1.0`
 
 - Updated `README.md` to describe Emulsify Drupal as the parent theme, explain the required Emulsify Tools workflow, document `whisk` as generation-only, and add generated child-theme verification commands.
 - Updated `UPGRADE.md` with 7.0.0 to 7.1.0 guidance covering the full template layer, no `stable9` parent, Drupal 11.3+/12 compatibility, Node.js 24, Vite, generated child themes, and favicon package deployment.
+- Added Twig component include guidance that recommends Single Directory Component names for new project Twig while preserving legacy namespace includes as valid for existing projects and migrations.
 - Updated release-readiness notes with the validation checklist, CI coverage, release strategy, audit policy, and license metadata follow-up.
 - Updated local favicon and design-token docs for generated child theme terminology.
 
