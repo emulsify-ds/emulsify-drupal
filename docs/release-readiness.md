@@ -19,6 +19,7 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 - Confirm `composer.json`, `emulsify.info.yml`, `whisk/whisk.info.yml`, and `whisk/whisk.info.emulsify.yml` describe the same Drupal core and Emulsify Tools compatibility.
 - Confirm `LICENSE`, `package.json`, `composer.json`, and `whisk/package.json` all identify the project as `GPL-2.0-or-later`, matching Drupal.org Composer metadata guidance for hosted Drupal projects.
 - Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, Node.js 24 tooling, and favicon package deployment expectations.
+- Confirm the sister-project parity contract stays linked from the README and preserves the shared Emulsify Drupal/WordPress contract plus Drupal-specific generation, metadata, component include, and fixture readiness expectations.
 - Confirm `whisk` remains generation-only starterkit source and generated child themes keep `emulsify` as their runtime parent theme.
 - Confirm generated themes retain `project.emulsify.json`.
 - Confirm favicon defaults, install config, schema, and `FaviconSettings::DEFAULTS` remain in sync.

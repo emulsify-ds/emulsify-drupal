@@ -20,10 +20,11 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
 3. [Upgrade guide](./UPGRADE.md)
 4. [Twig component includes](./docs/twig-component-includes.md)
-5. [Template override map](./docs/template-map.md)
-6. [Favicon generation lifecycle](./docs/favicon-generation.md)
-7. [Optional design-token integration](./docs/design-token-integration.md)
-8. [Release readiness checklist](./docs/release-readiness.md)
+5. [Sister-project parity contract](./docs/sister-project-parity.md)
+6. [Template override map](./docs/template-map.md)
+7. [Favicon generation lifecycle](./docs/favicon-generation.md)
+8. [Optional design-token integration](./docs/design-token-integration.md)
+9. [Release readiness checklist](./docs/release-readiness.md)
 
 ## Demo
 

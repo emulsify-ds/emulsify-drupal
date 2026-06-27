@@ -580,6 +580,7 @@ function runStaticChecks() {
   const licenseText = readFile('LICENSE');
   const readme = readFile('README.md');
   const releaseReadinessDoc = readFile('docs/release-readiness.md');
+  const sisterProjectParityDoc = readFile('docs/sister-project-parity.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
   const designTokenIntegrationDoc = readFile('docs/design-token-integration.md');
@@ -754,6 +755,37 @@ function runStaticChecks() {
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
     return 'README.md matches the Drupal core compatibility messaging and current major release line.';
+  });
+
+  runStaticCheck('Sister project parity contract', () => {
+    ensure(readme.includes('docs/sister-project-parity.md'), 'README.md should link to docs/sister-project-parity.md.');
+    ensure(releaseReadinessDoc.includes('sister-project parity contract'), 'docs/release-readiness.md should include the sister-project parity contract in release checks.');
+    for (const expectedText of [
+      'Emulsify WordPress',
+      'parent theme owns the reusable CMS runtime',
+      'generated child theme owns the project implementation',
+      'Whisk is the starter',
+      'Emulsify Core 4',
+      'Vite',
+      'Storybook',
+      'Twig',
+      'Node.js 24',
+      'Component source and generated assets have separate ownership',
+      'Drupal Starterkit',
+      'Emulsify Tools',
+      'base theme: emulsify',
+      '.info.yml',
+      '.libraries.yml',
+      'config/install',
+      'config/schema',
+      'Single Directory Components',
+      '@components',
+      'Drupal fixtures',
+      'theme readiness',
+    ]) {
+      ensure(sisterProjectParityDoc.includes(expectedText), `docs/sister-project-parity.md should document ${expectedText}.`);
+    }
+    return 'README and parity contract document the shared Emulsify model and intentional Drupal differences.';
   });
 
   runStaticCheck('Parent theme independence', () => {
