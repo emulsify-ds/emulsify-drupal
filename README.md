@@ -50,7 +50,7 @@ The helper module also exposes the fully qualified command name:
 drush emulsify_tools:bake my_theme
 ```
 
-The `whisk` directory is the generation-only starterkit source used by both generation methods. Do not enable `whisk` directly; generated child themes keep `emulsify` as their runtime parent theme.
+The `whisk` directory is the Whisk starter source used by both generation methods. Do not enable `whisk` directly; generated child themes keep `emulsify` as their runtime parent theme.
 
 You can also generate the same child theme with Drupal core's standard Starterkit command from the root of your Drupal site:
 
@@ -61,8 +61,8 @@ php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path th
 These generation methods should be treated as equivalent:
 
 1. They generate the theme into `web/themes/custom/my_theme`.
-2. They use the `whisk` starterkit source.
-3. They keep `emulsify` as the runtime parent theme for the generated theme.
+2. They use the Whisk starter source.
+3. They keep `emulsify` as the runtime parent theme for the generated child theme.
 4. They preserve `project.emulsify.json` so Emulsify Core can identify the generated Drupal project structure.
 
 After generation:
@@ -75,20 +75,20 @@ drush config:set system.theme default my_theme -y
 drush cr -y
 ```
 
-2. Install the generated theme's frontend dependencies:
+2. Install the generated child theme's frontend dependencies:
 
 ```bash
 cd web/themes/custom/my_theme
 npm install
 ```
 
-3. Start the generated theme's local tooling:
+3. Start the generated child theme's local tooling:
 
 ```bash
 npm run develop
 ```
 
-Generated child themes use the Vite build workflow and Emulsify Core 4 scripts shipped by the `whisk` starterkit source.
+Generated child themes use the Vite build workflow and Emulsify Core 4 scripts shipped by the Whisk starter source.
 
 ### Write Twig component includes
 
@@ -108,7 +108,7 @@ The Twig function form is also supported:
 }, with_context = false) }}
 ```
 
-Replace `my_theme` with the generated theme machine name. Legacy namespace
+Replace `my_theme` with the generated child theme machine name. Legacy namespace
 includes such as `{% include "@components/button/button.twig" %}` are still
 valid for existing projects and migrations, but they are not the recommended
 default for new project components. See
@@ -132,8 +132,8 @@ Generated child themes require Node.js 24 or newer. Use `npm install` for the fi
 
 These checks verify the expected local workflow:
 
-1. `node --version` confirms the Node.js runtime satisfies the generated theme requirement.
-2. `npm install` installs Emulsify Core 4 and the generated theme tooling.
+1. `node --version` confirms the Node.js runtime satisfies the generated child theme requirement.
+2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
 3. `npm run build` compiles Drupal-facing assets with the Vite build workflow.
 4. `npm run storybook-build` verifies the static Storybook build.
 5. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
@@ -194,13 +194,15 @@ To facilitate automatic semantic release versioning, we utilize the [Conventiona
 
 ### Release Readiness
 
-Run the release guard before merging packaging, starterkit, favicon settings, or release metadata changes, and before preparing a 7.x release:
+Run the release guard before merging packaging, Whisk starter, favicon settings, or release metadata changes, and before preparing a 7.x release:
 
 ```bash
 npm run release:check
 ```
 
 Use Node.js 24.10 or newer for local release tooling.
+
+Release automation publishes from `main` with non-prefixed SemVer tags.
 
 Use `npm run release:check -- --skip-smoke` when you only want the static metadata, README, duplicate-script, and schema checks. The static checks verify that favicon settings stay aligned across `FaviconSettings::DEFAULTS`, `config/install/emulsify.settings.yml`, and `config/schema/emulsify.schema.yml`.
 
