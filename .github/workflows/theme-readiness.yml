@@ -54,7 +54,7 @@ jobs:
           cache: npm
 
       - name: Validate Composer metadata
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
 
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts

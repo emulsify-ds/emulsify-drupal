@@ -29,6 +29,10 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 
 1. [Storybook](http://storybook.emulsify.info/)
 
+## License
+
+Emulsify Drupal is licensed under `GPL-2.0-or-later`, matching Drupal.org Composer metadata guidance for hosted Drupal projects.
+
 ## How To
 
 ### Generate a child theme

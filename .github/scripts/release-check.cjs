@@ -7,6 +7,7 @@ const { spawnSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
+const expectedProjectLicense = 'GPL-2.0-or-later';
 
 // release:check is both a local release guard and a CI sanity check. Static
 // checks always run; smoke checks build disposable Drupal projects unless the
@@ -572,10 +573,13 @@ function ensureBreakingHeaderParser(label, parserOpts) {
 
 function runStaticChecks() {
   const rootPackage = readJson('package.json');
+  const rootPackageLock = readJson('package-lock.json');
   const whiskPackage = readJson('whisk/package.json');
   const composer = readJson('composer.json');
   const releaseConfig = require(path.join(repoRoot, 'release.config.js'));
+  const licenseText = readFile('LICENSE');
   const readme = readFile('README.md');
+  const releaseReadinessDoc = readFile('docs/release-readiness.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
   const designTokenIntegrationDoc = readFile('docs/design-token-integration.md');
@@ -621,7 +625,7 @@ function runStaticChecks() {
     }
     ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
     ensure(themeReadinessWorkflow.includes('schedule:'), 'theme-readiness.yml should run scheduled release-readiness coverage.');
-    ensure(themeReadinessWorkflow.includes('composer validate --no-check-publish'), 'theme-readiness.yml should validate Composer metadata.');
+    ensure(themeReadinessWorkflow.includes('composer validate --no-check-publish --strict'), 'theme-readiness.yml should strictly validate Composer metadata.');
     ensure(themeReadinessWorkflow.includes('npm ci --ignore-scripts'), 'theme-readiness.yml should install root npm dependencies from a clean lockfile.');
     ensure(themeReadinessWorkflow.includes('npm audit --omit=dev'), 'theme-readiness.yml should run the runtime npm audit policy.');
     ensure(/^        run: npm audit$/m.test(themeReadinessWorkflow), 'theme-readiness.yml should run the full npm audit while it is clean.');
@@ -654,7 +658,7 @@ function runStaticChecks() {
     ensure(semanticReleaseWorkflow.includes('contents: write'), 'semantic-release.yml should grant release permissions explicitly.');
     ensure(semanticReleaseWorkflow.includes('release-readiness:'), 'semantic-release.yml should run a release-readiness job before publishing.');
     ensure(semanticReleaseWorkflow.includes('needs: release-readiness'), 'semantic-release.yml release job should wait for release readiness.');
-    ensure(semanticReleaseWorkflow.includes('composer validate --no-check-publish'), 'semantic-release.yml should validate Composer metadata before publishing.');
+    ensure(semanticReleaseWorkflow.includes('composer validate --no-check-publish --strict'), 'semantic-release.yml should strictly validate Composer metadata before publishing.');
     ensure(semanticReleaseWorkflow.includes('npm ci --ignore-scripts'), 'semantic-release.yml should install npm dependencies from a clean lockfile before publishing.');
     ensure(semanticReleaseWorkflow.includes('npm audit --omit=dev'), 'semantic-release.yml should run the runtime npm audit before publishing.');
     ensure(/^        run: npm audit$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should run the full npm audit while it is clean.');
@@ -680,7 +684,8 @@ function runStaticChecks() {
     ensurePreferredReleaseLanguage('package.json description', rootPackage.description);
     ensure(rootPackage.description.includes('Vite-based build workflow'), 'package.json description should mention the Vite-based build workflow.');
     ensure(rootPackage.description.includes('Emulsify Core 4'), 'package.json description should mention Emulsify Core 4.');
-    ensure(rootPackage.license === 'GPL-3.0-only', 'package.json should align npm-side metadata with the repository LICENSE file.');
+    ensure(rootPackage.license === expectedProjectLicense, `package.json license must be ${expectedProjectLicense}.`);
+    ensure(rootPackageLock.packages && rootPackageLock.packages[''] && rootPackageLock.packages[''].license === expectedProjectLicense, `package-lock.json root package license must be ${expectedProjectLicense}. Run npm install --package-lock-only --ignore-scripts after license metadata changes.`);
     ensure(rootPackage.engines && rootPackage.engines.node === '>=24.10', 'package.json engines.node should match the Node line required by release tooling.');
     ensure(rootPackage.repository && rootPackage.repository.url, 'package.json repository.url is required.');
     ensure(rootPackage.bugs && rootPackage.bugs.url, 'package.json bugs.url is required.');
@@ -696,7 +701,7 @@ function runStaticChecks() {
     ensurePreferredReleaseLanguage('whisk/package.json description', whiskPackage.description);
     ensure(whiskPackage.description.includes('Vite-based build workflow'), 'whisk/package.json description should mention the Vite-based build workflow.');
     ensure(whiskPackage.description.includes('Emulsify Core 4'), 'whisk/package.json description should mention Emulsify Core 4.');
-    ensure(whiskPackage.license === 'GPL-3.0-only', 'whisk/package.json should align generated starter metadata with the repository LICENSE file until maintainers choose otherwise.');
+    ensure(whiskPackage.license === expectedProjectLicense, `whisk/package.json license must be ${expectedProjectLicense}.`);
     ensure(whiskPackage.engines && whiskPackage.engines.node, 'whisk/package.json engines.node is required.');
     ensure(whiskPackage.type === 'module', 'whisk/package.json must remain an ES module package.');
     ensure(whiskPackage.dependencies && whiskPackage.dependencies['@emulsify/core'], 'whisk/package.json must declare @emulsify/core.');
@@ -708,9 +713,15 @@ function runStaticChecks() {
     ensure(composer.description.includes('Vite-based build workflow'), 'composer.json description should mention the Vite-based build workflow.');
     ensure(composer.description.includes('child themes'), 'composer.json description should mention child themes.');
     ensure(composer.homepage === 'https://www.emulsify.info', 'composer.json homepage should use the canonical HTTPS Emulsify URL.');
-    ensure(readFile('docs/release-readiness.md').includes('GPL-2.0-only'), 'docs/release-readiness.md should document the unresolved Composer/Drupal.org license metadata question.');
-    ensure(readFile('docs/release-readiness.md').includes('GPL-3.0-only'), 'docs/release-readiness.md should document the npm-side license metadata decision.');
-    return `Validated root package ${rootPackage.version} and whisk package ${whiskPackage.version}.`;
+    ensure(composer.license === expectedProjectLicense, `composer.json license must be ${expectedProjectLicense}.`);
+    ensure(licenseText.includes(`SPDX-License-Identifier: ${expectedProjectLicense}`), `LICENSE must include SPDX-License-Identifier: ${expectedProjectLicense}.`);
+    ensure(licenseText.includes('Version 2, June 1991'), 'LICENSE should include the GNU GPL version 2 text.');
+    ensure(licenseText.includes('either version 2 of the License, or'), 'LICENSE should preserve the GPL v2-or-later permission notice.');
+    ensure(!licenseText.includes('Version 3, 29 June 2007'), 'LICENSE should not contain the GNU GPL version 3-only text.');
+    ensure(readme.includes(expectedProjectLicense), `README.md should document ${expectedProjectLicense}.`);
+    ensure(releaseReadinessDoc.includes(expectedProjectLicense), `docs/release-readiness.md should document ${expectedProjectLicense}.`);
+    ensure(!releaseReadinessDoc.includes('unresolved Composer/Drupal.org license metadata question'), 'docs/release-readiness.md should not keep the old unresolved license blocker after metadata alignment.');
+    return `Validated root package ${rootPackage.version}, whisk package ${whiskPackage.version}, and project license ${expectedProjectLicense}.`;
   });
 
   runStaticCheck('Duplicate package scripts', () => {
