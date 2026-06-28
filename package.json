@@ -14,7 +14,7 @@
     "styleguide"
   ],
   "author": "Four Kitchens <shout@fourkitchens.com>",
-  "license": "GPL-3.0-only",
+  "license": "GPL-2.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emulsify-ds/emulsify-drupal.git"

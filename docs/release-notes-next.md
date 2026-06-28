@@ -34,8 +34,9 @@ Title: `7.1.0`
 
 ### Changed
 
+- Aligned repository, npm-side, generated starterkit, Composer, Drupal.org, and Packagist license metadata to `GPL-2.0-or-later`.
 - Expanded release readiness CI with Composer validation, clean npm installs, runtime and full npm audits, PHP linting, static release checks, full smoke coverage with GD and Imagick, generated starterkit build/test checks, and scheduled/manual Storybook and accessibility coverage.
-- Aligned npm-side package metadata with the repository license metadata and removed the unused direct root `graceful-fs` dependency.
+- Removed the unused direct root `graceful-fs` dependency.
 - Refreshed npm lockfile state so runtime and full npm audit checks are clean.
 - Clarified that `whisk` is a generation-only starterkit source and generated child themes keep `emulsify` as their runtime parent theme.
 - Clarified the 7.x parent theme workflow, Vite build workflow, Node.js expectations, and favicon package deployment expectations in local documentation.
@@ -84,9 +85,10 @@ This is a backward-compatible 7.x minor release for the Emulsify Drupal parent t
 
 ### Changed
 
+- Aligned repository, npm-side, generated starterkit, Composer, Drupal.org, and Packagist license metadata to `GPL-2.0-or-later`.
 - Expanded release readiness checks for Composer metadata, npm install/audit policy, PHP linting, starterkit generation, favicon generation, and generated child-theme frontend behavior.
 - Clarified the 7.x parent theme, generated child theme, `whisk`, Vite, Node.js, and favicon deployment workflow in local docs.
-- Aligned npm-side package metadata and removed unused root dependency metadata.
+- Removed unused root dependency metadata.
 
 ### Fixed
 
