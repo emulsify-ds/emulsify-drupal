@@ -628,6 +628,7 @@ function runStaticChecks() {
     for (const drupalTarget of supportedDrupalSmokeTargets) {
       ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
     }
+    ensure(themeReadinessWorkflow.includes("'8.3'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
     ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
       ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
