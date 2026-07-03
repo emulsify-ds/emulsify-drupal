@@ -27,6 +27,11 @@ jobs:
       matrix:
         include:
           - label: Drupal 11.3
+            artifact-suffix: drupal-11-3-php-8-3
+            drupal-version: '11.3.*'
+            php-version: '8.3'
+            experimental: false
+          - label: Drupal 11.3
             artifact-suffix: drupal-11-3-php-8-4
             drupal-version: '11.3.*'
             php-version: '8.4'
