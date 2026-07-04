@@ -1,7 +1,10 @@
 # Optional Design-Token Integration
 
-The `whisk` starterkit source does not ship a default design-token pipeline. Generated child themes get
-plain Sass entry points such as `src/tokens.scss`, but they do not assume Figma,
+The `whisk` starterkit source does not ship a default design-token pipeline.
+Drupal Whisk keeps minimal Sass entry points (`src/tokens.scss`,
+`src/foundation.scss`, and `src/layout.scss`) because `whisk.libraries.yml`
+maps their generated Vite output to `dist/global/*.css`. Those files are
+library build entry points, not an assumption that every project uses Figma,
 Style Dictionary, Token Transformer, or any other token source.
 
 Projects that already use design tokens can add their preferred pipeline to the
@@ -47,7 +50,8 @@ Add project scripts:
 }
 ```
 
-Then import the generated Sass from `src/tokens.scss`:
+If the project keeps `src/tokens.scss` as the token entry point, import the
+generated Sass there:
 
 ```scss
 @use "./tokens.generated";

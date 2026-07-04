@@ -21,7 +21,8 @@ forking reusable behavior into each implementation.
 Whisk is the starter. It is a generation-only source for child themes, not a
 runtime theme to enable directly. The generated theme keeps the parent theme as
 its runtime base and keeps `project.emulsify.json` so Emulsify Core can identify
-the generated CMS platform and project structure.
+the generated CMS platform, project structure, `generatedFrom`, and
+`generatedFromVersion` support metadata.
 
 The shared frontend stack is Emulsify Core 4, Vite, Storybook, Twig, and
 Node.js 24. Generated child themes should expose the expected Emulsify Core
@@ -51,6 +52,17 @@ starter define Drupal compatibility, dependencies, regions, and libraries in
 `.info.yml` and `.libraries.yml` files. Theme settings defaults and schema live
 in `config/install` and `config/schema`, and release checks keep those config
 surfaces aligned with the PHP settings API.
+
+Generated Drupal child themes keep `platform: drupal`,
+`singleDirectoryComponents: true`, `generatedFrom`, and `generatedFromVersion`
+in `project.emulsify.json`. These fields are shared support diagnostics, not a
+separate PHP compatibility declaration for Drupal themes.
+
+Drupal Whisk intentionally keeps minimal `src/tokens.scss`,
+`src/foundation.scss`, and `src/layout.scss` entry points because
+`whisk.libraries.yml` maps their generated Vite output to `dist/global/*.css`.
+They are Drupal library build entry points; design-token tooling remains
+optional and project-owned.
 
 Drupal Single Directory Components are preferred for new component includes.
 New project Twig should include components with Drupal SDC names such as

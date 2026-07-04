@@ -64,6 +64,7 @@ These generation methods should be treated as equivalent:
 2. They use the Whisk starter source.
 3. They keep `emulsify` as the runtime parent theme for the generated child theme.
 4. They preserve `project.emulsify.json` so Emulsify Core can identify the generated Drupal project structure.
+5. They retain `generatedFrom` and `generatedFromVersion` metadata so support tooling can identify the Emulsify Drupal source and version used to create the child theme.
 
 After generation:
 

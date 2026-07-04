@@ -17,6 +17,7 @@ generated_theme="${EMULSIFY_STARTERKIT_THEME:-emulsify_fixture}"
 generated_theme_dir="${fixture_dir}/web/themes/custom/${generated_theme}"
 generated_theme_info="${generated_theme_dir}/${generated_theme}.info.yml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source_version="$(node -p "require(process.argv[1]).version" "${script_dir}/../../package.json")"
 artifact_info="${output_dir}/generated-theme-info.yml"
 npm_install_log="${output_dir}/npm-install.log"
 npm_build_log="${output_dir}/npm-build.log"
@@ -132,6 +133,14 @@ generate_theme() {
 
   if ! grep -q "\"machineName\": \"${generated_theme}\"" "${generated_theme_dir}/project.emulsify.json"; then
     fail "Generated theme project.emulsify.json must use the generated theme machine name."
+  fi
+
+  if ! grep -q '"generatedFrom": "emulsify-drupal"' "${generated_theme_dir}/project.emulsify.json"; then
+    fail "Generated theme project.emulsify.json must preserve Emulsify Drupal source lineage."
+  fi
+
+  if ! grep -q "\"generatedFromVersion\": \"${source_version}\"" "${generated_theme_dir}/project.emulsify.json"; then
+    fail "Generated theme project.emulsify.json must preserve the Emulsify Drupal source version."
   fi
 }
 

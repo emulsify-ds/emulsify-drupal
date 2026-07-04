@@ -21,7 +21,8 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 - Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, Node.js 24 tooling, and favicon package deployment expectations.
 - Confirm the sister-project parity contract stays linked from the README and preserves the shared Emulsify Drupal/WordPress contract plus Drupal-specific generation, metadata, component include, and fixture readiness expectations.
 - Confirm the Whisk starter remains generation-only and generated child themes keep `emulsify` as their runtime parent theme.
-- Confirm generated child themes retain `project.emulsify.json`.
+- Confirm generated child themes retain `project.emulsify.json` with `platform`, `singleDirectoryComponents`, `generatedFrom`, and `generatedFromVersion` support metadata.
+- Confirm Whisk targets `@emulsify/core` `^4.1.0` and keeps the minimal `src/tokens.scss`, `src/foundation.scss`, and `src/layout.scss` library entry points required by `whisk.libraries.yml`.
 - Confirm favicon defaults, install config, schema, and `FaviconSettings::DEFAULTS` remain in sync.
 - Confirm release automation still emits non-prefixed SemVer tags and has `npmPublish: false`.
 

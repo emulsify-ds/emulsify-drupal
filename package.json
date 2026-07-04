@@ -28,7 +28,7 @@
     "husky:pre-commit": "npm run lint",
     "docs:check-commands": "node .github/scripts/docs-command-check.cjs",
     "lint": "npm run lint:php",
-    "lint:php": "find ./ -name '*.php' -exec php -l {} \\;",
+    "lint:php": "find . \\( -path './.git' -o -path './node_modules' -o -path './vendor' -o -path './whisk/node_modules' \\) -prune -o -type f \\( -name '*.php' -o -name '*.theme' -o -name '*.module' -o -name '*.install' -o -name '*.inc' \\) -exec php -l {} \\;",
     "lint-staged": "lint-staged",
     "prepare": "[ -d '.git' ] && (husky install) || true",
     "release:check": "node .github/scripts/release-check.cjs",
