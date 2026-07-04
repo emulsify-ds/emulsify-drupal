@@ -583,6 +583,7 @@ function runStaticChecks() {
   const rootPackageLock = readJson('package-lock.json');
   const whiskPackage = readJson('whisk/package.json');
   const whiskProject = readJson('whisk/project.emulsify.json');
+  const expectedGeneratedFromVersion = '7.2.0';
   const composer = readJson('composer.json');
   const releaseConfigSource = readFile('release.config.js');
   const releaseConfig = require(path.join(repoRoot, 'release.config.js'));
@@ -727,7 +728,7 @@ function runStaticChecks() {
     ensure(whiskPackage.engines && whiskPackage.engines.node, 'whisk/package.json engines.node is required.');
     ensure(whiskPackage.type === 'module', 'whisk/package.json must remain an ES module package.');
     ensure(whiskPackage.dependencies && whiskPackage.dependencies['@emulsify/core'], 'whisk/package.json must declare @emulsify/core.');
-    ensure(whiskPackage.dependencies['@emulsify/core'] === '^4.1.0', 'whisk/package.json should target Emulsify Core 4.1 or newer.');
+    ensure(whiskPackage.dependencies['@emulsify/core'] === '^4.2.0', 'whisk/package.json should target Emulsify Core 4.2 or newer.');
     ensure(whiskPackage.scripts.build.includes('config/vite/vite.config.js'), 'whisk/package.json build script should use the Emulsify Core Vite config.');
     ensureWhiskPackageScriptTargets(whiskPackage);
     ensure(whiskProject.project && whiskProject.project.platform === 'drupal', 'whisk/project.emulsify.json should preserve the Drupal platform adapter.');
@@ -735,7 +736,7 @@ function runStaticChecks() {
     ensure(whiskProject.project.machineName === 'whisk', 'whisk/project.emulsify.json should preserve the starter machine name.');
     ensure(whiskProject.project.singleDirectoryComponents === true, 'whisk/project.emulsify.json should preserve SDC behavior.');
     ensure(whiskProject.project.generatedFrom === 'emulsify-drupal', 'whisk/project.emulsify.json should record the generated source project.');
-    ensure(whiskProject.project.generatedFromVersion === rootPackage.version, 'whisk/project.emulsify.json generatedFromVersion should match package.json version.');
+    ensure(whiskProject.project.generatedFromVersion === expectedGeneratedFromVersion, `whisk/project.emulsify.json generatedFromVersion should match the ${expectedGeneratedFromVersion} release line.`);
     ensure(whiskProject.starter && whiskProject.starter.repository === 'https://github.com/emulsify-ds/emulsify-drupal.git', 'whisk/project.emulsify.json should preserve the starter repository.');
     ensure(composer.description, 'composer.json description is required.');
     ensurePreferredReleaseLanguage('composer.json description', composer.description);
@@ -960,7 +961,7 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('"singleDirectoryComponents": true'), 'starterkit-smoke.sh should assert generated child theme SDC behavior.');
     ensure(starterkitSmoke.includes('"generatedFrom": "emulsify-drupal"'), 'starterkit-smoke.sh should assert generated child theme source lineage.');
     ensure(starterkitSmoke.includes('generatedFromVersion'), 'starterkit-smoke.sh should assert generated child theme source version lineage.');
-    ensure(starterkitSmoke.includes('source_version'), 'starterkit-smoke.sh should compare generated child theme lineage to the root package version.');
+    ensure(starterkitSmoke.includes('source_version'), 'starterkit-smoke.sh should compare generated child theme lineage to the Whisk source metadata version.');
     ensure(starterkitSmoke.includes('phase="${3:-all}"'), 'starterkit-smoke.sh should support split CI phases while preserving all-in-one local runs.');
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated child theme Vite-based build workflow.');
