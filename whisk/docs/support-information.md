@@ -1,6 +1,14 @@
 # Support information for %%EMULSIFY_THEME_NAME%%
 
-Collect the smallest useful, sanitized diagnostic bundle before requesting support. Run commands from this theme directory unless a step says otherwise.
+Start with the common fixes below. If the problem continues, collect the smallest useful, sanitized diagnostic bundle before requesting support. Run commands from this theme directory unless a step says otherwise.
+
+## Troubleshooting
+
+- **Wrong Node.js version:** run `nvm use` and compare `node --version` with `.nvmrc` and the `engines.node` value in `package.json`.
+- **Missing package or command:** run `npm install` again from this directory; keep the dependency metadata and Emulsify Core configuration intact.
+- **Drupal cannot find CSS:** run `npm run build`, confirm the `dist/global/*.css` files exist, and compare them with `%%EMULSIFY_MACHINE_NAME%%.libraries.yml`.
+- **Storybook fails:** run `npm run build` first, then capture tool versions and the complete failing command output using the checklist below.
+- **A generated value looks wrong:** inspect `%%EMULSIFY_MACHINE_NAME%%.info.yml`, `package.json`, and `project.emulsify.json` before editing documentation by hand.
 
 ## Theme and frontend information
 

@@ -17,8 +17,9 @@ no_edit:
   - '/config/emulsify-core/**'
   - '/README.md'
   - '/screenshot.png'
-  - '/UPGRADING.md'
+  - '/docs/development.md'
   - '/docs/support-information.md'
+  - '/docs/upgrading.md'
 
 no_rename:
   # Emulsify Core config paths are tool conventions, not theme machine-name

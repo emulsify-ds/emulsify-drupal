@@ -187,8 +187,9 @@ function validateGeneratedTheme({
     'package.json',
     'project.emulsify.json',
     'README.md',
-    'UPGRADING.md',
+    'docs/development.md',
     'docs/support-information.md',
+    'docs/upgrading.md',
   ]) {
     if (fs.existsSync(path.join(sourceDir, requiredFile)) && !relativeFiles.has(requiredFile)) {
       addError('generation', `${themeLabel} is missing required generated file ${expected(requiredFile)}.`);

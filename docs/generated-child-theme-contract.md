@@ -27,10 +27,11 @@ For each generated child theme, the checks verify:
 - `package.json` and `project.emulsify.json` are valid JSON, retain the expected
   npm scripts, Emulsify Core version range, Drupal platform metadata, and
   generated-source lineage, and agree on the generated project identity.
-- `README.md`, `UPGRADING.md`, and `docs/support-information.md` are present,
-  contain the requested display name, machine name, description, source
-  project, source version, and Emulsify Core range, and document only npm
-  commands that the generated `package.json` exposes.
+- `README.md`, `docs/development.md`, `docs/upgrading.md`, and
+  `docs/support-information.md` are present. The README contains the requested
+  display name, machine name, description, source project, source version, and
+  Emulsify Core range, and the guides document only npm commands that the
+  generated `package.json` exposes.
 - Sass entrypoints referenced by the Drupal libraries contract exist, expected
   Vite output paths agree with the library definitions, and build and Storybook
   configuration resolve from the generated child theme or declared packages.

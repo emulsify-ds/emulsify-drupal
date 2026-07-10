@@ -34,7 +34,12 @@ function copyGeneratedDocumentation(themeDir, { machineName, displayName, descri
     '%%EMULSIFY_CORE_RANGE%%': packageJson.dependencies['@emulsify/core'],
   };
 
-  for (const relativePath of ['README.md', 'UPGRADING.md', 'docs/support-information.md']) {
+  for (const relativePath of [
+    'README.md',
+    'docs/development.md',
+    'docs/support-information.md',
+    'docs/upgrading.md',
+  ]) {
     const source = fs.readFileSync(path.join(DEFAULT_SOURCE_DIR, relativePath), 'utf8');
     writeFile(
       themeDir,
@@ -247,13 +252,20 @@ test('checks declared build outputs only after the build phase', (t) => {
 });
 
 test('requires the generated documentation set', (t) => {
-  const fixture = createValidTheme(t);
-  fs.rmSync(path.join(fixture.themeDir, 'UPGRADING.md'));
+  for (const requiredFile of [
+    'README.md',
+    'docs/development.md',
+    'docs/support-information.md',
+    'docs/upgrading.md',
+  ]) {
+    const fixture = createValidTheme(t);
+    fs.rmSync(path.join(fixture.themeDir, requiredFile));
 
-  const output = formatValidationResult(validate(fixture));
-  assert.match(output, /FAIL generation/);
-  assert.match(output, /missing required generated file "UPGRADING\.md"/);
-  assert.match(output, /FAIL documentation/);
+    const output = formatValidationResult(validate(fixture));
+    assert.match(output, /FAIL generation/);
+    assert.ok(output.includes(`missing required generated file "${requiredFile}"`));
+    assert.match(output, /FAIL documentation/);
+  }
 });
 
 test('reports project-specific documentation values and leftover tokens', (t) => {

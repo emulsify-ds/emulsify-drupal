@@ -17,8 +17,9 @@ final class StarterKit implements StarterKitInterface {
    */
   private const DOCUMENTATION_FILES = [
     'README.md',
-    'UPGRADING.md',
+    'docs/development.md',
     'docs/support-information.md',
+    'docs/upgrading.md',
   ];
 
   /**

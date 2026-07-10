@@ -24,7 +24,7 @@ The range in `package.json` describes compatible Emulsify Core releases; it is n
    - `config/emulsify-core/` plus Vite, Storybook, Jest, lint, and formatting scripts;
    - the Sass entrypoints and Drupal library output paths;
    - theme info, settings schema, breakpoints, and templates;
-   - this README, upgrade guidance, and support checklist.
+   - the README, development guide, upgrade guidance, and support checklist.
 4. Port only changes that benefit the project. Resolve them against local customizations instead of copying the fresh theme over this directory.
 5. Delete the temporary comparison theme after the review.
 
@@ -47,5 +47,3 @@ Also enable and render the theme in the project's supported Drupal environment w
 ## Preserve source history
 
 Keep `project.generatedFrom` and `project.generatedFromVersion` in `project.emulsify.json`. They document the baseline originally used for generation. Update them only when the project deliberately adopts a newer starter baseline and records that decision in version control.
-
-The current recorded source is `%%EMULSIFY_SOURCE_PROJECT%%` `%%EMULSIFY_SOURCE_VERSION%%`; the current Emulsify Core range is `%%EMULSIFY_CORE_RANGE%%`.

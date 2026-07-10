@@ -611,8 +611,9 @@ function runStaticChecks() {
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
   const whiskReadme = readFile('whisk/README.md');
-  const whiskUpgrading = readFile('whisk/UPGRADING.md');
+  const whiskDevelopment = readFile('whisk/docs/development.md');
   const whiskSupportInformation = readFile('whisk/docs/support-information.md');
+  const whiskUpgrading = readFile('whisk/docs/upgrading.md');
   const whiskStarterKitProcessor = readFile('whisk/src/StarterKit.php');
   const starterkitSmoke = readFile('.github/scripts/starterkit-smoke.sh');
   const themeReadinessWorkflow = readFile('.github/workflows/theme-readiness.yml');
@@ -819,8 +820,9 @@ function runStaticChecks() {
       ['.github/workflows/semantic-release.yml', semanticReleaseWorkflow],
       ['release.config.js', releaseConfigSource],
       ['whisk/README.md', whiskReadme],
-      ['whisk/UPGRADING.md', whiskUpgrading],
+      ['whisk/docs/development.md', whiskDevelopment],
       ['whisk/docs/support-information.md', whiskSupportInformation],
+      ['whisk/docs/upgrading.md', whiskUpgrading],
     ]) {
       ensureNoStaleReleaseLanguage(label, text);
     }
@@ -983,10 +985,19 @@ function runStaticChecks() {
       '/config/emulsify-core/**',
       '/README.md',
       '/screenshot.png',
-      '/UPGRADING.md',
+      '/docs/development.md',
       '/docs/support-information.md',
+      '/docs/upgrading.md',
     ]) {
       ensure(yamlTopLevelListContains(whiskStarterkit, 'no_edit', requiredNoEdit), `whisk.starterkit.yml should not edit ${requiredNoEdit}.`);
+    }
+    for (const documentationPath of [
+      'README.md',
+      'docs/development.md',
+      'docs/support-information.md',
+      'docs/upgrading.md',
+    ]) {
+      ensure(whiskStarterKitProcessor.includes(`'${documentationPath}'`), `whisk/src/StarterKit.php should process ${documentationPath}.`);
     }
     ensure(yamlTopLevelListContains(whiskStarterkit, 'no_rename', '/config/emulsify-core/**'), 'whisk.starterkit.yml should not rename Emulsify Core config files.');
     ensure(whiskStarterkit.includes(`core_version_requirement: '${coreConstraint}'`), 'whisk.starterkit.yml should align generated child theme core compatibility with composer.json.');
@@ -1050,17 +1061,20 @@ function runStaticChecks() {
 
   runStaticCheck('Generated child theme documentation', () => {
     for (const heading of [
-      'Overview',
+      'Quick start',
+      'Documentation',
+    ]) {
+      ensure(whiskReadme.includes(`## ${heading}`), `whisk/README.md should include the ${heading} section.`);
+    }
+
+    for (const heading of [
       'Prerequisites',
       'Initial setup',
       'Development workflow',
       'Asset integration',
-      'Component-library ownership',
-      'Generated-source information',
-      'Maintenance and upgrades',
-      'Troubleshooting',
+      'Project ownership',
     ]) {
-      ensure(whiskReadme.includes(`## ${heading}`), `whisk/README.md should include the ${heading} section.`);
+      ensure(whiskDevelopment.includes(`## ${heading}`), `whisk/docs/development.md should include the ${heading} section.`);
     }
 
     for (const token of [
@@ -1089,7 +1103,7 @@ function runStaticChecks() {
       'src/foundation.scss',
       'dist/global/foundation.css',
     ]) {
-      ensure(whiskReadme.includes(concept), `whisk/README.md should document ${concept}.`);
+      ensure(whiskDevelopment.includes(concept), `whisk/docs/development.md should document ${concept}.`);
     }
 
     for (const concept of [
@@ -1104,7 +1118,7 @@ function runStaticChecks() {
       'npm run build',
       'npm run storybook-build',
     ]) {
-      ensure(whiskUpgrading.includes(concept), `whisk/UPGRADING.md should document ${concept}.`);
+      ensure(whiskUpgrading.includes(concept), `whisk/docs/upgrading.md should document ${concept}.`);
     }
 
     for (const concept of [
