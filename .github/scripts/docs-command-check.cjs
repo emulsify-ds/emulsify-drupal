@@ -5,7 +5,7 @@ const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '../..');
 
-const CHECKS = [
+const ROOT_CHECKS = [
   {
     relativePath: 'README.md',
     heading: 'Generate a child theme',
@@ -42,22 +42,59 @@ const CHECKS = [
     includeInlineCode: true,
     expectedScripts: ['docs:check-commands', 'lint:php', 'release:check'],
   },
+  {
+    relativePath: 'docs/generated-child-theme-contract.md',
+    heading: 'Run the checks',
+    packagePath: 'package.json',
+    packageLabel: 'the root project',
+    expectedScripts: ['test:generated-theme', 'release:check'],
+  },
 ];
 
-function readFile(relativePath) {
-  return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+const THEME_DOC_CHECKS = [
+  {
+    relativePath: 'README.md',
+    packagePath: 'package.json',
+    packageLabel: 'the theme',
+    includeInlineCode: true,
+    expectedScripts: ['develop', 'build', 'storybook', 'storybook-build', 'lint', 'test', 'a11y'],
+    requireNpmInstall: true,
+  },
+  {
+    relativePath: 'UPGRADING.md',
+    packagePath: 'package.json',
+    packageLabel: 'the theme',
+    includeInlineCode: true,
+  },
+  {
+    relativePath: 'docs/support-information.md',
+    packagePath: 'package.json',
+    packageLabel: 'the theme',
+    includeInlineCode: true,
+  },
+];
+
+function readFile(root, relativePath) {
+  return fs.readFileSync(path.join(root, relativePath), 'utf8');
 }
 
-function readJson(relativePath) {
-  return JSON.parse(readFile(relativePath));
+function readJson(root, relativePath) {
+  return JSON.parse(readFile(root, relativePath));
 }
 
 function normalizeHeadingText(text) {
   return text.replace(/\s+#+\s*$/, '').trim();
 }
 
-function extractMarkdownSection(relativePath, heading) {
-  const lines = readFile(relativePath).split(/\r?\n/);
+function extractMarkdownSection(root, relativePath, heading) {
+  const lines = readFile(root, relativePath).split(/\r?\n/);
+
+  if (!heading) {
+    return {
+      text: lines.join('\n'),
+      startLine: 1,
+    };
+  }
 
   for (let index = 0; index < lines.length; index += 1) {
     const match = lines[index].match(/^(#{1,6})\s+(.+?)\s*$/);
@@ -82,7 +119,7 @@ function extractMarkdownSection(relativePath, heading) {
     };
   }
 
-  throw new Error(`${relativePath} is missing the "${heading}" documentation section.`);
+  throw new Error(`${relativePath}:1 is missing the "${heading}" documentation section.`);
 }
 
 function extractShellFenceCommands(section) {
@@ -148,6 +185,11 @@ function extractNpmRunCommands(text, startLine) {
   return commands;
 }
 
+function hasExactNpmInstall(section) {
+  return section.text.split(/\r?\n/).some((line) => line.trim() === 'npm install')
+    || /`npm install`/.test(section.text);
+}
+
 function lineOffsetForIndex(text, index) {
   return text.slice(0, index).split(/\r?\n/).length - 1;
 }
@@ -156,9 +198,33 @@ function unique(values) {
   return [...new Set(values)];
 }
 
-function validateScope(scope) {
-  const section = extractMarkdownSection(scope.relativePath, scope.heading);
-  const packageJson = readJson(scope.packagePath);
+function prefixThemeScope(scope) {
+  return {
+    ...scope,
+    relativePath: path.join('whisk', scope.relativePath),
+    packagePath: path.join('whisk', scope.packagePath),
+  };
+}
+
+function validateScope(root, scope, displayRoot = '') {
+  const displayPath = path.join(displayRoot, scope.relativePath);
+  let section;
+  let packageJson;
+
+  try {
+    section = extractMarkdownSection(root, scope.relativePath, scope.heading);
+  }
+  catch (error) {
+    return { documentedScripts: [], errors: [`${displayPath}:1 ${error.message.replace(/^.*?:1\s+/, '')}`] };
+  }
+
+  try {
+    packageJson = readJson(root, scope.packagePath);
+  }
+  catch (error) {
+    return { documentedScripts: [], errors: [`${path.join(displayRoot, scope.packagePath)}:1 could not be read: ${error.message}`] };
+  }
+
   const scripts = packageJson.scripts || {};
   const commands = [
     ...extractShellFenceCommands(section),
@@ -166,20 +232,25 @@ function validateScope(scope) {
   ];
   const documentedScripts = unique(commands.map((command) => command.script)).sort();
   const errors = [];
+  const scopeLabel = scope.heading ? `${displayPath}#${scope.heading}` : displayPath;
 
-  if (commands.length === 0) {
-    errors.push(`${scope.relativePath}#${scope.heading} does not document any npm run commands for ${scope.packageLabel}.`);
+  if (scope.expectedScripts?.length && commands.length === 0) {
+    errors.push(`${displayPath}:1 ${scopeLabel} does not document any npm run commands for ${scope.packageLabel}.`);
   }
 
   for (const expectedScript of scope.expectedScripts || []) {
     if (!documentedScripts.includes(expectedScript)) {
-      errors.push(`${scope.relativePath}#${scope.heading} should document npm run ${expectedScript} for ${scope.packageLabel}.`);
+      errors.push(`${displayPath}:1 should document npm run ${expectedScript} for ${scope.packageLabel}.`);
     }
+  }
+
+  if (scope.requireNpmInstall && !hasExactNpmInstall(section)) {
+    errors.push(`${displayPath}:1 should document the exact npm install command for ${scope.packageLabel}.`);
   }
 
   for (const command of commands) {
     if (!scripts[command.script]) {
-      errors.push(`${scope.relativePath}:${command.line} documents npm run ${command.script} for ${scope.packageLabel}, but ${scope.packagePath} has no "${command.script}" script.`);
+      errors.push(`${displayPath}:${command.line} documents npm run ${command.script} for ${scope.packageLabel}, but ${path.join(displayRoot, scope.packagePath)} has no "${command.script}" script.`);
     }
   }
 
@@ -189,23 +260,71 @@ function validateScope(scope) {
   };
 }
 
-const errors = [];
-const summaries = [];
+function validateDocumentation(options = {}) {
+  const generatedTheme = options.generatedTheme
+    ? path.resolve(options.cwd || process.cwd(), options.generatedTheme)
+    : null;
+  const checks = generatedTheme
+    ? THEME_DOC_CHECKS
+    : [
+      ...ROOT_CHECKS,
+      ...THEME_DOC_CHECKS.map(prefixThemeScope),
+    ];
+  const root = generatedTheme || repoRoot;
+  const displayRoot = generatedTheme || '';
+  const errors = [];
+  const summaries = [];
 
-for (const scope of CHECKS) {
-  const result = validateScope(scope);
-  errors.push(...result.errors);
-  summaries.push(`${scope.relativePath}#${scope.heading} -> ${scope.packagePath}: ${result.documentedScripts.join(', ')}`);
-}
-
-if (errors.length > 0) {
-  for (const error of errors) {
-    console.error(error);
+  for (const scope of checks) {
+    const result = validateScope(root, scope, displayRoot);
+    errors.push(...result.errors);
+    const scopeLabel = scope.heading
+      ? `${scope.relativePath}#${scope.heading}`
+      : scope.relativePath;
+    summaries.push(`${scopeLabel} -> ${scope.packagePath}: ${result.documentedScripts.join(', ')}`);
   }
-  process.exit(1);
+
+  return { errors, summaries, count: checks.length };
 }
 
-console.log(`Validated documented npm scripts in ${CHECKS.length} documentation sections.`);
-for (const summary of summaries) {
-  console.log(`- ${summary}`);
+function parseArguments(argv) {
+  if (argv.length === 0) {
+    return {};
+  }
+
+  if (argv.length === 2 && argv[0] === '--generated-theme' && argv[1]) {
+    return { generatedTheme: argv[1] };
+  }
+
+  throw new Error('Usage: docs-command-check.cjs [--generated-theme <theme-directory>]');
 }
+
+function runCli(argv = process.argv.slice(2)) {
+  let result;
+  try {
+    result = validateDocumentation(parseArguments(argv));
+  }
+  catch (error) {
+    console.error(error.message);
+    return 1;
+  }
+
+  if (result.errors.length > 0) {
+    for (const error of result.errors) {
+      console.error(error);
+    }
+    return 1;
+  }
+
+  console.log(`Validated documented npm scripts in ${result.count} documentation sections.`);
+  for (const summary of result.summaries) {
+    console.log(`- ${summary}`);
+  }
+  return 0;
+}
+
+if (require.main === module) {
+  process.exitCode = runCli();
+}
+
+module.exports = { validateDocumentation };

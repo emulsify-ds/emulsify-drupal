@@ -181,6 +181,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Install root npm dependencies from lockfile
+        run: npm ci --ignore-scripts
+
       - name: Build fixture site
         run: bash .github/scripts/setup-fixture-site.sh "11.3.*" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 

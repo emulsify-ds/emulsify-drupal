@@ -7,6 +7,7 @@ ignore:
   - '/assets/.DS_Store'
   - '/config/.DS_Store'
   - '/config/emulsify-core/.DS_Store'
+  - '/src/StarterKit.php'
   - '/whisk.info.emulsify.yml'
   - '/whisk.starterkit.yml'
 
@@ -14,7 +15,10 @@ no_edit:
   # These files are copied as build/tooling inputs. Automatic starterkit content
   # replacement can corrupt package-managed config or binary data.
   - '/config/emulsify-core/**'
+  - '/README.md'
   - '/screenshot.png'
+  - '/UPGRADING.md'
+  - '/docs/support-information.md'
 
 no_rename:
   # Emulsify Core config paths are tool conventions, not theme machine-name

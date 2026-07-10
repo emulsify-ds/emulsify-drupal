@@ -31,6 +31,7 @@
     "lint:php": "find . \\( -path './.git' -o -path './node_modules' -o -path './vendor' -o -path './whisk/node_modules' \\) -prune -o -type f \\( -name '*.php' -o -name '*.theme' -o -name '*.module' -o -name '*.install' -o -name '*.inc' \\) -exec php -l {} \\;",
     "lint-staged": "lint-staged",
     "prepare": "[ -d '.git' ] && (husky install) || true",
+    "test:generated-theme": "node --test .github/scripts/generated-theme-contract.test.cjs",
     "release:check": "node .github/scripts/release-check.cjs",
     "publish": "semantic-release --tag-format '${version}'",
     "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
@@ -46,6 +47,7 @@
     "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "husky": "^9.1.7",
+    "js-yaml": "^4.3.0",
     "lint-staged": "^16.4.0",
     "semantic-release": "^25.0.3"
   }

@@ -8,6 +8,8 @@ const { spawnSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
 const expectedProjectLicense = 'GPL-2.0-or-later';
+const requestedWorkDir = process.env.RELEASE_CHECK_WORKDIR || null;
+let generatedWorkDir = null;
 
 // release:check is both a local release guard and a CI sanity check. Static
 // checks always run; smoke checks build disposable Drupal projects unless the
@@ -15,7 +17,7 @@ const expectedProjectLicense = 'GPL-2.0-or-later';
 const options = {
   drupalVersion: process.env.RELEASE_CHECK_DRUPAL_VERSION || null,
   skipSmoke: args.has('--skip-smoke'),
-  workDir: process.env.RELEASE_CHECK_WORKDIR || fs.mkdtempSync(path.join(os.tmpdir(), 'emulsify-release-check-')),
+  workDir: requestedWorkDir,
 };
 
 const results = [];
@@ -56,6 +58,11 @@ function ensure(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+function isPathWithin(parentPath, candidatePath) {
+  const relative = path.relative(parentPath, candidatePath);
+  return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
 }
 
 function normalizeConstraintVersion(constraint) {
@@ -590,6 +597,7 @@ function runStaticChecks() {
   const licenseText = readFile('LICENSE');
   const readme = readFile('README.md');
   const releaseReadinessDoc = readFile('docs/release-readiness.md');
+  const generatedChildThemeContractDoc = readFile('docs/generated-child-theme-contract.md');
   const sisterProjectParityDoc = readFile('docs/sister-project-parity.md');
   const themeEntrypoint = readFile('emulsify.theme');
   const faviconGenerationDoc = readFile('docs/favicon-generation.md');
@@ -602,6 +610,10 @@ function runStaticChecks() {
   const whiskBreakpoints = readFile('whisk/whisk.breakpoints.yml');
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
+  const whiskReadme = readFile('whisk/README.md');
+  const whiskUpgrading = readFile('whisk/UPGRADING.md');
+  const whiskSupportInformation = readFile('whisk/docs/support-information.md');
+  const whiskStarterKitProcessor = readFile('whisk/src/StarterKit.php');
   const starterkitSmoke = readFile('.github/scripts/starterkit-smoke.sh');
   const themeReadinessWorkflow = readFile('.github/workflows/theme-readiness.yml');
   const semanticReleaseWorkflow = readFile('.github/workflows/semantic-release.yml');
@@ -709,7 +721,9 @@ function runStaticChecks() {
     ensure(!rootPackage.dependencies || !rootPackage.dependencies['graceful-fs'], 'package.json should not declare unused graceful-fs as a direct dependency.');
     ensure(rootPackage.scripts && rootPackage.scripts.prepare, 'package.json prepare script is required.');
     ensure(rootPackage.scripts['docs:check-commands'], 'package.json should expose a docs:check-commands script.');
+    ensure(rootPackage.scripts['test:generated-theme'] === 'node --test .github/scripts/generated-theme-contract.test.cjs', 'package.json should expose the focused generated child theme contract tests.');
     ensure(rootPackage.scripts['release:check'], 'package.json should expose a release:check script.');
+    ensure(rootPackage.devDependencies && rootPackage.devDependencies['js-yaml'], 'package.json should declare js-yaml directly for generated Drupal metadata validation.');
     const phpLintScript = rootPackage.scripts['lint:php'] || '';
     for (const prunedPath of ['./.git', './node_modules', './vendor', './whisk/node_modules']) {
       ensure(phpLintScript.includes(`-path '${prunedPath}'`), `package.json lint:php should prune ${prunedPath}.`);
@@ -763,6 +777,17 @@ function runStaticChecks() {
     return 'No duplicate script keys were found in package metadata.';
   });
 
+  runStaticCheck('Generated child theme contract tests', () => {
+    const result = runCapturedCommand(
+      process.execPath,
+      ['--test', path.join(repoRoot, '.github/scripts/generated-theme-contract.test.cjs')],
+      repoRoot,
+    );
+    const output = [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
+    ensure(result.status === 0, output || 'Focused generated child theme contract tests failed.');
+    return 'Validated focused generated child theme fixtures and actionable failure output.';
+  });
+
   runStaticCheck('Documented npm commands', () => {
     const result = runCapturedCommand(
       process.execPath,
@@ -793,6 +818,9 @@ function runStaticChecks() {
       ['.github/workflows/theme-readiness.yml', themeReadinessWorkflow],
       ['.github/workflows/semantic-release.yml', semanticReleaseWorkflow],
       ['release.config.js', releaseConfigSource],
+      ['whisk/README.md', whiskReadme],
+      ['whisk/UPGRADING.md', whiskUpgrading],
+      ['whisk/docs/support-information.md', whiskSupportInformation],
     ]) {
       ensureNoStaleReleaseLanguage(label, text);
     }
@@ -943,25 +971,53 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Whisk starter generated child theme', () => {
-    for (const requiredIgnore of ['/whisk.info.emulsify.yml', '/whisk.starterkit.yml']) {
+    const generatedThemeContract = readFile('.github/scripts/generated-theme-contract.cjs');
+    const generatedThemeContractTests = readFile('.github/scripts/generated-theme-contract.test.cjs');
+    const docsCommandCheck = readFile('.github/scripts/docs-command-check.cjs');
+
+    for (const requiredIgnore of ['/src/StarterKit.php', '/whisk.info.emulsify.yml', '/whisk.starterkit.yml']) {
       ensure(whiskStarterkit.includes(requiredIgnore), `whisk.starterkit.yml should ignore ${requiredIgnore}.`);
     }
     ensure(!whiskStarterkit.includes('/project.emulsify.json'), 'whisk.starterkit.yml should copy project.emulsify.json into generated child themes.');
-    for (const requiredNoEdit of ['/config/emulsify-core/**', '/screenshot.png']) {
+    for (const requiredNoEdit of [
+      '/config/emulsify-core/**',
+      '/README.md',
+      '/screenshot.png',
+      '/UPGRADING.md',
+      '/docs/support-information.md',
+    ]) {
       ensure(yamlTopLevelListContains(whiskStarterkit, 'no_edit', requiredNoEdit), `whisk.starterkit.yml should not edit ${requiredNoEdit}.`);
     }
     ensure(yamlTopLevelListContains(whiskStarterkit, 'no_rename', '/config/emulsify-core/**'), 'whisk.starterkit.yml should not rename Emulsify Core config files.');
     ensure(whiskStarterkit.includes(`core_version_requirement: '${coreConstraint}'`), 'whisk.starterkit.yml should align generated child theme core compatibility with composer.json.');
     ensure(/^\s*hidden:\s+null\s*$/m.test(whiskStarterkit), 'whisk.starterkit.yml should expose hidden: null in the starterkit info overrides.');
-    for (const starterOnlyFile of ['whisk.starterkit.yml', 'whisk.info.emulsify.yml']) {
-      ensure(starterkitSmoke.includes(starterOnlyFile), `starterkit-smoke.sh should assert ${starterOnlyFile} is not retained.`);
+    ensure(generatedThemeContract.includes('\\.starterkit\\.yml$'), 'generated-theme-contract.cjs should reject retained or renamed Starterkit configuration.');
+    ensure(generatedThemeContract.includes('\\.info\\.emulsify\\.yml$'), 'generated-theme-contract.cjs should reject retained or renamed generation-only info metadata.');
+    ensure(starterkitSmoke.includes('generated-theme-contract.cjs'), 'starterkit-smoke.sh should use the shared generated child theme validator.');
+    ensure(starterkitSmoke.includes('validate_generated_theme'), 'starterkit-smoke.sh should validate each generated child theme scenario.');
+    ensure(starterkitSmoke.includes('example_theme'), 'starterkit-smoke.sh should generate the normal example_theme identity.');
+    ensure(starterkitSmoke.includes('civic_portal'), 'starterkit-smoke.sh should generate a second valid machine-name identity.');
+    ensure(starterkitSmoke.includes('--name "$display_name"'), 'starterkit-smoke.sh should pass supported human-readable Starterkit names.');
+    ensure(starterkitSmoke.includes('--description "$description"'), 'starterkit-smoke.sh should pass supported punctuation-bearing Starterkit descriptions.');
+    ensure(generatedThemeContract.includes("require('js-yaml')"), 'generated-theme-contract.cjs should parse generated YAML with js-yaml.');
+    ensure(generatedThemeContract.includes('generatedFromVersion'), 'generated-theme-contract.cjs should validate generated source version lineage.');
+    ensure(generatedThemeContract.includes('singleDirectoryComponents'), 'generated-theme-contract.cjs should validate component-neutral SDC metadata.');
+    ensure(generatedThemeContract.includes('validateDocumentation'), 'generated-theme-contract.cjs should reuse the documentation command checker for generated child themes.');
+    ensure(docsCommandCheck.includes('--generated-theme'), 'docs-command-check.cjs should support validating a generated child theme directory.');
+    ensure(generatedThemeContractTests.includes('missing Sass entrypoint'), 'generated-theme-contract.test.cjs should cover missing library source files.');
+    ensure(generatedThemeContractTests.includes('unreplaced Starterkit placeholder'), 'generated-theme-contract.test.cjs should cover stale placeholders.');
+    ensure(generatedThemeContractTests.includes('requires the generated documentation set'), 'generated-theme-contract.test.cjs should cover missing generated documentation.');
+    ensure(releaseReadinessDoc.includes('generated-child-theme-contract.md'), 'docs/release-readiness.md should link the generated child theme contract.');
+    for (const intentionalExclusion of [
+      'a particular component library',
+      'example component',
+      'frontend CSS behavior',
+      'frontend JavaScript behavior',
+      'design-token system',
+      'Emulsify Tools',
+    ]) {
+      ensure(generatedChildThemeContractDoc.includes(intentionalExclusion), `docs/generated-child-theme-contract.md should exclude ${intentionalExclusion} from the contract.`);
     }
-    ensure(starterkitSmoke.includes('assert_existing_file "project.emulsify.json"'), 'starterkit-smoke.sh should require project.emulsify.json in generated child themes.');
-    ensure(starterkitSmoke.includes('"platform": "drupal"'), 'starterkit-smoke.sh should assert the generated Emulsify project uses the Drupal platform adapter.');
-    ensure(starterkitSmoke.includes('"singleDirectoryComponents": true'), 'starterkit-smoke.sh should assert generated child theme SDC behavior.');
-    ensure(starterkitSmoke.includes('"generatedFrom": "emulsify-drupal"'), 'starterkit-smoke.sh should assert generated child theme source lineage.');
-    ensure(starterkitSmoke.includes('generatedFromVersion'), 'starterkit-smoke.sh should assert generated child theme source version lineage.');
-    ensure(starterkitSmoke.includes('source_version'), 'starterkit-smoke.sh should compare generated child theme lineage to the Whisk source metadata version.');
     ensure(starterkitSmoke.includes('phase="${3:-all}"'), 'starterkit-smoke.sh should support split CI phases while preserving all-in-one local runs.');
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated child theme Vite-based build workflow.');
@@ -980,6 +1036,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'theme-readiness.yml should enable generated Storybook build coverage in extended checks.');
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_A11Y'), 'theme-readiness.yml should enable generated accessibility coverage in extended checks.');
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'theme-readiness.yml should enable generated starter test coverage in extended checks.');
+    ensure((themeReadinessWorkflow.match(/npm ci --ignore-scripts/g) || []).length >= 2, 'theme-readiness.yml should install root validator dependencies in both readiness jobs.');
     ensure(!themeReadinessWorkflow.includes("Generated child theme: build design tokens"), 'theme-readiness.yml should not assume generated child themes use a design-token pipeline.');
     ensure(themeReadinessWorkflow.includes('timeout-minutes'), 'theme-readiness.yml should bound starterkit smoke phases with timeouts.');
     ensure(themeReadinessWorkflow.includes('Upload generated child theme smoke artifacts'), 'theme-readiness.yml should upload generated child theme smoke artifacts on failure.');
@@ -989,6 +1046,88 @@ function runStaticChecks() {
     ensure(extractYamlValue(whiskInfoStarter, 'version') === 'VERSION', 'whisk.info.emulsify.yml should preserve Drupal\'s VERSION token.');
     ensure(extractYamlValue(whiskInfoStarter, 'hidden') === 'false', 'whisk.info.emulsify.yml should unhide generated child themes.');
     return 'Whisk starter source files and generated child theme markers look consistent.';
+  });
+
+  runStaticCheck('Generated child theme documentation', () => {
+    for (const heading of [
+      'Overview',
+      'Prerequisites',
+      'Initial setup',
+      'Development workflow',
+      'Asset integration',
+      'Component-library ownership',
+      'Generated-source information',
+      'Maintenance and upgrades',
+      'Troubleshooting',
+    ]) {
+      ensure(whiskReadme.includes(`## ${heading}`), `whisk/README.md should include the ${heading} section.`);
+    }
+
+    for (const token of [
+      '%%EMULSIFY_THEME_NAME%%',
+      '%%EMULSIFY_MACHINE_NAME%%',
+      '%%EMULSIFY_DESCRIPTION%%',
+      '%%EMULSIFY_SOURCE_PROJECT%%',
+      '%%EMULSIFY_SOURCE_VERSION%%',
+      '%%EMULSIFY_CORE_RANGE%%',
+    ]) {
+      ensure(whiskReadme.includes(token), `whisk/README.md should include generated documentation token ${token}.`);
+      ensure(whiskStarterKitProcessor.includes(token), `whisk/src/StarterKit.php should replace generated documentation token ${token}.`);
+    }
+
+    for (const concept of [
+      'project-owned',
+      'does not prescribe or scaffold a component library',
+      'Single Directory Components',
+      'Twig components',
+      'React components',
+      'Vite',
+      'Storybook',
+      'project.emulsify.json',
+      'generatedFrom',
+      'generatedFromVersion',
+      'src/foundation.scss',
+      'dist/global/foundation.css',
+    ]) {
+      ensure(whiskReadme.includes(concept), `whisk/README.md should document ${concept}.`);
+    }
+
+    for (const concept of [
+      'npm dependency update',
+      'newer starter release',
+      'fresh, temporary comparison theme',
+      'project-owned templates',
+      'project.generatedFrom',
+      'project.generatedFromVersion',
+      'npm run lint',
+      'npm run test',
+      'npm run build',
+      'npm run storybook-build',
+    ]) {
+      ensure(whiskUpgrading.includes(concept), `whisk/UPGRADING.md should document ${concept}.`);
+    }
+
+    for (const concept of [
+      'node --version',
+      'npm --version',
+      'npm ls @emulsify/core --depth=0',
+      'npm run',
+      'php --version',
+      'composer --version',
+      'composer show drupal/core --no-ansi',
+      'npm run build',
+      'npm run storybook-build',
+      'sanitized',
+      'Emulsify Tools',
+    ]) {
+      ensure(whiskSupportInformation.includes(concept), `whisk/docs/support-information.md should document ${concept}.`);
+    }
+
+    ensure(whiskStarterKitProcessor.includes('implements StarterKitInterface'), 'whisk/src/StarterKit.php should use Drupal Starterkit post-processing.');
+    ensure(whiskStarterKitProcessor.includes('project.emulsify.json'), 'whisk/src/StarterKit.php should read generated source metadata.');
+    ensure(whiskStarterKitProcessor.includes("dependencies']['@emulsify/core'"), 'whisk/src/StarterKit.php should read the generated Emulsify Core range.');
+    ensure(whiskStarterKitProcessor.includes('strtr('), 'whisk/src/StarterKit.php should replace project documentation tokens in one pass.');
+    return 'Generated docs cover project ownership, frontend workflows, upgrades, and sanitized support collection.';
   });
 
   runStaticCheck('Schema validity', () => {
@@ -1024,7 +1163,21 @@ function runSmokeChecks() {
     return;
   }
 
-  const smokeRoot = options.workDir;
+  let smokeRoot;
+  if (options.workDir) {
+    const requestedPath = path.resolve(options.workDir);
+    const requestedRoot = fs.existsSync(requestedPath) ? fs.realpathSync(requestedPath) : requestedPath;
+    if (requestedRoot === path.parse(requestedRoot).root || isPathWithin(fs.realpathSync(repoRoot), requestedRoot)) {
+      addResult('FAIL', 'Smoke work directory', `RELEASE_CHECK_WORKDIR must be outside the repository and cannot be a filesystem root. Received ${requestedRoot}.`);
+      return;
+    }
+    fs.mkdirSync(requestedRoot, { recursive: true });
+    smokeRoot = path.join(requestedRoot, 'emulsify-release-check-work');
+  }
+  else {
+    smokeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'emulsify-release-check-'));
+    generatedWorkDir = smokeRoot;
+  }
   const baseFixture = path.join(smokeRoot, 'base-fixture');
   const generatedThemeFixture = path.join(smokeRoot, 'generated-theme-fixture');
   const faviconFixture = path.join(smokeRoot, 'favicon-fixture');
@@ -1112,9 +1265,22 @@ function printSummary() {
   }
 }
 
-runStaticChecks();
-runSmokeChecks();
-printSummary();
+let exitCode = 1;
+try {
+  runStaticChecks();
+  runSmokeChecks();
+  printSummary();
+  exitCode = results.some((result) => result.status === 'FAIL') ? 1 : 0;
+}
+finally {
+  if (generatedWorkDir) {
+    fs.rmSync(generatedWorkDir, {
+      force: true,
+      maxRetries: 5,
+      recursive: true,
+      retryDelay: 200,
+    });
+  }
+}
 
-const hasBlockingFailure = results.some((result) => result.status === 'FAIL');
-process.exit(hasBlockingFailure ? 1 : 0);
+process.exit(exitCode);

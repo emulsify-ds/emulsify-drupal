@@ -22,8 +22,6 @@ regions:
   content_bottom: Content Bottom
   footer: Footer
 
-logo: assets/images/logo.svg
-
 # Legacy Twig namespace support.
 #
 # Prefer Drupal Single Directory Component names for new project Twig, such as:
