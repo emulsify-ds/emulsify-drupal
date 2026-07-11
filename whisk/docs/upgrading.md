@@ -22,7 +22,6 @@ The range in `package.json` describes compatible Emulsify Core releases; it is n
 3. Compare the fresh theme with this project, concentrating on:
    - `package.json`, `project.emulsify.json`, and `.nvmrc`;
    - `config/emulsify-core/` plus Vite, Storybook, Jest, lint, and formatting scripts;
-   - the Sass entrypoints and Drupal library output paths;
    - theme info, settings schema, breakpoints, and templates;
    - the README, development guide, upgrade guidance, and support checklist.
 4. Port only changes that benefit the project. Resolve them against local customizations instead of copying the fresh theme over this directory.
@@ -32,7 +31,7 @@ Starter releases do not provide an automatic project diff or migration. The fres
 
 ## Validate the result
 
-From this theme directory:
+From this theme directory, run the checks supported by the installed component library:
 
 ```bash
 npm install

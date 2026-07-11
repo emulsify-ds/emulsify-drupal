@@ -26,9 +26,23 @@ npm install
 
 Use `npm install` for the first installation because a generated theme does not initially include a lockfile. After your project commits a `package-lock.json`, use `npm ci` in CI and other reproducible installs.
 
+## Asset integration
+
+The starter does not prescribe asset source directories, Sass entrypoints, build output paths, or Drupal asset libraries. The selected component library owns:
+
+- the project source and component directory structure;
+- stylesheet and JavaScript entrypoints;
+- compiled asset locations;
+- Drupal library definitions and attachment; and
+- any design-token pipeline.
+
+The generated theme initially has no `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` file and attaches no project asset library. Follow the selected component library's installation instructions to create its preferred structure and Drupal integration.
+
+The shared lint, formatting, and test defaults discover supported files across the project without requiring `src` or `components`. The selected component library may extend those project-owned commands and configuration when it needs more specific behavior.
+
 ## Development workflow
 
-Run Vite in watch mode and Storybook together:
+Install the project component library before running asset-dependent commands. Once it provides build inputs, run Vite in watch mode and Storybook together:
 
 ```bash
 npm run develop
@@ -40,7 +54,7 @@ Run Storybook alone when you do not need the Vite watcher:
 npm run storybook
 ```
 
-Build production CSS:
+Build production assets:
 
 ```bash
 npm run build
@@ -62,17 +76,6 @@ npm run a11y
 
 `npm run test` succeeds when no tests have been added yet. The accessibility check builds Storybook first, so it takes longer than lint or unit tests.
 
-## Asset integration
-
-The initial asset contract is CSS-only:
-
-- `src/foundation.scss` builds to `dist/global/foundation.css`.
-- `src/layout.scss` builds to `dist/global/layout.css`.
-- `src/tokens.scss` builds to `dist/global/tokens.css`.
-- `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` declares those outputs, and `%%EMULSIFY_MACHINE_NAME%%.info.yml` attaches the global library.
-
-Run `npm run build` after changing the Sass entrypoints. No JavaScript library is declared initially; add JavaScript only when the project needs it and declare the resulting output in `%%EMULSIFY_MACHINE_NAME%%.libraries.yml`.
-
 ## Project ownership
 
 ### Component library
@@ -85,7 +88,7 @@ Keep application-specific components in this repository. Treat `config/emulsify-
 
 `project.emulsify.json` records the Drupal platform, machine name, Single Directory Component support, source project, source version, and starter repository. Preserve `generatedFrom` and `generatedFromVersion`: they identify the baseline used to create this theme and make future comparisons reproducible.
 
-Generation is a starting point, not a continuing ownership boundary. Files copied into this theme—including `package.json`, build configuration, Sass entrypoints, Drupal metadata, templates, and these docs—now belong to the project.
+Generation is a starting point, not a continuing ownership boundary. Files copied into this theme—including `package.json`, build configuration, Drupal metadata, templates, and these docs—now belong to the project.
 
 The original baseline is `%%EMULSIFY_SOURCE_PROJECT%%` `%%EMULSIFY_SOURCE_VERSION%%`, and the expected Emulsify Core range is `%%EMULSIFY_CORE_RANGE%%`. npm may install a newer compatible Core release within that range; review its release notes before accepting dependency updates.
 

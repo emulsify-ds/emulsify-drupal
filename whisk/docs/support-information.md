@@ -6,7 +6,7 @@ Start with the common fixes below. If the problem continues, collect the smalles
 
 - **Wrong Node.js version:** run `nvm use` and compare `node --version` with `.nvmrc` and the `engines.node` value in `package.json`.
 - **Missing package or command:** run `npm install` again from this directory; keep the dependency metadata and Emulsify Core configuration intact.
-- **Drupal cannot find CSS:** run `npm run build`, confirm the `dist/global/*.css` files exist, and compare them with `%%EMULSIFY_MACHINE_NAME%%.libraries.yml`.
+- **Drupal cannot find project assets:** follow the selected component library's build and Drupal integration guidance, then confirm its declared outputs exist and its libraries are attached.
 - **Storybook fails:** run `npm run build` first, then capture tool versions and the complete failing command output using the checklist below.
 - **A generated value looks wrong:** inspect `%%EMULSIFY_MACHINE_NAME%%.info.yml`, `package.json`, and `project.emulsify.json` before editing documentation by hand.
 
@@ -24,7 +24,7 @@ node -e "const data=require('./project.emulsify.json'); console.log(data.project
 
 The expected Emulsify Core range is `%%EMULSIFY_CORE_RANGE%%`. The generated-source record is `%%EMULSIFY_SOURCE_PROJECT%%` `%%EMULSIFY_SOURCE_VERSION%%` for machine name `%%EMULSIFY_MACHINE_NAME%%`.
 
-Reproduce the relevant failure and retain the complete terminal output:
+After a component library is installed, reproduce the relevant failure and retain the complete terminal output:
 
 ```bash
 npm run build

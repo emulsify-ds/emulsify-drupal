@@ -83,13 +83,18 @@ cd web/themes/custom/my_theme
 npm install
 ```
 
-3. Start the generated child theme's local tooling:
+3. Select and install the project's component library. Whisk does not provide a
+   project source tree, build entrypoints, or a Drupal asset library. Follow the
+   component library's setup instructions; once it provides build inputs, start
+   the local tooling:
 
 ```bash
 npm run develop
 ```
 
-Generated child themes use the Vite build workflow and Emulsify Core 4 scripts shipped by the Whisk starter source.
+Generated child themes include the Vite and Storybook tooling from Emulsify
+Core 4. The selected component library owns the source structure and asset
+integration those tools consume.
 
 ### Write Twig component includes
 
@@ -118,15 +123,22 @@ component include guidance.
 
 ### Verify your generated child theme
 
-Run these commands from the generated child theme directory, not from `whisk`:
+Run the install and test commands from the generated child theme directory, not
+from `whisk`:
 
 ```bash
 cd web/themes/custom/my_theme
 node --version
 npm install
+npm run test
+```
+
+After the selected component library supplies project sources, also run its
+asset-dependent checks:
+
+```bash
 npm run build
 npm run storybook-build
-npm run test
 ```
 
 Generated child themes require Node.js 24 or newer. Use `npm install` for the first local install, or `npm ci` when the generated child theme already has a committed `package-lock.json`.
@@ -135,9 +147,9 @@ These checks verify the expected local workflow:
 
 1. `node --version` confirms the Node.js runtime satisfies the generated child theme requirement.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
-3. `npm run build` compiles Drupal-facing assets with the Vite build workflow.
-4. `npm run storybook-build` verifies the static Storybook build.
-5. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+4. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
+5. `npm run storybook-build` verifies the component library's static Storybook build.
 
 Optional browser-based accessibility check:
 
@@ -145,7 +157,9 @@ Optional browser-based accessibility check:
 npm run a11y
 ```
 
-`npm run a11y` builds Storybook and runs the Emulsify Core accessibility check. Use it in local or CI environments that can run the required browser-based tooling.
+`npm run a11y` builds Storybook and runs the Emulsify Core accessibility check.
+Run it after component-library installation in local or CI environments that
+can use the required browser-based tooling.
 
 ### Manage generated favicon packages
 

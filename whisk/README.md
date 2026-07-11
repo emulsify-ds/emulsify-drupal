@@ -8,7 +8,7 @@ Shared tooling comes from Emulsify Core; the project owns its templates and comp
 |   |   |
 |---|---|
 | Machine name | `%%EMULSIFY_MACHINE_NAME%%` |
-| Drupal files | `%%EMULSIFY_MACHINE_NAME%%.info.yml`, `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` |
+| Drupal metadata | `%%EMULSIFY_MACHINE_NAME%%.info.yml` |
 | Project metadata | [`project.emulsify.json`](project.emulsify.json) |
 | Generated from | `%%EMULSIFY_SOURCE_PROJECT%%` `%%EMULSIFY_SOURCE_VERSION%%` |
 | Expected Emulsify Core range | `%%EMULSIFY_CORE_RANGE%%` |
@@ -22,12 +22,13 @@ nvm install
 nvm use
 ```
 
-Then install dependencies and start development:
+Then install the shared tooling:
 
 ```bash
 npm install
-npm run develop
 ```
+
+The generated theme does not include project asset source files or an asset library. Install the project's component library before running its development and build commands.
 
 ## Documentation
 

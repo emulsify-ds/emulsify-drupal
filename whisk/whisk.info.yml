@@ -11,9 +11,6 @@ hidden: true
 dependencies:
   - 'drupal:emulsify_tools (^2.0)'
 
-libraries:
-  - whisk/global
-
 regions:
   header: Header
   content_top: Content Top

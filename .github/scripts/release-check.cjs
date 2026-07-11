@@ -1015,7 +1015,7 @@ function runStaticChecks() {
     ensure(generatedThemeContract.includes('singleDirectoryComponents'), 'generated-theme-contract.cjs should validate component-neutral SDC metadata.');
     ensure(generatedThemeContract.includes('validateDocumentation'), 'generated-theme-contract.cjs should reuse the documentation command checker for generated child themes.');
     ensure(docsCommandCheck.includes('--generated-theme'), 'docs-command-check.cjs should support validating a generated child theme directory.');
-    ensure(generatedThemeContractTests.includes('missing Sass entrypoint'), 'generated-theme-contract.test.cjs should cover missing library source files.');
+    ensure(generatedThemeContractTests.includes('does not require starter-owned source or build outputs'), 'generated-theme-contract.test.cjs should keep project asset structure out of the generated contract.');
     ensure(generatedThemeContractTests.includes('unreplaced Starterkit placeholder'), 'generated-theme-contract.test.cjs should cover stale placeholders.');
     ensure(generatedThemeContractTests.includes('requires the generated documentation set'), 'generated-theme-contract.test.cjs should cover missing generated documentation.');
     ensure(releaseReadinessDoc.includes('generated-child-theme-contract.md'), 'docs/release-readiness.md should link the generated child theme contract.');
@@ -1033,13 +1033,23 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated child theme Vite-based build workflow.');
     ensure(starterkitSmoke.includes('npm run test'), 'starterkit-smoke.sh should verify the generated child theme test script.');
+    ensure(starterkitSmoke.includes('components/emulsify-smoke'), 'starterkit-smoke.sh should add build input only inside the disposable generated fixture.');
     ensure(!starterkitSmoke.includes('frontend-tokens'), 'starterkit-smoke.sh should not assume a design-token pipeline.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
     ensure(starterkitSmoke.includes('generated-theme-info.yml'), 'starterkit-smoke.sh should copy generated theme info into smoke artifacts.');
     ensure(whiskPackage.scripts.build.includes('vite build --config'), 'whisk/package.json build script should run a finite Vite production build.');
     for (const sourceEntry of ['foundation.scss', 'layout.scss', 'tokens.scss']) {
-      ensure(fs.existsSync(path.join(repoRoot, 'whisk/src', sourceEntry)), `whisk/src/${sourceEntry} should exist so generated Vite builds produce the global library assets.`);
+      ensure(!fs.existsSync(path.join(repoRoot, 'whisk/src', sourceEntry)), `whisk/src/${sourceEntry} should not prescribe project asset structure.`);
     }
+    ensure(
+      JSON.stringify(listFilesRecursive('whisk/src', () => true)) === JSON.stringify(['whisk/src/StarterKit.php']),
+      'whisk/src should contain only the Drupal Starterkit post-processor; component-library source belongs to generated projects.',
+    );
+    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/components')), 'whisk/components should be created only by a selected component library.');
+    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/src/global')), 'whisk/src/global should be owned by the selected component library, not the starter.');
+    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/whisk.libraries.yml')), 'whisk should not prescribe a Drupal asset library before a component library is selected.');
+    ensure(!/^libraries:/m.test(whiskInfo), 'whisk.info.yml should not attach a starter-owned asset library.');
+    ensure(!/^libraries:/m.test(whiskInfoStarter), 'whisk.info.emulsify.yml should not attach a starter-owned asset library.');
     ensure(themeReadinessWorkflow.includes("Whisk starter: generate child theme"), 'theme-readiness.yml should split Whisk starter smoke into a generate step.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: install frontend dependencies"), 'theme-readiness.yml should split generated child theme smoke into a frontend install step.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: run frontend tests"), 'theme-readiness.yml should run the generated child theme test script.');
@@ -1100,8 +1110,8 @@ function runStaticChecks() {
       'project.emulsify.json',
       'generatedFrom',
       'generatedFromVersion',
-      'src/foundation.scss',
-      'dist/global/foundation.css',
+      'does not prescribe asset source directories',
+      'component library owns',
     ]) {
       ensure(whiskDevelopment.includes(concept), `whisk/docs/development.md should document ${concept}.`);
     }

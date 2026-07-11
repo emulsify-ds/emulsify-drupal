@@ -48,21 +48,21 @@ hidden and generation-only, while generated themes are enabled as normal Drupal
 themes that inherit the Emulsify Drupal parent runtime.
 
 Drupal metadata and integration live in Drupal-native files. The parent and
-starter define Drupal compatibility, dependencies, regions, and libraries in
-`.info.yml` and `.libraries.yml` files. Theme settings defaults and schema live
-in `config/install` and `config/schema`, and release checks keep those config
-surfaces aligned with the PHP settings API.
+starter define Drupal compatibility, dependencies, and regions in `.info.yml`
+files. Selected component libraries add project asset definitions and
+attachments through project-owned `.libraries.yml` files. Theme settings
+defaults and schema live in `config/install` and `config/schema`, and release
+checks keep those config surfaces aligned with the PHP settings API.
 
 Generated Drupal child themes keep `platform: drupal`,
 `singleDirectoryComponents: true`, `generatedFrom`, and `generatedFromVersion`
 in `project.emulsify.json`. These fields are shared support diagnostics, not a
 separate PHP compatibility declaration for Drupal themes.
 
-Drupal Whisk intentionally keeps minimal `src/tokens.scss`,
-`src/foundation.scss`, and `src/layout.scss` entry points because
-`whisk.libraries.yml` maps their generated Vite output to `dist/global/*.css`.
-They are Drupal library build entry points; design-token tooling remains
-optional and project-owned.
+Drupal Whisk intentionally ships no project asset source directories,
+entrypoints, build outputs, or attached global library. The selected component
+library owns that structure and its Drupal asset integration; design-token
+tooling remains optional and project-owned.
 
 Drupal Single Directory Components are preferred for new component includes.
 New project Twig should include components with Drupal SDC names such as

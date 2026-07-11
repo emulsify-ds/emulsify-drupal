@@ -24,7 +24,7 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 - Confirm generated child themes retain `project.emulsify.json` with `platform`, `singleDirectoryComponents`, `generatedFrom`, and `generatedFromVersion` support metadata.
 - Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
 - Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
-- Confirm Whisk targets `@emulsify/core` `^4.2.0` and keeps the minimal `src/tokens.scss`, `src/foundation.scss`, and `src/layout.scss` library entry points required by `whisk.libraries.yml`.
+- Confirm Whisk targets `@emulsify/core` `^4.2.0` without shipping project asset source directories, entrypoints, or an attached global library before a component library is selected.
 - Confirm favicon defaults, install config, schema, and `FaviconSettings::DEFAULTS` remain in sync.
 - Confirm release automation still emits non-prefixed SemVer tags and has `npmPublish: false`.
 

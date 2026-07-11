@@ -69,9 +69,11 @@ function createValidTheme(t, overrides = {}) {
     version: '1.0.0',
     generator: `${contract.sourceMachineName}:unknown-version`,
     dependencies: contract.sourceInfo.dependencies,
-    libraries: [`${machineName}/global`],
     regions: contract.sourceInfo.regions,
   };
+  if (Array.isArray(contract.sourceInfo.libraries)) {
+    info.libraries = replaceSourceMachine(contract.sourceInfo.libraries, machineName);
+  }
   for (const referenceKey of ['logo', 'screenshot']) {
     if (contract.sourceInfo[referenceKey]) {
       info[referenceKey] = contract.sourceInfo[referenceKey];
@@ -84,7 +86,9 @@ function createValidTheme(t, overrides = {}) {
   project.project.machineName = machineName;
 
   writeFile(themeDir, `${machineName}.info.yml`, yaml.dump(info));
-  writeFile(themeDir, `${machineName}.libraries.yml`, yaml.dump(contract.sourceLibraries));
+  if (contract.sourceLibraries !== null) {
+    writeFile(themeDir, `${machineName}.libraries.yml`, yaml.dump(contract.sourceLibraries));
+  }
   writeFile(themeDir, `${machineName}.theme`, '<?php\n');
   writeFile(themeDir, `${machineName}.breakpoints.yml`, yaml.dump(replaceSourceMachine(contract.sourceBreakpoints, machineName)));
   writeFile(themeDir, `config/install/${machineName}.settings.yml`, yaml.dump(contract.sourceInstall));
@@ -105,10 +109,6 @@ function createValidTheme(t, overrides = {}) {
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.copyFileSync(path.join(DEFAULT_SOURCE_DIR, reference), destination);
     }
-  }
-
-  for (const asset of Object.keys(contract.sourceLibraries.global.css.theme)) {
-    writeFile(themeDir, `src/${path.basename(asset, '.css')}.scss`, '/* Empty generated entrypoint. */\n');
   }
 
   fs.cpSync(
@@ -171,16 +171,6 @@ test('rejects Starterkit-only files even when their filenames were renamed', (t)
   assert.match(output, /Starterkit-only file "example_theme\.info\.emulsify\.yml"/);
 });
 
-test('reports a missing Sass entrypoint referenced by a Drupal library', (t) => {
-  const fixture = createValidTheme(t);
-  fs.rmSync(path.join(fixture.themeDir, 'src/foundation.scss'));
-
-  const output = formatValidationResult(validate(fixture));
-  assert.match(output, /FAIL file references/);
-  assert.match(output, /missing Sass entrypoint "src\/foundation\.scss"/);
-  assert.match(output, /example_theme\.libraries\.yml/);
-});
-
 test('rejects local references that escape the generated child theme', (t) => {
   const fixture = createValidTheme(t);
   const infoPath = path.join(fixture.themeDir, 'example_theme.info.yml');
@@ -194,30 +184,14 @@ test('rejects local references that escape the generated child theme', (t) => {
   assert.match(output, /resolves outside the generated child theme/);
 });
 
-test('reports an incomplete generated Drupal library definition', (t) => {
-  const fixture = createValidTheme(t);
-  const librariesPath = path.join(fixture.themeDir, 'example_theme.libraries.yml');
-  const libraries = yaml.load(fs.readFileSync(librariesPath, 'utf8'));
-  delete libraries.global.css.theme['dist/global/tokens.css'];
-  fs.writeFileSync(librariesPath, yaml.dump(libraries));
-
-  const output = formatValidationResult(validate(fixture));
-  assert.match(output, /FAIL Drupal metadata/);
-  assert.match(output, /incomplete or inconsistent Drupal libraries/);
-  assert.match(output, /missing expected CSS output "dist\/global\/tokens\.css"/);
-  assert.match(output, /expected it from the Whisk source contract/);
-});
-
 test('reports invalid and incorrectly shaped metadata without crashing', (t) => {
   const fixture = createValidTheme(t);
   fs.writeFileSync(path.join(fixture.themeDir, 'package.json'), '{\n');
   fs.writeFileSync(path.join(fixture.themeDir, 'project.emulsify.json'), 'null\n');
-  fs.writeFileSync(path.join(fixture.themeDir, 'example_theme.libraries.yml'), 'global: null\n');
 
   const output = formatValidationResult(validate(fixture));
   assert.match(output, /invalid JSON in "package\.json"/);
   assert.match(output, /requires a top-level JSON object in "project\.emulsify\.json"/);
-  assert.match(output, /requires library "global" .* to be a mapping/);
   assert.doesNotMatch(output, /contract could not run/);
 });
 
@@ -241,14 +215,12 @@ test('groups inconsistent package and project metadata into actionable output', 
   assert.match(output, /expected "example_theme"/);
 });
 
-test('checks declared build outputs only after the build phase', (t) => {
+test('does not require starter-owned source or build outputs', (t) => {
   const fixture = createValidTheme(t);
+  assert.equal(fs.existsSync(path.join(fixture.themeDir, 'src')), false);
+  assert.equal(fs.existsSync(path.join(fixture.themeDir, 'example_theme.libraries.yml')), false);
   assert.deepEqual(validate(fixture).errors, []);
-
-  const output = formatValidationResult(validate(fixture, { checkBuiltAssets: true }));
-  assert.match(output, /FAIL build/);
-  assert.match(output, /missing built CSS asset "dist\/global\/foundation\.css"/);
-  assert.match(output, /expected npm run build to create it/);
+  assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
 });
 
 test('requires the generated documentation set', (t) => {

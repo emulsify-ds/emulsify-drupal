@@ -126,7 +126,7 @@ function loadSourceContract(sourceDir = DEFAULT_SOURCE_DIR) {
     starterkit,
     sourcePackage,
     sourceProject,
-    sourceLibraries: readYaml(path.join(sourceDir, `${sourceMachineName}.libraries.yml`)),
+    sourceLibraries: readOptionalYaml(`${sourceMachineName}.libraries.yml`),
     sourceBreakpoints: readOptionalYaml(`${sourceMachineName}.breakpoints.yml`),
     sourceInstall: readOptionalYaml(`config/install/${sourceMachineName}.settings.yml`),
     sourceSchema: readOptionalYaml(`config/schema/${sourceMachineName}.schema.yml`),
@@ -280,7 +280,9 @@ function validateGeneratedTheme({
   const installRelativePath = `config/install/${machineName}.settings.yml`;
   const schemaRelativePath = `config/schema/${machineName}.schema.yml`;
   parsed.info = parseGeneratedYaml(infoRelativePath, 'drupal');
-  parsed.libraries = parseGeneratedYaml(librariesRelativePath, 'drupal');
+  parsed.libraries = contract.sourceLibraries === null
+    ? null
+    : parseGeneratedYaml(librariesRelativePath, 'drupal');
   parsed.breakpoints = parseGeneratedYaml(breakpointsRelativePath, 'drupal');
   parsed.install = parseGeneratedYaml(installRelativePath, 'drupal');
   parsed.schema = parseGeneratedYaml(schemaRelativePath, 'drupal');
@@ -487,7 +489,6 @@ function validateGeneratedDocumentation({
     ['generated source version', project.generatedFromVersion],
     ['Emulsify Core range', coreRange],
     ['generated info filename', `${machineName}.info.yml`],
-    ['generated libraries filename', `${machineName}.libraries.yml`],
   ];
 
   for (const [label, value] of expectedValues) {
@@ -511,7 +512,7 @@ function checkEqual(addError, section, themeLabel, relativePath, key, actual, ex
 
 function validateInfoReferences({ addError, themeDir, themeLabel, machineName, infoRelativePath, info, libraries }) {
   const libraryDefinitions = libraries || {};
-  if (!Array.isArray(info.libraries)) {
+  if (info.libraries !== undefined && !Array.isArray(info.libraries)) {
     addError('drupal', `${themeLabel} requires a libraries list in ${JSON.stringify(infoRelativePath)}; found ${JSON.stringify(info.libraries)}.`);
   }
 
@@ -587,16 +588,6 @@ function validateLibraryAssets({
           'build',
           `${themeLabel} references missing built ${asset.type.toUpperCase()} asset ${JSON.stringify(asset.path)} from ${JSON.stringify(librariesRelativePath)} library ${JSON.stringify(libraryName)}; expected npm run build to create it.`,
         );
-      }
-
-      if (asset.type === 'css' && asset.path.startsWith('dist/global/') && asset.path.endsWith('.css')) {
-        const sourcePath = `src/${path.basename(asset.path, '.css')}.scss`;
-        if (!fs.existsSync(path.join(themeDir, sourcePath))) {
-          addError(
-            'references',
-            `${themeLabel} references missing Sass entrypoint ${JSON.stringify(sourcePath)} from ${JSON.stringify(librariesRelativePath)} output ${JSON.stringify(asset.path)}; expected the source file to exist in the generated child theme.`,
-          );
-        }
       }
     }
   }

@@ -19,11 +19,12 @@ For each generated child theme, the checks verify:
   source-lineage references that are intentionally retained.
 - The generated `.info.yml` filename and Drupal metadata agree with the
   requested identity, preserve the supported Drupal core constraint, required
-  regions, existing libraries, and the `emulsify` runtime parent theme, and do
-  not mark the result as a Starterkit source.
-- Library names, breakpoints, theme entrypoints, install config, and schema
-  filenames use the generated machine name. Optional files are checked only
-  when they are part of the current Whisk starter contract.
+  regions, and the `emulsify` runtime parent theme, do not attach a
+  starter-owned asset library, and do not mark the result as a Starterkit
+  source.
+- Breakpoints, theme entrypoints, install config, and schema filenames use the
+  generated machine name. Optional files are checked only when they are part of
+  the current Whisk starter contract.
 - `package.json` and `project.emulsify.json` are valid JSON, retain the expected
   npm scripts, Emulsify Core version range, Drupal platform metadata, and
   generated-source lineage, and agree on the generated project identity.
@@ -32,9 +33,9 @@ For each generated child theme, the checks verify:
   display name, machine name, description, source project, source version, and
   Emulsify Core range, and the guides document only npm commands that the
   generated `package.json` exposes.
-- Sass entrypoints referenced by the Drupal libraries contract exist, expected
-  Vite output paths agree with the library definitions, and build and Storybook
-  configuration resolve from the generated child theme or declared packages.
+- Frontend configuration resolves from the generated child theme or declared
+  packages without requiring a starter-owned project asset source directory,
+  entrypoint, or build output.
 - Relative file references do not escape the generated child theme or depend on
   unpublished files from the Emulsify Drupal repository or Whisk source.
 - No retired Stable9 inheritance metadata or language is reintroduced.
@@ -101,9 +102,9 @@ checks that did run.
 - **Frontend metadata:** Package scripts, the Emulsify Core range, Drupal
   platform data, or generated-source lineage disagree. Align `whisk/package.json`
   and `whisk/project.emulsify.json` with the release contract.
-- **File references:** A referenced config file, Sass entrypoint, asset, or
-  relative path is missing or resolves outside the generated child theme. Fix
-  the reference or add the required source file.
+- **File references:** A referenced config file, asset, or relative path is
+  missing or resolves outside the generated child theme. Fix the reference or
+  add the required project file.
 - **Documentation:** A required generated guide is missing, still contains a
   source token, lost project-specific metadata, or documents an npm command the
   generated package does not expose. Fix the Whisk documentation template or

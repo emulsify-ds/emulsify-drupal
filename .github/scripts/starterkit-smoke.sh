@@ -229,8 +229,20 @@ install_frontend() {
   )
 }
 
+prepare_frontend_fixture() {
+  # Whisk intentionally ships no project asset structure. This disposable
+  # entry represents a component library selected after theme generation so
+  # the smoke test can exercise the shared Vite and Storybook tooling.
+  local fixture_entry="${generated_theme_dir}/components/emulsify-smoke/emulsify-smoke.scss"
+  if [ ! -e "$fixture_entry" ]; then
+    mkdir -p "$(dirname "$fixture_entry")"
+    printf '.emulsify-smoke { display: block; }\n' >"$fixture_entry"
+  fi
+}
+
 build_frontend() {
   require_generated_theme
+  prepare_frontend_fixture
   (
     cd "$generated_theme_dir"
     run_logged "build" "$npm_build_log" npm run build
@@ -248,6 +260,7 @@ test_frontend() {
 
 check_accessibility() {
   require_generated_theme
+  prepare_frontend_fixture
   (
     cd "$generated_theme_dir"
     run_logged "accessibility" "$npm_a11y_log" npm run a11y
@@ -256,6 +269,7 @@ check_accessibility() {
 
 build_storybook() {
   require_generated_theme
+  prepare_frontend_fixture
   (
     cd "$generated_theme_dir"
     run_logged "Storybook" "$storybook_build_log" npm run storybook-build

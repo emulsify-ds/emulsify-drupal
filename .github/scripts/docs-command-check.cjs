@@ -57,7 +57,6 @@ const THEME_DOC_CHECKS = [
     packagePath: 'package.json',
     packageLabel: 'the theme',
     includeInlineCode: true,
-    expectedScripts: ['develop'],
     requireNpmInstall: true,
   },
   {
