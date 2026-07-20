@@ -108,6 +108,10 @@ generate_theme() {
     fail "Generated theme must use emulsify as its runtime parent theme."
   fi
 
+  if ! grep -Eq "^name:[[:space:]]*['\"]?${generated_theme}['\"]?[[:space:]]*$" "$generated_theme_info"; then
+    fail "Generated theme name must match the requested project name."
+  fi
+
   # Generated themes must be visible/installable and should not carry the source
   # theme's private starter metadata into consumer projects.
   if grep -Eq '^hidden:[[:space:]]*true[[:space:]]*$' "$generated_theme_info"; then

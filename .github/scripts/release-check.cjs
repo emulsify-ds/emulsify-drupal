@@ -861,6 +861,7 @@ function runStaticChecks() {
     ensure(!themeReadinessWorkflow.includes("Starterkit: build design tokens"), 'theme-readiness.yml should not assume generated themes use a design-token pipeline.');
     ensure(themeReadinessWorkflow.includes('timeout-minutes'), 'theme-readiness.yml should bound starterkit smoke phases with timeouts.');
     ensure(themeReadinessWorkflow.includes('Upload generated theme smoke artifacts'), 'theme-readiness.yml should upload generated theme smoke artifacts on failure.');
+    ensure(extractYamlValue(whiskInfo, 'name') === 'EMULSIFY_NAME', 'whisk.info.yml should keep the child theme name placeholder for Emulsify Tools generation.');
     ensure(extractYamlValue(whiskInfo, 'base theme') === 'emulsify', 'whisk.info.yml should keep emulsify as the generated child theme parent.');
     ensure(extractYamlValue(whiskInfo, 'hidden') === 'true', 'whisk.info.yml should remain hidden.');
     ensure(extractYamlValue(whiskInfoStarter, 'base theme') === 'emulsify', 'whisk.info.emulsify.yml should keep emulsify as the generated child theme parent.');
