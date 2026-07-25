@@ -8,6 +8,7 @@ const { spawnSync } = require('child_process');
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
 const expectedProjectLicense = 'GPL-2.0-or-later';
+const minimumComponentInspectorCoreVersion = '4.3.0';
 const requestedWorkDir = process.env.RELEASE_CHECK_WORKDIR || null;
 let generatedWorkDir = null;
 
@@ -743,7 +744,8 @@ function runStaticChecks() {
     ensure(whiskPackage.engines && whiskPackage.engines.node, 'whisk/package.json engines.node is required.');
     ensure(whiskPackage.type === 'module', 'whisk/package.json must remain an ES module package.');
     ensure(whiskPackage.dependencies && whiskPackage.dependencies['@emulsify/core'], 'whisk/package.json must declare @emulsify/core.');
-    ensure(whiskPackage.dependencies['@emulsify/core'] === '^4.2.0', 'whisk/package.json should target Emulsify Core 4.2 or newer.');
+    ensure(whiskPackage.dependencies['@emulsify/core'] === `^${minimumComponentInspectorCoreVersion}`, `whisk/package.json should target Emulsify Core ${minimumComponentInspectorCoreVersion} or newer for component inspector support.`);
+    ensure(whiskPackage.scripts['inspect:components'] === 'emulsify-inspect-components', 'whisk/package.json inspect:components should invoke the published emulsify-inspect-components binary.');
     ensure(whiskPackage.scripts.build.includes('config/vite/vite.config.js'), 'whisk/package.json build script should use the Emulsify Core Vite config.');
     ensureWhiskPackageScriptTargets(whiskPackage);
     ensure(whiskProject.project && whiskProject.project.platform === 'drupal', 'whisk/project.emulsify.json should preserve the Drupal platform adapter.');
@@ -1033,6 +1035,8 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('tee "$log_file"'), 'starterkit-smoke.sh should stream frontend command output while preserving log artifacts.');
     ensure(starterkitSmoke.includes('npm run build'), 'starterkit-smoke.sh should verify the generated child theme Vite-based build workflow.');
     ensure(starterkitSmoke.includes('npm run test'), 'starterkit-smoke.sh should verify the generated child theme test script.');
+    ensure(starterkitSmoke.includes('npm run inspect:components -- --json'), 'starterkit-smoke.sh should execute the published component inspector with JSON output.');
+    ensure(starterkitSmoke.includes('Array.isArray(report.components)'), 'starterkit-smoke.sh should accept a valid component inspector report, including an empty components array.');
     ensure(starterkitSmoke.includes('components/emulsify-smoke'), 'starterkit-smoke.sh should add build input only inside the disposable generated fixture.');
     ensure(!starterkitSmoke.includes('frontend-tokens'), 'starterkit-smoke.sh should not assume a design-token pipeline.');
     ensure(starterkitSmoke.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'starterkit-smoke.sh should expose release-only Storybook build coverage.');
@@ -1052,6 +1056,7 @@ function runStaticChecks() {
     ensure(!/^libraries:/m.test(whiskInfoStarter), 'whisk.info.emulsify.yml should not attach a starter-owned asset library.');
     ensure(themeReadinessWorkflow.includes("Whisk starter: generate child theme"), 'theme-readiness.yml should split Whisk starter smoke into a generate step.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: install frontend dependencies"), 'theme-readiness.yml should split generated child theme smoke into a frontend install step.');
+    ensure(themeReadinessWorkflow.includes("Generated child theme: inspect components"), 'theme-readiness.yml should run the generated child theme component inspector.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: run frontend tests"), 'theme-readiness.yml should run the generated child theme test script.');
     ensure(themeReadinessWorkflow.includes('Generated Child Theme Storybook and Accessibility'), 'theme-readiness.yml should expose scheduled/manual generated child theme Storybook and a11y coverage.');
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'theme-readiness.yml should enable generated Storybook build coverage in extended checks.');
@@ -1081,6 +1086,7 @@ function runStaticChecks() {
     for (const heading of [
       'Prerequisites',
       'Initial setup',
+      'Component inspection',
       'Development workflow',
       'Asset integration',
       'Project ownership',
@@ -1113,6 +1119,9 @@ function runStaticChecks() {
       'generatedFromVersion',
       'does not prescribe asset source directories',
       'component library owns',
+      'npm run inspect:components',
+      'npm run inspect:components -- --json',
+      'npm run inspect:components -- --help',
     ]) {
       ensure(whiskDevelopment.includes(concept), `whisk/docs/development.md should document ${concept}.`);
     }
@@ -1126,6 +1135,7 @@ function runStaticChecks() {
       'project.generatedFromVersion',
       'npm run lint',
       'npm run test',
+      'npm run inspect:components',
       'npm run build',
       'npm run storybook-build',
     ]) {

@@ -25,6 +25,7 @@
     "develop": "npm run ensure-dist && concurrently --raw --no-shell npm:vite npm:storybook",
     "ensure-dist": "mkdir -p dist",
     "format": "npm run lint-fix; npm run prettier-fix",
+    "inspect:components": "emulsify-inspect-components",
     "lint": "npm run lint-js; npm run lint-styles",
     "lint-fix": "npm run lint-js -- --fix; npm run lint-styles -- --fix",
     "lint-js": "eslint --config config/emulsify-core/eslint.config.js --no-error-on-unmatched-pattern .",
@@ -38,7 +39,7 @@
     "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js"
   },
   "dependencies": {
-    "@emulsify/core": "^4.2.0"
+    "@emulsify/core": "^4.3.0"
   },
   "overrides": {
     "glob": "^13.0.6",

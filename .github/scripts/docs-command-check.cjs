@@ -18,7 +18,14 @@ const ROOT_CHECKS = [
     heading: 'Verify your generated child theme',
     packagePath: 'whisk/package.json',
     packageLabel: 'generated child themes',
-    expectedScripts: ['build', 'storybook-build', 'test', 'a11y'],
+    expectedScripts: ['build', 'storybook-build', 'test', 'a11y', 'inspect:components'],
+  },
+  {
+    relativePath: 'UPGRADE.md',
+    heading: 'Component Inspector',
+    packagePath: 'whisk/package.json',
+    packageLabel: 'generated child themes',
+    expectedScripts: ['inspect:components'],
   },
   {
     relativePath: 'UPGRADE.md',
@@ -64,7 +71,7 @@ const THEME_DOC_CHECKS = [
     packagePath: 'package.json',
     packageLabel: 'the theme',
     includeInlineCode: true,
-    expectedScripts: ['develop', 'build', 'storybook', 'storybook-build', 'lint', 'test', 'a11y'],
+    expectedScripts: ['develop', 'build', 'storybook', 'storybook-build', 'lint', 'test', 'a11y', 'inspect:components'],
     requireNpmInstall: true,
   },
   {
@@ -72,6 +79,7 @@ const THEME_DOC_CHECKS = [
     packagePath: 'package.json',
     packageLabel: 'the theme',
     includeInlineCode: true,
+    expectedScripts: ['inspect:components'],
   },
   {
     relativePath: 'docs/support-information.md',

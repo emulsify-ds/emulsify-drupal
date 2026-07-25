@@ -58,9 +58,10 @@ those static checks.
 The full release check creates a disposable Drupal site, invokes Drupal core's
 Starterkit generator, validates every generated identity, and exercises the
 primary generated child theme through enable, render, frontend install, build,
-and configured frontend test and Storybook smoke phases. It requires Bash,
-Git, rsync, a supported PHP version, Composer, SQLite, network access, Node.js,
-GD, and Imagick.
+component inspection, and configured frontend test and Storybook smoke phases.
+The component inspection accepts a valid empty JSON report when the generated
+theme has no components. The full check requires Bash, Git, rsync, a supported
+PHP version, Composer, SQLite, network access, Node.js, GD, and Imagick.
 
 GitHub Actions uses the same release and Starterkit helpers as local checks.
 Pull requests run the static and Drupal fixture coverage. Scheduled and manual

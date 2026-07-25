@@ -131,6 +131,18 @@ cd web/themes/custom/my_theme
 node --version
 npm install
 npm run test
+npm run inspect:components
+```
+
+The component inspector discovers the project component inventory and reports
+component metadata, dependencies, configuration issues, and orphaned files. It
+does not require components to exist, so a newly generated component-neutral
+theme returns a valid empty report. Use JSON output for automation or view the
+command help:
+
+```bash
+npm run inspect:components -- --json
+npm run inspect:components -- --help
 ```
 
 After the selected component library supplies project sources, also run its
@@ -148,8 +160,9 @@ These checks verify the expected local workflow:
 1. `node --version` confirms the Node.js runtime satisfies the generated child theme requirement.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
 3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
-4. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
-5. `npm run storybook-build` verifies the component library's static Storybook build.
+4. `npm run inspect:components` reports the component inventory and related project health information.
+5. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
+6. `npm run storybook-build` verifies the component library's static Storybook build.
 
 Optional browser-based accessibility check:
 

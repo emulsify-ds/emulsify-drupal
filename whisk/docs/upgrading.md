@@ -35,11 +35,15 @@ From this theme directory, run the checks supported by the installed component l
 
 ```bash
 npm install
+npm run inspect:components
 npm run lint
 npm run test
 npm run build
 npm run storybook-build
 ```
+
+The component inspector may return an empty report when the project has no
+components; a successful empty report is valid.
 
 Also enable and render the theme in the project's supported Drupal environment when Drupal metadata, Twig templates, components, or library declarations changed.
 

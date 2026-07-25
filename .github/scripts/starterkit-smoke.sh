@@ -6,7 +6,7 @@ set -euo pipefail
 # installable, renderable, and compatible with the Vite-based build workflow
 # powered by Emulsify Core 4.
 if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|frontend-test|frontend-a11y|storybook-build]" >&2
+  echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-inspect|frontend-build|frontend-test|frontend-a11y|storybook-build]" >&2
   exit 1
 fi
 
@@ -32,6 +32,8 @@ npm_build_log="${output_dir}/npm-build.log"
 npm_test_log="${output_dir}/npm-test.log"
 npm_a11y_log="${output_dir}/npm-a11y.log"
 storybook_build_log="${output_dir}/storybook-build.log"
+component_inspector_report="${output_dir}/component-inspector.json"
+component_inspector_log="${output_dir}/component-inspector.log"
 
 mkdir -p "$output_dir"
 
@@ -229,6 +231,44 @@ install_frontend() {
   )
 }
 
+inspect_components() {
+  require_generated_theme
+  (
+    cd "$generated_theme_dir"
+    echo "[component inspector] Running: npm run inspect:components -- --json"
+    set +e
+    npm_config_loglevel=silent npm run inspect:components -- --json \
+      >"$component_inspector_report" 2>"$component_inspector_log"
+    local status="$?"
+    set -e
+
+    if [ "$status" -ne 0 ]; then
+      echo "FAIL [component inspector] Command failed with status ${status}." >&2
+      show_log_tail "$component_inspector_log"
+      exit "$status"
+    fi
+
+    cat "$component_inspector_report"
+    if ! node -e '
+      const fs = require("fs");
+      const report = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+      if (!isObject(report)
+        || !isObject(report.project)
+        || !isObject(report.project.namespaceRoots)
+        || typeof report.project.platform !== "string"
+        || typeof report.project.singleDirectoryComponents !== "boolean"
+        || !Array.isArray(report.components)) {
+        throw new Error("Expected component inspector JSON with a project object and components array.");
+      }
+    ' "$component_inspector_report"; then
+      fail "Component inspector did not produce a valid JSON report."
+    fi
+
+    echo "PASS [component inspector] Valid JSON report with a components array."
+  )
+}
+
 prepare_frontend_fixture() {
   # Whisk intentionally ships no project asset structure. This disposable
   # entry represents a component library selected after theme generation so
@@ -289,6 +329,9 @@ case "$phase" in
   frontend-install)
     install_frontend
     ;;
+  frontend-inspect)
+    inspect_components
+    ;;
   frontend-build)
     build_frontend
     ;;
@@ -306,6 +349,7 @@ case "$phase" in
     enable_theme
     render_theme
     install_frontend
+    inspect_components
     build_frontend
     if [ "${EMULSIFY_STARTERKIT_TEST:-0}" = "1" ]; then
       test_frontend
@@ -319,7 +363,7 @@ case "$phase" in
     ;;
   *)
     echo "Unknown starterkit smoke phase: ${phase}" >&2
-    echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-build|frontend-test|frontend-a11y|storybook-build]" >&2
+    echo "Usage: $0 <fixture-dir> <output-dir> [all|generate|enable|render|frontend-install|frontend-inspect|frontend-build|frontend-test|frontend-a11y|storybook-build]" >&2
     exit 1
     ;;
 esac

@@ -40,6 +40,21 @@ The generated theme initially has no `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` f
 
 The shared lint, formatting, and test defaults discover supported files across the project without requiring `src` or `components`. The selected component library may extend those project-owned commands and configuration when it needs more specific behavior.
 
+## Component inspection
+
+Inspect the project from this generated theme's root directory:
+
+```bash
+npm run inspect:components
+npm run inspect:components -- --json
+npm run inspect:components -- --help
+```
+
+The component inspector discovers components and reports their metadata,
+dependencies, configuration issues, and orphaned files. It is safe to run
+before a component library is installed; a component-neutral project returns a
+valid empty report.
+
 ## Development workflow
 
 Install the project component library before running asset-dependent commands. Once it provides build inputs, run Vite in watch mode and Storybook together:
