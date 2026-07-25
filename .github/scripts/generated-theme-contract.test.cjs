@@ -148,7 +148,7 @@ test('accepts a valid generated machine name that contains the source name', (t)
 
 test('reports an unreplaced Starterkit placeholder with its replacement', (t) => {
   const fixture = createValidTheme(t);
-  writeFile(fixture.themeDir, 'config/stale.txt', 'namespace: Drupal\\whiskHelper\nlabel: Whisk Starter\n');
+  writeFile(fixture.themeDir, 'config/stale.txt', 'namespace: Drupal\\whiskHelper\nlabel: EMULSIFY_NAME\n');
 
   const output = formatValidationResult(validate(fixture));
   assert.match(output, /FAIL placeholder replacement/);
@@ -156,7 +156,7 @@ test('reports an unreplaced Starterkit placeholder with its replacement', (t) =>
   assert.match(output, /config\/stale\.txt:1/);
   assert.match(output, /stale starter machine name "whisk"/);
   assert.match(output, /expected "example_theme"/);
-  assert.match(output, /stale starter display name "Whisk Starter"/);
+  assert.match(output, /stale legacy placeholder "EMULSIFY_NAME"/);
   assert.match(output, /expected "Example Theme"/);
 });
 

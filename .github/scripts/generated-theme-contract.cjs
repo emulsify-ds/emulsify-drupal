@@ -131,8 +131,7 @@ function loadSourceContract(sourceDir = DEFAULT_SOURCE_DIR) {
     sourceInstall: readOptionalYaml(`config/install/${sourceMachineName}.settings.yml`),
     sourceSchema: readOptionalYaml(`config/schema/${sourceMachineName}.schema.yml`),
     staleDisplayValues: [...new Set(
-      [sourceInfo.name, alternateInfo.name]
-        .filter((value) => value && String(value).toLowerCase() !== sourceMachineName.toLowerCase()),
+      [sourceInfo.name, alternateInfo.name].filter((value) => value && value !== 'EMULSIFY_NAME' && String(value).toLowerCase() !== sourceMachineName.toLowerCase()),
     )],
     staleDescriptionValues: [...new Set([sourceInfo.description, alternateInfo.description].filter(Boolean))],
   };
