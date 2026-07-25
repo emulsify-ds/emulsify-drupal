@@ -1,0 +1,7 @@
+global:
+  version: VERSION
+  css:
+    theme: {}
+#      dist/global/style.css: { minified: true }
+  js: {}
+#    dist/global/script.js: { minified: true }

@@ -218,7 +218,9 @@ test('groups inconsistent package and project metadata into actionable output', 
 test('does not require starter-owned source or build outputs', (t) => {
   const fixture = createValidTheme(t);
   assert.equal(fs.existsSync(path.join(fixture.themeDir, 'src')), false);
-  assert.equal(fs.existsSync(path.join(fixture.themeDir, 'example_theme.libraries.yml')), false);
+  const libraries = yaml.load(fs.readFileSync(path.join(fixture.themeDir, 'example_theme.libraries.yml'), 'utf8'));
+  assert.deepEqual(libraries.global.css.theme, {});
+  assert.deepEqual(libraries.global.js, {});
   assert.deepEqual(validate(fixture).errors, []);
   assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
 });

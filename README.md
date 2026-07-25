@@ -84,9 +84,10 @@ npm install
 ```
 
 3. Select and install the project's component library. Whisk does not provide a
-   project source tree, build entrypoints, or a Drupal asset library. Follow the
-   component library's setup instructions; once it provides build inputs, start
-   the local tooling:
+   project source tree or build entrypoints. Its generated Drupal library file
+   contains only commented CSS and JavaScript examples. Follow the component
+   library's setup instructions; once it provides build inputs, update those
+   examples and start the local tooling:
 
 ```bash
 npm run develop

@@ -28,7 +28,7 @@ Then install the shared tooling:
 npm install
 ```
 
-The generated theme does not include project asset source files or an asset library. Install the project's component library before running its development and build commands.
+The generated theme does not include project asset source files or active asset references. Its Drupal library file contains commented CSS and JavaScript examples to update after installing the project's component library. Install that library before running development and build commands.
 
 ## Documentation
 

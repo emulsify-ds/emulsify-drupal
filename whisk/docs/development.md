@@ -28,7 +28,7 @@ Use `npm install` for the first installation because a generated theme does not 
 
 ## Asset integration
 
-The starter does not prescribe asset source directories, Sass entrypoints, build output paths, or Drupal asset libraries. The selected component library owns:
+The starter does not prescribe asset source directories, Sass entrypoints, build output paths, or active Drupal assets. The selected component library owns:
 
 - the project source and component directory structure;
 - stylesheet and JavaScript entrypoints;
@@ -36,7 +36,7 @@ The starter does not prescribe asset source directories, Sass entrypoints, build
 - Drupal library definitions and attachment; and
 - any design-token pipeline.
 
-The generated theme initially has no `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` file and attaches no project asset library. Follow the selected component library's installation instructions to create its preferred structure and Drupal integration.
+The generated theme includes `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` with commented generic CSS and JavaScript references, but it attaches no project asset library. Follow the selected component library's installation instructions, then replace and uncomment those examples to match its preferred structure and Drupal integration.
 
 The shared lint, formatting, and test defaults discover supported files across the project without requiring `src` or `components`. The selected component library may extend those project-owned commands and configuration when it needs more specific behavior.
 

@@ -608,6 +608,7 @@ function runStaticChecks() {
   const emulsifyInfo = readFile('emulsify.info.yml');
   const emulsifyBreakpoints = readFile('emulsify.breakpoints.yml');
   const whiskInfo = readFile('whisk/whisk.info.yml');
+  const whiskLibraries = readFile('whisk/whisk.libraries.yml');
   const whiskBreakpoints = readFile('whisk/whisk.breakpoints.yml');
   const whiskInfoStarter = readFile('whisk/whisk.info.emulsify.yml');
   const whiskStarterkit = readFile('whisk/whisk.starterkit.yml');
@@ -1051,7 +1052,8 @@ function runStaticChecks() {
     );
     ensure(!fs.existsSync(path.join(repoRoot, 'whisk/components')), 'whisk/components should be created only by a selected component library.');
     ensure(!fs.existsSync(path.join(repoRoot, 'whisk/src/global')), 'whisk/src/global should be owned by the selected component library, not the starter.');
-    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/whisk.libraries.yml')), 'whisk should not prescribe a Drupal asset library before a component library is selected.');
+    ensure(whiskLibraries.includes('#      dist/global/style.css: { minified: true }'), 'whisk.libraries.yml should include a commented generic CSS asset example.');
+    ensure(whiskLibraries.includes('#    dist/global/script.js: { minified: true }'), 'whisk.libraries.yml should include a commented generic JavaScript asset example.');
     ensure(!/^libraries:/m.test(whiskInfo), 'whisk.info.yml should not attach a starter-owned asset library.');
     ensure(!/^libraries:/m.test(whiskInfoStarter), 'whisk.info.emulsify.yml should not attach a starter-owned asset library.');
     ensure(themeReadinessWorkflow.includes("Whisk starter: generate child theme"), 'theme-readiness.yml should split Whisk starter smoke into a generate step.');
