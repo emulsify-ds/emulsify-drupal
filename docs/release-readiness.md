@@ -8,11 +8,17 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 2. Run `composer validate --no-check-publish --strict`.
 3. Run `npm ci --ignore-scripts`.
 4. Run `npm audit --omit=dev`.
-5. Run `npm audit`.
+5. Run `npm audit` and triage any development-tool findings.
 6. Run `npm run lint:php`.
 7. Run `npm run docs:check-commands` after documentation command example changes.
 8. Run `npm run release:check`.
 9. Run `npm run release:check -- --skip-smoke` after any release-guard edits.
+
+The runtime audit is blocking. The full dependency audit remains visible but
+advisory while the current Semantic Release toolchain depends on an npm package
+that bundles vulnerable development-only transitive dependencies. Do not add
+overrides or patches for npm's bundled dependencies; restore the full audit as
+a blocking check after upstream npm releases a clean bundle.
 
 ## Release checks
 
@@ -31,8 +37,8 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 
 ## CI coverage
 
-- Pull requests run Composer validation, `npm ci --ignore-scripts`, runtime and full npm audits, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including component inspection.
-- The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, audits, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
+- Pull requests run Composer validation, `npm ci --ignore-scripts`, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including component inspection.
+- The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, the blocking runtime audit, the advisory full dev-tool audit, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
 - Scheduled and manual Theme Readiness runs include extended generated child-theme Storybook and accessibility checks using `npm run storybook-build` and `npm run a11y`.
 
 ## Version strategy

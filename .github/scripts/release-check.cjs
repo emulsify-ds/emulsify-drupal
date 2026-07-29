@@ -655,7 +655,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('composer validate --no-check-publish --strict'), 'theme-readiness.yml should strictly validate Composer metadata.');
     ensure(themeReadinessWorkflow.includes('npm ci --ignore-scripts'), 'theme-readiness.yml should install root npm dependencies from a clean lockfile.');
     ensure(themeReadinessWorkflow.includes('npm audit --omit=dev'), 'theme-readiness.yml should run the runtime npm audit policy.');
-    ensure(/^        run: npm audit$/m.test(themeReadinessWorkflow), 'theme-readiness.yml should run the full npm audit while it is clean.');
+    ensure(themeReadinessWorkflow.includes('- name: Audit all npm dependencies (advisory)\n        continue-on-error: true\n        run: npm audit'), 'theme-readiness.yml should report the full dev-tool audit without blocking readiness on upstream advisories.');
     ensure(themeReadinessWorkflow.includes('npm run lint:php'), 'theme-readiness.yml should lint PHP files.');
     ensure(themeReadinessWorkflow.includes('npm run release:check -- --skip-smoke'), 'theme-readiness.yml should run the static release check before fixture smoke tests.');
     ensure(themeReadinessWorkflow.includes('actions/checkout@v7'), 'theme-readiness.yml should use the current checkout action.');
@@ -692,7 +692,7 @@ function runStaticChecks() {
     ensure(semanticReleaseWorkflow.includes('composer validate --no-check-publish --strict'), 'semantic-release.yml should strictly validate Composer metadata before publishing.');
     ensure(semanticReleaseWorkflow.includes('npm ci --ignore-scripts'), 'semantic-release.yml should install npm dependencies from a clean lockfile before publishing.');
     ensure(semanticReleaseWorkflow.includes('npm audit --omit=dev'), 'semantic-release.yml should run the runtime npm audit before publishing.');
-    ensure(/^        run: npm audit$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should run the full npm audit while it is clean.');
+    ensure(semanticReleaseWorkflow.includes('- name: Audit all npm dependencies (advisory)\n        continue-on-error: true\n        run: npm audit'), 'semantic-release.yml should report the full dev-tool audit without blocking publishing on upstream advisories.');
     ensure(semanticReleaseWorkflow.includes('npm run lint:php'), 'semantic-release.yml should lint PHP files before publishing.');
     ensure(semanticReleaseWorkflow.includes('npm run release:check -- --skip-smoke'), 'semantic-release.yml should run static release checks before full smoke coverage.');
     ensure(/^        run: npm run release:check$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should run full release checks before publishing.');

@@ -42,7 +42,8 @@ jobs:
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev
 
-      - name: Audit all npm dependencies
+      - name: Audit all npm dependencies (advisory)
+        continue-on-error: true
         run: npm audit
 
       - name: Lint PHP files
