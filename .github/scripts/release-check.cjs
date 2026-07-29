@@ -11,6 +11,12 @@ const expectedProjectLicense = 'GPL-2.0-or-later';
 const minimumComponentInspectorCoreVersion = '4.3.0';
 const requestedWorkDir = process.env.RELEASE_CHECK_WORKDIR || null;
 let generatedWorkDir = null;
+const recursiveRemoveOptions = {
+  force: true,
+  maxRetries: 5,
+  recursive: true,
+  retryDelay: 200,
+};
 
 // release:check is both a local release guard and a CI sanity check. Static
 // checks always run; smoke checks build disposable Drupal projects unless the
@@ -64,6 +70,51 @@ function ensure(condition, message) {
 function isPathWithin(parentPath, candidatePath) {
   const relative = path.relative(parentPath, candidatePath);
   return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
+}
+
+function makeDirectoryTreeOwnerWritable(directory) {
+  const stats = fs.lstatSync(directory);
+  if (!stats.isDirectory() || stats.isSymbolicLink()) {
+    return;
+  }
+
+  // Drupal protects sites/default after installation. Restore only the owner
+  // permissions needed to traverse and delete directories in this disposable
+  // fixture; file modes do not need to be changed for unlinking.
+  fs.chmodSync(directory, (stats.mode & 0o777) | 0o700);
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (entry.isDirectory() && !entry.isSymbolicLink()) {
+      makeDirectoryTreeOwnerWritable(path.join(directory, entry.name));
+    }
+  }
+}
+
+function removeDirectoryTreeWithPermissionReset(directory) {
+  if (!fs.existsSync(directory)) {
+    return;
+  }
+
+  makeDirectoryTreeOwnerWritable(directory);
+  fs.rmSync(directory, recursiveRemoveOptions);
+}
+
+function removeDirectoryTree(directory) {
+  if (!fs.existsSync(directory)) {
+    return;
+  }
+
+  try {
+    fs.rmSync(directory, recursiveRemoveOptions);
+  }
+  catch (error) {
+    // Linux reports Drupal-protected descendants as EACCES/EPERM. macOS can
+    // surface the same partial recursive removal as ENOTEMPTY at the root.
+    if (!['EACCES', 'ENOTEMPTY', 'EPERM'].includes(error.code)) {
+      throw error;
+    }
+
+    removeDirectoryTreeWithPermissionReset(directory);
+  }
 }
 
 function normalizeConstraintVersion(constraint) {
@@ -628,6 +679,24 @@ function runStaticChecks() {
   if (!options.drupalVersion) {
     options.drupalVersion = chooseDefaultSmokeTarget(supportedDrupalSmokeTargets, minCoreVersion);
   }
+
+  runStaticCheck('Generated fixture cleanup', () => {
+    const cleanupFixture = fs.mkdtempSync(path.join(os.tmpdir(), 'emulsify-cleanup-check-'));
+    const protectedDirectory = path.join(cleanupFixture, 'web/sites/default');
+    fs.mkdirSync(protectedDirectory, { recursive: true });
+    fs.writeFileSync(path.join(protectedDirectory, 'settings.php'), '<?php\n');
+    fs.chmodSync(protectedDirectory, 0o500);
+
+    try {
+      removeDirectoryTree(cleanupFixture);
+      ensure(!fs.existsSync(cleanupFixture), 'Generated fixture cleanup should remove Drupal-protected directories.');
+    }
+    finally {
+      removeDirectoryTreeWithPermissionReset(cleanupFixture);
+    }
+
+    return 'Verified cleanup of a generated fixture containing a protected sites/default directory.';
+  });
 
   runStaticCheck('Composer constraints', () => {
     ensure(coreConstraint, 'composer.json must declare drupal/core.');
@@ -1225,7 +1294,7 @@ function runSmokeChecks() {
   // Build one clean Drupal fixture, then copy it for stateful smoke slices.
   // Favicon generation and starterkit enabling intentionally mutate config and
   // files, so copies keep those assertions from contaminating each other.
-  fs.rmSync(smokeRoot, { force: true, recursive: true });
+  removeDirectoryTree(smokeRoot);
   fs.mkdirSync(smokeRoot, { recursive: true });
 
   const setupResult = spawnSync('bash', [
@@ -1311,12 +1380,7 @@ try {
 }
 finally {
   if (generatedWorkDir) {
-    fs.rmSync(generatedWorkDir, {
-      force: true,
-      maxRetries: 5,
-      recursive: true,
-      retryDelay: 200,
-    });
+    removeDirectoryTree(generatedWorkDir);
   }
 }
 
