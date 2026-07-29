@@ -5,28 +5,40 @@ Use this checklist before publishing an Emulsify Drupal 7.x minor release.
 ## Local validation
 
 1. Confirm the current published version on GitHub, Drupal.org, and Packagist.
-2. Run `composer validate --no-check-publish`.
+2. Run `composer validate --no-check-publish --strict`.
 3. Run `npm ci --ignore-scripts`.
 4. Run `npm audit --omit=dev`.
-5. Run `npm audit`.
+5. Run `npm audit` and triage any development-tool findings.
 6. Run `npm run lint:php`.
 7. Run `npm run docs:check-commands` after documentation command example changes.
 8. Run `npm run release:check`.
 9. Run `npm run release:check -- --skip-smoke` after any release-guard edits.
 
+The runtime audit is blocking. The full dependency audit remains visible but
+advisory while the current Semantic Release toolchain depends on an npm package
+that bundles vulnerable development-only transitive dependencies. Do not add
+overrides or patches for npm's bundled dependencies; restore the full audit as
+a blocking check after upstream npm releases a clean bundle.
+
 ## Release checks
 
 - Confirm `composer.json`, `emulsify.info.yml`, `whisk/whisk.info.yml`, and `whisk/whisk.info.emulsify.yml` describe the same Drupal core and Emulsify Tools compatibility.
+- Confirm `LICENSE`, `package.json`, `composer.json`, and `whisk/package.json` all identify the project as `GPL-2.0-or-later`, matching Drupal.org Composer metadata guidance for hosted Drupal projects.
 - Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, Node.js 24 tooling, and favicon package deployment expectations.
-- Confirm `whisk` remains generation-only starterkit source and generated child themes keep `emulsify` as their runtime parent theme.
-- Confirm generated themes retain `project.emulsify.json`.
+- Confirm the sister-project parity contract stays linked from the README and preserves the shared Emulsify Drupal/WordPress contract plus Drupal-specific generation, metadata, component include, and fixture readiness expectations.
+- Confirm the Whisk starter remains generation-only and generated child themes keep `emulsify` as their runtime parent theme; review the [generated child-theme contract](./generated-child-theme-contract.md) for generation guarantees and intentional exclusions.
+- Confirm generated child themes retain `project.emulsify.json` with `platform`, `singleDirectoryComponents`, `generatedFrom`, and `generatedFromVersion` support metadata.
+- Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
+- Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
+- Confirm `@emulsify/core` `4.3.0` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
+- Confirm Whisk targets `@emulsify/core` `^4.3.0`, exposes `npm run inspect:components`, and does not ship project asset source directories, entrypoints, or an attached global library before a component library is selected.
 - Confirm favicon defaults, install config, schema, and `FaviconSettings::DEFAULTS` remain in sync.
 - Confirm release automation still emits non-prefixed SemVer tags and has `npmPublish: false`.
 
 ## CI coverage
 
-- Pull requests run Composer validation, `npm ci --ignore-scripts`, runtime and full npm audits, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and generated starterkit build/test smoke.
-- The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, audits, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
+- Pull requests run Composer validation, `npm ci --ignore-scripts`, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including component inspection.
+- The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, the blocking runtime audit, the advisory full dev-tool audit, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
 - Scheduled and manual Theme Readiness runs include extended generated child-theme Storybook and accessibility checks using `npm run storybook-build` and `npm run a11y`.
 
 ## Version strategy
@@ -44,5 +56,5 @@ For an intentional `7.1.0`, land a legitimate backward-compatible feature as a r
 
 ## Manual follow-up
 
-- Review license metadata before release. `LICENSE`, `package.json`, and `whisk/package.json` now identify the npm-side project and generated starter metadata as `GPL-3.0-only`; `composer.json`, Packagist, and Drupal.org still identify the Composer package as `GPL-2.0-only`. Maintainers should make an explicit legal/release decision before changing either the Composer/Drupal.org metadata or the repository license file.
+- After publishing, verify Drupal.org and Packagist show the Composer package license as `GPL-2.0-or-later`.
 - Copy final GitHub release notes into Drupal.org release notes and mark the release supported or recommended as appropriate.

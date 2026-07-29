@@ -27,6 +27,11 @@ jobs:
       matrix:
         include:
           - label: Drupal 11.3
+            artifact-suffix: drupal-11-3-php-8-3
+            drupal-version: '11.3.*'
+            php-version: '8.3'
+            experimental: false
+          - label: Drupal 11.3
             artifact-suffix: drupal-11-3-php-8-4
             drupal-version: '11.3.*'
             php-version: '8.4'
@@ -38,7 +43,7 @@ jobs:
             experimental: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -48,13 +53,13 @@ jobs:
           extensions: gd, imagick
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Validate Composer metadata
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
 
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
@@ -62,7 +67,8 @@ jobs:
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev
 
-      - name: Audit all npm dependencies
+      - name: Audit all npm dependencies (advisory)
+        continue-on-error: true
         run: npm audit
 
       - name: Lint PHP files
@@ -77,7 +83,7 @@ jobs:
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       # Once the fixture exists, run each readiness slice independently. A
-      # render regression should not hide favicon or starterkit signal on PRs.
+      # render regression should not hide favicon or Whisk starter signal on PRs.
       - name: Verify Emulsify ships the full stable9 template surface
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
@@ -105,63 +111,70 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/favicon-portability-smoke.sh /tmp/emulsify-fixture emulsify
 
-      - name: 'Starterkit: generate Whisk-derived theme'
+      - name: 'Whisk starter: generate child theme'
         id: starterkit_generate
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 2
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" generate
 
-      - name: 'Starterkit: enable generated theme'
+      - name: 'Generated child theme: enable'
         id: starterkit_enable
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_generate.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 3
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" enable
 
-      - name: 'Starterkit: render generated theme pages'
+      - name: 'Generated child theme: render Drupal pages'
         id: starterkit_render
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 3
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" render
 
-      - name: 'Starterkit: install frontend dependencies'
+      - name: 'Generated child theme: install frontend dependencies'
         id: starterkit_frontend_install
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_render.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 15
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-install
 
-      - name: 'Starterkit: build frontend assets'
-        id: starterkit_frontend_build
+      - name: 'Generated child theme: inspect components'
+        id: starterkit_frontend_inspect
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 2
+        run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-inspect
+
+      - name: 'Generated child theme: build frontend assets'
+        id: starterkit_frontend_build
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_inspect.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 5
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-build
 
-      - name: 'Starterkit: run frontend tests'
+      - name: 'Generated child theme: run frontend tests'
         id: starterkit_frontend_test
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_inspect.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 3
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-test
 
-      - name: Upload generated theme smoke artifacts
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
+      - name: Upload generated child theme smoke artifacts
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_inspect.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
         uses: actions/upload-artifact@v4
         with:
-          name: "generated-theme-smoke-${{ matrix.artifact-suffix }}"
+          name: "generated-child-theme-smoke-${{ matrix.artifact-suffix }}"
           if-no-files-found: warn
           path: "${{ runner.temp }}/emulsify-generated-theme"
 
-  starterkit-extended:
-    name: Starterkit Storybook and Accessibility
+  generated-child-theme-extended:
+    name: Generated Child Theme Storybook and Accessibility
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -171,15 +184,18 @@ jobs:
           extensions: gd, imagick
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
+
+      - name: Install root npm dependencies from lockfile
+        run: npm ci --ignore-scripts
 
       - name: Build fixture site
         run: bash .github/scripts/setup-fixture-site.sh "11.3.*" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
-      - name: Run generated theme Storybook, test, and accessibility checks
+      - name: Run generated child theme Storybook, test, and accessibility checks
         timeout-minutes: 30
         env:
           EMULSIFY_STARTERKIT_TEST: "1"
@@ -187,10 +203,10 @@ jobs:
           EMULSIFY_STARTERKIT_A11Y: "1"
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme-extended"
 
-      - name: Upload generated theme extended artifacts
+      - name: Upload generated child theme extended artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: generated-theme-storybook-a11y
+          name: generated-child-theme-storybook-a11y
           if-no-files-found: warn
           path: "${{ runner.temp }}/emulsify-generated-theme-extended"

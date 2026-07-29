@@ -6,9 +6,7 @@
 //
 // See https://storybook.js.org/docs/writing-stories/parameters#story-parameters.
 
-// Example: load project CSS into every story.
-//
-// import '../../../src/global/storybook.css';
+// Import browser-side assets required by the selected component library here.
 
 // Example: override selected Storybook parameters.
 //

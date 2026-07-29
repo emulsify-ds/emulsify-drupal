@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -28,13 +28,13 @@ jobs:
           extensions: gd, imagick
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Validate Composer metadata
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
 
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
@@ -42,7 +42,8 @@ jobs:
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev
 
-      - name: Audit all npm dependencies
+      - name: Audit all npm dependencies (advisory)
+        continue-on-error: true
         run: npm audit
 
       - name: Lint PHP files
@@ -51,7 +52,7 @@ jobs:
       - name: Run static release check
         run: npm run release:check -- --skip-smoke
 
-      - name: Run full release check with smoke coverage
+      - name: Run full release check with Drupal fixture smoke coverage
         timeout-minutes: 35
         env:
           EMULSIFY_STARTERKIT_TEST: "1"
@@ -64,7 +65,7 @@ jobs:
     needs: release-readiness
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

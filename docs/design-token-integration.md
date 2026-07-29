@@ -1,12 +1,14 @@
 # Optional Design-Token Integration
 
-The `whisk` starterkit source does not ship a default design-token pipeline. Generated child themes get
-plain Sass entry points such as `src/tokens.scss`, but they do not assume Figma,
-Style Dictionary, Token Transformer, or any other token source.
+The `whisk` starterkit source generates no project asset source tree,
+entrypoints, Drupal asset libraries, or design-token pipeline. The component
+library selected by the project owns those decisions.
 
-Projects that already use design tokens can add their preferred pipeline to the
-generated child theme. Keep those dependencies and scripts in the child theme so
-teams that do not use design tokens are not required to install unused tooling.
+Projects that use design tokens can add their preferred pipeline to the
+generated child theme. Keep those dependencies and scripts in the child theme
+so teams that do not use design tokens are not required to install unused
+tooling. The example below uses `src/tokens` only as an illustration; adapt all
+paths to the selected component library.
 
 ## Example: Style Dictionary
 
@@ -47,7 +49,7 @@ Add project scripts:
 }
 ```
 
-Then import the generated Sass from `src/tokens.scss`:
+Import the generated Sass from the component library's project-owned entrypoint:
 
 ```scss
 @use "./tokens.generated";

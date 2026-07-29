@@ -1,4 +1,4 @@
-# Schema for the theme setting configuration file of the Whisk starter theme.
+# Schema for the theme settings configuration.
 
 whisk.settings:
   type: theme_settings

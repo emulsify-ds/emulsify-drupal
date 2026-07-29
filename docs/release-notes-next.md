@@ -18,7 +18,7 @@ Do not publish these notes as `7.1.0` if the diagnostics feature commit is remov
 - Emulsify Drupal remains the parent theme. Generated child themes should keep `emulsify` as their runtime parent theme.
 - `whisk` remains a generation-only starterkit source and should not be enabled directly.
 - Generated child themes use Emulsify Core 4 and the Vite build workflow.
-- Root release tooling requires Node.js `>=24.10`; generated child theme tooling requires Node.js `>=24`.
+- Root release tooling requires Node.js `>=24.15`; generated child theme tooling requires Node.js `>=24`.
 
 ## Draft GitHub Release Notes
 
@@ -34,9 +34,10 @@ Title: `7.1.0`
 
 ### Changed
 
-- Expanded release readiness CI with Composer validation, clean npm installs, runtime and full npm audits, PHP linting, static release checks, full smoke coverage with GD and Imagick, generated starterkit build/test checks, and scheduled/manual Storybook and accessibility coverage.
-- Aligned npm-side package metadata with the repository license metadata and removed the unused direct root `graceful-fs` dependency.
-- Refreshed npm lockfile state so runtime and full npm audit checks are clean.
+- Aligned repository, npm-side, generated starterkit, Composer, Drupal.org, and Packagist license metadata to `GPL-2.0-or-later`.
+- Expanded release readiness CI with Composer validation, clean npm installs, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, full smoke coverage with GD and Imagick, generated starterkit build/test checks, and scheduled/manual Storybook and accessibility coverage.
+- Removed the unused direct root `graceful-fs` dependency.
+- Refreshed npm lockfile state so the runtime audit is clean while the full dev-tool audit reports upstream npm bundled-dependency advisories without blocking readiness.
 - Clarified that `whisk` is a generation-only starterkit source and generated child themes keep `emulsify` as their runtime parent theme.
 - Clarified the 7.x parent theme workflow, Vite build workflow, Node.js expectations, and favicon package deployment expectations in local documentation.
 
@@ -58,7 +59,7 @@ Title: `7.1.0`
 
 - Strengthened release checks for metadata consistency, package scripts, documented commands, region rendering, favicon settings schema parity, release workflow expectations, and starterkit contracts.
 - Added release-time favicon portability and sanitizer coverage for CSS-based SVG vectors.
-- Added a blocking semantic-release readiness job so publishing from `main` waits for Composer, npm audit, PHP lint, static release checks, and full smoke checks.
+- Added a blocking semantic-release readiness job so publishing from `main` waits for Composer, the runtime npm audit, PHP lint, static release checks, and full smoke checks while the full dev-tool audit remains advisory.
 
 ### Deprecated
 
@@ -84,9 +85,10 @@ This is a backward-compatible 7.x minor release for the Emulsify Drupal parent t
 
 ### Changed
 
+- Aligned repository, npm-side, generated starterkit, Composer, Drupal.org, and Packagist license metadata to `GPL-2.0-or-later`.
 - Expanded release readiness checks for Composer metadata, npm install/audit policy, PHP linting, starterkit generation, favicon generation, and generated child-theme frontend behavior.
 - Clarified the 7.x parent theme, generated child theme, `whisk`, Vite, Node.js, and favicon deployment workflow in local docs.
-- Aligned npm-side package metadata and removed unused root dependency metadata.
+- Removed unused root dependency metadata.
 
 ### Fixed
 

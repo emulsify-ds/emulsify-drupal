@@ -1,5 +1,47 @@
 # Upgrade Guide
 
+## Upgrading From 7.1.x to 7.2.0
+
+7.2.0 adds the Emulsify Core component inspector as a backward-compatible
+generated-theme feature.
+
+### Component Inspector
+
+Whisk changes only affect child themes generated after the Emulsify Drupal
+release that contains this feature. Updating Emulsify Drupal does not rewrite
+existing generated themes.
+
+To adopt the inspector in an existing generated theme:
+
+Upgrade `@emulsify/core` to at least `4.3.0`:
+
+```bash
+npm install @emulsify/core@^4.3.0
+```
+
+Add the command to the theme's `package.json`:
+
+```json
+{
+  "scripts": {
+    "inspect:components": "emulsify-inspect-components"
+  }
+}
+```
+
+Then run the inspector from the generated theme root:
+
+```bash
+npm run inspect:components
+npm run inspect:components -- --json
+npm run inspect:components -- --help
+```
+
+The inspector discovers components and reports metadata, dependencies,
+configuration issues, and orphaned files. Publish the compatible
+`@emulsify/core` version before merging and releasing the corresponding
+Emulsify Drupal feature.
+
 ## Upgrading From 7.0.0 to 7.1.0
 
 7.1.0 is intended as a backward-compatible 7.x minor release for the Emulsify Drupal parent theme. It keeps the 7.x architecture intact: Drupal 11.3+ support, Drupal 12 forward compatibility, no `stable9` parent theme, a complete Emulsify-owned template layer, generated child themes, Emulsify Core 4, and a Vite build workflow.
@@ -8,7 +50,7 @@ Before updating:
 
 - Confirm the site is already on Drupal 11.3 or newer.
 - Confirm `drupal/emulsify_tools:^2.0` is installed. Emulsify Tools is required by the parent theme and provides the Emulsify Tools Drush commands.
-- Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.10 or newer.
+- Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.15 or newer.
 - Keep generated child themes based on `whisk` configured with `base theme: emulsify`.
 - Do not enable `whisk` directly. It is a generation-only starterkit source, not a runtime theme.
 
