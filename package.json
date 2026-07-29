@@ -3,7 +3,7 @@
   "version": "7.0.0",
   "description": "Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility",
   "engines": {
-    "node": ">=24.10"
+    "node": ">=24.15"
   },
   "keywords": [
     "component library",
@@ -38,17 +38,17 @@
     "semantic-release": "semantic-release"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
-    "@semantic-release/changelog": "^6.0.2",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/git": "^11.0.1",
+    "@semantic-release/github": "^12.0.9",
     "@semantic-release/npm": "^13.1.5",
-    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "husky": "^9.1.7",
-    "js-yaml": "^4.3.0",
-    "lint-staged": "^16.4.0",
-    "semantic-release": "^25.0.3"
+    "js-yaml": "^5.2.2",
+    "lint-staged": "^17.2.0",
+    "semantic-release": "^25.0.8"
   }
 }

@@ -717,7 +717,7 @@ function runStaticChecks() {
     ensure(rootPackage.description.includes('Emulsify Core 4'), 'package.json description should mention Emulsify Core 4.');
     ensure(rootPackage.license === expectedProjectLicense, `package.json license must be ${expectedProjectLicense}.`);
     ensure(rootPackageLock.packages && rootPackageLock.packages[''] && rootPackageLock.packages[''].license === expectedProjectLicense, `package-lock.json root package license must be ${expectedProjectLicense}. Run npm install --package-lock-only --ignore-scripts after license metadata changes.`);
-    ensure(rootPackage.engines && rootPackage.engines.node === '>=24.10', 'package.json engines.node should match the Node line required by release tooling.');
+    ensure(rootPackage.engines && rootPackage.engines.node === '>=24.15', 'package.json engines.node should match the Node line required by release tooling.');
     ensure(rootPackage.repository && rootPackage.repository.url, 'package.json repository.url is required.');
     ensure(rootPackage.bugs && rootPackage.bugs.url, 'package.json bugs.url is required.');
     ensure(rootPackage.homepage, 'package.json homepage is required.');

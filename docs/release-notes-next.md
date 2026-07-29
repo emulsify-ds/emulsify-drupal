@@ -18,7 +18,7 @@ Do not publish these notes as `7.1.0` if the diagnostics feature commit is remov
 - Emulsify Drupal remains the parent theme. Generated child themes should keep `emulsify` as their runtime parent theme.
 - `whisk` remains a generation-only starterkit source and should not be enabled directly.
 - Generated child themes use Emulsify Core 4 and the Vite build workflow.
-- Root release tooling requires Node.js `>=24.10`; generated child theme tooling requires Node.js `>=24`.
+- Root release tooling requires Node.js `>=24.15`; generated child theme tooling requires Node.js `>=24`.
 
 ## Draft GitHub Release Notes
 

@@ -50,7 +50,7 @@ Before updating:
 
 - Confirm the site is already on Drupal 11.3 or newer.
 - Confirm `drupal/emulsify_tools:^2.0` is installed. Emulsify Tools is required by the parent theme and provides the Emulsify Tools Drush commands.
-- Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.10 or newer.
+- Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.15 or newer.
 - Keep generated child themes based on `whisk` configured with `base theme: emulsify`.
 - Do not enable `whisk` directly. It is a generation-only starterkit source, not a runtime theme.
 

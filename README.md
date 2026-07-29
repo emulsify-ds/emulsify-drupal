@@ -229,7 +229,7 @@ Run the release guard before merging packaging, Whisk starter, favicon settings,
 npm run release:check
 ```
 
-Use Node.js 24.10 or newer for local release tooling.
+Use Node.js 24.15 or newer for local release tooling.
 
 Release automation publishes from `main` with non-prefixed SemVer tags.
 
