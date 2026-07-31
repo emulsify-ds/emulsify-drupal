@@ -9,6 +9,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
 const expectedProjectLicense = 'GPL-2.0-or-later';
 const minimumComponentInspectorCoreVersion = '4.3.0';
+const requiredEmulsifyToolsConstraint = '^2.2';
 const requestedWorkDir = process.env.RELEASE_CHECK_WORKDIR || null;
 let generatedWorkDir = null;
 const recursiveRemoveOptions = {
@@ -642,7 +643,7 @@ function runStaticChecks() {
   const rootPackageLock = readJson('package-lock.json');
   const whiskPackage = readJson('whisk/package.json');
   const whiskProject = readJson('whisk/project.emulsify.json');
-  const expectedGeneratedFromVersion = '7.2.0';
+  const expectedGeneratedFromVersion = '7.2.1';
   const composer = readJson('composer.json');
   const releaseConfigSource = readFile('release.config.js');
   const releaseConfig = require(path.join(repoRoot, 'release.config.js'));
@@ -701,7 +702,7 @@ function runStaticChecks() {
   runStaticCheck('Composer constraints', () => {
     ensure(coreConstraint, 'composer.json must declare drupal/core.');
     ensure(supportedDrupalLines.length > 0, 'composer.json must expose at least one supported Drupal core test line.');
-    ensure(composer.require['drupal/emulsify_tools'], 'composer.json must declare drupal/emulsify_tools.');
+    ensure(composer.require['drupal/emulsify_tools'] === requiredEmulsifyToolsConstraint, `composer.json must require drupal/emulsify_tools ${requiredEmulsifyToolsConstraint} for Drupal Starterkit-backed Drush generation.`);
     ensure(extractYamlValue(emulsifyInfo, 'core_version_requirement') === coreConstraint, 'emulsify.info.yml must match composer drupal/core.');
     ensure(extractYamlValue(whiskInfo, 'core_version_requirement') === coreConstraint, 'whisk.info.yml must match composer drupal/core.');
     ensure(extractYamlValue(whiskInfoStarter, 'core_version_requirement') === coreConstraint, 'whisk.info.emulsify.yml must match composer drupal/core.');
@@ -1082,6 +1083,9 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('civic_portal'), 'starterkit-smoke.sh should generate a second valid machine-name identity.');
     ensure(starterkitSmoke.includes('--name "$display_name"'), 'starterkit-smoke.sh should pass supported human-readable Starterkit names.');
     ensure(starterkitSmoke.includes('--description "$description"'), 'starterkit-smoke.sh should pass supported punctuation-bearing Starterkit descriptions.');
+    ensure(starterkitSmoke.includes('./vendor/bin/drush emulsify "$machine_name"'), 'starterkit-smoke.sh should generate child themes through the supported Drush command.');
+    ensure(starterkitSmoke.includes('diff -qr "$core_theme_dir" "$theme_dir"'), 'starterkit-smoke.sh should require Drupal core and Drush generation output to match.');
+    ensure(setupFixture.includes('EMULSIFY_TOOLS_REF:-release-2.2.0'), 'setup-fixture-site.sh should test the Emulsify Tools branch that delegates Drush generation to Drupal Starterkit.');
     ensure(generatedThemeContract.includes("require('js-yaml')"), 'generated-theme-contract.cjs should parse generated YAML with js-yaml.');
     ensure(generatedThemeContract.includes('generatedFromVersion'), 'generated-theme-contract.cjs should validate generated source version lineage.');
     ensure(generatedThemeContract.includes('singleDirectoryComponents'), 'generated-theme-contract.cjs should validate component-neutral SDC metadata.');
@@ -1231,6 +1235,9 @@ function runStaticChecks() {
 
     ensure(whiskStarterKitProcessor.includes('implements StarterKitInterface'), 'whisk/src/StarterKit.php should use Drupal Starterkit post-processing.');
     ensure(whiskStarterKitProcessor.includes('project.emulsify.json'), 'whisk/src/StarterKit.php should read generated source metadata.');
+    ensure(whiskStarterKitProcessor.includes("$project['name'] = self::oneLine($machine_name)"), 'whisk/src/StarterKit.php should set the generated project name explicitly.');
+    ensure(whiskStarterKitProcessor.includes("$project['machineName'] = self::oneLine($machine_name)"), 'whisk/src/StarterKit.php should set the generated project machine name explicitly.');
+    ensure(whiskStarterKitProcessor.includes('writeJsonFile($project_path, $project_file)'), 'whisk/src/StarterKit.php should persist generated project identity metadata.');
     ensure(whiskStarterKitProcessor.includes("dependencies']['@emulsify/core'"), 'whisk/src/StarterKit.php should read the generated Emulsify Core range.');
     ensure(whiskStarterKitProcessor.includes('strtr('), 'whisk/src/StarterKit.php should replace project documentation tokens in one pass.');
     return 'Generated docs cover project ownership, frontend workflows, upgrades, and sanitized support collection.';

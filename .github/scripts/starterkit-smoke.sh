@@ -134,38 +134,64 @@ generate_scenario() {
   local theme_dir="${fixture_dir}/web/themes/custom/${machine_name}"
   local info_file="${theme_dir}/${machine_name}.info.yml"
   local scenario_output_dir="${output_dir}/scenarios/${machine_name}"
-  local generation_log="${scenario_output_dir}/generation.log"
+  local core_theme_dir="${scenario_output_dir}/core-generated-theme"
+  local core_generation_log="${scenario_output_dir}/core-generation.log"
+  local drush_generation_log="${scenario_output_dir}/drush-generation.log"
   local status=0
 
-  echo "[generation] Generating ${display_name} (${machine_name})"
-  rm -rf "$theme_dir"
+  echo "[generation] Generating ${display_name} (${machine_name}) with Drupal core"
+  rm -rf "$theme_dir" "$core_theme_dir"
   mkdir -p "$scenario_output_dir"
   set +e
   (
     cd "$fixture_dir"
-    # Use core's own generator so this test tracks Drupal Starterkit behavior
-    # directly instead of the Emulsify Tools Drush wrapper.
     php web/core/scripts/drupal generate-theme "$machine_name" \
       --name "$display_name" \
       --description "$description" \
       --starterkit whisk \
       --path themes/custom \
       -n
-  ) 2>&1 | tee "$generation_log"
+  ) 2>&1 | tee "$core_generation_log"
   status="${PIPESTATUS[0]}"
   set -e
 
   if [ "$status" -eq 0 ]; then
-    if [ -f "$info_file" ]; then
-      cp "$info_file" "${scenario_output_dir}/generated-theme-info.yml"
-    fi
     if validate_generated_theme "$machine_name" "$display_name" "$description"; then
-      :
+      mv "$theme_dir" "$core_theme_dir"
     else
       status="$?"
     fi
   fi
 
+  if [ "$status" -eq 0 ]; then
+    echo "[generation] Generating ${display_name} (${machine_name}) with Drush"
+    set +e
+    (
+      cd "$fixture_dir"
+      ./vendor/bin/drush emulsify "$machine_name" \
+        --name "$display_name" \
+        --description "$description"
+    ) 2>&1 | tee "$drush_generation_log"
+    status="${PIPESTATUS[0]}"
+    set -e
+  fi
+
+  if [ "$status" -eq 0 ]; then
+    if validate_generated_theme "$machine_name" "$display_name" "$description"; then
+      if ! diff -qr "$core_theme_dir" "$theme_dir"; then
+        echo "FAIL [generation] Drupal core and Drush generated different child themes for ${machine_name}." >&2
+        status=1
+      fi
+    else
+      status="$?"
+    fi
+  fi
+
+  if [ "$status" -eq 0 ] && [ -f "$info_file" ]; then
+    cp "$info_file" "${scenario_output_dir}/generated-theme-info.yml"
+  fi
+
+  rm -rf "$core_theme_dir"
   if [ "$keep_theme" != "1" ]; then
     rm -rf "$theme_dir"
   fi

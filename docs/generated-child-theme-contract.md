@@ -55,10 +55,12 @@ The static release check runs repository metadata, documentation, and helper
 tests. Passing `--skip-smoke` avoids Drupal fixture creation while preserving
 those static checks.
 
-The full release check creates a disposable Drupal site, invokes Drupal core's
-Starterkit generator, validates every generated identity, and exercises the
-primary generated child theme through enable, render, frontend install, build,
-component inspection, and configured frontend test and Storybook smoke phases.
+The full release check creates a disposable Drupal site, generates every child
+theme identity through both Drupal core and the Emulsify Tools Drush command,
+validates both results, and requires their file trees to match. It then
+exercises the primary generated child theme through enable, render, frontend
+install, build, component inspection, and configured frontend test and
+Storybook smoke phases.
 The component inspection accepts a valid empty JSON report when the generated
 theme has no components. The full check requires Bash, Git, rsync, a supported
 PHP version, Composer, SQLite, network access, Node.js, GD, and Imagick.
