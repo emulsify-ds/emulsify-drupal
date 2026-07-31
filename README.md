@@ -38,7 +38,9 @@ Emulsify Drupal is licensed under `GPL-2.0-or-later`, matching Drupal.org Compos
 
 ### Generate a child theme
 
-Emulsify Tools is required by the Emulsify Drupal parent theme. Use its Drush helper command to generate a child theme:
+Emulsify Tools 2.2 or newer is required by the Emulsify Drupal parent theme.
+Its Drush helper delegates to Drupal Starterkit so both generation commands
+produce the same child theme. Generate a child theme with:
 
 ```bash
 drush emulsify my_theme

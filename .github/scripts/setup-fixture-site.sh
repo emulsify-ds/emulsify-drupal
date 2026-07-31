@@ -18,7 +18,7 @@ fixture_dir="$2"
 theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
 emulsify_tools_repo="${EMULSIFY_TOOLS_REPOSITORY:-https://github.com/emulsify-ds/emulsify_tools.git}"
-emulsify_tools_ref="${EMULSIFY_TOOLS_REF:-release-2}"
+emulsify_tools_ref="${EMULSIFY_TOOLS_REF:-release-2.2.0}"
 theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
 emulsify_tools_dir="${fixture_dir}/web/modules/contrib/emulsify_tools"
 drush_constraint="^13"
@@ -58,7 +58,7 @@ rsync -a \
   "${theme_source_dir}/" "${theme_dir}/"
 
 # Readiness checks should exercise the local theme code and the in-flight
-# Emulsify Tools 2.x branch instead of depending on a published package.
+# Emulsify Tools 2.2 branch instead of depending on a published package.
 git clone --depth 1 --branch "$emulsify_tools_ref" "$emulsify_tools_repo" "$emulsify_tools_dir"
 rm -rf "${emulsify_tools_dir}/.git"
 

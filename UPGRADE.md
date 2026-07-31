@@ -1,5 +1,23 @@
 # Upgrade Guide
 
+## Upgrading From 7.2.0 to 7.2.1
+
+7.2.1 fixes child-theme generation through the Emulsify Tools Drush command.
+It requires Emulsify Tools 2.2 or newer, which delegates generation to Drupal
+Starterkit instead of using the retired copy-and-replace implementation.
+
+Update both packages together:
+
+```bash
+composer require drupal/emulsify:^7.2.1 drupal/emulsify_tools:^2.2 --with-all-dependencies
+```
+
+Newly generated child themes now retain `project.emulsify.json`, replace its
+`whisk` project identity with the generated machine name, and replace every
+`%%EMULSIFY_*%%` documentation token. Existing child themes are not rewritten;
+regenerate a temporary comparison theme if you need to recover the corrected
+metadata or documentation.
+
 ## Upgrading From 7.1.x to 7.2.0
 
 7.2.0 adds the Emulsify Core component inspector as a backward-compatible
@@ -13,10 +31,10 @@ existing generated themes.
 
 To adopt the inspector in an existing generated theme:
 
-Upgrade `@emulsify/core` to at least `4.3.0`:
+Upgrade `@emulsify/core` to at least `4.3.1`:
 
 ```bash
-npm install @emulsify/core@^4.3.0
+npm install @emulsify/core@^4.3.1
 ```
 
 Add the command to the theme's `package.json`:
@@ -49,7 +67,7 @@ Emulsify Drupal feature.
 Before updating:
 
 - Confirm the site is already on Drupal 11.3 or newer.
-- Confirm `drupal/emulsify_tools:^2.0` is installed. Emulsify Tools is required by the parent theme and provides the Emulsify Tools Drush commands.
+- Confirm `drupal/emulsify_tools:^2.2` is installed. Emulsify Tools is required by the parent theme and provides the Emulsify Tools Drush commands.
 - Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.15 or newer.
 - Keep generated child themes based on `whisk` configured with `base theme: emulsify`.
 - Do not enable `whisk` directly. It is a generation-only starterkit source, not a runtime theme.
@@ -79,7 +97,7 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 - The `stable9` parent theme is removed.
 - Emulsify now uses `base theme: false`.
 - The `drupal/components` dependency is removed.
-- `drupal/emulsify_tools:^2.0` is required.
+- `drupal/emulsify_tools:^2.2` is required.
 - Generated child theme frontend workflow moved from Webpack to Vite.
 - Generated child themes use Emulsify Core 4.
 - `whisk` is now a generation-only starterkit source and should not be enabled directly.
@@ -94,7 +112,7 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 - Drupal 12 forward compatibility is included through the `^11.3 || ^12` core constraint.
 - Drupal core development branch coverage is experimental until Drupal 12 beta or stable releases are available.
 - Drupal 10 is no longer supported in 7.x.
-- `drupal/emulsify_tools:^2.0` is required by both `composer.json` and `emulsify.info.yml`.
+- `drupal/emulsify_tools:^2.2` is required by both `composer.json` and `emulsify.info.yml`.
 
 ## Package Changes
 
@@ -161,7 +179,7 @@ component include guidance.
 ## Recommended Upgrade Path
 
 1. Update the site to Drupal 11.3 or a newer Drupal 11 release before moving to Emulsify 7.x.
-2. Require `drupal/emulsify_tools:^2.0`.
+2. Require `drupal/emulsify_tools:^2.2`.
 3. Update the Emulsify Drupal parent theme to 7.x.
 4. Regenerate or review custom child themes so they inherit from `emulsify`, not `stable9` or `whisk`.
 5. Move frontend build and local-development docs, scripts, and team habits from Webpack-based build workflow terminology to the Vite-based build workflow.

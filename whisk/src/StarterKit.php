@@ -8,7 +8,7 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Theme\StarterKitInterface;
 
 /**
- * Finalizes project-specific documentation during theme generation.
+ * Finalizes project metadata and documentation during theme generation.
  */
 final class StarterKit implements StarterKitInterface {
 
@@ -27,13 +27,19 @@ final class StarterKit implements StarterKitInterface {
    */
   public static function postProcess(string $working_dir, string $machine_name, string $theme_name): void {
     $info = self::decodeYamlFile("{$working_dir}/{$machine_name}.info.yml");
-    $project_file = self::decodeJsonFile("{$working_dir}/project.emulsify.json");
+    $project_path = "{$working_dir}/project.emulsify.json";
+    $project_file = self::decodeJsonFile($project_path);
     $package = self::decodeJsonFile("{$working_dir}/package.json");
     $project = $project_file['project'] ?? NULL;
 
     if (!is_array($project)) {
       throw new \RuntimeException('Generated project.emulsify.json is missing its project metadata.');
     }
+
+    $project['name'] = self::oneLine($machine_name);
+    $project['machineName'] = self::oneLine($machine_name);
+    $project_file['project'] = $project;
+    self::writeJsonFile($project_path, $project_file);
 
     $description = self::requiredString($info, 'description', "{$machine_name}.info.yml");
     if ($description === '') {
@@ -93,6 +99,25 @@ final class StarterKit implements StarterKitInterface {
       throw new \RuntimeException("Expected a JSON object in {$path}.");
     }
     return $data;
+  }
+
+  /**
+   * Writes a generated JSON object with readable project formatting.
+   */
+  private static function writeJsonFile(string $path, array $data): void {
+    try {
+      $contents = json_encode(
+        $data,
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
+      );
+    }
+    catch (\JsonException $exception) {
+      throw new \RuntimeException("Unable to encode {$path}: {$exception->getMessage()}", 0, $exception);
+    }
+
+    if (file_put_contents($path, "{$contents}\n") === FALSE) {
+      throw new \RuntimeException("Unable to write generated JSON file {$path}.");
+    }
   }
 
   /**
