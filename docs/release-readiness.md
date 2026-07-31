@@ -35,8 +35,8 @@ a blocking check after upstream npm releases a clean bundle.
   support metadata.
 - Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
 - Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
-- Confirm `@emulsify/core` `4.3.0` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
-- Confirm Whisk targets `@emulsify/core` `^4.3.0`, exposes `npm run inspect:components`, and does not ship project asset source directories, entrypoints, or an attached global library before a component library is selected.
+- Confirm `@emulsify/core` `4.3.1` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
+- Confirm Whisk targets `@emulsify/core` `^4.3.1`, exposes `npm run inspect:components`, and does not ship project asset source directories, entrypoints, or an attached global library before a component library is selected.
 - Confirm favicon defaults, install config, schema, and `FaviconSettings::DEFAULTS` remain in sync.
 - Confirm release automation still emits non-prefixed SemVer tags and has `npmPublish: false`.
 

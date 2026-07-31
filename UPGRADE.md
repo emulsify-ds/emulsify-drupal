@@ -31,10 +31,10 @@ existing generated themes.
 
 To adopt the inspector in an existing generated theme:
 
-Upgrade `@emulsify/core` to at least `4.3.0`:
+Upgrade `@emulsify/core` to at least `4.3.1`:
 
 ```bash
-npm install @emulsify/core@^4.3.0
+npm install @emulsify/core@^4.3.1
 ```
 
 Add the command to the theme's `package.json`:

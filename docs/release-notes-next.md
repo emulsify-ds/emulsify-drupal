@@ -14,7 +14,7 @@ Semantic Release produces the patch release `7.2.1`.
 - Drupal compatibility remains `^11.3 || ^12`.
 - Emulsify Tools 2.2 or newer is required so the Drush command delegates to
   Drupal core's Starterkit generator.
-- Emulsify Core remains `^4.3.0` in newly generated child themes.
+- Newly generated child themes use Emulsify Core `^4.3.1`.
 - Generated child themes continue to use `emulsify` as their runtime parent
   theme; `whisk` remains generation-only.
 
