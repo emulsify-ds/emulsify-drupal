@@ -728,8 +728,8 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('- name: Audit all npm dependencies (advisory)\n        continue-on-error: true\n        run: npm audit'), 'theme-readiness.yml should report the full dev-tool audit without blocking readiness on upstream advisories.');
     ensure(themeReadinessWorkflow.includes('npm run lint:php'), 'theme-readiness.yml should lint PHP files.');
     ensure(themeReadinessWorkflow.includes('npm run release:check -- --skip-smoke'), 'theme-readiness.yml should run the static release check before fixture smoke tests.');
-    ensure(themeReadinessWorkflow.includes('actions/checkout@v7'), 'theme-readiness.yml should use the current checkout action.');
-    ensure(themeReadinessWorkflow.includes('actions/setup-node@v6'), 'theme-readiness.yml should install Node for generated child theme frontend smoke tests.');
+    ensure(/uses: actions\/checkout@[a-f0-9]{40} # v7\.\d+\.\d+$/m.test(themeReadinessWorkflow), 'theme-readiness.yml should pin the current checkout action to a commit.');
+    ensure(/uses: actions\/setup-node@[a-f0-9]{40} # v6\.\d+\.\d+$/m.test(themeReadinessWorkflow), 'theme-readiness.yml should pin setup-node for generated child theme frontend smoke tests.');
     ensure(themeReadinessWorkflow.includes('node-version-file: .nvmrc'), 'theme-readiness.yml should source the Node version from .nvmrc.');
     ensure(themeReadinessWorkflow.includes('extensions: gd, imagick'), 'theme-readiness.yml should install GD and Imagick for favicon smoke tests.');
     ensure(themeReadinessWorkflow.includes('- 7.x'), 'theme-readiness.yml should run on pushes to 7.x while this release branch owns the workflow.');
@@ -738,6 +738,32 @@ function runStaticChecks() {
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     ensure(setupFixture.includes('NodeType::create'), 'setup-fixture-site.sh should create the page node type when install profiles omit it.');
     return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
+  });
+
+  runStaticCheck('CI credentials and action pins', () => {
+    const yaml = require('js-yaml');
+    const workflowFiles = listFilesRecursive('.github/workflows', (file) => /\.ya?ml$/.test(file));
+    for (const workflowFile of workflowFiles) {
+      const source = readFile(workflowFile);
+      const workflow = yaml.load(source);
+      const readOnlyPermissions = { contents: 'read' };
+      ensure(JSON.stringify(workflow.permissions) === JSON.stringify(readOnlyPermissions), `${workflowFile} must default to contents: read only.`);
+      ensure(!Object.hasOwn(workflow.on || {}, 'pull_request_target'), `${workflowFile} must not use pull_request_target.`);
+      for (const [jobName, job] of Object.entries(workflow.jobs)) {
+        const permissions = job.permissions || workflow.permissions;
+        if (workflowFile === '.github/workflows/semantic-release.yml' && jobName === 'release') {
+          const requiredWrites = ['contents', 'issues', 'pull-requests'];
+          ensure(Object.keys(permissions).length === requiredWrites.length && requiredWrites.every((permission) => permissions[permission] === 'write'), 'Only the release job may grant the contents, issues, and pull-requests writes needed by @semantic-release/github.');
+        }
+        else {
+          ensure(JSON.stringify(permissions) === JSON.stringify(readOnlyPermissions), `${workflowFile} job ${jobName} must use contents: read only.`);
+        }
+      }
+      for (const [, action] of source.matchAll(/^\s*(?:-\s+)?uses:\s*(.+)$/gm)) {
+        ensure(/^[\w.-]+\/[\w./-]+@[a-f0-9]{40} # v\d+\.\d+\.\d+$/.test(action), `${workflowFile} must pin ${action} to an immutable commit with its release version comment.`);
+      }
+    }
+    return 'Validation jobs have read-only access; only publishing has required writes, and all action references use annotated commit pins.';
   });
 
   runStaticCheck('Semantic release configuration', () => {
@@ -752,8 +778,8 @@ function runStaticChecks() {
     ensureBreakingHeaderParser('@semantic-release/commit-analyzer parserOpts', analyzerOptions.parserOpts);
     ensureBreakingHeaderParser('@semantic-release/release-notes-generator parserOpts', notesOptions.parserOpts);
     ensure(semanticReleaseWorkflow.includes('branches:\n      - "main"'), 'semantic-release.yml should run on pushes to main.');
-    ensure(semanticReleaseWorkflow.includes('actions/checkout@v7'), 'semantic-release.yml should use the current checkout action.');
-    ensure(semanticReleaseWorkflow.includes('actions/setup-node@v6'), 'semantic-release.yml should install Node through the current setup-node action.');
+    ensure(/uses: actions\/checkout@[a-f0-9]{40} # v7\.\d+\.\d+$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should pin the current checkout action to a commit.');
+    ensure(/uses: actions\/setup-node@[a-f0-9]{40} # v6\.\d+\.\d+$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should pin the current setup-node action to a commit.');
     ensure(semanticReleaseWorkflow.includes('node-version-file: .nvmrc'), 'semantic-release.yml should source the Node version from .nvmrc.');
     ensure(semanticReleaseWorkflow.includes('fetch-depth: 0'), 'semantic-release.yml should fetch full history and tags before publishing.');
     ensure(semanticReleaseWorkflow.includes('contents: write'), 'semantic-release.yml should grant release permissions explicitly.');
@@ -769,7 +795,7 @@ function runStaticChecks() {
     ensure(semanticReleaseWorkflow.includes('extensions: gd, imagick'), 'semantic-release.yml should install GD and Imagick for favicon smoke coverage.');
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'semantic-release.yml should enable release-only generated Storybook build coverage.');
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'semantic-release.yml should enable generated child theme test coverage in full release checks.');
-    ensure(semanticReleaseWorkflow.includes('cycjimmy/semantic-release-action@v6'), 'semantic-release.yml should use a semantic-release action version that supports semantic-release 25.');
+    ensure(/uses: cycjimmy\/semantic-release-action@[a-f0-9]{40} # v6\.\d+\.\d+$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should pin a semantic-release action version that supports semantic-release 25.');
     ensure(semanticReleaseWorkflow.includes('semantic_version: 25.0.3'), 'semantic-release.yml should pin semantic-release 25.0.3 in CI.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');

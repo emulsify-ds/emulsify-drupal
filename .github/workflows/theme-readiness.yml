@@ -13,6 +13,9 @@ on:
     - cron: "17 9 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: theme-readiness-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
@@ -43,17 +46,17 @@ jobs:
             experimental: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: ${{ matrix.php-version }}
           tools: composer:v2
           extensions: gd, imagick
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -91,7 +94,7 @@ jobs:
 
       - name: Upload stable9 parity report
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: stable9-template-parity-${{ matrix.artifact-suffix }}
           path: ${{ runner.temp }}/emulsify-template-parity.md
@@ -162,7 +165,7 @@ jobs:
 
       - name: Upload generated child theme smoke artifacts
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_inspect.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: "generated-child-theme-smoke-${{ matrix.artifact-suffix }}"
           if-no-files-found: warn
@@ -174,17 +177,17 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
           php-version: "8.4"
           tools: composer:v2
           extensions: gd, imagick
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -205,7 +208,7 @@ jobs:
 
       - name: Upload generated child theme extended artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: generated-child-theme-storybook-a11y
           if-no-files-found: warn
