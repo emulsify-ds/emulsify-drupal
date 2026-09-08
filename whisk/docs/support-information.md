@@ -4,7 +4,7 @@ Start with the common fixes below. If the problem continues, collect the smalles
 
 ## Troubleshooting
 
-- **Wrong Node.js version:** run `nvm use` and compare `node --version` with `.nvmrc` and the `engines.node` value in `package.json`.
+- **Wrong Node.js version:** run `nvm use` and compare `node --version` with the resolved Emulsify Core package's `engines.node`. Core 4.3.1/4.4.0 requires at least 24.13.0 even though the theme advertises `>=24`; `.nvmrc` selects only the Node 24 line.
 - **Missing package or command:** run `npm install` again from this directory; keep the dependency metadata and Emulsify Core configuration intact.
 - **Drupal cannot find project assets:** follow the selected component library's build and Drupal integration guidance, then confirm its declared outputs exist and its libraries are attached.
 - **Storybook fails:** run `npm run build` first, then capture tool versions and the complete failing command output using the checklist below.

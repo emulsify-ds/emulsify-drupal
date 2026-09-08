@@ -1,5 +1,69 @@
 # Upgrade Guide
 
+## Unreleased: copied Node and test guidance
+
+The effective Node minimum for Emulsify Core 4.3.1/4.4.0 is 24.13.0, while
+Whisk still advertises `>=24`; no engine field is changed. The copied guides
+also now explain that project tests are required for `npm test` to pass.
+Existing generated themes can opt in to the following documentation changes.
+Use the corresponding files in your child theme and preserve its generated
+project identity and other local edits.
+
+```diff
+diff --git i/whisk/README.md w/whisk/README.md
+index 741c06b..638be6c 100644
+--- i/whisk/README.md
++++ w/whisk/README.md
+@@ -16,5 +16,9 @@ Shared tooling comes from Emulsify Core; the project owns its templates and comp
+ ## Quick start
+
+-Use Node.js 24 or newer. If you use nvm, select the recommended version first:
++Use Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. This theme's
++`package.json` advertises `>=24`, but Core's `>=24.13.0` requirement sets the
++effective minimum. `.nvmrc` selects the Node 24 line without pinning a minor
++version. Check the resolved Core package's `engines` when updating dependencies.
++If you use nvm, install and select that Node line first:
+
+ ```bash
+diff --git i/whisk/docs/development.md w/whisk/docs/development.md
+index 1a7ed29..c77bd02 100644
+--- i/whisk/docs/development.md
++++ w/whisk/docs/development.md
+@@ -6,5 +6,5 @@ Run frontend commands from this theme directory.
+
+ - An existing Drupal site with the Emulsify parent theme and this generated theme in `web/themes/custom/%%EMULSIFY_MACHINE_NAME%%` (or the equivalent custom-theme directory).
+-- Node.js 24 or newer. `package.json` declares the compatibility range, and `.nvmrc` records the recommended version.
++- Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
+ - nvm is optional but is used by the version-selection commands below.
+ - npm, which is included with Node.js.
+@@ -90,5 +90,13 @@ npm run a11y
+ ```
+
+-`npm run test` succeeds when no tests have been added yet. The accessibility check builds Storybook first, so it takes longer than lint or unit tests.
++`npm run test` fails when no project tests are found. Add a colocated
++`*.test.js`, `*.test.mjs`, or `*.spec.js` file alongside a project component
++before relying on a green run. Native ESM imports execute directly, and coverage
++includes project JavaScript, including files the tests do not import. JSX or
++TypeScript requires a project transformer that emits ESM. Use `npm run twatch`
++for interactive watch mode, or `npm run twatch -- --watchAll` outside Git.
++
++The accessibility check builds Storybook first, so it takes longer than lint or
++unit tests.
+
+ ## Project ownership
+diff --git i/whisk/docs/support-information.md w/whisk/docs/support-information.md
+index 01f15b6..992b108 100644
+--- i/whisk/docs/support-information.md
++++ w/whisk/docs/support-information.md
+@@ -5,5 +5,5 @@ Start with the common fixes below. If the problem continues, collect the smalles
+ ## Troubleshooting
+
+-- **Wrong Node.js version:** run `nvm use` and compare `node --version` with `.nvmrc` and the `engines.node` value in `package.json`.
++- **Wrong Node.js version:** run `nvm use` and compare `node --version` with the resolved Emulsify Core package's `engines.node`. Core 4.3.1/4.4.0 requires at least 24.13.0 even though the theme advertises `>=24`; `.nvmrc` selects only the Node 24 line.
+ - **Missing package or command:** run `npm install` again from this directory; keep the dependency metadata and Emulsify Core configuration intact.
+ - **Drupal cannot find project assets:** follow the selected component library's build and Drupal integration guidance, then confirm its declared outputs exist and its libraries are attached.
+```
+
 ## Unreleased: project Jest discovery and ESM
 
 New child themes search their project root, execute native ESM, and report
@@ -128,7 +192,7 @@ Before updating:
 
 - Confirm the site is already on Drupal 11.3 or newer.
 - Confirm `drupal/emulsify_tools:^2.2` is installed. Emulsify Tools is required by the parent theme and provides the Emulsify Tools Drush commands.
-- Use Node.js 24 or newer for generated child theme frontend tooling. The root release tooling requires Node.js 24.15 or newer.
+- For frontend tooling with Emulsify Core 4.3.1/4.4.0, use Node.js 24.13.0 or newer. Whisk advertises `>=24`, but Core's `>=24.13.0` sets the effective floor; `.nvmrc` selects only the Node 24 line. The root release tooling requires Node.js 24.15 or newer. Check the resolved Core version's engine requirement when updating dependencies.
 - Keep generated child themes based on `whisk` configured with `base theme: emulsify`.
 - Do not enable `whisk` directly. It is a generation-only starterkit source, not a runtime theme.
 

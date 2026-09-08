@@ -50,7 +50,7 @@ a blocking check after upstream npm releases a clean bundle.
 
 - Pull requests run Composer validation, `npm ci --ignore-scripts`, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including byte-for-byte Drupal core/Drush generation parity and component inspection.
 - The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, the blocking runtime audit, the advisory full dev-tool audit, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
-- Scheduled and manual Theme Readiness runs include extended generated child-theme Storybook and accessibility checks using `npm run storybook-build` and `npm run a11y`.
+- Pull requests, pushes, scheduled runs, and manual Theme Readiness runs include a generated consumer job that builds Vite and Storybook, runs `npm run a11y`, and audits a real component plus Drupal pages against explicit WCAG 2.2 AA rules. The [consumer accessibility evidence](./consumer-accessibility.md) records current unsuppressed findings; a passing build alone does not make this gate pass.
 
 ## Version strategy
 

@@ -5,7 +5,7 @@ Run frontend commands from this theme directory.
 ## Prerequisites
 
 - An existing Drupal site with the Emulsify parent theme and this generated theme in `web/themes/custom/%%EMULSIFY_MACHINE_NAME%%` (or the equivalent custom-theme directory).
-- Node.js 24 or newer. `package.json` declares the compatibility range, and `.nvmrc` records the recommended version.
+- Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
 - nvm is optional but is used by the version-selection commands below.
 - npm, which is included with Node.js.
 
@@ -89,7 +89,15 @@ npm run test
 npm run a11y
 ```
 
-`npm run test` succeeds when no tests have been added yet. The accessibility check builds Storybook first, so it takes longer than lint or unit tests.
+`npm run test` fails when no project tests are found. Add a colocated
+`*.test.js`, `*.test.mjs`, or `*.spec.js` file alongside a project component
+before relying on a green run. Native ESM imports execute directly, and coverage
+includes project JavaScript, including files the tests do not import. JSX or
+TypeScript requires a project transformer that emits ESM. Use `npm run twatch`
+for interactive watch mode, or `npm run twatch -- --watchAll` outside Git.
+
+The accessibility check builds Storybook first, so it takes longer than lint or
+unit tests.
 
 ## Project ownership
 

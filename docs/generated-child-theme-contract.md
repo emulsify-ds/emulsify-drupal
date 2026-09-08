@@ -66,9 +66,11 @@ theme has no components. The full check requires Bash, Git, rsync, a supported
 PHP version, Composer, SQLite, network access, Node.js, GD, and Imagick.
 
 GitHub Actions uses the same release and Starterkit helpers as local checks.
-Pull requests run the static and Drupal fixture coverage. Scheduled and manual
-readiness runs add the extended Storybook and browser-based accessibility
-checks.
+Pull requests, pushes, scheduled runs, and manual runs include a generated
+consumer job that builds Vite and Storybook, renders a real component and Drupal
+pages, runs the existing `a11y` command, and checks explicit WCAG 2.2 AA rules.
+See the [consumer accessibility evidence](./consumer-accessibility.md) for the
+current unsuppressed findings and the limits of automated checks.
 
 ## Run the checks
 
@@ -121,10 +123,13 @@ checks that did run.
 The generated child-theme contract does not require or test:
 
 - a particular component library, component directory, or example component;
-- frontend CSS behavior or visual design;
-- frontend JavaScript behavior;
+- arbitrary project CSS behavior or visual design beyond the rendered fixture;
+- arbitrary project JavaScript behavior beyond the real fixture's tests;
 - a particular design-token system or token build pipeline;
-- Emulsify Tools administration behavior, Twig helpers, or Drush commands.
+- Emulsify Tools administration behavior or Twig helper semantics; the separate
+  [Twig hook and helper contract](./twig-hook-contract.md) characterizes those
+  outputs without changing them. Generation parity does exercise the supported
+  Tools Drush entrypoint, but not its other administration commands.
 
 Projects select and install their own component libraries after generation.
 The contract may preserve component-neutral project metadata, including Drupal
