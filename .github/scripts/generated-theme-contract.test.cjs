@@ -210,7 +210,7 @@ test('groups inconsistent package and project metadata into actionable output', 
   const output = formatValidationResult(validate(fixture));
   assert.match(output, /FAIL frontend metadata/);
   assert.match(output, /dependencies\.@emulsify\/core/);
-  assert.match(output, /expected "\^4\.3\.1"/);
+  assert.ok(output.includes(`expected "${contract.sourcePackage.dependencies['@emulsify/core']}"`), output);
   assert.match(output, /project\.machineName/);
   assert.match(output, /expected "example_theme"/);
 });

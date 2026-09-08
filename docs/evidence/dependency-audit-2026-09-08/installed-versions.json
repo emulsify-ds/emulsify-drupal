@@ -1,0 +1,120 @@
+{
+  "checkedAt": "2026-09-08T04:53:42.392Z",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "php": "8.5.10",
+    "composer": "2.10.3"
+  },
+  "manifestRanges": {
+    "root": {
+      "@commitlint/cli": "^21.2.1",
+      "@commitlint/config-conventional": "^21.2.0",
+      "@semantic-release/changelog": "^7.0.0",
+      "@semantic-release/commit-analyzer": "^13.0.1",
+      "@semantic-release/git": "^11.0.1",
+      "@semantic-release/github": "^12.0.9",
+      "@semantic-release/npm": "^13.1.5",
+      "@semantic-release/release-notes-generator": "^14.1.1",
+      "husky": "^9.1.7",
+      "js-yaml": "^5.2.2",
+      "lint-staged": "^17.2.0",
+      "semantic-release": "^25.0.8"
+    },
+    "whisk": {
+      "dependencies": {
+        "@emulsify/core": "^4.4.0"
+      },
+      "overrides": {
+        "glob": "^13.0.6",
+        "locutus": "^3.0.36",
+        "minimatch@3.0.x": "^3.1.5"
+      }
+    },
+    "composer": {
+      "drupal/core": "^11.3 || ^12",
+      "drupal/emulsify_tools": "^2.2"
+    }
+  },
+  "whiskInstalled": {
+    "@emulsify/core": "4.4.0",
+    "pa11y": "9.1.1",
+    "puppeteer": "24.43.1",
+    "puppeteer-core": "24.43.1",
+    "@puppeteer/browsers": "2.13.2",
+    "extract-zip": "2.0.1"
+  },
+  "composerInstalled": {
+    "asm89/stack-cors": "v2.4.0",
+    "composer/semver": "3.4.4",
+    "doctrine/lexer": "3.0.1",
+    "drupal/core": "11.4.6",
+    "drupal/core-composer-scaffold": "11.4.6",
+    "drupal/emulsify_tools": "2.2.1",
+    "egulias/email-validator": "4.0.4",
+    "guzzlehttp/guzzle": "7.15.5",
+    "guzzlehttp/promises": "2.5.3",
+    "guzzlehttp/psr7": "2.13.1",
+    "justinrainbow/json-schema": "6.12.0",
+    "marc-mabe/php-enum": "v4.7.2",
+    "masterminds/html5": "2.11.0",
+    "mck89/peast": "v1.18.0",
+    "pear/archive_tar": "1.6.1",
+    "pear/console_getopt": "v1.4.3",
+    "pear/pear-core-minimal": "v1.10.18",
+    "pear/pear_exception": "v1.0.2",
+    "php-tuf/composer-stager": "v2.1.1",
+    "psr/container": "2.0.2",
+    "psr/event-dispatcher": "1.0.0",
+    "psr/http-client": "1.0.3",
+    "psr/http-factory": "1.1.0",
+    "psr/http-message": "2.0",
+    "psr/log": "3.0.2",
+    "ralouphie/getallheaders": "3.0.3",
+    "revolt/event-loop": "v1.0.9",
+    "sebastian/diff": "7.0.1",
+    "symfony/console": "v7.4.18",
+    "symfony/dependency-injection": "v7.4.17",
+    "symfony/deprecation-contracts": "v3.7.1",
+    "symfony/error-handler": "v8.1.5",
+    "symfony/event-dispatcher": "v7.4.17",
+    "symfony/event-dispatcher-contracts": "v3.7.1",
+    "symfony/filesystem": "v7.4.18",
+    "symfony/finder": "v7.4.17",
+    "symfony/http-foundation": "v7.4.18",
+    "symfony/http-kernel": "v7.4.18",
+    "symfony/mailer": "v7.4.17",
+    "symfony/mime": "v7.4.18",
+    "symfony/polyfill-ctype": "v1.37.0",
+    "symfony/polyfill-deepclone": "v1.42.0",
+    "symfony/polyfill-iconv": "v1.37.0",
+    "symfony/polyfill-intl-grapheme": "v1.41.0",
+    "symfony/polyfill-intl-idn": "v1.42.0",
+    "symfony/polyfill-intl-normalizer": "v1.42.0",
+    "symfony/polyfill-mbstring": "v1.38.2",
+    "symfony/polyfill-php80": "v1.37.0",
+    "symfony/polyfill-php83": "v1.41.0",
+    "symfony/polyfill-php84": "v1.38.1",
+    "symfony/polyfill-php85": "v1.41.0",
+    "symfony/polyfill-php86": "v1.41.0",
+    "symfony/process": "v7.4.18",
+    "symfony/psr-http-message-bridge": "v7.4.8",
+    "symfony/routing": "v7.4.18",
+    "symfony/runtime": "v7.4.14",
+    "symfony/serializer": "v7.4.18",
+    "symfony/service-contracts": "v3.7.3",
+    "symfony/string": "v8.1.2",
+    "symfony/translation-contracts": "v3.7.1",
+    "symfony/validator": "v7.4.18",
+    "symfony/var-dumper": "v8.1.6",
+    "symfony/var-exporter": "v8.1.6",
+    "symfony/yaml": "v7.4.18",
+    "twig/html-extra": "v3.28.0",
+    "twig/twig": "v3.28.0"
+  },
+  "auditExitCodes": {
+    "root": 0,
+    "whisk": 1,
+    "composer": 0
+  }
+}

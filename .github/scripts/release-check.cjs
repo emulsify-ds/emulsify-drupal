@@ -841,7 +841,8 @@ function runStaticChecks() {
     ensure(whiskPackage.engines && whiskPackage.engines.node, 'whisk/package.json engines.node is required.');
     ensure(whiskPackage.type === 'module', 'whisk/package.json must remain an ES module package.');
     ensure(whiskPackage.dependencies && whiskPackage.dependencies['@emulsify/core'], 'whisk/package.json must declare @emulsify/core.');
-    ensure(whiskPackage.dependencies['@emulsify/core'] === `^${minimumComponentInspectorCoreVersion}`, `whisk/package.json should target Emulsify Core ${minimumComponentInspectorCoreVersion} or newer for component inspector support.`);
+    const coreFloor = whiskPackage.dependencies['@emulsify/core'].match(/^\^4\.(\d+)\.(\d+)$/);
+    ensure(coreFloor && (Number(coreFloor[1]) > 3 || (Number(coreFloor[1]) === 3 && Number(coreFloor[2]) >= 1)), `whisk/package.json should target Emulsify Core ${minimumComponentInspectorCoreVersion} or newer within Core 4 for component inspector support.`);
     ensure(whiskPackage.scripts['inspect:components'] === 'emulsify-inspect-components', 'whisk/package.json inspect:components should invoke the published emulsify-inspect-components binary.');
     ensure(whiskPackage.scripts.build.includes('config/vite/vite.config.js'), 'whisk/package.json build script should use the Emulsify Core Vite config.');
     ensureWhiskPackageScriptTargets(whiskPackage);
