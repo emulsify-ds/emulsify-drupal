@@ -1,5 +1,20 @@
 # Upgrade Guide
 
+## Unreleased: preserve lint failures
+
+Copied starter scripts now run every constituent check and fail if any check
+fails. Existing child themes can apply this `package.json` diff; updating the
+parent theme does not rewrite generated projects. No script names changed.
+
+```diff
+-    "format": "npm run lint-fix; npm run prettier-fix",
++    "format": "sh -c 'status=0; npm run lint-fix || status=$?; npm run prettier-fix || status=$?; exit $status'",
+-    "lint": "npm run lint-js; npm run lint-styles",
++    "lint": "sh -c 'status=0; npm run lint-js || status=$?; npm run lint-styles || status=$?; exit $status'",
+-    "lint-fix": "npm run lint-js -- --fix; npm run lint-styles -- --fix",
++    "lint-fix": "sh -c 'status=0; npm run lint-js -- --fix || status=$?; npm run lint-styles -- --fix || status=$?; exit $status'",
+```
+
 ## Upgrading From 7.2.0 to 7.2.1
 
 7.2.1 fixes child-theme generation through the Emulsify Tools Drush command.
