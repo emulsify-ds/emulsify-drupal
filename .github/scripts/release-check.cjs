@@ -4,6 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { checkReleaseVersions } = require('./release-version-contract.cjs');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
@@ -643,7 +644,6 @@ function runStaticChecks() {
   const rootPackageLock = readJson('package-lock.json');
   const whiskPackage = readJson('whisk/package.json');
   const whiskProject = readJson('whisk/project.emulsify.json');
-  const expectedGeneratedFromVersion = '7.2.1';
   const composer = readJson('composer.json');
   const releaseConfigSource = readFile('release.config.js');
   const releaseConfig = require(path.join(repoRoot, 'release.config.js'));
@@ -851,7 +851,6 @@ function runStaticChecks() {
     ensure(whiskProject.project.machineName === 'whisk', 'whisk/project.emulsify.json should preserve the starter machine name.');
     ensure(whiskProject.project.singleDirectoryComponents === true, 'whisk/project.emulsify.json should preserve SDC behavior.');
     ensure(whiskProject.project.generatedFrom === 'emulsify-drupal', 'whisk/project.emulsify.json should record the generated source project.');
-    ensure(whiskProject.project.generatedFromVersion === expectedGeneratedFromVersion, `whisk/project.emulsify.json generatedFromVersion should match the ${expectedGeneratedFromVersion} release line.`);
     ensure(whiskProject.starter && whiskProject.starter.repository === 'https://github.com/emulsify-ds/emulsify-drupal.git', 'whisk/project.emulsify.json should preserve the starter repository.');
     ensure(composer.description, 'composer.json description is required.');
     ensurePreferredReleaseLanguage('composer.json description', composer.description);
@@ -900,13 +899,22 @@ function runStaticChecks() {
     return output.split(/\r?\n/)[0] || 'Documented npm commands match package scripts.';
   });
 
+  runStaticCheck('Release version policy and unreleased draft', () => {
+    const latestTag = checkReleaseVersions(repoRoot);
+    const result = spawnSync(process.execPath, ['--test', '.github/scripts/release-version-contract.test.cjs'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    });
+    ensure(result.status === 0, `${result.stdout || ''}${result.stderr || ''}` || 'Release-version regression checks failed.');
+    return `Validated version ownership, starter lineage, and draft against latest tag ${latestTag}; regression checks passed.`;
+  });
+
   runStaticCheck('README version references', () => {
     ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
       ensure(readme.includes('Drupal 12 forward compatibility'), 'README.md should describe Drupal 12 as forward-compatible.');
       ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
     }
-    ensure(readme.includes(`${rootPackage.version.split('.')[0]}.x series`), `README.md should mention the ${rootPackage.version.split('.')[0]}.x series.`);
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
     return 'README.md matches the Drupal core compatibility messaging and current major release line.';
