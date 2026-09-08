@@ -39,6 +39,11 @@ jobs:
             drupal-version: '11.3.*'
             php-version: '8.4'
             experimental: false
+          - label: Drupal 11.3
+            artifact-suffix: drupal-11-3-php-8-5
+            drupal-version: '11.3.*'
+            php-version: '8.5'
+            experimental: false
           - label: Drupal Dev Branch
             artifact-suffix: drupal-dev-main-php-8-5
             drupal-version: 'dev-main'
@@ -89,6 +94,18 @@ jobs:
         id: build_fixture
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+
+      - name: Characterize published PHP Twig helpers
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        run: php .github/scripts/twig-helper-contract.php /tmp/emulsify-fixture
+
+      - name: Characterize Drupal hooks with test-only Paragraphs
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && matrix.drupal-version != 'dev-main' }}
+        working-directory: /tmp/emulsify-fixture
+        run: |
+          composer require --dev --no-interaction --with-all-dependencies 'drupal/paragraphs:^1.23'
+          ./vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/hook-contract-smoke.php"
 
       # Once the fixture exists, run each readiness slice independently. A
       # render regression should not hide favicon or Whisk starter signal on PRs.
@@ -146,6 +163,11 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 15
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" frontend-install
+
+      - name: Characterize published JavaScript Twig helpers
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_frontend_install.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        run: node .github/scripts/twig-helper-contract.cjs /tmp/emulsify-fixture/web/themes/custom/example_theme
 
       - name: 'Generated child theme: inspect components'
         id: starterkit_frontend_inspect

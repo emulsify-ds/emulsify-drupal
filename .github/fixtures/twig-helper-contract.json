@@ -1,0 +1,469 @@
+[
+  {
+    "id": "bem-basic",
+    "helper": "bem",
+    "args": [
+      "button"
+    ],
+    "php": {
+      "attributes": {
+        "class": [
+          "button"
+        ]
+      },
+      "html": " class=\"button\"",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "button"
+        ]
+      },
+      "html": "class=\"button\"",
+      "contextAfter": {}
+    },
+    "divergence": "PHP serializes a leading space before attributes; JavaScript does not."
+  },
+  {
+    "id": "bem-object-block-element",
+    "helper": "bem",
+    "args": [
+      {
+        "block": "card",
+        "element": "title",
+        "modifiers": [
+          "red"
+        ]
+      }
+    ],
+    "divergence": "PHP treats block as base and element as prefix; JavaScript uses conventional block__element.",
+    "php": {
+      "attributes": {
+        "class": [
+          "title__card",
+          "title__card--red"
+        ]
+      },
+      "html": " class=\"title__card title__card--red\"",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "card__title",
+          "card__title--red"
+        ]
+      },
+      "html": "class=\"card__title card__title--red\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-object-aliases",
+    "helper": "bem",
+    "args": [
+      {
+        "baseClass": "button",
+        "blockName": "card"
+      }
+    ],
+    "divergence": "JavaScript accepts camelCase aliases that PHP does not.",
+    "php": {
+      "attributes": {},
+      "html": "",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "card__button"
+        ]
+      },
+      "html": "class=\"card__button\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-modifier-values",
+    "helper": "bem",
+    "args": [
+      "card",
+      [
+        "large",
+        "",
+        null,
+        "a b",
+        0,
+        false,
+        [
+          "nested"
+        ]
+      ],
+      "layout",
+      [
+        "u:wide",
+        "2xl"
+      ]
+    ],
+    "divergence": "PHP ignores nested modifier lists; JavaScript flattens them. Both ignore false, but class sanitization and numeric class prefixes differ.",
+    "php": {
+      "attributes": {
+        "class": [
+          "layout__card",
+          "layout__card--large",
+          "layout__card--a b",
+          "layout__card--0",
+          "u:wide",
+          "2xl"
+        ]
+      },
+      "html": " class=\"layout__card layout__card--large layout__card--a b layout__card--0 u:wide 2xl\"",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "layout__card",
+          "layout__card--large",
+          "layout__card--a",
+          "b",
+          "layout__card--0",
+          "layout__card--nested",
+          "u-wide",
+          "_2xl"
+        ]
+      },
+      "html": "class=\"layout__card layout__card--large layout__card--a b layout__card--0 layout__card--nested u-wide _2xl\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-unusual-class",
+    "helper": "bem",
+    "args": [
+      "Ünicode card/1",
+      [
+        "wide space"
+      ],
+      "",
+      [
+        "u:wide",
+        "2xl"
+      ]
+    ],
+    "divergence": "PHP preserves class characters and embedded spaces; JavaScript splits, sanitizes and prefixes numeric class tokens.",
+    "php": {
+      "attributes": {
+        "class": [
+          "Ünicode card/1",
+          "Ünicode card/1--wide space",
+          "u:wide",
+          "2xl"
+        ]
+      },
+      "html": " class=\"Ünicode card/1 Ünicode card/1--wide space u:wide 2xl\"",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "nicode",
+          "card-1",
+          "card-1--wide",
+          "space",
+          "u-wide",
+          "_2xl"
+        ]
+      },
+      "html": "class=\"nicode card-1 card-1--wide space u-wide _2xl\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-array-context",
+    "helper": "bem",
+    "context": {
+      "id": "existing",
+      "class": [
+        "context",
+        "button"
+      ]
+    },
+    "args": [
+      "button",
+      [
+        "wide"
+      ]
+    ],
+    "divergence": "PHP retains a plain-array caller context; JavaScript clears it. Serialization order and leading whitespace differ.",
+    "php": {
+      "attributes": {
+        "id": "existing",
+        "class": [
+          "button",
+          "button--wide",
+          "context"
+        ]
+      },
+      "html": " id=\"existing\" class=\"button button--wide context\"",
+      "contextAfter": {
+        "id": "existing",
+        "class": [
+          "context",
+          "button"
+        ]
+      }
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "button",
+          "button--wide",
+          "context"
+        ],
+        "id": "existing"
+      },
+      "html": "class=\"button button--wide context\" id=\"existing\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-object-context",
+    "helper": "bem",
+    "contextKind": "object",
+    "context": {
+      "id": "existing",
+      "class": [
+        "context",
+        "button"
+      ]
+    },
+    "args": [
+      "button",
+      [
+        "wide"
+      ]
+    ],
+    "divergence": "Both consume attribute objects; serialization order and leading whitespace differ.",
+    "php": {
+      "attributes": {
+        "id": "existing",
+        "class": [
+          "button",
+          "button--wide",
+          "context"
+        ]
+      },
+      "html": " id=\"existing\" class=\"button button--wide context\"",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "button",
+          "button--wide",
+          "context"
+        ],
+        "id": "existing"
+      },
+      "html": "class=\"button button--wide context\" id=\"existing\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "bem-empty",
+    "helper": "bem",
+    "args": [
+      "",
+      [],
+      "",
+      []
+    ],
+    "php": {
+      "attributes": {},
+      "html": "",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {},
+      "html": "",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "add-arrays",
+    "helper": "add_attributes",
+    "context": {
+      "class": [
+        "base",
+        "shared"
+      ],
+      "aria-describedby": [
+        "old",
+        "same"
+      ]
+    },
+    "args": [
+      {
+        "class": [
+          "shared",
+          "new"
+        ],
+        "aria-describedby": [
+          "new",
+          "same"
+        ]
+      }
+    ],
+    "divergence": "PHP appends non-class arrays; JavaScript replaces them. Plain-array context consumption differs. Drupal serialization also deduplicates non-class arrays without mutating the returned attribute map.",
+    "php": {
+      "attributes": {
+        "class": [
+          "base",
+          "shared",
+          "new"
+        ],
+        "aria-describedby": [
+          "old",
+          "same",
+          "new",
+          "same"
+        ]
+      },
+      "html": " class=\"base shared new\" aria-describedby=\"old same new\"",
+      "contextAfter": {
+        "class": [
+          "base",
+          "shared"
+        ],
+        "aria-describedby": [
+          "old",
+          "same"
+        ]
+      }
+    },
+    "js": {
+      "attributes": {
+        "class": [
+          "base",
+          "shared",
+          "new"
+        ],
+        "aria-describedby": [
+          "new",
+          "same"
+        ]
+      },
+      "html": "class=\"base shared new\" aria-describedby=\"new same\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "add-false-empty-null",
+    "helper": "add_attributes",
+    "context": {
+      "hidden": true,
+      "title": "before",
+      "data-null": "before"
+    },
+    "args": [
+      {
+        "hidden": false,
+        "title": "",
+        "data-null": null,
+        "class": [
+          true,
+          false,
+          0,
+          null,
+          ""
+        ]
+      }
+    ],
+    "divergence": "PHP retains false booleans, skips empty non-class strings, and stringifies boolean class values; JavaScript ignores false attributes, retains empty strings, and drops falsy class tokens. Drupal serialization drops the string zero from class lists even though the map retains it.",
+    "php": {
+      "attributes": {
+        "hidden": false,
+        "title": "before",
+        "data-null": "before",
+        "class": [
+          "true",
+          "false",
+          "0"
+        ]
+      },
+      "html": " title=\"before\" data-null=\"before\" class=\"true false\"",
+      "contextAfter": {
+        "hidden": true,
+        "title": "before",
+        "data-null": "before"
+      }
+    },
+    "js": {
+      "attributes": {
+        "hidden": true,
+        "title": "",
+        "data-null": "before",
+        "class": [
+          "true"
+        ]
+      },
+      "html": "hidden title=\"\" data-null=\"before\" class=\"true\"",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "add-escaping",
+    "helper": "add_attributes",
+    "contextKind": "object",
+    "context": {
+      "id": "old"
+    },
+    "args": [
+      {
+        "title": "A & \"B\" <C> 'D'",
+        "data-count": 0,
+        "disabled": true
+      }
+    ],
+    "divergence": "PHP emits a leading space and preserves numeric attribute types; JavaScript renders without that space and stringifies numeric attributes. PHP escapes apostrophes as &#039; whereas JavaScript leaves them literal inside double-quoted attributes.",
+    "php": {
+      "attributes": {
+        "id": "old",
+        "title": "A & \"B\" <C> 'D'",
+        "data-count": 0,
+        "disabled": true
+      },
+      "html": " id=\"old\" title=\"A &amp; &quot;B&quot; &lt;C&gt; &#039;D&#039;\" data-count=\"0\" disabled",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {
+        "id": "old",
+        "title": "A & \"B\" <C> 'D'",
+        "data-count": "0",
+        "disabled": true
+      },
+      "html": "id=\"old\" title=\"A &amp; &quot;B&quot; &lt;C&gt; 'D'\" data-count=\"0\" disabled",
+      "contextAfter": {}
+    }
+  },
+  {
+    "id": "add-empty",
+    "helper": "add_attributes",
+    "args": [
+      {}
+    ],
+    "php": {
+      "attributes": {},
+      "html": "",
+      "contextAfter": {}
+    },
+    "js": {
+      "attributes": {},
+      "html": "",
+      "contextAfter": {}
+    }
+  }
+]
