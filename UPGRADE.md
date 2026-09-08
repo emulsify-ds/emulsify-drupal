@@ -1,5 +1,50 @@
 # Upgrade Guide
 
+## Unreleased: project Jest discovery and ESM
+
+New child themes search their project root, execute native ESM, and report
+coverage for project JavaScript, including files that tests never import.
+`npm test` now fails when no tests exist. Add a project test before relying on
+a green run. `twatch` retains interactive watch mode; use
+`npm run twatch -- --watchAll` outside a Git checkout. Custom JSX or TypeScript still needs a
+project transformer that emits ESM.
+
+Existing child themes can opt in by applying these copied-file changes; a
+parent-theme update does not rewrite them.
+
+`package.json`:
+
+```diff
+-    "test": "jest --coverage --passWithNoTests --config ./config/jest.config.js",
++    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --config ./config/jest.config.js",
+-    "twatch": "jest --no-coverage --watch --verbose --passWithNoTests --config ./config/jest.config.js",
++    "twatch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --no-coverage --watch --verbose --config ./config/jest.config.js",
+```
+
+`config/jest.config.js`:
+
+```diff
+-export default {
+-  testEnvironment: 'jsdom',
+-  coverageDirectory: '.coverage',
+-  passWithNoTests: true,
+-};
++export default {
++  rootDir: '..',
++  testEnvironment: 'jsdom',
++  coverageDirectory: '.coverage',
++  // Execute the project's native ESM without converting imports to CommonJS.
++  transform: {},
++  coverageProvider: 'v8',
++  collectCoverageFrom: [
++    '**/*.{js,mjs,cjs,jsx}',
++    '!**/{node_modules,config,dist,.out,.coverage}/**',
++    '!**/*.{test,spec,stories}.{js,mjs,cjs,jsx}',
++    '!**/__tests__/**',
++  ],
++};
+```
+
 ## Unreleased: preserve lint failures
 
 Copied starter scripts now run every constituent check and fail if any check
