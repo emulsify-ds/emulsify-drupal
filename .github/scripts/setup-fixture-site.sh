@@ -17,10 +17,8 @@ fixture_dir="$2"
 # $GITHUB_WORKSPACE, and locally it defaults to the current working directory.
 theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
-emulsify_tools_repo="${EMULSIFY_TOOLS_REPOSITORY:-https://github.com/emulsify-ds/emulsify_tools.git}"
-emulsify_tools_ref="${EMULSIFY_TOOLS_REF:-release-2.2.0}"
+emulsify_tools_constraint="$(php -r '$metadata = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR); echo $metadata["require"]["drupal/emulsify_tools"];' "${theme_source_dir}/composer.json")"
 theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
-emulsify_tools_dir="${fixture_dir}/web/modules/contrib/emulsify_tools"
 drush_constraint="^13"
 
 if [ "$drupal_version" = "dev-main" ]; then
@@ -49,7 +47,7 @@ cd "$fixture_dir"
 
 # Copy the current checkout into the fixture as a contrib theme. This avoids
 # path repository edge cases and ensures CI tests the exact PR contents.
-mkdir -p "$(dirname "$theme_dir")" "$(dirname "$emulsify_tools_dir")"
+mkdir -p "$(dirname "$theme_dir")"
 rsync -a \
   --exclude '.git/' \
   --exclude '.github/' \
@@ -57,12 +55,10 @@ rsync -a \
   --exclude 'vendor/' \
   "${theme_source_dir}/" "${theme_dir}/"
 
-# Readiness checks should exercise the local theme code and the in-flight
-# Emulsify Tools 2.2 branch instead of depending on a published package.
-git clone --depth 1 --branch "$emulsify_tools_ref" "$emulsify_tools_repo" "$emulsify_tools_dir"
-rm -rf "${emulsify_tools_dir}/.git"
-
-"$composer_bin" require --no-interaction --no-audit --no-security-blocking --with-all-dependencies "drush/drush:${drush_constraint}"
+# Resolve the published Tools package using this theme's exact declared range.
+# An in-flight branch can behave differently from the API consumers install.
+"$composer_bin" require --no-interaction --no-audit --no-security-blocking --with-all-dependencies \
+  "drush/drush:${drush_constraint}" "drupal/emulsify_tools:${emulsify_tools_constraint}"
 
 # Use SQLite to keep the fixture self-contained on GitHub-hosted runners.
 ./vendor/bin/drush site:install standard \
@@ -85,6 +81,8 @@ fi
 # Drupal dev snapshots may change the standard profile's default content types.
 # Keep the render fixture independent by ensuring the seeded bundle exists.
 ./vendor/bin/drush php:eval '
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\NodeType;
 
 $storage = \Drupal::entityTypeManager()->getStorage("node_type");
@@ -97,6 +95,28 @@ if (!$storage->load("page")) {
   ]);
   $type->save();
 }
+
+// Drupal 11.4+ standard profiles can omit the page body field as well as the
+// bundle. Seed real renderable content using APIs that remain in Drupal 12.
+if (!FieldStorageConfig::loadByName("node", "body")) {
+  FieldStorageConfig::create([
+    "entity_type" => "node",
+    "field_name" => "body",
+    "type" => "text_with_summary",
+  ])->save();
+}
+if (!FieldConfig::loadByName("node", "page", "body")) {
+  FieldConfig::create([
+    "entity_type" => "node",
+    "field_name" => "body",
+    "bundle" => "page",
+    "label" => "Body",
+  ])->save();
+}
+\Drupal::service("entity_display.repository")
+  ->getViewDisplay("node", "page")
+  ->setComponent("body", ["label" => "hidden", "type" => "text_default"])
+  ->save();
 '
 
 # Seed stable pages for render-reference-pages.sh. The second promoted page

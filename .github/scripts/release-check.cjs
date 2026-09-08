@@ -1120,7 +1120,7 @@ function runStaticChecks() {
     ensure(starterkitSmoke.includes('--description "$description"'), 'starterkit-smoke.sh should pass supported punctuation-bearing Starterkit descriptions.');
     ensure(starterkitSmoke.includes('./vendor/bin/drush emulsify "$machine_name"'), 'starterkit-smoke.sh should generate child themes through the supported Drush command.');
     ensure(starterkitSmoke.includes('diff -qr "$core_theme_dir" "$theme_dir"'), 'starterkit-smoke.sh should require Drupal core and Drush generation output to match.');
-    ensure(setupFixture.includes('EMULSIFY_TOOLS_REF:-release-2.2.0'), 'setup-fixture-site.sh should test the Emulsify Tools branch that delegates Drush generation to Drupal Starterkit.');
+    ensure(setupFixture.includes('drupal/emulsify_tools:${emulsify_tools_constraint}'), 'setup-fixture-site.sh should install published Emulsify Tools using the theme Composer constraint.');
     ensure(generatedThemeContract.includes("require('js-yaml')"), 'generated-theme-contract.cjs should parse generated YAML with js-yaml.');
     ensure(generatedThemeContract.includes('generatedFromVersion'), 'generated-theme-contract.cjs should validate generated source version lineage.');
     ensure(generatedThemeContract.includes('singleDirectoryComponents'), 'generated-theme-contract.cjs should validate component-neutral SDC metadata.');
@@ -1168,8 +1168,10 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes("Generated child theme: install frontend dependencies"), 'theme-readiness.yml should split generated child theme smoke into a frontend install step.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: inspect components"), 'theme-readiness.yml should run the generated child theme component inspector.');
     ensure(themeReadinessWorkflow.includes("Generated child theme: run frontend tests"), 'theme-readiness.yml should run the generated child theme test script.');
-    ensure(themeReadinessWorkflow.includes('Generated Child Theme Storybook and Accessibility'), 'theme-readiness.yml should expose scheduled/manual generated child theme Storybook and a11y coverage.');
-    ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'theme-readiness.yml should enable generated Storybook build coverage in extended checks.');
+    ensure(themeReadinessWorkflow.includes('Generated Child Theme Storybook and Accessibility'), 'theme-readiness.yml should expose generated child theme Storybook and a11y coverage.');
+    ensure(!themeReadinessWorkflow.includes("github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'"), 'Generated Storybook and accessibility checks must run on pull requests as well as scheduled/manual runs.');
+    ensure(whiskPackage.scripts.a11y.includes('npm run storybook-build') && starterkitSmoke.includes('npm run a11y'), 'Generated accessibility checks must build Storybook through the existing a11y command.');
+    ensure(starterkitSmoke.includes('rendered-a11y.cjs'), 'Generated accessibility checks must audit rendered component and Drupal output.');
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_A11Y'), 'theme-readiness.yml should enable generated accessibility coverage in extended checks.');
     ensure(themeReadinessWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'theme-readiness.yml should enable generated starter test coverage in extended checks.');
     ensure((themeReadinessWorkflow.match(/npm ci --ignore-scripts/g) || []).length >= 2, 'theme-readiness.yml should install root validator dependencies in both readiness jobs.');

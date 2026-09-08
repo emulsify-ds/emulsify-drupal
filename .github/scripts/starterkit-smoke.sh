@@ -145,7 +145,13 @@ generate_scenario() {
   set +e
   (
     cd "$fixture_dir"
-    php web/core/scripts/drupal generate-theme "$machine_name" \
+    # Drupal 11.4+ exposes the Composer proxy; it supplies the autoloader path
+    # that the deprecated direct core script no longer resolves correctly.
+    local core_command=(php web/core/scripts/drupal)
+    if [ -x vendor/bin/dr ]; then
+      core_command=(vendor/bin/dr)
+    fi
+    "${core_command[@]}" generate-theme "$machine_name" \
       --name "$display_name" \
       --description "$description" \
       --starterkit whisk \
@@ -254,6 +260,7 @@ install_frontend() {
     fi
 
     run_logged "frontend install" "$npm_install_log" npm "${install_args[@]}"
+    node -p '"Installed @emulsify/core " + require("./node_modules/@emulsify/core/package.json").version'
   )
 }
 
@@ -296,14 +303,11 @@ inspect_components() {
 }
 
 prepare_frontend_fixture() {
-  # Whisk intentionally ships no project asset structure. This disposable
-  # entry represents a component library selected after theme generation so
-  # the smoke test can exercise the shared Vite and Storybook tooling.
-  local fixture_entry="${generated_theme_dir}/components/emulsify-smoke/emulsify-smoke.scss"
-  if [ ! -e "$fixture_entry" ]; then
-    mkdir -p "$(dirname "$fixture_entry")"
-    printf '.emulsify-smoke { display: block; }\n' >"$fixture_entry"
-  fi
+  # Whisk intentionally ships no component library. Add a real project-owned
+  # Twig component, story, and styles only inside this disposable consumer.
+  local fixture_component="${generated_theme_dir}/components/emulsify-smoke"
+  mkdir -p "$fixture_component"
+  cp "${script_dir}/../fixtures/consumer-component/"* "$fixture_component/"
 }
 
 build_frontend() {
@@ -318,19 +322,34 @@ build_frontend() {
 
 test_frontend() {
   require_generated_theme
+  prepare_frontend_fixture
   (
     cd "$generated_theme_dir"
     run_logged "frontend tests" "$npm_test_log" npm run test
+    run_logged "project test discovery" "${output_dir}/jest-project-smoke.log" \
+      node "${script_dir}/jest-project-smoke.cjs" "$generated_theme_dir"
   )
 }
 
 check_accessibility() {
   require_generated_theme
   prepare_frontend_fixture
+  local status=0
+  # The existing consumer command builds and audits Storybook. Also run the
+  # browser audit after a failure so artifacts retain rule IDs and Drupal data.
   (
     cd "$generated_theme_dir"
+    # npm installations may defer Puppeteer's postinstall script. This command
+    # reuses its browser cache and downloads Chrome only when it is missing.
+    run_logged "browser install" "${output_dir}/browser-install.log" \
+      npx --no-install puppeteer browsers install chrome
     run_logged "accessibility" "$npm_a11y_log" npm run a11y
-  )
+  ) || status=$?
+  (
+    run_logged "rendered WCAG 2.2 AA" "${output_dir}/rendered-a11y.log" \
+      node "${script_dir}/rendered-a11y.cjs" "$generated_theme_dir" "$fixture_dir" "$output_dir"
+  ) || status=$?
+  return "$status"
 }
 
 build_storybook() {
