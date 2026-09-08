@@ -6,18 +6,21 @@
 
 ### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides a [Storybook](https://storybook.js.org/) component library, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
+**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
 ## Documentation
 
-[docs.emulsify.info](https://emulsify.info/docs)
+Use this README and [UPGRADE.md](./UPGRADE.md) for the current 7.x installation
+and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
+also contains guides for older release lines; check the guide's version before
+following its commands.
 
 ### Quick Links
 
-1. [Installation](https://www.emulsify.info/docs/emulsify-drupal)
-2. [Usage](https://www.emulsify.info/docs/emulsify-drupal/basic-usage/commands)
+1. [Installation](#install-or-upgrade-the-parent-theme)
+2. [Usage](#generate-a-child-theme)
 3. [Upgrade guide](./UPGRADE.md)
 4. [Twig component includes](./docs/twig-component-includes.md)
 5. [Sister-project parity contract](./docs/sister-project-parity.md)
@@ -36,10 +39,87 @@ Emulsify Drupal is licensed under `GPL-2.0-or-later`, matching Drupal.org Compos
 
 ## How To
 
+### Install or upgrade the parent theme
+
+Run these commands from an existing Composer-managed Drupal site's project root,
+using that site's PHP/Composer environment. Examples assume a `web` document
+root and Drush 13+ on your path; use your project's wrapper (for example,
+`ddev composer` and `ddev drush`) when applicable.
+
+The recommended distribution is `drupal/emulsify` from Drupal.org. Configure
+Drupal.org in the site's root `composer.json` if it is not already configured,
+then install the parent theme and its required companion module:
+
+```bash
+composer config repositories.drupal composer https://packages.drupal.org/8
+composer require 'drupal/emulsify:^7.2' 'drupal/emulsify_tools:^2.2' --with-all-dependencies
+drush en emulsify_tools -y
+```
+
+The parallel [Packagist package](https://repo.packagist.org/p2/emulsify-ds/emulsify-drupal.json)
+is named `emulsify-ds/emulsify-drupal`. Existing sites using that package should
+keep that name when updating:
+
+```bash
+composer update emulsify-ds/emulsify-drupal drupal/emulsify_tools --with-all-dependencies
+```
+
+Both package names distribute the parent theme and Whisk starter. Choose one
+package name per site. The Packagist route also needs the Drupal.org repository
+in the site's root Composer configuration to resolve `drupal/emulsify_tools`;
+Composer does not load repository declarations from dependencies.
+
+For an existing Drupal.org installation, update within your site's declared
+ranges and read the applicable [upgrade notes](./UPGRADE.md):
+
+```bash
+composer update drupal/emulsify drupal/emulsify_tools --with-all-dependencies
+drush updb -y
+drush cr -y
+```
+
+The theme inherits its PHP floor from Drupal: PHP 8.3 for Drupal 11 and PHP 8.5
+for Drupal 12. The declared core compatibility is `^11.3 || ^12`; consult
+[Drupal's PHP requirements](https://www.drupal.org/docs/getting-started/system-requirements/php-requirements)
+for the supported PHP versions of your installed core release.
+
+### Identify your installed release
+
+Composer's installed package version is authoritative for the parent theme.
+Run the command matching your site's package name:
+
+```bash
+composer show drupal/emulsify
+```
+
+```bash
+composer show emulsify-ds/emulsify-drupal
+```
+
+The `versions` and source reference in that output identify what is installed;
+the matching `composer.lock` entry records what a subsequent `composer install`
+will reproduce. A development branch is identified by its source commit rather
+than by claiming the latest stable release. Published release history lives in
+[GitHub Releases](https://github.com/emulsify-ds/emulsify-drupal/releases), with
+consumer actions in [UPGRADE.md](./UPGRADE.md). The
+[next-release draft](./docs/release-notes-next.md) contains unreleased changes.
+
+The root `package.json` version is owned by `@semantic-release/npm`. That plugin
+writes the calculated version during release preparation, with `npmPublish: false`;
+the workflow does not commit that generated metadata back to Git.
+Consequently, the checked-in npm version is tooling metadata, not an installed
+Emulsify Drupal release identifier. Do not bump it manually. The release guard
+checks this ownership policy and the unchanged metadata baseline from the latest
+tag. The generated child theme's npm version belongs to that child project;
+`generatedFromVersion` records its starter lineage, not the currently installed
+parent theme version.
+
 ### Generate a child theme
 
 Emulsify Tools 2.2 or newer is required by the Emulsify Drupal parent theme.
-Its Drush helper delegates to Drupal Starterkit so both generation commands
+The `drush emulsify` and `drush emulsify_tools:bake` commands are implemented by
+Emulsify Tools, which must be installed and enabled. Its Drush helper delegates
+to Drupal Starterkit so both generation commands
 produce the same child theme. Generate a child theme with:
 
 ```bash
@@ -54,7 +134,15 @@ drush emulsify_tools:bake my_theme
 
 The `whisk` directory is the Whisk starter source used by both generation methods. Do not enable `whisk` directly; generated child themes keep `emulsify` as their runtime parent theme.
 
-You can also generate the same child theme with Drupal core's standard Starterkit command from the root of your Drupal site:
+You can also generate the same child theme with Drupal core's standard
+Starterkit command from the root of your Drupal site. On Drupal 11.4 and newer,
+use the Composer-installed `dr` executable:
+
+```bash
+vendor/bin/dr generate-theme my_theme --starterkit whisk --path themes/custom
+```
+
+For Drupal 11.3, which does not provide that executable, use the earlier entrypoint:
 
 ```bash
 php web/core/scripts/drupal generate-theme my_theme --starterkit whisk --path themes/custom
@@ -156,11 +244,18 @@ npm run build
 npm run storybook-build
 ```
 
-Generated child themes require Node.js 24 or newer. Use `npm install` for the first local install, or `npm ci` when the generated child theme already has a committed `package-lock.json`.
+Whisk advertises Node.js `>=24`, while Emulsify Core 4.3.1 and 4.4.0 require
+`>=24.13.0`; the effective frontend floor for those versions is therefore
+**24.13.0**. Root release tooling separately requires **24.15 or newer**. Both
+`.nvmrc` files select the Node 24 line without pinning its minor version. These
+declared requirements differ; a Node 24.0 installation does not satisfy Emulsify
+Core. Check the resolved Core package's `engines` when updating dependencies.
+Use `npm install` for the first local install, or `npm ci` when the generated
+child theme already has a committed `package-lock.json`.
 
 These checks verify the expected local workflow:
 
-1. `node --version` confirms the Node.js runtime satisfies the generated child theme requirement.
+1. Compare `node --version` with the effective Node.js floor above.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
 3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
 4. `npm run inspect:components` reports the component inventory and related project health information.
