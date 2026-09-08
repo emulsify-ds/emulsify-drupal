@@ -123,8 +123,8 @@ checks that did run.
 The generated child-theme contract does not require or test:
 
 - a particular component library, component directory, or example component;
-- arbitrary project CSS behavior or visual design beyond the rendered fixture;
-- arbitrary project JavaScript behavior beyond the real fixture's tests;
+- arbitrary frontend CSS behavior or visual design beyond the rendered fixture;
+- arbitrary frontend JavaScript behavior beyond the real fixture's tests;
 - a particular design-token system or token build pipeline;
 - Emulsify Tools administration behavior or Twig helper semantics; the separate
   [Twig hook and helper contract](./twig-hook-contract.md) characterizes those
