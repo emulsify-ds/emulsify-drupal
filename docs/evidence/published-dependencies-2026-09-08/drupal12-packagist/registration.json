@@ -1,0 +1,18 @@
+{
+    "php": "8.5.10",
+    "drupal": "12.0.0-alpha1",
+    "theme": "themes/contrib/emulsify-drupal",
+    "enabled": true,
+    "libraries": [
+        "emulsify/global",
+        "emulsify/favicon_admin"
+    ],
+    "breakpoints": [
+        "emulsify.large",
+        "emulsify.medium",
+        "emulsify.small",
+        "emulsify.xlarge",
+        "emulsify.xsmall",
+        "emulsify.xxlarge"
+    ]
+}

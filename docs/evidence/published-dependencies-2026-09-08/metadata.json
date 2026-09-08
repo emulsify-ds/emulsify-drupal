@@ -1,0 +1,31 @@
+{
+    "release": "7.2.1",
+    "packages": {
+        "drupal/emulsify": {
+            "version": "7.2.1",
+            "require": {
+                "drupal/core": "^11.3 || ^12",
+                "drupal/emulsify_tools": "^2.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/emulsify-7.2.1.zip",
+                "reference": "7.2.1",
+                "shasum": "52b1d146b98992ea27932112d1ce2fffbb3c3033"
+            }
+        },
+        "emulsify-ds/emulsify-drupal": {
+            "version": "7.2.1",
+            "require": {
+                "drupal/core": "^11.3 || ^12",
+                "drupal/emulsify_tools": "^2.2"
+            },
+            "dist": {
+                "url": "https://api.github.com/repos/emulsify-ds/emulsify-drupal/zipball/5ffff1808fa0698caa0ce1e5f1bb3a943c4bc250",
+                "type": "zip",
+                "shasum": "",
+                "reference": "5ffff1808fa0698caa0ce1e5f1bb3a943c4bc250"
+            }
+        }
+    }
+}

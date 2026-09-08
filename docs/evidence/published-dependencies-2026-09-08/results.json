@@ -1,0 +1,135 @@
+{
+  "checkedAt": "2026-09-08T05:03:46.827Z",
+  "results": [
+    {
+      "label": "drupal11-drupalorg",
+      "exitCode": 0,
+      "php": "8.3.33",
+      "drupal": "11.4.6",
+      "theme": "themes/contrib/emulsify",
+      "enabled": true,
+      "libraries": [
+        "emulsify/global",
+        "emulsify/favicon_admin"
+      ],
+      "breakpoints": [
+        "emulsify.large",
+        "emulsify.medium",
+        "emulsify.small",
+        "emulsify.xlarge",
+        "emulsify.xsmall",
+        "emulsify.xxlarge"
+      ],
+      "composerAudit": {
+        "advisories": [],
+        "abandoned": [],
+        "filter": []
+      },
+      "themePackage": "drupal/emulsify",
+      "themeVersion": "7.2.1",
+      "toolsVersion": "2.2.1",
+      "drush": {
+        "version": "13.7.7"
+      },
+      "elapsedSeconds": 37
+    },
+    {
+      "label": "drupal12-drupalorg",
+      "exitCode": 0,
+      "php": "8.5.10",
+      "drupal": "12.0.0-alpha1",
+      "theme": "themes/contrib/emulsify",
+      "enabled": true,
+      "libraries": [
+        "emulsify/global",
+        "emulsify/favicon_admin"
+      ],
+      "breakpoints": [
+        "emulsify.large",
+        "emulsify.medium",
+        "emulsify.small",
+        "emulsify.xlarge",
+        "emulsify.xsmall",
+        "emulsify.xxlarge"
+      ],
+      "composerAudit": {
+        "advisories": [],
+        "abandoned": [],
+        "filter": []
+      },
+      "themePackage": "drupal/emulsify",
+      "themeVersion": "7.2.1",
+      "toolsVersion": "2.2.1",
+      "drush": {
+        "version": "14.x-dev",
+        "reference": "1beb14796f0819e84ee2c29773e31bc121f8723b"
+      },
+      "elapsedSeconds": 32
+    },
+    {
+      "label": "drupal11-packagist",
+      "exitCode": 0,
+      "php": "8.3.33",
+      "drupal": "11.4.6",
+      "theme": "themes/contrib/emulsify-drupal",
+      "enabled": true,
+      "libraries": [
+        "emulsify/global",
+        "emulsify/favicon_admin"
+      ],
+      "breakpoints": [
+        "emulsify.large",
+        "emulsify.medium",
+        "emulsify.small",
+        "emulsify.xlarge",
+        "emulsify.xsmall",
+        "emulsify.xxlarge"
+      ],
+      "composerAudit": {
+        "advisories": [],
+        "abandoned": [],
+        "filter": []
+      },
+      "themePackage": "emulsify-ds/emulsify-drupal",
+      "themeVersion": "7.2.1",
+      "toolsVersion": "2.2.1",
+      "drush": {
+        "version": "13.7.7"
+      },
+      "elapsedSeconds": 35
+    },
+    {
+      "label": "drupal12-packagist",
+      "exitCode": 0,
+      "php": "8.5.10",
+      "drupal": "12.0.0-alpha1",
+      "theme": "themes/contrib/emulsify-drupal",
+      "enabled": true,
+      "libraries": [
+        "emulsify/global",
+        "emulsify/favicon_admin"
+      ],
+      "breakpoints": [
+        "emulsify.large",
+        "emulsify.medium",
+        "emulsify.small",
+        "emulsify.xlarge",
+        "emulsify.xsmall",
+        "emulsify.xxlarge"
+      ],
+      "composerAudit": {
+        "advisories": [],
+        "abandoned": [],
+        "filter": []
+      },
+      "themePackage": "emulsify-ds/emulsify-drupal",
+      "themeVersion": "7.2.1",
+      "toolsVersion": "2.2.1",
+      "drush": {
+        "version": "14.x-dev",
+        "reference": "1beb14796f0819e84ee2c29773e31bc121f8723b"
+      },
+      "elapsedSeconds": 34
+    }
+  ]
+}
