@@ -1,0 +1,15 @@
+.emulsify-smoke {
+  max-width: 40rem;
+  padding: 2rem;
+  color: #172b3a;
+  background: #fff;
+  font: 1rem/1.5 system-ui, sans-serif;
+
+  &__link {
+    display: inline-block;
+    min-height: 24px;
+    padding: 0.75rem;
+    color: #0645ad;
+    text-decoration: underline;
+  }
+}
