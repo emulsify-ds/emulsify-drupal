@@ -19,23 +19,6 @@
   ];
 
   /**
-   * Normalizes a padding value to the UI's allowed range.
-   *
-   * @param {string|number|boolean} value
-   *   Raw form value.
-   *
-   * @return {number}
-   *   Padding clamped to the 0-40 range.
-   */
-  function clampPadding(value) {
-    const numeric = Number.parseInt(value, 10);
-    if (Number.isNaN(numeric)) {
-      return 0;
-    }
-    return Math.max(0, Math.min(40, numeric));
-  }
-
-  /**
    * Returns a normalized form value for a named input.
    *
    * @param {HTMLFormElement} form
@@ -57,39 +40,6 @@
       return input.checked;
     }
     return input.value || fallback;
-  }
-
-  /**
-   * Applies the selected background color to one or more preview canvases.
-   *
-   * @param {HTMLFormElement} form
-   *   The theme settings form.
-   * @param {string} selector
-   *   Canvas selector to update.
-   * @param {string} colorName
-   *   Form input name that stores the color value.
-   */
-  function applyBackground(form, selector, colorName) {
-    const color = inputValue(form, colorName, '#ffffff');
-    form.querySelectorAll(selector).forEach((canvas) => {
-      canvas.style.setProperty('--preview-background', color);
-    });
-  }
-
-  /**
-   * Applies the selected padding percentage to preview canvases.
-   *
-   * @param {HTMLFormElement} form
-   *   The theme settings form.
-   * @param {string} selector
-   *   Canvas selector to update.
-   * @param {number} padding
-   *   Padding percentage.
-   */
-  function applyPadding(form, selector, padding) {
-    form.querySelectorAll(selector).forEach((canvas) => {
-      canvas.style.setProperty('--preview-padding', `${padding}%`);
-    });
   }
 
   /**
@@ -131,28 +81,6 @@
     else {
       hint.setAttribute('hidden', 'hidden');
     }
-  }
-
-  /**
-   * Syncs the text labels used in the iOS and Android previews.
-   *
-   * @param {HTMLFormElement} form
-   *   The theme settings form.
-   */
-  function applyPreviewLabels(form) {
-    const iosIconName = (inputValue(form, 'favicon_ios_icon_name', '') || '').trim()
-      || (inputValue(form, 'favicon_manifest_name', '') || '').trim()
-      || 'Site name';
-    const androidIconName = (inputValue(form, 'favicon_manifest_short_name', '') || '').trim()
-      || (inputValue(form, 'favicon_manifest_name', '') || '').trim()
-      || 'Site name';
-
-    form.querySelectorAll('[data-preview-label="ios"]').forEach((label) => {
-      label.textContent = iosIconName;
-    });
-    form.querySelectorAll('[data-preview-label="android"]').forEach((label) => {
-      label.textContent = androidIconName;
-    });
   }
 
   /**
@@ -230,36 +158,22 @@
   }
 
   /**
-   * Recomputes all preview and helper UI state from current form values.
+   * Updates generation helper UI state from current form values.
    *
    * @param {HTMLFormElement} form
    *   The theme settings form.
    */
   function refreshPreviews(form) {
-    const iosPadding = clampPadding(inputValue(form, 'favicon_ios_padding', 16));
-    const androidPadding = clampPadding(inputValue(form, 'favicon_android_padding', 20));
-    // Browser favicons are the tightest preview, so use the smaller platform
-    // padding value to avoid overstating available space.
-    const browserPadding = Math.min(iosPadding, androidPadding);
-
-    applyBackground(form, '[data-preview-canvas="browser"]', 'favicon_background_color');
-    applyBackground(form, '[data-preview-canvas="ios"]', 'favicon_ios_background_color');
-    applyBackground(form, '[data-preview-canvas="android"], [data-preview-canvas="maskable"]', 'favicon_android_background_color');
-
-    applyPadding(form, '[data-preview-canvas="browser"]', browserPadding);
-    applyPadding(form, '[data-preview-canvas="ios"]', iosPadding);
-    applyPadding(form, '[data-preview-canvas="android"]', androidPadding);
-    applyPadding(form, '[data-preview-canvas="maskable"]', Math.max(androidPadding, 20));
-
+    // Images, framing, and labels describe saved output. Unsaved changes only
+    // update the generation controls and dirty-state notice.
     syncThemeColorValue(form);
-    applyPreviewLabels(form);
     applyGenerationHint(form);
     applyDirtyState(form);
   }
 
   Drupal.behaviors.emulsifyFaviconPreview = {
     /**
-     * Attaches live preview syncing to the theme settings form.
+     * Attaches generation helper behavior to the theme settings form.
      *
      * @param {HTMLElement|Document} context
      *   Drupal behavior context.

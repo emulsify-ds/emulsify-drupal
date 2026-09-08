@@ -140,11 +140,10 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     $source_file = $this->faviconThemeManager->resolveStoredSourceFile($settings);
     $package_status = $this->buildPackageStatus($theme_name, $settings, $source_file);
     $has_generated_package = $package_status['package_exists'];
-    $has_preview_source = $package_status['source_available'] || $has_generated_package;
-    $preview_settings = $settings;
-    if ($package_status['path'] !== '') {
-      $preview_settings['favicon_package_path'] = $package_status['path'];
-    }
+    // Match the runtime hook's enabled, managed, existing saved-package gate.
+    // A freshly calculated candidate path may differ from the saved head links.
+    $has_preview_source = !empty($settings['favicon_package_enabled'])
+      && $package_status['saved_package_exists'];
 
     // Remove the legacy page-element display toggles and persist the values
     // the parent theme expects instead of exposing conflicting controls.
@@ -306,7 +305,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       '#description' => $this->t('Applied to the square browser favicon, SVG favicon, and ICO.'),
     ];
     if ($has_preview_source) {
-      $form['emulsify_favicon']['browser']['preview'] = $this->previewBuilder->buildBrowserPreview($preview_settings, $source_file);
+      $form['emulsify_favicon']['browser']['preview'] = $this->previewBuilder->buildBrowserPreview($settings);
     }
 
     $form['emulsify_favicon']['ios'] = [
@@ -341,7 +340,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       '#description' => $this->t('Used for the iOS shortcut label. Leave blank to use the current site name.'),
     ];
     if ($has_preview_source) {
-      $form['emulsify_favicon']['ios']['preview'] = $this->previewBuilder->buildIosPreview($preview_settings, $source_file);
+      $form['emulsify_favicon']['ios']['preview'] = $this->previewBuilder->buildIosPreview($settings);
     }
 
     $form['emulsify_favicon']['android'] = [
@@ -382,7 +381,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       '#description' => $this->t('Used for the Android and PWA launcher label. Leave blank to use the current site name.'),
     ];
     if ($has_preview_source) {
-      $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($preview_settings, $source_file);
+      $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($settings);
     }
 
     if ($package_status['source_available'] || $has_generated_package) {
@@ -427,7 +426,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
           'data-favicon-dirty-state' => 'true',
           'hidden' => 'hidden',
         ],
-        '#markup' => '<div class="messages messages--warning" role="status">' . $this->t('The source SVG or package settings changed. Save the form or click the package button again to rebuild the generated assets.') . '</div>',
+        '#markup' => '<div class="messages messages--warning" role="status">' . $this->t('The source SVG or package settings changed. Previews still show the saved package. Save the form or click the package button again to rebuild the generated assets.') . '</div>',
       ];
     }
   }

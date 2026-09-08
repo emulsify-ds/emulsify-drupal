@@ -39,6 +39,27 @@ Each generated package contains:
 
 Do not manually edit generated package files. Change the source SVG or favicon settings, then regenerate the package so metadata, hash, and head attachments stay consistent.
 
+## Saved package previews
+
+Admin previews show the enabled package referenced by saved theme settings, and
+appear only when that managed package exists in the current environment. An
+uploaded SVG or portable SVG source alone does not produce a preview. Source
+and package diagnostics remain available when generation is needed.
+
+Browser previews use the same `favicon.svg` URL attached to the page head. The
+iOS preview uses its `apple-touch-icon.png` URL and saved iOS title. Android
+previews use the normal 192-pixel icon and the separate 512-pixel maskable icon
+from the saved manifest's package; the launcher label comes from that manifest.
+The generated files already contain their configured background and padding,
+so the preview adds no second layer of either. Tab chrome and launcher masks
+provide viewing context; they are not additional favicon output.
+
+Changing unsaved colors, padding, labels, or the source upload leaves those
+previews unchanged. The pending-changes notice and generation controls indicate
+when a save or regeneration is needed. If imported settings describe a newer
+package than the saved path, previews continue to show the package referenced by
+the emitted head links until regeneration updates the saved reference.
+
 ## Lifecycle
 
 Generated favicon packages are environment-local build artifacts. They are expected to exist in each deployed environment, but they should be recreated from configuration rather than treated as hand-maintained source files.
