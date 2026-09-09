@@ -265,6 +265,37 @@ For only the Twig story migration report, run:
 npm run audit:twig-stories
 ```
 
+For machine-readable output, silence npm's command banner and forward Core's
+options after `--`:
+
+```bash
+npm run audit --silent -- --json --root "path with spaces" --fail-on warn
+npm run audit:twig-stories --silent -- --json --root "path with spaces" --fail-on-found
+```
+
+The entire stdout stream is JSON; the documentation footer goes to stderr.
+The wrappers preserve Core's exit status, including findings failures and CLI
+errors. New themes generated from Emulsify Drupal 7.2.2 include the footer fix.
+An existing theme retains its previously copied scripts: compare both audit
+entries with `whisk/package.json` and preserve `"$@"`, the captured status, and
+the footer's `>&2` redirection when applying the fix locally.
+
+Within each script's shell command, the footer edit is (shown before JSON
+escaping; apply the same redirection to the `Migration docs` footer):
+
+```diff
+- printf "\nAudit docs: https://github.com/emulsify-ds/emulsify-core/blob/4.x/docs/migration-4x.md#storybook-migration\n"; exit $status
++ printf "\nAudit docs: https://github.com/emulsify-ds/emulsify-core/blob/4.x/docs/migration-4x.md#storybook-migration\n" >&2; exit $status
+```
+
+You can also bypass a previously copied wrapper and run the installed Core
+executables directly, without downloading another package:
+
+```bash
+npx --no-install emulsify-audit --json --root "path with spaces" --fail-on warn
+npx --no-install emulsify-audit-twig-stories --json --root "path with spaces" --fail-on-found
+```
+
 Existing Twig stories that return HTML strings can continue rendering during the
 upgrade, but actively maintained stories should be migrated to `renderTwig()` as
 they are touched.

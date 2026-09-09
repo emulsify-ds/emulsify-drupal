@@ -32,6 +32,7 @@
     "lint-staged": "lint-staged",
     "prepare": "[ -d '.git' ] && (husky install) || true",
     "test:generated-theme": "node --test .github/scripts/generated-theme-contract.test.cjs",
+    "test:audit-wrappers": "node --test .github/scripts/audit-wrappers.test.cjs",
     "release:check": "node .github/scripts/release-check.cjs",
     "publish": "semantic-release --tag-format '${version}'",
     "publish-test": "semantic-release --tag-format '${version}' --dry-run --debug",
