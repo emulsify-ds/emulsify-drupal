@@ -28,6 +28,7 @@ following its commands.
 7. [Favicon generation lifecycle](./docs/favicon-generation.md)
 8. [Optional design-token integration](./docs/design-token-integration.md)
 9. [Release readiness checklist](./docs/release-readiness.md)
+10. [Twig hook variables and template suggestion precedence](./docs/twig-hook-contract.md)
 
 ## Demo
 

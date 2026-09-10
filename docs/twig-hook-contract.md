@@ -35,11 +35,22 @@ is not mutated. Paragraph preprocessing copies that render-array value into
 ## Template suggestions
 
 The outputs below append to existing suggestions. They are suggestion keys;
-Drupal performs filename selection from those keys.
+Drupal converts underscores to hyphens for template filenames and selects the
+last suggestion whose template exists. For example,
+`container__class__form_actions` selects
+`container--class--form-actions.html.twig`. The orders below are from lower to
+higher priority; a missing template falls back to the next available candidate.
+
+Drupal runs module suggestion alters, then base-theme alters, then the active
+child theme's alters. A child theme can append its own higher-priority suggestion
+or reorder/remove inherited suggestions. Defining the same hook in a child
+theme does not replace Emulsify's hook: both run. These additions do not require
+Twig Suggest and do not reproduce that module's other suggestions.
 
 | Producer | Current appended output |
 | --- | --- |
-| `FormHooks::themeSuggestionsFormAlter()` | `form__{id}`, selecting `element['#form_id'] ?? element['#id'] ?? NULL`, then replacing hyphens with underscores. A present empty string or `'0'` is falsey and suppresses output rather than falling back to `#id`; `NULL` does fall back. Other punctuation, case, and spaces are retained. Duplicates are retained. |
+| `ContainerHooks::themeSuggestionsContainerAlter()` | Class suggestions in supplied order, cumulative structural `#array_parents` paths, a `data-drupal-selector` suggestion, then an ID suggestion. Hyphens become underscores; duplicates remain. See [Container suggestions](#container-suggestions). |
+| `FormHooks::themeSuggestionsFormAlter()` | A shared Layout Builder fallback when applicable, then `form__{id}`, then Views exposed-form variants and a placed-block variant when applicable. The existing ID selection remains `element['#form_id'] ?? element['#id'] ?? NULL`, followed by hyphen-to-underscore replacement. A present empty string or `'0'` is falsey and suppresses output rather than falling back to `#id`; `NULL` does fall back. Other punctuation, case, and spaces are retained. Duplicates are retained. See [Form suggestions](#form-suggestions). |
 | `FieldHooks::themeSuggestionsFieldAlter()` | Only for hook name `field`: `field__{entity_type}__{field_name}` if both are truthy; additionally `field__{entity_type}__{field_name}__{bundle}__{view_mode}` if all four are truthy. Values come from `element` keys prefixed with `#`. No hyphen/punctuation normalization and no deduplication. |
 | `ViewsHooks::themeSuggestionsViewsViewAlter()` | In order: `views_view__{id}`, `views_view__{id}__{display_type}`, `views_view__{id}__{display}` for truthy required values. Hyphens become underscores in each value; existing exact duplicates are suppressed. Requires an object with `id()`. Display type uses `display_handler->getPluginId()` when available, otherwise `display_handler->display['display_plugin']`; a falsey method result does not fall back to the property. |
 | `ViewsHooks::themeSuggestionsViewsViewUnformattedAlter()` | Always appends `views_view_unformatted__{raw_id}` and `views_view_unformatted__{raw_id}__{raw_display}`. It expects a view with `id()` and `current_display`. Hyphens and duplicates remain. Empty strings still produce `views_view_unformatted__` and `views_view_unformatted____`. |
@@ -56,6 +67,88 @@ in the characterization test and remains unchanged in the runtime hooks.
 `title = ['#markup' => $title]`; otherwise it preserves the incoming title.
 The returned title is not escaped by this hook. An incoming string `'0'` counts
 as empty under the existing PHP condition.
+
+### Container suggestions
+
+Container suggestions read `variables['element']`. This example combines
+classes `['form-actions', 'compact']`, structural parents
+`['advanced', 'actions']`, selector `edit-actions`, and ID `checkout-actions`:
+
+| Appended order | Suggested filename |
+| --- | --- |
+| First class | `container--class--form-actions.html.twig` |
+| Second class | `container--class--compact.html.twig` |
+| First structural ancestor | `container--parents--advanced.html.twig` |
+| Full structural path | `container--parents--advanced--actions.html.twig` |
+| Drupal selector | `container--selector--edit-actions.html.twig` |
+| ID, highest priority | `container--id--checkout-actions.html.twig` |
+
+Classes come from `#attributes['class']`; a class string is treated as one
+entry, not split on spaces. Empty-string classes are skipped. Paths use
+`#array_parents`, preserving the form's render structure even when `#tree` is
+false and value-oriented `#parents` is flattened. Each additional ancestor
+produces a more specific candidate, including numeric path segments.
+
+A nonempty `#attributes['data-drupal-selector']` supplies the selector. Drupal
+keeps that selector stable when it adds a unique suffix to a form element's DOM
+ID, making selector templates useful for repeated form instances. The ID comes
+from `#attributes['id']`; when that is absent or null, `#id` is used only if
+`#array_parents` is set, matching Drupal's form-container preprocessing. A
+present empty-string attribute ID suppresses the ID suggestion. Only hyphens
+are normalized; other punctuation, case, and spaces remain unchanged.
+
+### Form suggestions
+
+These suggestions target the outer `<form>` wrapper. Add overrides alongside
+your child theme's other templates, preserve the parent
+[`form.html.twig`](../templates/form/form.html.twig) attributes and children,
+then rebuild Drupal caches. No templates need to be copied to keep the default
+rendering.
+
+Layout Builder forms with a real `#form_id` ending in `_layout_builder_form`
+or beginning with `layout_builder_` receive
+`form--layout-builder-form.html.twig` as a shared fallback. The exact form-ID
+suggestion follows it and takes precedence; for example,
+`form--layout-builder-add-block.html.twig` wins over the shared fallback for
+`#form_id = layout_builder_add_block`. A DOM `#id` matching those patterns does
+not classify an otherwise unidentified form as a Layout Builder form.
+
+Forms whose real `#form_id` is `views_exposed_form` receive the following
+suggestions. For a View named `news`, page display `page_1`, and configured
+block placement `header_search`, representative candidates are:
+
+| Appended order | Suggested filename |
+| --- | --- |
+| Generic exposed form | `form--views-exposed-form.html.twig` |
+| View | `form--views-exposed-form--news.html.twig` |
+| Display type | `form--views-exposed-form--page.html.twig` |
+| View and display type | `form--views-exposed-form--news--page.html.twig` |
+| Display | `form--views-exposed-form--page-1.html.twig` |
+| View and display | `form--views-exposed-form--news--page-1.html.twig` |
+| Placed block, highest priority | `form--views-exposed-form--block--header-search.html.twig` |
+
+The hook reuses the form's `#theme` candidates that begin with
+`views_exposed_form__`, reverses their supplied order, and prefixes `form__`.
+Views supplies those candidates from most to least specific; reversing them
+preserves their priority in an alter hook. Display-type and tag candidates,
+including their order and existing normalization, come from Views rather than
+being reconstructed here. The table omits tags for clarity. A missing `#theme`
+adds no View-specific candidates. A DOM `#id` of `views_exposed_form` alone
+still gets the existing generic ID suggestion, but no Views-specific variants.
+
+`FormHooks::preprocessBlock()` copies a nonempty `elements['#id']` to
+`content['#emulsify_block_id']` only when that content's `#form_id` is
+`views_exposed_form`. The form hook uses this value for the final block-specific
+candidate, replacing hyphens with underscores. This identifies a configured
+block placement, not the Views block plugin ID. It is available only when the
+block render array supplies `#id`; Layout Builder placements do not necessarily
+supply one, and no Layout Builder UUID is inferred.
+
+`form--views-exposed-form--…` overrides wrap the entire form, including its
+attributes. `views-exposed-form--…` overrides still target the inner exposed
+filter layout. When a child theme already implements equivalent container or
+form hooks, review its appended order before removing duplicate logic: a later
+child-theme generic suggestion can otherwise outrank an inherited specific one.
 
 ## PHP and JavaScript ownership
 
@@ -102,7 +195,21 @@ The [hook characterization script](../.github/scripts/hook-contract-smoke.php)
 runs through Drush in a disposable Drupal site. It uses core's real `Node`
 interface implementation and published Paragraphs entity/interface for the
 indexing branch; simple input objects supply only the methods read by the other
-hooks. Entities are never saved and site configuration is not changed.
+hooks. Direct checks cover form `#id` fallback compatibility, empty/null values,
+preserved duplicates, container paths and attribute precedence, exposed-form
+candidate order, and placed-block propagation.
+
+The same script also exercises Drupal's real theme manager and renderer with
+temporary in-memory Twig marker templates and theme registry entries. It checks
+which template wins and which fallback renders when more specific candidates
+are unavailable, covering container priorities, Layout Builder forms, Views
+exposed forms, and separate block placements. The temporary Twig loader and
+registry entries are restored after these checks. Entities are never saved and
+site configuration is not changed.
+
+The expanded suite passes 170 assertions on Drupal 11.3.16 / PHP 8.3.33
+(Emulsify Tools 2.2.1, Paragraphs 1.23.0) and Drupal 11.4.4 / PHP 8.5.10
+(Emulsify Tools 2.2.0, Paragraphs 1.21.0).
 
 Install `drupal/paragraphs` as a test-only Composer dependency in that fixture,
 then run with its selected PHP runtime:
@@ -113,7 +220,7 @@ vendor/bin/drush php:script /path/to/emulsify-drupal/.github/scripts/hook-contra
 
 The script autoloads the installed Paragraphs and Entity Reference Revisions
 classes without enabling either module. It fails clearly when they are absent.
-The characterized fixture uses Drupal 11.4.6 and Paragraphs 1.23.0 under both
+The original characterization used Drupal 11.4.6 and Paragraphs 1.23.0 under both
 PHP 8.3 and PHP 8.5. Paragraphs 1.23.0 declares Drupal `^10.3 || ^11`, so this
 optional hook fixture does not add it to the published-package Drupal 12
 installation matrix or change the parent theme's runtime dependencies.

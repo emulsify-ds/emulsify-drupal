@@ -1,5 +1,29 @@
 # Upgrade Guide
 
+## Unreleased: 7.3.0 container and form template suggestions
+
+The parent theme now adds container suggestions by class, structural form path,
+Drupal selector, and ID; a shared Layout Builder form fallback; Views exposed
+outer-form suggestions by View and display; and an exposed-form suggestion for
+an individual configured block placement. Existing generated themes inherit
+these hooks after updating the parent and rebuilding Drupal caches. No copied
+starter-file changes or additional module dependencies are needed.
+
+Existing form-ID suggestions retain their `#id` fallback and empty/null
+behavior. The new shared Layout Builder suggestion comes before the exact
+form-ID suggestion; the new Views variants come after the generic exposed-form
+suggestion, with the block placement last. Drupal selects the last available
+candidate. See the [full precedence and filename examples](./docs/twig-hook-contract.md#template-suggestions)
+before adding overrides.
+
+If your child theme already implements the same suggestion hooks, both parent
+and child implementations run, with the child last. Review duplicate logic and
+ordering, particularly child hooks that append generic form suggestions after
+more specific parent suggestions. Existing templates matching the new
+candidates can start taking effect after the update. The
+`form--views-exposed-form--…` templates affect the outer `<form>`;
+`views-exposed-form--…` templates continue to control its inner filter layout.
+
 ## Unreleased: copied Node and test guidance
 
 The effective Node minimum for Emulsify Core 4.3.1/4.4.0 is 24.13.0, while
