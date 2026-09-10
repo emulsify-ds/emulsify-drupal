@@ -3,8 +3,8 @@
 Generated from Drupal core's stable9 template tree in a local fixture site.
 
 - Stable9 template paths mirrored: 167
-- Exact baseline copies: 102
-- Modified relative to stable9: 65
+- Exact baseline copies: 100
+- Modified relative to stable9: 67
 - Emulsify-only template paths: 1
 - Stable9 paths excluded: 0
 
@@ -67,7 +67,7 @@ Reason values are generated audit categories that explain why a path differs at 
 | `templates/announcements_feed/announcements-feed-admin.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/announcements_feed/announcements-feed.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/block/block--local-actions-block.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/block/block--system-branding-block.html.twig` | `stable9/core` | No | Core baseline parity |
+| `templates/block/block--system-branding-block.html.twig` | `stable9/core` | Yes | Minimum target size for branding links |
 | `templates/block/block--system-menu-block.html.twig` | `stable9/core` | Yes | Emulsify block override |
 | `templates/block/block--system-messages-block.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/block/block.html.twig` | `stable9/core` | No | Core baseline parity |
@@ -147,7 +147,7 @@ Reason values are generated audit categories that explain why a path differs at 
 | `templates/navigation/links.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/menu--toolbar.html.twig` | `stable9/core` | Yes | Emulsify navigation override |
 | `templates/navigation/menu-local-action.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/navigation/menu-local-task.html.twig` | `stable9/core` | No | Core baseline parity |
+| `templates/navigation/menu-local-task.html.twig` | `stable9/core` | Yes | Minimum target size for local task links |
 | `templates/navigation/menu-local-tasks.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/menu.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/navigation--message.html.twig` | `stable9/core` | Yes | Emulsify navigation override |

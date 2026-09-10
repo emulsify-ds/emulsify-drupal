@@ -220,12 +220,20 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Cache Composer downloads and browser
+      - name: Select and verify runner Chrome
+        timeout-minutes: 1
+        run: |
+          # Ubuntu's AppArmor profile permits the installed Google Chrome.
+          # Verify it launches with its sandbox before either Puppeteer audit.
+          chrome_path="$(command -v google-chrome)"
+          "$chrome_path" --version
+          "$chrome_path" --headless --dump-dom about:blank
+          printf 'PUPPETEER_EXECUTABLE_PATH=%s\n' "$chrome_path" >> "$GITHUB_ENV"
+
+      - name: Cache Composer downloads
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          path: |
-            ~/.cache/composer/files
-            ~/.cache/puppeteer
+          path: ~/.cache/composer/files
           key: ${{ runner.os }}-emulsify-consumer-${{ hashFiles('composer.json', 'whisk/package.json', 'whisk/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-emulsify-consumer-

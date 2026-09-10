@@ -339,10 +339,18 @@ check_accessibility() {
   # browser audit after a failure so artifacts retain rule IDs and Drupal data.
   (
     cd "$generated_theme_dir"
-    # npm installations may defer Puppeteer's postinstall script. This command
-    # reuses its browser cache and downloads Chrome only when it is missing.
-    run_logged "browser install" "${output_dir}/browser-install.log" \
-      npx --no-install puppeteer browsers install chrome
+    if [ -n "${PUPPETEER_EXECUTABLE_PATH:-}" ]; then
+      # Both the published Core audit and rendered audit honor this Puppeteer
+      # setting. CI selects runner Chrome, whose Ubuntu sandbox is configured.
+      [ -x "$PUPPETEER_EXECUTABLE_PATH" ] || fail "Configured Puppeteer browser is not executable: ${PUPPETEER_EXECUTABLE_PATH}"
+      run_logged "browser selection" "${output_dir}/browser-install.log" \
+        "$PUPPETEER_EXECUTABLE_PATH" --version
+    else
+      # npm installations may defer Puppeteer's postinstall script. Reuse the
+      # browser cache and download Chrome only when no executable is supplied.
+      run_logged "browser install" "${output_dir}/browser-install.log" \
+        npx --no-install puppeteer browsers install chrome
+    fi
     run_logged "accessibility" "$npm_a11y_log" npm run a11y
   ) || status=$?
   (

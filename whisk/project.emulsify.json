@@ -5,7 +5,7 @@
     "machineName": "whisk",
     "singleDirectoryComponents": true,
     "generatedFrom": "emulsify-drupal",
-    "generatedFromVersion": "7.2.1"
+    "generatedFromVersion": "7.2.2"
   },
   "starter": {
     "repository": "https://github.com/emulsify-ds/emulsify-drupal.git"

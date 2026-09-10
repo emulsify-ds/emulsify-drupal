@@ -1,7 +1,7 @@
 # Published dependency validation
 
-The `Published Dependency Compatibility` workflow installs the latest stable
-Emulsify release from both public Composer routes in four fresh Drupal sites.
+The `Published Dependency Compatibility` workflow installs each public Composer
+route's latest available stable Emulsify release in four fresh Drupal sites.
 It checks the declared `drupal/core: ^11.3 || ^12` and
 `drupal/emulsify_tools: ^2.2` requirements without changing those constraints.
 
@@ -15,10 +15,25 @@ It checks the declared `drupal/core: ^11.3 || ^12` and
 Each leg reads the live
 [Drupal.org JSON](https://packages.drupal.org/files/packages/8/p2/drupal/emulsify.json)
 and [Packagist JSON](https://repo.packagist.org/p2/emulsify-ds/emulsify-drupal.json)
-endpoints and compares their latest stable version with the repository's latest
-stable tag. Both published Drupal and Tools requirements must equal the
-repository's current Composer requirements. The actual installed theme version
-must equal the verified release; this catches a registry change during the run.
+endpoints and records both latest stable versions alongside the repository's
+latest stable tag. Each leg selects its own route's release and pins that exact
+version during Composer resolution with `update --with=package:version`. The
+fixture retains a normal caret requirement and passes strict validation. The
+selected release must have a matching repository tag,
+and its published Drupal and Tools requirements must equal `composer.json` at
+that tag. Unreleased changes to the checkout's requirements do not alter the
+expected metadata of an already published package. The actual installed theme
+version must equal the selected release.
+
+Registries publish independently. A route that trails the repository does not
+prevent compatibility testing of its available release or the other route's
+release. Publication differences remain visible as GitHub warnings, in the job
+summary, and in `metadata.json` alongside both observed versions and the selected
+release tag. This is a compatibility check of available packages; a passing job
+does not establish that every registry has published the newest repository tag.
+Publication parity still needs verification during release follow-up. For the
+selected route, unknown release tags, missing stable releases, and requirement
+drift fail the job, with their errors retained in the metadata evidence.
 
 The fixture is a new Composer project with `minimum-stability: dev` and
 `prefer-stable: true`, matching the policy already declared by this package.
@@ -66,6 +81,24 @@ bash .github/scripts/published-dependency-check.sh '^12' emulsify-ds/emulsify-dr
 The script refuses an existing fixture directory and verifies the actual PHP
 major/minor version. It does not emulate a PHP version through Composer's
 `config.platform` setting.
+
+Before downloading packages, each leg runs offline metadata regression checks
+for independently published versions, matching release-tag requirements,
+prerelease exclusion, unknown tags, and Composer's minified metadata. Run those
+checks alone with:
+
+```sh
+php .github/scripts/published-package-metadata.test.php
+```
+
+## Publication difference observed: September 10, 2026
+
+The live Drupal.org endpoint advertises 7.2.1 while Packagist and the repository
+advertise 7.2.2. Both published versions declare `drupal/core: ^11.3 || ^12` and
+`drupal/emulsify_tools: ^2.2`. The compatibility matrix therefore selects 7.2.1
+for Drupal.org and 7.2.2 for Packagist, while reporting the Drupal.org publication
+difference. Previously, a mandatory version equality check stopped all four
+legs before dependency resolution, including the Packagist legs.
 
 ## Recorded run: September 8, 2026
 
