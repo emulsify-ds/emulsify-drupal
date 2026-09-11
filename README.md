@@ -1,4 +1,4 @@
-![Emulsify Design System](https://github.com/emulsify-ds/.github/blob/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
+![Emulsify Design System](https://raw.githubusercontent.com/emulsify-ds/.github/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
 
 # Emulsify Drupal
 
@@ -6,16 +6,19 @@
 
 ### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
+**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components.
+
+Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
+Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks; they
+do not establish verified Drupal 12 support.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
 ## Documentation
 
-Use this README and [UPGRADE.md](./UPGRADE.md) for the current 7.x installation
-and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
-also contains guides for older release lines; check the guide's version before
-following its commands.
+This README and [UPGRADE.md](./UPGRADE.md) are authoritative for the 7.x
+installation and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
+currently documents the pre-7.x Webpack-based tooling and is being rewritten.
 
 ### Quick Links
 
@@ -28,10 +31,12 @@ following its commands.
 7. [Favicon generation lifecycle](./docs/favicon-generation.md)
 8. [Optional design-token integration](./docs/design-token-integration.md)
 9. [Release readiness checklist](./docs/release-readiness.md)
+10. [Twig hook variables and template suggestion precedence](./docs/twig-hook-contract.md)
+11. [Extend parent templates](./docs/template-extension.md)
 
 ## Demo
 
-1. [Storybook](http://storybook.emulsify.info/)
+1. [Storybook](https://storybook.emulsify.info/)
 
 ## License
 
@@ -136,7 +141,8 @@ The `whisk` directory is the Whisk starter source used by both generation method
 
 You can also generate the same child theme with Drupal core's standard
 Starterkit command from the root of your Drupal site. On Drupal 11.4 and newer,
-use the Composer-installed `dr` executable:
+use the Composer-installed `dr` executable, which Drupal introduced as an
+[experimental CLI](https://www.drupal.org/blog/drupal-11-4-0):
 
 ```bash
 vendor/bin/dr generate-theme my_theme --starterkit whisk --path themes/custom
@@ -257,7 +263,7 @@ These checks verify the expected local workflow:
 
 1. Compare `node --version` with the effective Node.js floor above.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
-3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+3. `npm run test` runs project tests and collects coverage. Add a project test first; the generated setup fails when no tests are found.
 4. `npm run inspect:components` reports the component inventory and related project health information.
 5. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
 6. `npm run storybook-build` verifies the component library's static Storybook build.

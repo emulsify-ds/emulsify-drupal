@@ -1,7 +1,8 @@
-/*
- * Placeholder global theme library.
- *
- * Emulsify attaches the `emulsify/global` library at the theme level, so this
- * file keeps that library definition valid even when the parent theme does not
- * yet ship front-end CSS.
+/* Minimum pointer target size for standalone navigation (WCAG 2.2 SC 2.5.8).
+ * Keep specificity at zero so child themes can supply their own presentation.
  */
+:where(.emulsify-branding-link, .emulsify-local-task > a, .pager__item > a, [data-drupal-messages] a[href^="#"]) {
+  display: inline-block;
+  min-inline-size: 24px;
+  min-block-size: 24px;
+}

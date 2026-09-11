@@ -117,8 +117,6 @@ function createValidTheme(t, overrides = {}) {
     { recursive: true },
   );
   fs.copyFileSync(path.join(DEFAULT_SOURCE_DIR, 'config/jest.config.js'), path.join(themeDir, 'config/jest.config.js'));
-  fs.mkdirSync(path.join(themeDir, 'templates/layout'), { recursive: true });
-  fs.copyFileSync(path.join(DEFAULT_SOURCE_DIR, 'templates/layout/page.html.twig'), path.join(themeDir, 'templates/layout/page.html.twig'));
   fs.copyFileSync(path.join(DEFAULT_SOURCE_DIR, '.nvmrc'), path.join(themeDir, '.nvmrc'));
 
   return { themeDir, machineName, displayName, description };
@@ -136,6 +134,20 @@ test('accepts a valid component-neutral generated child theme', (t) => {
   const result = validate(createValidTheme(t));
   assert.deepEqual(result.errors, []);
   assert.match(formatValidationResult(result), /PASS Drupal metadata/);
+});
+
+test('accepts a theme without a local page template in both validation modes', (t) => {
+  const fixture = createValidTheme(t);
+  assert.equal(fs.existsSync(path.join(fixture.themeDir, 'templates/layout/page.html.twig')), false);
+  assert.deepEqual(validate(fixture).errors, []);
+  assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
+});
+
+test('allows a consumer to add a page override after generation', (t) => {
+  const fixture = createValidTheme(t);
+  writeFile(fixture.themeDir, 'templates/layout/page.html.twig', "{% extends '@emulsify/templates/layout/page.html.twig' %}\n{% block page_content %}<p>Project content</p>{% endblock %}\n");
+  assert.deepEqual(validate(fixture).errors, []);
+  assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
 });
 
 test('accepts a valid generated machine name that contains the source name', (t) => {

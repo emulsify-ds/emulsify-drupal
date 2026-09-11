@@ -64,7 +64,7 @@
       {% endwith %}
     {% endif %}
     {% if errors %}
-      <div>
+      <div id="{{ element['#id'] }}--error" class="form-item--error-message">
         {{ errors }}
       </div>
     {% endif %}

@@ -23,6 +23,20 @@ final class FaviconPackageGenerator {
   public const MAX_FILE_SIZE = 5242880;
 
   /**
+   * Maximum SVG canvas dimension, ample for icons exported up to 4096 units.
+   */
+  public const MAX_SVG_DIMENSION = 4096;
+
+  /**
+   * Static SVG drawing elements supported by favicon sources.
+   */
+  private const ALLOWED_SVG_ELEMENTS = [
+    'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline',
+    'polygon', 'text', 'tspan', 'defs', 'symbol', 'use', 'image', 'clippath',
+    'mask', 'lineargradient', 'radialgradient', 'stop', 'title', 'desc',
+  ];
+
+  /**
    * Portable SVG config larger than this should be treated as review noise.
    */
   public const PORTABLE_SOURCE_ADVISORY_SIZE = 262144;
@@ -306,7 +320,6 @@ final class FaviconPackageGenerator {
           $source_svg,
           $normalized['favicon_background_color'],
           $browser_padding,
-          FALSE,
         ),
       );
 
@@ -655,11 +668,7 @@ final class FaviconPackageGenerator {
   /**
    * Generates an SVG favicon wrapper around the uploaded source.
    */
-  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding, bool $sanitize_svg): string {
-    if ($sanitize_svg) {
-      $source_data = $this->sanitizeSvg($source_data);
-    }
-
+  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding): string {
     $encoded_source = base64_encode($source_data);
     $inset = (int) round(1024 * ($padding / 100));
     $content_size = max(1, 1024 - ($inset * 2));
@@ -682,13 +691,6 @@ SVG,
   }
 
   /**
-   * Sanitizes SVG uploads while allowing embedded image data URIs.
-   */
-  private function sanitizeSvg(string $source_data): string {
-    return (string) $this->inspectSvgMarkup($source_data)['sanitized_svg'];
-  }
-
-  /**
    * Inspects and sanitizes SVG markup.
    *
    * @return array<string, mixed>
@@ -697,7 +699,8 @@ SVG,
   private function inspectSvgMarkup(string $source_data): array {
     $document = $this->loadSvgDocument($source_data);
     $root = $document->documentElement;
-    if (!$root || strtolower($root->localName ?? $root->nodeName) !== 'svg') {
+    if (!$root || strtolower($root->localName ?? $root->nodeName) !== 'svg'
+      || !in_array($root->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE)) {
       throw new \InvalidArgumentException('The uploaded icon file must be an SVG.');
     }
 
@@ -705,8 +708,16 @@ SVG,
     if ($view_box === NULL) {
       throw new \InvalidArgumentException('The uploaded SVG must define a viewBox.');
     }
+    if ($view_box[2] > self::MAX_SVG_DIMENSION || $view_box[3] > self::MAX_SVG_DIMENSION) {
+      throw new \InvalidArgumentException('SVG viewBox width and height must not exceed ' . self::MAX_SVG_DIMENSION . ' units.');
+    }
 
     $declared_dimensions = $this->extractDeclaredDimensions($root);
+    foreach ($declared_dimensions as $dimension) {
+      if ($dimension !== NULL && (!is_finite($dimension) || $dimension > self::MAX_SVG_DIMENSION)) {
+        throw new \InvalidArgumentException('SVG width and height must not exceed ' . self::MAX_SVG_DIMENSION . ' units.');
+      }
+    }
     $view_box_was_normalized = !$this->isSquare($view_box[2], $view_box[3]);
     $dimensions_were_normalized = $declared_dimensions['width'] !== NULL
       && $declared_dimensions['height'] !== NULL
@@ -821,7 +832,7 @@ SVG,
 
     $values = [];
     foreach ($parts as $part) {
-      if (!is_numeric($part)) {
+      if (!is_numeric($part) || !is_finite((float) $part)) {
         return NULL;
       }
       $values[] = (float) $part;
@@ -852,7 +863,7 @@ SVG,
       return NULL;
     }
 
-    if (!preg_match('/^(-?(?:\d+|\d*\.\d+))(?:px|pt|pc|mm|cm|in)?$/i', $candidate, $matches)) {
+    if (!preg_match('/^(-?(?:\d+|\d*\.\d+)(?:e[+-]?\d+)?)(?:px|pt|pc|mm|cm|in)?$/i', $candidate, $matches)) {
       return NULL;
     }
 
@@ -966,7 +977,8 @@ SVG,
     $removable = [];
     foreach ($document->getElementsByTagName('*') as $element) {
       $tag_name = strtolower($element->localName ?? $element->nodeName);
-      if (in_array($tag_name, ['script', 'style', 'foreignobject', 'iframe', 'audio', 'video'], TRUE)) {
+      if (!in_array($tag_name, self::ALLOWED_SVG_ELEMENTS, TRUE)
+        || !in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE)) {
         $removable[] = $element;
       }
     }
@@ -994,7 +1006,7 @@ SVG,
       }
 
       foreach ($attributes as $attribute) {
-        $name = strtolower($attribute->nodeName);
+        $name = strtolower($attribute->localName ?? $attribute->nodeName);
         $value = trim((string) $attribute->nodeValue);
 
         if (str_starts_with($name, 'on')) {
@@ -1009,7 +1021,7 @@ SVG,
           continue;
         }
 
-        if (in_array($name, ['href', 'xlink:href'], TRUE) && !$this->isSafeSvgHref($value)) {
+        if ($name === 'href' && !$this->isSafeSvgHref($value)) {
           $element->removeAttributeNode($attribute);
           $removed_count++;
         }
@@ -1028,7 +1040,7 @@ SVG,
     }
 
     if (str_starts_with($href, 'data:')) {
-      return (bool) preg_match('/^data:image\/(png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+\/]+=*$/', $href);
+      return (bool) preg_match('/^data:image\/(png|gif|jpe?g|webp);base64,[A-Za-z0-9+\/]+=*$/', $href);
     }
 
     return FALSE;
@@ -1121,17 +1133,45 @@ SVG,
         throw new \RuntimeException($this->getMissingImagickMessage());
       }
 
+      // Bound the raster viewport, not the density in DPI. Keep the viewBox so
+      // source coordinates and proportions survive in the raster-only copy.
+      $document = $this->loadSvgDocument($source_data);
+      $raster_size = min($target_size * 4, 2048);
+      $document->documentElement->setAttribute('width', (string) $raster_size);
+      $document->documentElement->setAttribute('height', (string) $raster_size);
+
+      // These limits are process-wide. Preserve stricter host limits and
+      // restore them after releasing the pixel caches, including on failure.
+      $limits = [
+        \Imagick::RESOURCETYPE_MEMORY => 64 * 1024 * 1024,
+        \Imagick::RESOURCETYPE_AREA => 2048 * 2048,
+        \Imagick::RESOURCETYPE_WIDTH => 2048,
+        \Imagick::RESOURCETYPE_HEIGHT => 2048,
+      ];
+      $previous_limits = [];
       $image = new \Imagick();
-      $image->setBackgroundColor(new \ImagickPixel('transparent'));
-      $image->setResolution($target_size * 4, $target_size * 4);
-      $image->readImageBlob($source_data);
-      $merged = $image->mergeImageLayers(\Imagick::LAYERMETHOD_MERGE);
-      $merged->setImageFormat('png32');
-      $source_data = (string) $merged->getImageBlob();
-      $merged->clear();
-      $merged->destroy();
-      $image->clear();
-      $image->destroy();
+      $merged = NULL;
+      try {
+        foreach ($limits as $resource => $limit) {
+          $previous_limits[$resource] = \Imagick::getResourceLimit($resource);
+          if (!\Imagick::setResourceLimit($resource, min($previous_limits[$resource], $limit))) {
+            throw new \RuntimeException('Unable to set favicon rasterization resource limits.');
+          }
+        }
+        $image->setBackgroundColor(new \ImagickPixel('transparent'));
+        $image->setResolution(96, 96);
+        $image->readImageBlob($document->saveXML($document->documentElement));
+        $merged = $image->mergeImageLayers(\Imagick::LAYERMETHOD_MERGE);
+        $merged->setImageFormat('png32');
+        $source_data = (string) $merged->getImageBlob();
+      }
+      finally {
+        $merged?->clear();
+        $image->clear();
+        foreach ($previous_limits as $resource => $limit) {
+          \Imagick::setResourceLimit($resource, $limit);
+        }
+      }
     }
 
     $image = imagecreatefromstring($source_data);

@@ -20,8 +20,8 @@ The local lockfile incorporates the changes reviewed in
   `brace-expansion` 5.0.9, `ip-address` 10.5.0, `tar` 7.5.22 and `undici` 6.28.0.
 
 No direct dependency, override, Drupal, PHP, Tools or engine constraint was
-changed by this audit. The working tree already requested Core `^4.4.0`; that
-user change was preserved and the fresh installation satisfies it. Registry
+changed by this audit. The committed starter declares Core `^4.3.1`, which
+permits the audited Core 4.4.0 installation. Registry
 metadata confirms Core 4.3.1 and 4.4.0 both require Node `>=24.13.0`; the starter's
 advertised `>=24` and the root's `>=24.15` fields remain unchanged.
 

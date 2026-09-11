@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-# Verifies Emulsify owns the same template path surface that stable9 provides
-# without inheriting stable9 as a parent theme. This is a path-contract check:
-# templates may intentionally differ in content, but missing stable9 paths would
+# Verifies Emulsify covers the templates that stable9 provides without
+# inheriting stable9 as a parent theme. Drupal discovers templates by basename,
+# so directory relocations preserve coverage while missing basenames would
 # reintroduce hidden fallback behavior in Drupal 11/12 readiness testing.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <repo-root> [report-file]" >&2
@@ -16,6 +16,7 @@ repo_root="$2"
 report_file="${3:-}"
 stable9_templates_dir="${fixture_dir}/web/core/themes/stable9/templates"
 repo_templates_dir="${repo_root}/templates"
+whisk_templates_dir="${repo_root}/whisk/templates"
 stable9_list="$(mktemp)"
 repo_list="$(mktemp)"
 exact_matches_list="$(mktemp)"
@@ -43,11 +44,27 @@ if grep -Eq "^base theme: stable9$" "${repo_root}/emulsify.info.yml"; then
   exit 1
 fi
 
-# Build sorted relative path lists before comparison so the comm-based missing
-# path check is deterministic across local macOS and Linux CI filesystems.
+# Any templates shipped by the starter must match their parent counterparts.
+# Generated child themes normally inherit these files instead of copying them.
+if [ -d "$whisk_templates_dir" ]; then
+  while IFS= read -r -d '' whisk_path; do
+    relative_path="${whisk_path#"$whisk_templates_dir"/}"
+    parent_path="${repo_templates_dir}/${relative_path}"
+    if [ ! -f "$parent_path" ]; then
+      echo "Whisk template ${relative_path} has no parent counterpart at templates/${relative_path}." >&2
+      exit 1
+    fi
+    if ! cmp -s "$whisk_path" "$parent_path"; then
+      echo "Whisk template ${relative_path} differs from its parent counterpart at templates/${relative_path}." >&2
+      exit 1
+    fi
+  done < <(find "$whisk_templates_dir" -type f -print0)
+fi
+
+# Compare sorted basenames for coverage and retain repo paths for reporting.
 (
   cd "$stable9_templates_dir"
-  find . -type f -name '*.html.twig' | sort
+  find . -type f -name '*.html.twig' | sed 's#.*/##' | sort -u
 ) >"$stable9_list"
 
 (
@@ -55,20 +72,20 @@ fi
   find . -type f -name '*.html.twig' | sort
 ) >"$repo_list"
 
-missing_templates="$(comm -23 "$stable9_list" "$repo_list" || true)"
+missing_templates="$(comm -23 "$stable9_list" <(sed 's#.*/##' "$repo_list" | sort -u))"
 
 if [ -n "$missing_templates" ]; then
-  echo "Emulsify is missing stable9 template paths:" >&2
+  echo "Emulsify is missing stable9 template basenames:" >&2
   echo "$missing_templates" >&2
   exit 1
 fi
 
 while IFS= read -r relative_path; do
-  stable9_path="${stable9_templates_dir}/${relative_path#./}"
+  stable9_path="$(find "$stable9_templates_dir" -type f -name "${relative_path##*/}" -print -quit)"
   repo_path="${repo_templates_dir}/${relative_path#./}"
 
   # The report separates exact copies from intentional overrides. Both are
-  # acceptable for parity; only a missing stable9 path fails the test.
+  # acceptable for parity; only a missing stable9 basename fails the test.
   if [ ! -f "$stable9_path" ]; then
     echo "$relative_path" >>"$emulsify_only_list"
   elif cmp -s "$stable9_path" "$repo_path"; then
@@ -83,7 +100,7 @@ if [ -n "$report_file" ]; then
   {
     echo "# Stable9 template parity report"
     echo
-    echo "- Stable9 template paths mirrored: $(wc -l <"$stable9_list" | tr -d ' ')"
+    echo "- Stable9 templates covered: $(wc -l <"$stable9_list" | tr -d ' ')"
     echo "- Exact baseline copies: $(wc -l <"$exact_matches_list" | tr -d ' ')"
     echo "- Modified relative to stable9: $(wc -l <"$modified_matches_list" | tr -d ' ')"
     echo "- Emulsify-only template paths: $(wc -l <"$emulsify_only_list" | tr -d ' ')"
@@ -98,7 +115,7 @@ if [ -n "$report_file" ]; then
     echo
     echo "## Modified relative to stable9"
     echo
-    echo "These paths mirror the stable9 contract but intentionally differ in content."
+    echo "These templates cover the stable9 contract but intentionally differ in content."
     echo
     if [ -s "$modified_matches_list" ]; then
       sed 's#^\./#- `#; s#$#`#' "$modified_matches_list"
@@ -118,4 +135,4 @@ if [ -n "$report_file" ]; then
   } >"$report_file"
 fi
 
-echo "Emulsify includes every stable9 template path and no longer depends on stable9."
+echo "Emulsify covers every stable9 template basename and no longer depends on stable9."

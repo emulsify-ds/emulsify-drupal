@@ -202,7 +202,11 @@ final class FaviconPreviewBuilder {
    * Reads the launcher label from the manifest referenced by the saved package.
    */
   private function resolveAndroidPreviewLabel(array $settings): string {
-    $manifest_path = ($settings['favicon_package_path'] ?? '') . '/site.webmanifest';
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (!FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))) {
+      return '';
+    }
+    $manifest_path = $package_path . '/site.webmanifest';
     if (!is_readable($manifest_path)) {
       return '';
     }
