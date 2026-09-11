@@ -67,17 +67,6 @@ final class FaviconThemeManager {
   }
 
   /**
-   * Persists normalized favicon settings to theme config.
-   */
-  public function writeThemeSettings(string $theme_name, array $settings): void {
-    $config = $this->configFactory->getEditable($theme_name . '.settings');
-    foreach (FaviconSettings::DEFAULTS as $key => $default) {
-      $config->set($key, $settings[$key] ?? $default);
-    }
-    $config->save();
-  }
-
-  /**
    * Resolves a stored managed file source when it still exists.
    */
   public function resolveStoredSourceFile(array $settings): ?File {

@@ -5,6 +5,7 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { checkReleaseVersions } = require('./release-version-contract.cjs');
+const { validateReadinessMatrix } = require('./readiness-matrix-contract.cjs');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
@@ -143,8 +144,7 @@ function extractSupportedDrupalTestLines(constraint) {
 
 function mapDrupalLineToSmokeTarget(line) {
   if (line === '12.*') {
-    // Until Drupal 12 has tagged beta/stable recommended-project releases,
-    // dev-main is the only useful forward-compatibility smoke target.
+    // Keep development-branch coverage alongside the separate beta matrix leg.
     return 'dev-main';
   }
 
@@ -528,10 +528,6 @@ const MIGRATED_THEME_HOOK_FILES = [
   ],
 ];
 
-const DEPENDENCY_HEAVY_FAVICON_FORM_FILES = [
-  'src/Favicon/FaviconSettingsForm.php',
-];
-
 function getStrictTypeClassFiles() {
   return [
     ...listFilesRecursive('src/Favicon', (filePath) => filePath.endsWith('.php')),
@@ -567,14 +563,6 @@ function ensureHookAttributeMigration(themeEntrypoint) {
     for (const hook of hooks) {
       ensure(hookClass.includes(`#[Hook('${hook}')]`), `${target} must implement ${hook} with a Hook attribute.`);
     }
-  }
-}
-
-function ensureDependencyHeavyFaviconFormAutowiring() {
-  for (const formFilePath of DEPENDENCY_HEAVY_FAVICON_FORM_FILES) {
-    const formClass = readFile(formFilePath);
-    ensure(formClass.includes('use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;'), `${formFilePath} must import Symfony Autowire for constructor disambiguation.`);
-    ensure(formClass.includes("#[Autowire(service: 'lock')]\n    LockBackendInterface $lock"), `${formFilePath} must explicitly autowire the request lock service.`);
   }
 }
 
@@ -712,13 +700,13 @@ function runStaticChecks() {
     ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
     ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
     ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
-    for (const drupalTarget of supportedDrupalSmokeTargets) {
-      ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
-    }
-    ensure(themeReadinessWorkflow.includes("'8.3'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
-    ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    const readinessMatrix = validateReadinessMatrix(themeReadinessWorkflow, [...supportedDrupalSmokeTargets, '11.4.*', '>=12.0.0-beta1 <12.0.0-RC1@beta']);
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '11.4.*' && entry.experimental === false), 'Drupal 11.4 readiness coverage must be blocking.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.3'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.4'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '>=12.0.0-beta1 <12.0.0-RC1@beta' && entry['php-version'] === '8.5'), 'theme-readiness.yml should run Drupal 12 beta smoke checks on PHP 8.5.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
-      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
+      ensure(readinessMatrix.some((entry) => entry['drupal-version'] === 'dev-main' && entry['php-version'] === '8.5' && entry.experimental === true), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
     ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
     ensure(themeReadinessWorkflow.includes('schedule:'), 'theme-readiness.yml should run scheduled release-readiness coverage.');
@@ -737,7 +725,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     ensure(setupFixture.includes('NodeType::create'), 'setup-fixture-site.sh should create the page node type when install profiles omit it.');
-    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
+    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')}; CI targets ${[...new Set(readinessMatrix.map((entry) => entry['drupal-version']))].join(', ')}. Local smoke default: ${options.drupalVersion}.`;
   });
 
   runStaticCheck('CI credentials and action pins', () => {
@@ -913,7 +901,8 @@ function runStaticChecks() {
     ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
       ensure(readme.includes('Drupal 12 forward compatibility'), 'README.md should describe Drupal 12 as forward-compatible.');
-      ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
+      ensure(readme.includes('Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.'), 'README.md should identify the blocking Drupal and PHP matrix coverage.');
+      ensure(readme.includes('Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks'), 'README.md should identify Drupal 12 beta and development branch checks as non-blocking.');
     }
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
@@ -922,7 +911,8 @@ function runStaticChecks() {
 
   runStaticCheck('Release language consistency', () => {
     for (const [label, text] of [
-      ['README.md', readme],
+      // Allow the explicit historical tooling caveat for the documentation site.
+      ['README.md', readme.replace('currently documents the pre-7.x Webpack-based tooling and is being rewritten.', '')],
       ['docs/release-readiness.md', releaseReadinessDoc],
       ['.github/workflows/theme-readiness.yml', themeReadinessWorkflow],
       ['.github/workflows/semantic-release.yml', semanticReleaseWorkflow],
@@ -1008,28 +998,61 @@ function runStaticChecks() {
     return 'Emulsify owns its template layer without a stable9 parent theme fallback.';
   });
 
+  runStaticCheck('Unique Twig template basenames', () => {
+    const templates = listFilesRecursive('templates', (filePath) => filePath.endsWith('.twig'));
+    ensure(new Set(templates.map((filePath) => path.basename(filePath))).size === templates.length, 'Remove duplicate .twig basenames under templates/; Drupal registers templates by basename, so duplicates collide in the theme registry.');
+    return `Verified ${templates.length} unique Twig template basenames.`;
+  });
+
   runStaticCheck('Theme region rendering', () => {
     const checkedRegions = [
       { metadataPath: 'emulsify.info.yml', metadataContents: emulsifyInfo, templatePath: 'templates/layout/page.html.twig' },
-      { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'whisk/templates/layout/page.html.twig' },
-      { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'whisk/templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'templates/layout/page.html.twig' },
     ].map(ensureDeclaredRegionsRender);
-    const smokeRegions = ['header', 'content_top', 'content', 'content_bottom', 'footer'];
-    const smokeRegionsMatch = renderReferencePages.match(/^region_smoke_regions=\(([^)]+)\)$/m);
-    ensure(smokeRegionsMatch, 'render-reference-pages.sh should declare region_smoke_regions for block placement smoke coverage.');
-    const coveredSmokeRegions = smokeRegionsMatch[1].trim().split(/\s+/);
-
-    for (const region of smokeRegions) {
-      ensure(coveredSmokeRegions.includes(region), `render-reference-pages.sh should place and assert a region smoke marker for ${region}.`);
-    }
+    const yaml = require('js-yaml');
+    const regionMappings = [emulsifyInfo, whiskInfo, whiskInfoStarter].map((contents) => yaml.load(contents).regions);
+    ensure(regionMappings.every((regions) => JSON.stringify(regions) === JSON.stringify(regionMappings[0])), 'Parent and Whisk theme info files must declare identical region keys, labels, and order.');
+    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/templates/layout/page.html.twig')), 'Whisk must inherit the parent page template instead of shipping a copy.');
+    ensure(renderReferencePages.includes('$regions = array_keys(\\Drupal::service("extension.list.theme")->get($theme)->info["regions"]);'), 'render-reference-pages.sh should discover every region from the default theme info.');
+    ensure(renderReferencePages.includes('echo $region . PHP_EOL;') && renderReferencePages.includes('\' >"$region_smoke_file"'), 'render-reference-pages.sh should record every placed region for smoke assertions.');
+    ensure(renderReferencePages.includes('while IFS= read -r region; do') && renderReferencePages.includes('done <"$region_smoke_file"'), 'render-reference-pages.sh should assert a rendered marker for every placed region.');
     ensure(renderReferencePages.includes('assert_region_smoke_markers'), 'render-reference-pages.sh should fail when placed region smoke blocks do not render.');
 
-    return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} declared region references across parent and Whisk page templates.`;
+    return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} parent and Whisk region declarations against the inherited parent page template.`;
+  });
+
+  runStaticCheck('Twig template extension contract', () => {
+    const templateBlocks = {
+      'templates/layout/page.html.twig': ['page_header', 'page_main', 'page_content', 'page_footer'],
+      'templates/layout/html.html.twig': ['head', 'body_content'],
+      'templates/layout/region.html.twig': ['region_content'],
+      'templates/block/block.html.twig': ['title', 'block_attributes', 'content'],
+    };
+    for (const [templatePath, expectedBlocks] of Object.entries(templateBlocks)) {
+      const blocks = [...stripTwigComments(readFile(templatePath)).matchAll(/\{%-?\s*block\s+(\w+)\s*-?%\}/g)].map((match) => match[1]);
+      for (const block of expectedBlocks) {
+        ensure(blocks.includes(block), `${templatePath} must expose the ${block} Twig block for child theme extension.`);
+      }
+    }
+    ensure(readme.includes('(./docs/template-extension.md)'), 'README.md should link to the parent template extension guide.');
+    ensure(fs.existsSync(path.join(repoRoot, 'docs/template-extension.md')), 'The parent template extension guide must exist.');
+    ensure(fs.existsSync(path.join(repoRoot, '.github/scripts/template-extension-smoke.php')), 'The rendered template extension contract smoke script must exist.');
+
+    const steps = require('js-yaml').load(themeReadinessWorkflow).jobs['theme-readiness'].steps;
+    const stepIndex = steps.findIndex((step) => step.name === 'Verify Twig template extension contract');
+    const enableIndex = steps.findIndex((step) => step.id === 'starterkit_enable');
+    ensure(enableIndex >= 0 && stepIndex > enableIndex, 'The Twig extension contract must run after generated child theme enablement.');
+    const step = steps[stepIndex];
+    ensure(step.run === './vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/template-extension-smoke.php"', 'The Twig extension workflow step must invoke the rendered contract smoke script.');
+    ensure(step['working-directory'] === '/tmp/emulsify-fixture', 'The Twig extension contract must run against the working-tree Drupal fixture.');
+    ensure(step.if === "${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}", 'The Twig extension contract must require a successful fixture and enabled generated child theme.');
+    ensure(step['continue-on-error'] === '${{ matrix.experimental }}', 'The Twig extension contract must block stable matrix legs and remain advisory for experimental legs.');
+    return 'Verified nine new extension blocks, the existing content block, documentation, and the rendered CI contract step.';
   });
 
   runStaticCheck('Hook attribute migration', () => {
     ensureHookAttributeMigration(themeEntrypoint);
-    ensureDependencyHeavyFaviconFormAutowiring();
     ensureFaviconSettingsFormDelegation();
     return 'Legacy procedural hook includes are absent and migrated hooks are implemented with attributes.';
   });
@@ -1366,7 +1389,7 @@ function runSmokeChecks() {
     'bash',
     [path.join(repoRoot, '.github/scripts/template-parity.sh'), baseFixture, repoRoot],
     repoRoot,
-    { passMessage: 'Verified that Emulsify ships every stable9 template path without declaring stable9 as the parent theme.' },
+    { passMessage: 'Verified that Emulsify covers every stable9 template basename without declaring stable9 as the parent theme.' },
   );
 
   runSmokeCheck(

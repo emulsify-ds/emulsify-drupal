@@ -1,0 +1,7 @@
+form_a11y.errors:
+  path: '/emulsify-fixture/form-errors'
+  defaults:
+    _form: '\Drupal\form_a11y\Form\ValidationErrorsForm'
+    _title: 'Form validation accessibility fixture'
+  requirements:
+    _access: 'TRUE'

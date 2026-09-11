@@ -91,7 +91,7 @@
     {{ label }}
   {% endif %}
   {% if errors %}
-    <div class="form-item--error-message">
+    <div id="{{ element['#id'] }}--error" class="form-item--error-message">
       {{ errors }}
     </div>
   {% endif %}

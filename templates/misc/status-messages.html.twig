@@ -13,14 +13,14 @@
  */
 #}
 {% set status_message_wrapper_attributes = attributes.toArray %}
-{% with { attributes: create_attribute() } %}
+{% with { attributes: create_attribute(status_message_wrapper_attributes) } %}
   {% set status_messages_attributes = {} %}
   <div{{ add_attributes(status_messages_attributes) }} data-drupal-messages>
 {% endwith %}
   {% for type, messages in message_list %}
-    {% with { attributes: create_attribute(status_message_wrapper_attributes) } %}
+    {% with { attributes: create_attribute() } %}
       {% set status_message_attributes = {
-        role: 'contentinfo',
+        role: 'group',
         'aria-label': status_headings[type],
       } %}
       <div{{ add_attributes(status_message_attributes) }}>

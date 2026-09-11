@@ -145,8 +145,8 @@ generate_scenario() {
   set +e
   (
     cd "$fixture_dir"
-    # Drupal 11.4+ exposes the Composer proxy; it supplies the autoloader path
-    # that the deprecated direct core script no longer resolves correctly.
+    # Drupal 11.4+ exposes the experimental Composer proxy, which supplies the
+    # autoloader path needed by this recommended-project fixture.
     local core_command=(php web/core/scripts/drupal)
     if [ -x vendor/bin/dr ]; then
       core_command=(vendor/bin/dr)
@@ -244,10 +244,24 @@ enable_theme() {
 
 render_theme() {
   require_generated_theme
+  [ ! -e "${generated_theme_dir}/templates/layout/page.html.twig" ] || fail "A fresh generated child theme must inherit the parent's page template."
+  (
+    cd "$fixture_dir"
+    ./vendor/bin/drush php:eval '
+$registry = \Drupal::service("theme.registry")->get();
+$parent_path = \Drupal::service("extension.list.theme")->getPath("emulsify") . "/templates/layout";
+if (realpath(DRUPAL_ROOT . "/" . $registry["page"]["path"]) !== realpath(DRUPAL_ROOT . "/" . $parent_path)) {
+  throw new \RuntimeException("The generated child must resolve the page template from Emulsify.");
+}
+echo "PASS generated child inherits the parent page template.\n";
+'
+  )
   # Render representative pages through the generated theme. This catches
   # missing libraries, broken parent-theme inheritance, and template issues that
   # pure file assertions cannot see.
   bash "${script_dir}/render-reference-pages.sh" "$fixture_dir" "$output_dir"
+  grep -Fq '<div class="section page">' "${output_dir}/frontpage-view.html" || fail "Missing parent page wrapper in the generated child render."
+  grep -Fq '<main class="section main" role="main">' "${output_dir}/frontpage-view.html" || fail "Missing parent main wrapper in the generated child render."
 }
 
 install_frontend() {
@@ -339,10 +353,18 @@ check_accessibility() {
   # browser audit after a failure so artifacts retain rule IDs and Drupal data.
   (
     cd "$generated_theme_dir"
-    # npm installations may defer Puppeteer's postinstall script. This command
-    # reuses its browser cache and downloads Chrome only when it is missing.
-    run_logged "browser install" "${output_dir}/browser-install.log" \
-      npx --no-install puppeteer browsers install chrome
+    if [ -n "${PUPPETEER_EXECUTABLE_PATH:-}" ]; then
+      # Both the published Core audit and rendered audit honor this Puppeteer
+      # setting. CI selects runner Chrome, whose Ubuntu sandbox is configured.
+      [ -x "$PUPPETEER_EXECUTABLE_PATH" ] || fail "Configured Puppeteer browser is not executable: ${PUPPETEER_EXECUTABLE_PATH}"
+      run_logged "browser selection" "${output_dir}/browser-install.log" \
+        "$PUPPETEER_EXECUTABLE_PATH" --version
+    else
+      # npm installations may defer Puppeteer's postinstall script. Reuse the
+      # browser cache and download Chrome only when no executable is supplied.
+      run_logged "browser install" "${output_dir}/browser-install.log" \
+        npx --no-install puppeteer browsers install chrome
+    fi
     run_logged "accessibility" "$npm_a11y_log" npm run a11y
   ) || status=$?
   (

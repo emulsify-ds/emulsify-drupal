@@ -2,11 +2,11 @@
 
 Generated from Drupal core's stable9 template tree in a local fixture site.
 
-- Stable9 template paths mirrored: 167
-- Exact baseline copies: 102
-- Modified relative to stable9: 65
-- Emulsify-only template paths: 1
-- Stable9 paths excluded: 0
+- Stable9 templates covered: 167
+- Exact baseline copies: 99
+- Modified relative to stable9: 68
+- Emulsify-only template paths: 0
+- Stable9 templates excluded: 0
 
 Reason values are generated audit categories that explain why a path differs at a high level.
 
@@ -67,7 +67,7 @@ Reason values are generated audit categories that explain why a path differs at 
 | `templates/announcements_feed/announcements-feed-admin.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/announcements_feed/announcements-feed.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/block/block--local-actions-block.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/block/block--system-branding-block.html.twig` | `stable9/core` | No | Core baseline parity |
+| `templates/block/block--system-branding-block.html.twig` | `stable9/core` | Yes | Minimum target size for branding links |
 | `templates/block/block--system-menu-block.html.twig` | `stable9/core` | Yes | Emulsify block override |
 | `templates/block/block--system-messages-block.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/block/block.html.twig` | `stable9/core` | No | Core baseline parity |
@@ -87,7 +87,7 @@ Reason values are generated audit categories that explain why a path differs at 
 | `templates/content/comment.html.twig` | `stable9/core` | Yes | Emulsify content override |
 | `templates/content/mark.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/content/media-embed-error.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/content/media-oembed-iframe.html.twig` | `stable9/core` | No | Core baseline parity |
+| `templates/content/media-oembed-iframe.html.twig` | `stable9/core` | Yes | Emulsify content override |
 | `templates/content/media-reference-help.html.twig` | `stable9/core` | Yes | Emulsify content override |
 | `templates/content/media.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/content/node.html.twig` | `stable9/core` | No | Core baseline parity |
@@ -135,19 +135,18 @@ Reason values are generated audit categories that explain why a path differs at 
 | `templates/layout/maintenance-page.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/layout/page.html.twig` | `stable9/core` | Yes | Attach Emulsify page structure |
 | `templates/layout/region.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/media-library/feed-icon.html.twig` | `stable9/core` | Yes | Emulsify media-library override |
 | `templates/media-library/media--media-library.html.twig` | `stable9/core` | Yes | Emulsify media-library override |
 | `templates/media-library/media-library-item.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/media-library/media-library-wrapper.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/media-library/progress-bar.html.twig` | `stable9/core` | Yes | Emulsify media-library override |
-| `templates/media-library/status-messages.html.twig` | `stable9/core` | Yes | Emulsify media-library override |
-| `templates/misc/status-messages.html.twig` | `Emulsify-only` | Yes | Outside stable9 parity contract |
+| `templates/misc/feed-icon.html.twig` | `stable9/core` | Yes | Emulsify miscellaneous override |
+| `templates/misc/progress-bar.html.twig` | `stable9/core` | Yes | Emulsify miscellaneous override |
+| `templates/misc/status-messages.html.twig` | `stable9/core` | Yes | Emulsify miscellaneous override |
 | `templates/navigation/block--navigation.html.twig` | `stable9/core` | Yes | Emulsify navigation override |
 | `templates/navigation/breadcrumb.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/links.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/menu--toolbar.html.twig` | `stable9/core` | Yes | Emulsify navigation override |
 | `templates/navigation/menu-local-action.html.twig` | `stable9/core` | No | Core baseline parity |
-| `templates/navigation/menu-local-task.html.twig` | `stable9/core` | No | Core baseline parity |
+| `templates/navigation/menu-local-task.html.twig` | `stable9/core` | Yes | Minimum target size for local task links |
 | `templates/navigation/menu-local-tasks.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/menu.html.twig` | `stable9/core` | No | Core baseline parity |
 | `templates/navigation/navigation--message.html.twig` | `stable9/core` | Yes | Emulsify navigation override |

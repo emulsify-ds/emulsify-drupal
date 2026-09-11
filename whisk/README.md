@@ -15,7 +15,7 @@ Shared tooling comes from Emulsify Core; the project owns its templates and comp
 
 ## Quick start
 
-Use Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. This theme's
+Use Node.js 24.13.0 or newer for Emulsify Core 4.5.0. This theme's
 `package.json` advertises `>=24`, but Core's `>=24.13.0` requirement sets the
 effective minimum. `.nvmrc` selects the Node 24 line without pinning a minor
 version. Check the resolved Core package's `engines` when updating dependencies.

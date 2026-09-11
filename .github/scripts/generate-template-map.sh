@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Maintenance utility for docs/template-map.md. It intentionally shares the
-# stable9 path-contract logic with template-parity.sh, but writes an explanatory
+# stable9 basename coverage logic with template-parity.sh, but writes an explanatory
 # Markdown map instead of acting as a regular PR gate.
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <fixture-dir> <repo-root> [output-file]" >&2
@@ -39,7 +39,7 @@ fi
 
 (
   cd "$stable9_templates_dir"
-  find . -type f -name '*.html.twig' | sort
+  find . -type f -name '*.html.twig' | sed 's#.*/##' | sort -u
 ) >"$stable9_list"
 
 (
@@ -47,9 +47,9 @@ fi
   find . -type f -name '*.html.twig' | sort
 ) >"$repo_list"
 
-missing_templates="$(comm -23 "$stable9_list" "$repo_list" || true)"
+missing_templates="$(comm -23 "$stable9_list" <(sed 's#.*/##' "$repo_list" | sort -u))"
 if [ -n "$missing_templates" ]; then
-  echo "Emulsify is missing stable9 template paths:" >&2
+  echo "Emulsify is missing stable9 template basenames:" >&2
   echo "$missing_templates" >&2
   exit 1
 fi
@@ -105,6 +105,9 @@ reason_for_template() {
     media-library/*)
       echo "Emulsify media-library override"
       ;;
+    misc/*)
+      echo "Emulsify miscellaneous override"
+      ;;
     dataset/*)
       echo "Emulsify dataset override"
       ;;
@@ -123,7 +126,7 @@ mkdir -p "$(dirname "$output_file")"
   echo
   while IFS= read -r relative_path; do
     relative_path="${relative_path#./}"
-    stable9_path="${stable9_templates_dir}/${relative_path}"
+    stable9_path="$(find "$stable9_templates_dir" -type f -name "${relative_path##*/}" -print -quit)"
     repo_path="${repo_templates_dir}/${relative_path}"
 
     if [ -f "$stable9_path" ]; then
@@ -137,11 +140,11 @@ mkdir -p "$(dirname "$output_file")"
     fi
   done <"$repo_list"
 
-  echo "- Stable9 template paths mirrored: $(wc -l <"$stable9_list" | tr -d ' ')"
+  echo "- Stable9 templates covered: $(wc -l <"$stable9_list" | tr -d ' ')"
   echo "- Exact baseline copies: ${exact_matches}"
   echo "- Modified relative to stable9: ${modified_matches}"
   echo "- Emulsify-only template paths: ${emulsify_only_matches}"
-  echo "- Stable9 paths excluded: 0"
+  echo "- Stable9 templates excluded: 0"
   echo
   echo "Reason values are generated audit categories that explain why a path differs at a high level."
   echo
@@ -150,7 +153,7 @@ mkdir -p "$(dirname "$output_file")"
 
   while IFS= read -r relative_path; do
     relative_path="${relative_path#./}"
-    stable9_path="${stable9_templates_dir}/${relative_path}"
+    stable9_path="$(find "$stable9_templates_dir" -type f -name "${relative_path##*/}" -print -quit)"
     repo_path="${repo_templates_dir}/${relative_path}"
 
     if [ -f "$stable9_path" ]; then

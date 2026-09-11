@@ -14,8 +14,13 @@ libraries:
 
 regions:
   header: Header
+  status: Status Messages
+  breadcrumb: Breadcrumb
+  highlighted: Highlighted
   content_top: Content Top
+  sidebar_first: Sidebar First
   content: Content
+  sidebar_second: Sidebar Second
   content_bottom: Content Bottom
   footer: Footer
 
