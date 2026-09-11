@@ -1,4 +1,4 @@
-![Emulsify Design System](https://github.com/emulsify-ds/.github/blob/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
+![Emulsify Design System](https://raw.githubusercontent.com/emulsify-ds/.github/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
 
 # Emulsify Drupal
 
@@ -12,10 +12,9 @@ The current 7.x series no longer depends on `stable9`; Emulsify now ships its ow
 
 ## Documentation
 
-Use this README and [UPGRADE.md](./UPGRADE.md) for the current 7.x installation
-and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
-also contains guides for older release lines; check the guide's version before
-following its commands.
+This README and [UPGRADE.md](./UPGRADE.md) are authoritative for the 7.x
+installation and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
+currently documents the pre-7.x Webpack-based tooling and is being rewritten.
 
 ### Quick Links
 
@@ -32,7 +31,7 @@ following its commands.
 
 ## Demo
 
-1. [Storybook](http://storybook.emulsify.info/)
+1. [Storybook](https://storybook.emulsify.info/)
 
 ## License
 
