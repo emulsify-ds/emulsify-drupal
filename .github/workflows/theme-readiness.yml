@@ -95,6 +95,14 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
+      - name: Verify parent theme library and breakpoint contract
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        working-directory: /tmp/emulsify-fixture
+        run: |
+          ./vendor/bin/drush en breakpoint -y
+          ./vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/verify-published-theme.php"
+
       - name: Characterize published PHP Twig helpers
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
