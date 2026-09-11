@@ -6,7 +6,11 @@
 
 ### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
+**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components.
+
+Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
+Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks; they
+do not establish verified Drupal 12 support.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
@@ -136,7 +140,8 @@ The `whisk` directory is the Whisk starter source used by both generation method
 
 You can also generate the same child theme with Drupal core's standard
 Starterkit command from the root of your Drupal site. On Drupal 11.4 and newer,
-use the Composer-installed `dr` executable:
+use the Composer-installed `dr` executable, which Drupal introduced as an
+[experimental CLI](https://www.drupal.org/blog/drupal-11-4-0):
 
 ```bash
 vendor/bin/dr generate-theme my_theme --starterkit whisk --path themes/custom

@@ -241,7 +241,7 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 
 - Drupal 10 support is removed.
 - Drupal 11.3+ is required.
-- Drupal 12 compatibility is forward-looking until Drupal 12 beta or stable releases are available.
+- Drupal 12 beta and `dev-main` CI jobs are non-blocking compatibility checks; Drupal 12 is not yet a verified release target.
 - The `stable9` parent theme is removed.
 - Emulsify now uses `base theme: false`.
 - The `drupal/components` dependency is removed.
@@ -258,7 +258,8 @@ Emulsify 7.x is a breaking release. Plan the upgrade as a theme-platform change,
 
 - Drupal 11.3+ is supported.
 - Drupal 12 forward compatibility is included through the `^11.3 || ^12` core constraint.
-- Drupal core development branch coverage is experimental until Drupal 12 beta or stable releases are available.
+- Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
+- Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks; they do not establish verified Drupal 12 support.
 - Drupal 10 is no longer supported in 7.x.
 - `drupal/emulsify_tools:^2.2` is required by both `composer.json` and `emulsify.info.yml`.
 

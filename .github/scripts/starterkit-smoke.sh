@@ -145,8 +145,8 @@ generate_scenario() {
   set +e
   (
     cd "$fixture_dir"
-    # Drupal 11.4+ exposes the Composer proxy; it supplies the autoloader path
-    # that the deprecated direct core script no longer resolves correctly.
+    # Drupal 11.4+ exposes the experimental Composer proxy, which supplies the
+    # autoloader path needed by this recommended-project fixture.
     local core_command=(php web/core/scripts/drupal)
     if [ -x vendor/bin/dr ]; then
       core_command=(vendor/bin/dr)

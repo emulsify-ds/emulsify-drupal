@@ -44,6 +44,18 @@ jobs:
             drupal-version: '11.3.*'
             php-version: '8.5'
             experimental: false
+          - label: Drupal 11.4
+            artifact-suffix: drupal-11-4-php-8-3
+            drupal-version: '11.4.*'
+            php-version: '8.3'
+            experimental: false
+          # No beta is published as of 2026-09-11. Flip to blocking once beta1
+          # is out. Composer needs a range rather than the invalid beta* glob.
+          - label: Drupal 12 Beta
+            artifact-suffix: drupal-12-beta-php-8-5
+            drupal-version: '>=12.0.0-beta1 <12.0.0-RC1@beta'
+            php-version: '8.5'
+            experimental: true
           - label: Drupal Dev Branch
             artifact-suffix: drupal-dev-main-php-8-5
             drupal-version: 'dev-main'
@@ -109,7 +121,7 @@ jobs:
         run: php .github/scripts/twig-helper-contract.php /tmp/emulsify-fixture
 
       - name: Characterize Drupal hooks with test-only Paragraphs
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && matrix.drupal-version != 'dev-main' }}
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && !matrix.experimental }}
         working-directory: /tmp/emulsify-fixture
         run: |
           composer require --dev --no-interaction --with-all-dependencies 'drupal/paragraphs:^1.23'
@@ -209,6 +221,11 @@ jobs:
   generated-child-theme-extended:
     name: Generated Child Theme Storybook and Accessibility
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - drupal-version: '11.4.*'
+            php-version: '8.3'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -218,7 +235,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: "8.3"
+          php-version: ${{ matrix.php-version }}
           tools: composer:v2
           extensions: gd, imagick
 
@@ -253,7 +270,7 @@ jobs:
         run: node --test .github/scripts/*.test.cjs
 
       - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "11.4.6" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Run generated child theme Storybook, test, and accessibility checks
         timeout-minutes: 30

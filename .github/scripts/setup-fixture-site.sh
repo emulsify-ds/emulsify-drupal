@@ -19,14 +19,6 @@ theme_source_dir="${3:-$(pwd)}"
 composer_bin="${COMPOSER_BIN:-composer}"
 emulsify_tools_constraint="$(php -r '$metadata = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR); echo $metadata["require"]["drupal/emulsify_tools"];' "${theme_source_dir}/composer.json")"
 theme_dir="${fixture_dir}/web/themes/contrib/emulsify"
-drush_constraint="^13"
-
-if [ "$drupal_version" = "dev-main" ]; then
-  # Drupal core's development branch can require newer Drush internals than the
-  # current stable core line, so keep the constraint explicit per fixture.
-  drush_constraint="^14"
-fi
-
 export COMPOSER_MEMORY_LIMIT=-1
 
 # Start from a clean fixture so repeated local runs do not reuse stale Drupal
@@ -35,7 +27,7 @@ if [ -d "$fixture_dir" ]; then
   chmod -R u+w "$fixture_dir" 2>/dev/null || true
 fi
 rm -rf "$fixture_dir"
-"$composer_bin" create-project --no-interaction --no-audit --no-security-blocking "drupal/recommended-project:${drupal_version}" "$fixture_dir"
+"$composer_bin" create-project --no-interaction --no-install --no-audit --no-security-blocking "drupal/recommended-project:${drupal_version}" "$fixture_dir"
 
 # All subsequent commands run inside the disposable Drupal project, not the
 # source checkout.
@@ -44,6 +36,28 @@ cd "$fixture_dir"
 # Composer 2.9 blocks vulnerable historical Drupal minors by default. Keep the
 # fixture behavior explicit so CI tests the requested matrix version.
 "$composer_bin" config --no-interaction audit.block-insecure false
+
+# The project template uses caret ranges that can install a newer Drupal minor.
+# Pin its core packages to the matrix constraint before resolving dependencies so
+# every leg tests the requested minor or prerelease, including after Drush adds
+# its own dependencies below. This changes only the disposable fixture.
+"$composer_bin" require --no-interaction --no-update \
+  "drupal/core-recommended:${drupal_version}" \
+  "drupal/core-composer-scaffold:${drupal_version}" \
+  "drupal/core-project-message:${drupal_version}" \
+  "drupal/core-recipe-unpack:${drupal_version}"
+"$composer_bin" update --no-interaction --no-audit --no-security-blocking
+
+# Drupal 12's Symfony 8 and Guzzle 8 dependencies require Drush 14. Until Drush
+# 14 and its dependencies have stable releases, allow their development builds
+# only in this disposable fixture; prefer tagged releases when available.
+drush_constraint="^13"
+core_major="$(php -r 'require "vendor/autoload.php"; echo explode(".", \Drupal::VERSION)[0];')"
+if [ "$core_major" -ge 12 ]; then
+  drush_constraint="^14"
+  "$composer_bin" config --no-interaction minimum-stability dev
+  "$composer_bin" config --no-interaction prefer-stable true
+fi
 
 # Copy the current checkout into the fixture as a contrib theme. This avoids
 # path repository edge cases and ensures CI tests the exact PR contents.
@@ -59,6 +73,14 @@ rsync -a \
 # An in-flight branch can behave differently from the API consumers install.
 "$composer_bin" require --no-interaction --no-audit --no-security-blocking --with-all-dependencies \
   "drush/drush:${drush_constraint}" "drupal/emulsify_tools:${emulsify_tools_constraint}"
+
+php -r '
+require "vendor/autoload.php";
+$installed = \Composer\InstalledVersions::getPrettyVersion("drupal/core");
+if (!\Composer\Semver\Semver::satisfies($installed, $argv[1])) {
+  throw new \RuntimeException("Installed Drupal $installed does not satisfy matrix constraint {$argv[1]}.");
+}
+' "$drupal_version"
 
 # Use SQLite to keep the fixture self-contained on GitHub-hosted runners.
 ./vendor/bin/drush site:install standard \

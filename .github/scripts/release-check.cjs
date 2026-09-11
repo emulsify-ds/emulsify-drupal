@@ -5,6 +5,7 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { checkReleaseVersions } = require('./release-version-contract.cjs');
+const { validateReadinessMatrix } = require('./readiness-matrix-contract.cjs');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
@@ -143,8 +144,7 @@ function extractSupportedDrupalTestLines(constraint) {
 
 function mapDrupalLineToSmokeTarget(line) {
   if (line === '12.*') {
-    // Until Drupal 12 has tagged beta/stable recommended-project releases,
-    // dev-main is the only useful forward-compatibility smoke target.
+    // Keep development-branch coverage alongside the separate beta matrix leg.
     return 'dev-main';
   }
 
@@ -700,13 +700,13 @@ function runStaticChecks() {
     ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
     ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
     ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
-    for (const drupalTarget of supportedDrupalSmokeTargets) {
-      ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
-    }
-    ensure(themeReadinessWorkflow.includes("'8.3'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
-    ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    const readinessMatrix = validateReadinessMatrix(themeReadinessWorkflow, [...supportedDrupalSmokeTargets, '11.4.*', '>=12.0.0-beta1 <12.0.0-RC1@beta']);
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '11.4.*' && entry.experimental === false), 'Drupal 11.4 readiness coverage must be blocking.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.3'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.4'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '>=12.0.0-beta1 <12.0.0-RC1@beta' && entry['php-version'] === '8.5'), 'theme-readiness.yml should run Drupal 12 beta smoke checks on PHP 8.5.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
-      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
+      ensure(readinessMatrix.some((entry) => entry['drupal-version'] === 'dev-main' && entry['php-version'] === '8.5' && entry.experimental === true), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
     ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
     ensure(themeReadinessWorkflow.includes('schedule:'), 'theme-readiness.yml should run scheduled release-readiness coverage.');
@@ -725,7 +725,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     ensure(setupFixture.includes('NodeType::create'), 'setup-fixture-site.sh should create the page node type when install profiles omit it.');
-    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
+    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')}; CI targets ${[...new Set(readinessMatrix.map((entry) => entry['drupal-version']))].join(', ')}. Local smoke default: ${options.drupalVersion}.`;
   });
 
   runStaticCheck('CI credentials and action pins', () => {
@@ -901,7 +901,8 @@ function runStaticChecks() {
     ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
       ensure(readme.includes('Drupal 12 forward compatibility'), 'README.md should describe Drupal 12 as forward-compatible.');
-      ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
+      ensure(readme.includes('Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.'), 'README.md should identify the blocking Drupal and PHP matrix coverage.');
+      ensure(readme.includes('Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks'), 'README.md should identify Drupal 12 beta and development branch checks as non-blocking.');
     }
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
