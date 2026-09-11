@@ -1010,14 +1010,12 @@ function runStaticChecks() {
       { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'whisk/templates/layout/page.html.twig' },
       { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'whisk/templates/layout/page.html.twig' },
     ].map(ensureDeclaredRegionsRender);
-    const smokeRegions = ['header', 'content_top', 'content', 'content_bottom', 'footer'];
-    const smokeRegionsMatch = renderReferencePages.match(/^region_smoke_regions=\(([^)]+)\)$/m);
-    ensure(smokeRegionsMatch, 'render-reference-pages.sh should declare region_smoke_regions for block placement smoke coverage.');
-    const coveredSmokeRegions = smokeRegionsMatch[1].trim().split(/\s+/);
-
-    for (const region of smokeRegions) {
-      ensure(coveredSmokeRegions.includes(region), `render-reference-pages.sh should place and assert a region smoke marker for ${region}.`);
-    }
+    const yaml = require('js-yaml');
+    const regionMappings = [emulsifyInfo, whiskInfo, whiskInfoStarter].map((contents) => yaml.load(contents).regions);
+    ensure(regionMappings.every((regions) => JSON.stringify(regions) === JSON.stringify(regionMappings[0])), 'Parent and Whisk theme info files must declare identical region keys, labels, and order.');
+    ensure(renderReferencePages.includes('$regions = array_keys(\\Drupal::service("extension.list.theme")->get($theme)->info["regions"]);'), 'render-reference-pages.sh should discover every region from the default theme info.');
+    ensure(renderReferencePages.includes('echo $region . PHP_EOL;') && renderReferencePages.includes('\' >"$region_smoke_file"'), 'render-reference-pages.sh should record every placed region for smoke assertions.');
+    ensure(renderReferencePages.includes('while IFS= read -r region; do') && renderReferencePages.includes('done <"$region_smoke_file"'), 'render-reference-pages.sh should assert a rendered marker for every placed region.');
     ensure(renderReferencePages.includes('assert_region_smoke_markers'), 'render-reference-pages.sh should fail when placed region smoke blocks do not render.');
 
     return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} declared region references across parent and Whisk page templates.`;
