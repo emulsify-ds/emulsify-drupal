@@ -7,6 +7,11 @@ These fixes and validation changes do not justify forcing a minor release.
 
 ## Fixed
 
+- Favicon sources now allow only supported static SVG elements. Animated links,
+  script handlers, namespaced event attributes, and nested SVG data URIs are
+  removed with a warning. Oversized canvases are rejected, and Imagick
+  rasterization has bounded dimensions and resource limits. Simplify unsupported
+  SVG artwork before re-uploading; embedded raster images remain supported.
 - PHP linting and copied lint/fix/format wrappers run every constituent check
   and return failure when any check fails.
 - Generated Jest configuration discovers colocated project tests, runs native

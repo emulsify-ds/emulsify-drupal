@@ -143,7 +143,9 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(($analysis['sanitized_svg'] ?? '') !== '', 'Simple square SVG should be accepted.');
 
   $analysis = $generator->validateSourceSvg($symbols, FALSE);
+  emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], '<symbol id="mark"'), 'Symbol definitions should be preserved.');
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], 'href="#mark"'), 'Symbol/use references should be preserved.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Local symbol/use references should not trigger an unsafe-markup warning.');
 
   $analysis = $generator->validateSourceSvg($gradients, FALSE);
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], 'linearGradient'), 'Inline gradients should be preserved.');
@@ -153,6 +155,40 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
     !empty($analysis['has_embedded_raster_images']),
     'Base64 embedded raster images should be detected.',
   );
+  emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], '<image href="data:image/png;base64,'), 'Base64 embedded raster image elements and href values should be preserved.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Embedded PNG images should not trigger an unsafe-markup warning.');
+
+  // Every bypass must report cleanup, not just a general source warning.
+  $nested_svg = base64_encode('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+  $unsafe_vectors = [
+    'Animated href' => [
+      '<a href="#x"><animate attributeName="href" values="javascript:alert(1)"/></a>',
+      ['<animate', 'javascript:'],
+    ],
+    'Set xlink:href' => [
+      '<a><set attributeName="xlink:href" to="javascript:alert(1)"/></a>',
+      ['<set', 'javascript:'],
+    ],
+    'Script handler' => [
+      '<handler type="text/ecmascript">alert(1)</handler>',
+      ['<handler', 'alert(1)'],
+    ],
+    'Namespaced event handler' => [
+      '<rect ev:onload="alert(1)" xmlns:ev="http://www.w3.org/2001/xml-events"/>',
+      ['onload=', 'alert(1)'],
+    ],
+    'Nested SVG data URI' => [
+      '<image href="data:image/svg+xml;base64,' . $nested_svg . '"/>',
+      ['data:image/svg+xml', $nested_svg],
+    ],
+  ];
+  foreach ($unsafe_vectors as $label => [$markup, $forbidden_fragments]) {
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' . $markup . '<rect width="64" height="64"/></svg>', FALSE);
+    foreach ($forbidden_fragments as $fragment) {
+      emulsify_favicon_assert(!str_contains((string) $analysis['sanitized_svg'], $fragment), $label . ' payload should be stripped from sanitized SVG output.');
+    }
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), $label . ' cleanup should produce an unsafe-markup warning.');
+  }
 
   // Dangerous markup should be stripped without rejecting usable SVGs.
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script><rect width="64" height="64"/></svg>', FALSE);
@@ -213,6 +249,39 @@ SVG;
   );
 
   // Hard rejects protect package generation from excessive input.
+  $dimension_limit = FaviconPackageGenerator::MAX_SVG_DIMENSION;
+  $analysis = $generator->validateSourceSvg(sprintf('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %1$d %1$d" width="%1$d" height="%1$d"><rect width="%1$d" height="%1$d"/></svg>', $dimension_limit), FALSE);
+  emulsify_favicon_assert(($analysis['view_box'] ?? []) === [0.0, 0.0, (float) $dimension_limit, (float) $dimension_limit], 'SVG dimensions at the documented limit should be accepted.');
+
+  // FALSE verifies that dimension checks run without attempting rasterization.
+  foreach ([
+    sprintf('0 0 %d 64', $dimension_limit + 1),
+    sprintf('0 0 64 %d', $dimension_limit + 1),
+    '0 0 100000000 100000000',
+    '0 0 1e5 1e5',
+  ] as $view_box) {
+    emulsify_favicon_assert_invalid(
+      fn() => $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="' . $view_box . '"><rect width="64" height="64"/></svg>', FALSE),
+      'SVG viewBox width and height must not exceed ' . $dimension_limit,
+    );
+  }
+  foreach ([
+    sprintf('width="%d" height="64"', $dimension_limit + 1),
+    sprintf('width="64" height="%d"', $dimension_limit + 1),
+    'width="1e9" height="64"',
+  ] as $dimensions) {
+    emulsify_favicon_assert_invalid(
+      fn() => $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" ' . $dimensions . '><rect width="64" height="64"/></svg>', FALSE),
+      'SVG width and height must not exceed ' . $dimension_limit,
+    );
+  }
+  foreach (['0 0 1e309 64', '1e309 0 64 64'] as $view_box) {
+    emulsify_favicon_assert_invalid(
+      fn() => $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="' . $view_box . '"><rect width="64" height="64"/></svg>', FALSE),
+      'must define a viewBox',
+    );
+  }
+
   $oversized_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><desc>' . str_repeat('x', FaviconPackageGenerator::MAX_FILE_SIZE) . '</desc></svg>';
   emulsify_favicon_assert_invalid(
     fn() => $generator->validateSourceSvg($oversized_svg, FALSE),

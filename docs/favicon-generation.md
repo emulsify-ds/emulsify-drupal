@@ -13,6 +13,29 @@ The uploaded source must be an SVG file with a `viewBox`. Non-square sources are
 
 Source uploads are limited to 5 MB. The sanitized portable SVG copy is stored in theme config for portability; copies larger than 256 KB are allowed but flagged as review noise because they make config exports harder to inspect.
 
+The sanitizer allows static SVG drawing elements: `svg`, `g`, `path`, `rect`,
+`circle`, `ellipse`, `line`, `polyline`, `polygon`, `text`, `tspan`, `defs`,
+`symbol`, `use`, `image`, `clipPath`, `mask`, `linearGradient`, `radialGradient`,
+`stop`, `title`, and `desc`. Unsupported elements, event handlers (including
+namespaced attributes), styles, and unsafe references are removed with a
+warning. Image data URIs may contain PNG, GIF, JPEG, or WebP; nested SVG data
+URIs are removed. Simplify unsupported artwork to static drawing elements
+before uploading it.
+
+The `viewBox` width and height must be finite and no larger than 4096 units.
+This allows a canvas eight times the largest generated icon (512 pixels) while
+rejecting extreme dimensions before rasterization. Numeric root dimensions
+above 4096 are also rejected. For rasterization only, the root viewport is set
+to four times the output size, at most 2048 × 2048 pixels at 96 DPI, while the
+original `viewBox` is preserved.
+
+Before decoding SVG, Imagick limits pixel-cache memory to 64 MiB, area to
+4,194,304 pixels, and width and height to 2048 pixels each, or the host's
+stricter limits. Memory and area thresholds can fall back to disk caching;
+width and height limits reject oversized images. Existing host policy still
+applies, and the prior process-wide limits are restored after rasterization.
+See [ImageMagick resource policies](https://imagemagick.org/security-policy/).
+
 ## Generated Package
 
 Packages are written to the public files directory using a deterministic hash:
