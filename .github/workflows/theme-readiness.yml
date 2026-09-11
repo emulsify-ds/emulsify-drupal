@@ -170,6 +170,13 @@ jobs:
         timeout-minutes: 3
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" enable
 
+      - name: Verify Twig template extension contract
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        working-directory: /tmp/emulsify-fixture
+        run: ./vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/template-extension-smoke.php"
+
       - name: 'Generated child theme: render Drupal pages'
         id: starterkit_render
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}

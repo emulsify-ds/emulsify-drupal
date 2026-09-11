@@ -1021,6 +1021,35 @@ function runStaticChecks() {
     return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} declared region references across parent and Whisk page templates.`;
   });
 
+  runStaticCheck('Twig template extension contract', () => {
+    const templateBlocks = {
+      'templates/layout/page.html.twig': ['page_header', 'page_main', 'page_content', 'page_footer'],
+      'templates/layout/html.html.twig': ['head', 'body_content'],
+      'templates/layout/region.html.twig': ['region_content'],
+      'templates/block/block.html.twig': ['title', 'block_attributes', 'content'],
+    };
+    for (const [templatePath, expectedBlocks] of Object.entries(templateBlocks)) {
+      const blocks = [...stripTwigComments(readFile(templatePath)).matchAll(/\{%-?\s*block\s+(\w+)\s*-?%\}/g)].map((match) => match[1]);
+      for (const block of expectedBlocks) {
+        ensure(blocks.includes(block), `${templatePath} must expose the ${block} Twig block for child theme extension.`);
+      }
+    }
+    ensure(readme.includes('(./docs/template-extension.md)'), 'README.md should link to the parent template extension guide.');
+    ensure(fs.existsSync(path.join(repoRoot, 'docs/template-extension.md')), 'The parent template extension guide must exist.');
+    ensure(fs.existsSync(path.join(repoRoot, '.github/scripts/template-extension-smoke.php')), 'The rendered template extension contract smoke script must exist.');
+
+    const steps = require('js-yaml').load(themeReadinessWorkflow).jobs['theme-readiness'].steps;
+    const stepIndex = steps.findIndex((step) => step.name === 'Verify Twig template extension contract');
+    const enableIndex = steps.findIndex((step) => step.id === 'starterkit_enable');
+    ensure(enableIndex >= 0 && stepIndex > enableIndex, 'The Twig extension contract must run after generated child theme enablement.');
+    const step = steps[stepIndex];
+    ensure(step.run === './vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/template-extension-smoke.php"', 'The Twig extension workflow step must invoke the rendered contract smoke script.');
+    ensure(step['working-directory'] === '/tmp/emulsify-fixture', 'The Twig extension contract must run against the working-tree Drupal fixture.');
+    ensure(step.if === "${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}", 'The Twig extension contract must require a successful fixture and enabled generated child theme.');
+    ensure(step['continue-on-error'] === '${{ matrix.experimental }}', 'The Twig extension contract must block stable matrix legs and remain advisory for experimental legs.');
+    return 'Verified nine new extension blocks, the existing content block, documentation, and the rendered CI contract step.';
+  });
+
   runStaticCheck('Hook attribute migration', () => {
     ensureHookAttributeMigration(themeEntrypoint);
     ensureFaviconSettingsFormDelegation();

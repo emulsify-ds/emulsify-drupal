@@ -32,6 +32,7 @@ currently documents the pre-7.x Webpack-based tooling and is being rewritten.
 8. [Optional design-token integration](./docs/design-token-integration.md)
 9. [Release readiness checklist](./docs/release-readiness.md)
 10. [Twig hook variables and template suggestion precedence](./docs/twig-hook-contract.md)
+11. [Extend parent templates](./docs/template-extension.md)
 
 ## Demo
 
