@@ -16,6 +16,23 @@ Use this checklist before publishing an Emulsify Drupal 7.x release.
 8. Run `npm run release:check`.
 9. Run `npm run release:check -- --skip-smoke` after any release-guard edits.
 
+To check generated audit wrappers against a candidate Core tarball, use an
+installed Drupal Composer runtime (no database is needed):
+
+```bash
+EMULSIFY_CORE_TARBALL=/absolute/path/to/emulsify-core.tgz \
+EMULSIFY_DRUPAL_AUTOLOAD=/absolute/path/to/vendor/autoload.php \
+  npm run test:audit-wrappers
+```
+
+This opt-in test runs Drupal's actual `generate-theme` command and Whisk post
+processing, installs that tarball in the generated consumer, and compares both
+audit wrappers with the installed Core executables. It checks whole JSON
+stdout, stderr footers, exact exits 0/1/2, and arguments containing spaces.
+Deliberately broken wrappers must fail the same assertions. Without both input
+paths, the check reports a skip. Set `EMULSIFY_AUDIT_WRAPPER_EVIDENCE` to a file
+outside the repository to retain the tested scripts, tarball hash, and results.
+
 The runtime audit is blocking. The full dependency audit remains visible but
 advisory while the current Semantic Release toolchain depends on an npm package
 that bundles vulnerable development-only transitive dependencies. Do not add
