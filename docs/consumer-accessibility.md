@@ -6,7 +6,12 @@ The Ubuntu consumer job locates the runner's installed Google Chrome, logs its v
 
 The project component fixture is `.github/fixtures/consumer-component`: a Twig status panel with an actual Storybook story, stylesheet, and ESM tests that render the real template and assert its DOM and text escaping. The fixture is copied only into the disposable generated consumer. Whisk remains component-neutral; no existing child theme is rewritten.
 
-The generated consumer's existing `a11y` command builds Vite and Storybook and runs the Core accessibility script. An additional browser scan in `.github/scripts/rendered-a11y.cjs` checks the same story, `/node/1`, `/user/login`, and the submitted validation-error form at `/emulsify-fixture/form-errors` with explicit `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, and `wcag22aa` axe tags. This matters because Pa11y's current built-in axe runner selects WCAG 2.1 tags by default. No rule allowlist is applied. Browser errors, missing rendered content, failed HTTP responses, and any reported violation fail the job.
+The generated consumer's existing `a11y` command builds Vite and Storybook and runs the Core accessibility script. An additional browser scan in `.github/scripts/rendered-a11y.cjs` checks the same story, `/node/1`, `/user/login`, the paged view at `/node?page=1`, and the submitted validation-error form at `/emulsify-fixture/form-errors` with explicit `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, and `wcag22aa` axe tags. This matters because Pa11y's current built-in axe runner selects WCAG 2.1 tags by default. No rule allowlist is applied. Browser errors, missing rendered content, failed HTTP responses, and any reported violation fail the job.
+
+The fixture view uses one result per page. Its second-page scan asserts exactly
+one `aria-current="page"` inside the pager, identifying Page 2. Links in full
+pagers use the parent's existing zero-specificity 24px minimum-target rule; child themes
+can still control their presentation.
 
 Each run saves HTML, server/build logs, and full axe JSON, including incomplete checks for manual review, in the generated consumer artifact directory. Automated checks cover only what axe can evaluate; they do not establish complete WCAG conformance or replace keyboard and assistive-technology testing.
 

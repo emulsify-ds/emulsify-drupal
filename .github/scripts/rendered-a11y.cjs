@@ -74,6 +74,7 @@ async function main() {
       { label: 'Project Twig component', url: `${storybook.baseUrl}/iframe.html?id=consumer-status-panel--default&viewMode=story`, selector: '.emulsify-smoke', text: 'Your component library is ready' },
       { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.' },
       { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username' },
+      { label: 'Drupal paged view', url: `${drupalUrl}/node?page=1`, selector: 'main.section.main', text: 'Emulsify fixture page', currentPage: 2 },
       { label: 'Drupal form validation errors', url: `${drupalUrl}/emulsify-fixture/form-errors`, selector: 'main.section.main form', text: 'Fixture validation error for name.', validateForm: true },
     ];
     for (const target of targets) {
@@ -95,6 +96,10 @@ async function main() {
         assert(response && response.ok(), `${target.label} must render with a successful response.`);
         await page.waitForSelector(target.selector, { visible: true, timeout: 30000 });
         assert((await page.$eval(target.selector, (element) => element.textContent)).includes(target.text), `${target.label} must contain the expected real rendered content.`);
+        if (target.currentPage) {
+          const currentPages = await page.$$eval('.pager [aria-current="page"]', (elements) => elements.map((element) => element.textContent.replace(/\s+/g, '')));
+          assert.deepEqual(currentPages, [`Page${target.currentPage}`], `${target.label} must identify exactly one current page, page ${target.currentPage}.`);
+        }
         if (target.validateForm) {
           const formErrors = await page.evaluate(() => {
             const messages = [...document.querySelectorAll('form .form-item--error-message')];

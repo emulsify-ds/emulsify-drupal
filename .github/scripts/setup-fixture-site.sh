@@ -147,8 +147,8 @@ if (!FieldConfig::loadByName("node", "page", "body")) {
   ->save();
 '
 
-# Seed stable pages for render-reference-pages.sh. The second promoted page
-# keeps the frontpage node listing from collapsing to a single-item edge case.
+# Seed stable pages for render-reference-pages.sh. With one result per page,
+# the second promoted page also provides a real pager for accessibility checks.
 ./vendor/bin/drush php:eval '
 use Drupal\node\Entity\Node;
 
@@ -202,8 +202,12 @@ if (!$storage->loadByProperties(["name" => "fixture-user"])) {
 
 # Route the front page to the node listing captured by the render smoke tests.
 ./vendor/bin/drush php:eval '
-// The render smoke captures /node because it exercises list, node teaser, view,
-// and pager-adjacent template surfaces in a compact request.
+// The render smoke captures /node; accessibility checks also visit its second
+// page so they exercise a real view, node teaser, and current pager item.
+\Drupal::configFactory()
+  ->getEditable("views.view.frontpage")
+  ->set("display.default.display_options.pager.options.items_per_page", 1)
+  ->save();
 \Drupal::configFactory()
   ->getEditable("system.site")
   ->set("page.front", "/node")

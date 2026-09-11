@@ -212,6 +212,10 @@ drush cr
 - Nine named Twig blocks let children inherit page, HTML, region, and block
   markup while customizing individual sections. Adding the blocks preserves the
   parent's rendered bytes. Their names are a public contract.
+- Full and mini pagers identify the current page with `aria-current="page"`.
+  Numbered pager links retain the visually hidden "Page" prefix and no longer
+  rely on a title attribute to announce the current page. Existing CSS classes
+  are preserved.
 - Container and form template suggestions now cover classes, structural paths,
   selectors, IDs, Layout Builder, and Views displays or block placements. Review
   the [precedence guide](./docs/twig-hook-contract.md#template-suggestions) if a
@@ -240,9 +244,10 @@ drush cr
   packages continue to live in `public://favicon-package/`, outside the theme.
   Previously stored public SVGs are not rewritten by the update; review and
   re-upload existing sources when applying the new restrictions to them.
-- Branding, local-task, and form-error summary links have minimum pointer
-  targets of 24px through a zero-specificity rule. Child themes can still set
-  their presentation; check navigation and error-summary spacing after updating.
+- Branding, local-task, and form-error summary links, plus links in full pagers,
+  have minimum pointer targets of 24px through a zero-specificity rule. Child
+  themes can still set their presentation; check navigation and error-summary
+  spacing after updating.
 
 ### Fixes included from 7.2.2
 
@@ -262,8 +267,8 @@ Node 24.13.0 even though Whisk advertises `>=24`; root release tooling requires
 24.15 or newer.
 
 The combined release adds working-tree library and breakpoint validation,
-rendered form accessibility coverage, stronger template and SVG regression
-checks, and Drupal 11.4 CI coverage. It also corrects README assets and identifies
+rendered form and paged-view accessibility coverage, stronger template and SVG
+regression checks, and Drupal 11.4 CI coverage. It also corrects README assets and identifies
 the external documentation site's pre-7.x Webpack guidance; the README and
 upgrade guide describe the 7.x Vite workflow. After upgrading, check the site's
 pages, forms, block placement, and favicon settings. Rebuild child assets only

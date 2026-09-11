@@ -26,6 +26,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 - Whisk no longer ships a page copy that hides future parent fixes. Fresh
   generated children inherit the parent template, and parity checks reject
   divergent files under the starter's template directory.
+- Full and mini pagers identify the current page with `aria-current="page"`.
+  Numbered links keep their hidden "Page" prefix and drop redundant titles;
+  existing CSS classes remain unchanged.
 - Form errors now have IDs, control associations, and a common styling class
   across all five error templates. Datetime descriptions receive `description`,
   select options preserve their attributes, and radios receive `form-radios`.
@@ -40,8 +43,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   with warnings. Oversized canvases are rejected and rasterization is bounded.
   Some previously accepted artwork may need simplifying. Manifest previews
   validate managed package paths, and unreachable favicon code is removed.
-- Branding, local-task, and form-error summary links receive minimum pointer
-  target sizes while allowing child themes to set their presentation.
+- Branding, local-task, and form-error summary links, plus links in full pagers,
+  receive minimum pointer target sizes while allowing child themes to set their
+  presentation.
 
 ## Compatibility and validation
 
@@ -50,7 +54,8 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   Drupal 11.4's `vendor/bin/dr` is documented as experimental.
 - Pull requests verify the parent library and breakpoint contract against the
   working tree. Rendered accessibility coverage includes a form with validation
-  errors; template and favicon checks cover the new contracts and restrictions.
+  errors and page 2 of a paged view, with exactly one current pager item;
+  template and favicon checks cover the new contracts and restrictions.
 - README images use raw asset URLs, the demo uses HTTPS, and the external docs
   site is identified as pre-7.x Webpack guidance while it is rewritten.
 - Published-package validation permits only explicitly listed Drupal.org
