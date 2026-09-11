@@ -46,7 +46,7 @@ a blocking check after upstream npm releases a clean bundle.
   the Drush generator must delegate to Drupal Starterkit. The `^2.2` requirement
   was introduced in Emulsify Drupal 7.2.1.
 - Confirm `LICENSE`, `package.json`, `composer.json`, and `whisk/package.json` all identify the project as `GPL-2.0-or-later`, matching Drupal.org Composer metadata guidance for hosted Drupal projects.
-- Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, and favicon package deployment expectations. PHP minimums are inherited from Drupal: 8.3 for Drupal 11 and 8.5 for Drupal 12. Whisk advertises Node.js `>=24`, Emulsify Core 4.3.1/4.4.0 require `>=24.13.0`, and release tooling requires `>=24.15`; preserve and document this distinction.
+- Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, and favicon package deployment expectations. PHP minimums are inherited from Drupal: 8.3 for Drupal 11 and 8.5 for Drupal 12. Whisk advertises Node.js `>=24`, Emulsify Core 4.5.0 requires `>=24.13.0`, and release tooling requires `>=24.15`; preserve and document this distinction.
 - Confirm the sister-project parity contract stays linked from the README and preserves the shared Emulsify Drupal/WordPress contract plus Drupal-specific generation, metadata, component include, and fixture readiness expectations.
 - Confirm the Whisk starter remains generation-only and generated child themes keep `emulsify` as their runtime parent theme; review the [generated child-theme contract](./generated-child-theme-contract.md) for generation guarantees and intentional exclusions.
 - Confirm both Drupal core and Drush generation retain `project.emulsify.json`
@@ -55,8 +55,8 @@ a blocking check after upstream npm releases a clean bundle.
   support metadata.
 - Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
 - Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
-- Confirm `@emulsify/core` `4.3.1` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
-- Confirm the declared Whisk `@emulsify/core` range resolves to 4.3.1 or newer,
+- Confirm `@emulsify/core` `4.5.0` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
+- Confirm the declared Whisk `@emulsify/core` range resolves to 4.5.0 or newer,
   exposes `npm run inspect:components`, and does not ship project asset source
   directories, entrypoints, or an attached global library before a component
   library is selected.

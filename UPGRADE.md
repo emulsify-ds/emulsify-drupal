@@ -26,7 +26,7 @@ candidates can start taking effect after the update. The
 
 ## Unreleased: copied Node and test guidance
 
-The effective Node minimum for Emulsify Core 4.3.1/4.4.0 is 24.13.0, while
+The effective Node minimum for Emulsify Core 4.5.0 is 24.13.0, while
 Whisk still advertises `>=24`; no engine field is changed. The copied guides
 also now explain that project tests are required for `npm test` to pass.
 Existing generated themes can opt in to the following documentation changes.
@@ -42,7 +42,7 @@ index 741c06b..638be6c 100644
  ## Quick start
 
 -Use Node.js 24 or newer. If you use nvm, select the recommended version first:
-+Use Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. This theme's
++Use Node.js 24.13.0 or newer for Emulsify Core 4.5.0. This theme's
 +`package.json` advertises `>=24`, but Core's `>=24.13.0` requirement sets the
 +effective minimum. `.nvmrc` selects the Node 24 line without pinning a minor
 +version. Check the resolved Core package's `engines` when updating dependencies.
@@ -57,7 +57,7 @@ index 1a7ed29..c77bd02 100644
 
  - An existing Drupal site with the Emulsify parent theme and this generated theme in `web/themes/custom/%%EMULSIFY_MACHINE_NAME%%` (or the equivalent custom-theme directory).
 -- Node.js 24 or newer. `package.json` declares the compatibility range, and `.nvmrc` records the recommended version.
-+- Node.js 24.13.0 or newer for Emulsify Core 4.3.1/4.4.0. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
++- Node.js 24.13.0 or newer for Emulsify Core 4.5.0. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
  - nvm is optional but is used by the version-selection commands below.
  - npm, which is included with Node.js.
 @@ -90,5 +90,13 @@ npm run a11y
@@ -83,7 +83,7 @@ index 01f15b6..992b108 100644
  ## Troubleshooting
 
 -- **Wrong Node.js version:** run `nvm use` and compare `node --version` with `.nvmrc` and the `engines.node` value in `package.json`.
-+- **Wrong Node.js version:** run `nvm use` and compare `node --version` with the resolved Emulsify Core package's `engines.node`. Core 4.3.1/4.4.0 requires at least 24.13.0 even though the theme advertises `>=24`; `.nvmrc` selects only the Node 24 line.
++- **Wrong Node.js version:** run `nvm use` and compare `node --version` with the resolved Emulsify Core package's `engines.node`. Core 4.5.0 requires at least 24.13.0 even though the theme advertises `>=24`; `.nvmrc` selects only the Node 24 line.
  - **Missing package or command:** run `npm install` again from this directory; keep the dependency metadata and Emulsify Core configuration intact.
  - **Drupal cannot find project assets:** follow the selected component library's build and Drupal integration guidance, then confirm its declared outputs exist and its libraries are attached.
 ```
@@ -262,9 +262,15 @@ propagate failures; Jest discovers project tests, executes native ESM, collects
 project coverage, and fails when no tests exist. Existing child projects keep
 their own scripts and configuration. The unnumbered sections above provide
 optional adoption diffs; these are not additional required migration steps.
-Whisk continues to declare `@emulsify/core: ^4.3.1`. Core 4.3.1/4.4.0 requires
+
+### Frontend tooling and validation
+
+New child themes declare `@emulsify/core: ^4.5.0`. Core 4.5.0 still requires
 Node 24.13.0 even though Whisk advertises `>=24`; root release tooling requires
-24.15 or newer.
+24.15 or newer. Existing child themes keep their own dependency manifests and
+lockfiles. To adopt this Core release, run `npm install @emulsify/core@^4.5.0`
+from the child theme directory, commit the updated manifest and lockfile,
+rebuild assets, and run the project's checks.
 
 The combined release adds working-tree library and breakpoint validation,
 rendered form and paged-view accessibility coverage, stronger template and SVG

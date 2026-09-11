@@ -250,8 +250,8 @@ npm run build
 npm run storybook-build
 ```
 
-Whisk advertises Node.js `>=24`, while Emulsify Core 4.3.1 and 4.4.0 require
-`>=24.13.0`; the effective frontend floor for those versions is therefore
+New child themes declare `@emulsify/core: ^4.5.0`. Whisk advertises Node.js
+`>=24`, while Emulsify Core 4.5.0 requires `>=24.13.0`; the effective frontend floor is
 **24.13.0**. Root release tooling separately requires **24.15 or newer**. Both
 `.nvmrc` files select the Node 24 line without pinning its minor version. These
 declared requirements differ; a Node 24.0 installation does not satisfy Emulsify
