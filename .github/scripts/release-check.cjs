@@ -1008,6 +1008,12 @@ function runStaticChecks() {
     return 'Emulsify owns its template layer without a stable9 parent theme fallback.';
   });
 
+  runStaticCheck('Unique Twig template basenames', () => {
+    const templates = listFilesRecursive('templates', (filePath) => filePath.endsWith('.twig'));
+    ensure(new Set(templates.map((filePath) => path.basename(filePath))).size === templates.length, 'Remove duplicate .twig basenames under templates/; Drupal registers templates by basename, so duplicates collide in the theme registry.');
+    return `Verified ${templates.length} unique Twig template basenames.`;
+  });
+
   runStaticCheck('Theme region rendering', () => {
     const checkedRegions = [
       { metadataPath: 'emulsify.info.yml', metadataContents: emulsifyInfo, templatePath: 'templates/layout/page.html.twig' },
@@ -1366,7 +1372,7 @@ function runSmokeChecks() {
     'bash',
     [path.join(repoRoot, '.github/scripts/template-parity.sh'), baseFixture, repoRoot],
     repoRoot,
-    { passMessage: 'Verified that Emulsify ships every stable9 template path without declaring stable9 as the parent theme.' },
+    { passMessage: 'Verified that Emulsify covers every stable9 template basename without declaring stable9 as the parent theme.' },
   );
 
   runSmokeCheck(
