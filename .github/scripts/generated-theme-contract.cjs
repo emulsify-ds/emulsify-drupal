@@ -200,7 +200,6 @@ function validateGeneratedTheme({
       .filter((file) => path.basename(file) !== '.DS_Store')
       .map((file) => toRelative(sourceDir, file)),
     'config/jest.config.js',
-    'templates/layout/page.html.twig',
     'screenshot.png',
     '.nvmrc',
   ].filter((relativePath) => fs.existsSync(path.join(sourceDir, relativePath)));

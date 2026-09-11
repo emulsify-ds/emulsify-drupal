@@ -18,8 +18,9 @@ resolve back to the child's override. Use the namespaced reference consistently.
 
 ## Example: add content without copying the page wrapper
 
-In a generated child theme named `my_theme`, replace the contents of
-`templates/layout/page.html.twig` with:
+Newly generated child themes inherit the parent's page template without a local
+copy. To customize it in a child theme named `my_theme`, create
+`templates/layout/` and add `page.html.twig` containing:
 
 ```twig
 {% extends "@emulsify/templates/layout/page.html.twig" %}

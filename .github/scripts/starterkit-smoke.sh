@@ -244,10 +244,24 @@ enable_theme() {
 
 render_theme() {
   require_generated_theme
+  [ ! -e "${generated_theme_dir}/templates/layout/page.html.twig" ] || fail "A fresh generated child theme must inherit the parent's page template."
+  (
+    cd "$fixture_dir"
+    ./vendor/bin/drush php:eval '
+$registry = \Drupal::service("theme.registry")->get();
+$parent_path = \Drupal::service("extension.list.theme")->getPath("emulsify") . "/templates/layout";
+if (realpath(DRUPAL_ROOT . "/" . $registry["page"]["path"]) !== realpath(DRUPAL_ROOT . "/" . $parent_path)) {
+  throw new \RuntimeException("The generated child must resolve the page template from Emulsify.");
+}
+echo "PASS generated child inherits the parent page template.\n";
+'
+  )
   # Render representative pages through the generated theme. This catches
   # missing libraries, broken parent-theme inheritance, and template issues that
   # pure file assertions cannot see.
   bash "${script_dir}/render-reference-pages.sh" "$fixture_dir" "$output_dir"
+  grep -Fq '<div class="section page">' "${output_dir}/frontpage-view.html" || fail "Missing parent page wrapper in the generated child render."
+  grep -Fq '<main class="section main" role="main">' "${output_dir}/frontpage-view.html" || fail "Missing parent main wrapper in the generated child render."
 }
 
 install_frontend() {

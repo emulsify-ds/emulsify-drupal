@@ -16,6 +16,7 @@ repo_root="$2"
 report_file="${3:-}"
 stable9_templates_dir="${fixture_dir}/web/core/themes/stable9/templates"
 repo_templates_dir="${repo_root}/templates"
+whisk_templates_dir="${repo_root}/whisk/templates"
 stable9_list="$(mktemp)"
 repo_list="$(mktemp)"
 exact_matches_list="$(mktemp)"
@@ -41,6 +42,23 @@ fi
 if grep -Eq "^base theme: stable9$" "${repo_root}/emulsify.info.yml"; then
   echo "emulsify.info.yml should not declare stable9 as its parent theme." >&2
   exit 1
+fi
+
+# Any templates shipped by the starter must match their parent counterparts.
+# Generated child themes normally inherit these files instead of copying them.
+if [ -d "$whisk_templates_dir" ]; then
+  while IFS= read -r -d '' whisk_path; do
+    relative_path="${whisk_path#"$whisk_templates_dir"/}"
+    parent_path="${repo_templates_dir}/${relative_path}"
+    if [ ! -f "$parent_path" ]; then
+      echo "Whisk template ${relative_path} has no parent counterpart at templates/${relative_path}." >&2
+      exit 1
+    fi
+    if ! cmp -s "$whisk_path" "$parent_path"; then
+      echo "Whisk template ${relative_path} differs from its parent counterpart at templates/${relative_path}." >&2
+      exit 1
+    fi
+  done < <(find "$whisk_templates_dir" -type f -print0)
 fi
 
 # Compare sorted basenames for coverage and retain repo paths for reporting.
