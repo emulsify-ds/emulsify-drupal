@@ -20,7 +20,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\Entity\File;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Builds and processes the Emulsify favicon theme settings UI.
@@ -97,7 +96,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     LoggerChannelFactoryInterface $loggerChannelFactory,
     FileUrlGeneratorInterface $fileUrlGenerator,
     TimeInterface $time,
-    #[Autowire(service: 'lock')]
     LockBackendInterface $lock,
   ) {
     $this->faviconThemeManager = new FaviconThemeManager(

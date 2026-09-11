@@ -107,6 +107,19 @@ try {
     emulsify_preview_assert($android_dom->query('//*[@data-preview-label="android"]')->item(0)->textContent === $manifest['short_name'], 'Android label must come from the saved manifest, including when saved config has newer inputs.');
   }
 
+  // Readable manifests outside the managed URI contract must not supply labels.
+  foreach ([
+    'absolute path' => $file_system->realpath($package_path),
+    'parent traversal' => 'public://favicon-package/' . $theme_name . '/../' . $theme_name . '/0123456789ab',
+  ] as $label => $unmanaged_path) {
+    emulsify_preview_assert(is_readable($unmanaged_path . '/site.webmanifest'), "$label: fixture manifest must be readable to exercise path validation.");
+    $android_dom = emulsify_preview_document($preview->buildAndroidPreview([
+      'favicon_package_enabled' => TRUE,
+      'favicon_package_path' => $unmanaged_path,
+    ]));
+    emulsify_preview_assert($android_dom->query('//*[@data-preview-label="android"]')->item(0)->textContent === '', "$label: unmanaged manifests must not supply preview labels.");
+  }
+
   // The real form must apply the same saved-package gate as FaviconHooks. A
   // valid portable source computes a different, missing candidate directory.
   foreach ([

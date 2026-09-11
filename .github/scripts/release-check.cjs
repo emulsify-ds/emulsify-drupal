@@ -528,10 +528,6 @@ const MIGRATED_THEME_HOOK_FILES = [
   ],
 ];
 
-const DEPENDENCY_HEAVY_FAVICON_FORM_FILES = [
-  'src/Favicon/FaviconSettingsForm.php',
-];
-
 function getStrictTypeClassFiles() {
   return [
     ...listFilesRecursive('src/Favicon', (filePath) => filePath.endsWith('.php')),
@@ -567,14 +563,6 @@ function ensureHookAttributeMigration(themeEntrypoint) {
     for (const hook of hooks) {
       ensure(hookClass.includes(`#[Hook('${hook}')]`), `${target} must implement ${hook} with a Hook attribute.`);
     }
-  }
-}
-
-function ensureDependencyHeavyFaviconFormAutowiring() {
-  for (const formFilePath of DEPENDENCY_HEAVY_FAVICON_FORM_FILES) {
-    const formClass = readFile(formFilePath);
-    ensure(formClass.includes('use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;'), `${formFilePath} must import Symfony Autowire for constructor disambiguation.`);
-    ensure(formClass.includes("#[Autowire(service: 'lock')]\n    LockBackendInterface $lock"), `${formFilePath} must explicitly autowire the request lock service.`);
   }
 }
 
@@ -1036,7 +1024,6 @@ function runStaticChecks() {
 
   runStaticCheck('Hook attribute migration', () => {
     ensureHookAttributeMigration(themeEntrypoint);
-    ensureDependencyHeavyFaviconFormAutowiring();
     ensureFaviconSettingsFormDelegation();
     return 'Legacy procedural hook includes are absent and migrated hooks are implemented with attributes.';
   });

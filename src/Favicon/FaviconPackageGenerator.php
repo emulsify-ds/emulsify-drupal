@@ -306,7 +306,6 @@ final class FaviconPackageGenerator {
           $source_svg,
           $normalized['favicon_background_color'],
           $browser_padding,
-          FALSE,
         ),
       );
 
@@ -655,11 +654,7 @@ final class FaviconPackageGenerator {
   /**
    * Generates an SVG favicon wrapper around the uploaded source.
    */
-  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding, bool $sanitize_svg): string {
-    if ($sanitize_svg) {
-      $source_data = $this->sanitizeSvg($source_data);
-    }
-
+  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding): string {
     $encoded_source = base64_encode($source_data);
     $inset = (int) round(1024 * ($padding / 100));
     $content_size = max(1, 1024 - ($inset * 2));
@@ -679,13 +674,6 @@ SVG,
       $content_size,
       $content_size,
     );
-  }
-
-  /**
-   * Sanitizes SVG uploads while allowing embedded image data URIs.
-   */
-  private function sanitizeSvg(string $source_data): string {
-    return (string) $this->inspectSvgMarkup($source_data)['sanitized_svg'];
   }
 
   /**
