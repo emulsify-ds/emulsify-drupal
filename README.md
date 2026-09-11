@@ -263,7 +263,7 @@ These checks verify the expected local workflow:
 
 1. Compare `node --version` with the effective Node.js floor above.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
-3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+3. `npm run test` runs project tests and collects coverage. Add a project test first; the generated setup fails when no tests are found.
 4. `npm run inspect:components` reports the component inventory and related project health information.
 5. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
 6. `npm run storybook-build` verifies the component library's static Storybook build.

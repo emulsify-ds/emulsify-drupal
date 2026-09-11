@@ -34,6 +34,7 @@ php "${repo_root}/.github/scripts/published-package-metadata.test.php"
 mkdir -p "$fixture_dir" "$evidence_dir"
 fixture_dir="$(cd "$fixture_dir" && pwd)"
 evidence_dir="$(cd "$evidence_dir" && pwd)"
+cp "${repo_root}/.github/scripts/publication-skew.json" "${evidence_dir}/publication-skew.json"
 
 curl --fail --silent --show-error --location https://repo.packagist.org/p2/emulsify-ds/emulsify-drupal.json > "${evidence_dir}/packagist.json"
 curl --fail --silent --show-error --location https://packages.drupal.org/files/packages/8/p2/drupal/emulsify.json > "${evidence_dir}/drupalorg.json"

@@ -1,84 +1,75 @@
 # Unreleased changes
 
-This draft describes changes since the latest published tag. Semantic Release
-determines the next version from the commits on `main`; published history is in
-[GitHub Releases](https://github.com/emulsify-ds/emulsify-drupal/releases).
-These fixes and validation changes do not justify forcing a minor release.
+Semantic Release determines the next version from the commits on `main`.
+This draft covers changes since the latest tagged release; the combined
+[7.2.1 upgrade path](../UPGRADE.md#upgrading-from-721-to-730) also includes the
+fixes from 7.2.2, which was deliberately not published to Drupal.org.
+
+## Added
+
+- Nine named Twig blocks in the parent page, HTML, region, and base block
+  templates let child themes extend individual sections. Their names are a
+  public contract. Pre-change golden captures verify unchanged default bytes,
+  and generated-child inheritance is tested on Drupal 11.3 and 11.4. See the
+  [extension guide](./template-extension.md).
+- The parent and starter declare `status`, `breadcrumb`, `highlighted`,
+  `sidebar_first`, and `sidebar_second`, alongside the existing five regions.
+  New regions render nothing until blocks are placed in them. Existing children
+  retain their own explicit region lists.
+- Container and form suggestions cover classes, structural form paths,
+  selectors, IDs, Layout Builder, and Views displays or block placements.
+  See the [suggestion precedence](./twig-hook-contract.md#template-suggestions)
+  before adding matching overrides or overlapping child hooks.
 
 ## Fixed
 
-- Favicon sources now allow only supported static SVG elements. Animated links,
-  script handlers, namespaced event attributes, and nested SVG data URIs are
-  removed with a warning. Oversized canvases are rejected, and Imagick
-  rasterization has bounded dimensions and resource limits. Simplify unsupported
-  SVG artwork before re-uploading; embedded raster images remain supported.
-- PHP linting and copied lint/fix/format wrappers run every constituent check
-  and return failure when any check fails.
-- Generated Jest configuration discovers colocated project tests, runs native
-  ESM, reports project coverage, and fails when no tests exist or a test fails.
-  The existing `test` and `twatch` script names are preserved.
-- Favicon previews use enabled, existing saved packages, with balanced browser
-  markup, the actual maskable image, and no second application of background or
-  padding. Unsaved form changes leave saved previews intact while generation
-  controls and pending-change notices continue to update.
+- Whisk no longer ships a page copy that hides future parent fixes. Fresh
+  generated children inherit the parent template, and parity checks reject
+  divergent files under the starter's template directory.
+- Form errors now have IDs, control associations, and a common styling class
+  across all five error templates. Datetime descriptions receive `description`,
+  select options preserve their attributes, and radios receive `form-radios`.
+  Sites with bespoke fieldset/details/datetime error selectors may get double
+  styling; the radios class may match rules compensating for its earlier absence.
+- The duplicate status-messages registry key is removed, message groups avoid
+  duplicate block IDs and the footer landmark role, and feed/progress templates
+  move to `templates/misc/`. The oEmbed template drops its unnecessary `raw`
+  filter while retaining Drupal's safe-markup behavior.
+- Favicon sources allow supported static SVG elements. Animated links, script
+  handlers, namespaced event attributes, and nested SVG data URIs are removed
+  with warnings. Oversized canvases are rejected and rasterization is bounded.
+  Some previously accepted artwork may need simplifying. Manifest previews
+  validate managed package paths, and unreachable favicon code is removed.
+- Branding, local-task, and form-error summary links receive minimum pointer
+  target sizes while allowing child themes to set their presentation.
 
-## Dependencies and CI
+## Compatibility and validation
 
-- Incorporated the compatible lockfile updates reviewed in dependency PRs
-  #378 and #379, plus compatible npm bundle fixes. Root npm and Composer audits
-  report no advisories in the recorded runs; the fresh Whisk tree resolves
-  Emulsify Core 4.4.0. See the [dependency audit](./dependency-audit-2026-09-08.md)
-  for preserved ranges and complete outputs.
-- Restricted validation jobs to read-only repository permissions, scoped
-  publishing permissions to the release job, and pinned actions to verified
-  immutable commits.
-- Added pull-request consumer coverage that generates a theme, installs a real
-  component fixture, builds Vite and Storybook, runs the existing `a11y` command,
-  and audits the component and Drupal pages against WCAG 2.2 AA rules. Build,
-  rendering, and accessibility failures propagate to CI.
-- Added published-package installation checks for both Drupal.org and
-  Packagist routes on Drupal 11/PHP 8.3 and Drupal 12/PHP 8.5, including strict
-  Composer validation, audit, theme enabling, libraries, and breakpoints. All
-  four recorded legs passed. The current Drupal 12 resolution is an alpha;
-  see [published dependency validation](./published-dependency-validation.md).
+- Drupal and Tools minimums remain `^11.3 || ^12` and `^2.2`. Blocking CI now
+  includes Drupal 11.4; Drupal 12 beta and `dev-main` remain advisory checks.
+  Drupal 11.4's `vendor/bin/dr` is documented as experimental.
+- Pull requests verify the parent library and breakpoint contract against the
+  working tree. Rendered accessibility coverage includes a form with validation
+  errors; template and favicon checks cover the new contracts and restrictions.
+- README images use raw asset URLs, the demo uses HTTPS, and the external docs
+  site is identified as pre-7.x Webpack guidance while it is rewritten.
+- Published-package validation permits only explicitly listed Drupal.org
+  omissions. Version 7.2.2 is the deliberate exception; unlisted gaps fail.
+  See the [channel policy](./published-dependency-validation.md).
 
-## Documentation and characterization
+## Consumer action
 
-- Documented Composer installation, upgrades, and installed-release identity;
-  verified Tools-owned Drush generation and the appropriate core Starterkit
-  entrypoint. Release checks reject stale draft titles and manual drift in
-  semantic-release-owned npm version metadata.
-- Explained Whisk's advertised Node range, Core's effective Node floor, the
-  separate release-tooling requirement, and PHP floors inherited from Drupal.
-  Copied guides now explain project test discovery and failure on missing tests.
-- Added exact characterization tests and a [Twig hook and helper
-  contract](./twig-hook-contract.md) for paragraph variables, form/field/Views
-  suggestions, and paired PHP/JavaScript helpers. Existing output and all
-  observed divergences remain unchanged.
+Existing generated child themes must delete their copied
+`templates/layout/page.html.twig` to receive parent fixes. This is the one
+required manual migration step. Preserve customizations through a namespaced
+parent extension and selected blocks instead of a full copy. Parent updates
+do not rewrite existing child files. See [UPGRADE.md](../UPGRADE.md) for the
+combined path, optional adoption of the earlier copied-tooling fixes, and
+styling considerations.
 
-## Findings still requiring follow-up
-
-The stricter accessibility gate currently fails on `target-size` at three
-locations: the site-name link on `/node/1`, the site-name link on `/user/login`,
-and the active Log in tab on `/user/login`. No rule is suppressed and no
-existing theme markup, classes, or styles were changed to make it pass. The
-real component has no reported violations. See [the findings and failure
-propagation evidence](./consumer-accessibility.md).
-
-The Whisk audit reports six high-severity package entries caused by the single
-unfixed upstream `extract-zip` symlink traversal advisory. The registry has no
-compatible fixed release; no forced dependency-range change or replacement was
-made. The [audit record](./dependency-audit-2026-09-08.md) identifies every
-affected entry and its deferral reason.
-
-## Consumer actions and release validation
-
-Review [UPGRADE.md](../UPGRADE.md) for before/after diffs of copied scripts,
-Jest configuration, and documentation. A parent-theme update does not rewrite
-an existing generated child theme.
-
-Run `npm run release:check -- --skip-smoke` for static validation,
-`npm run release:check` for Drupal fixture coverage, and
-`npm run publish-test -- --no-ci` to review the calculated release. Review the
-linked audit and accessibility findings before publishing; remove this draft's
-published entries after release.
+Run `npm run release:check -- --skip-smoke` for static validation and
+`npm run release:check` for the complete local gate. Use
+`npm run publish-test -- --no-ci` to review the analyzer's calculated release.
+The dated [dependency audit](./dependency-audit-2026-09-08.md) retains its
+recorded upstream browser-tooling advisory; its results are historical evidence,
+not a claim about a future dependency resolution.

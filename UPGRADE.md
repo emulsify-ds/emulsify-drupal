@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Unreleased: 7.3.0 container and form template suggestions
+## Unreleased: container and form template suggestions
 
 The parent theme now adds container suggestions by class, structural form path,
 Drupal selector, and ID; a shared Layout Builder form fallback; Views exposed
@@ -147,6 +147,127 @@ parent theme does not rewrite generated projects. No script names changed.
 -    "lint-fix": "npm run lint-js -- --fix; npm run lint-styles -- --fix",
 +    "lint-fix": "sh -c 'status=0; npm run lint-js -- --fix || status=$?; npm run lint-styles -- --fix || status=$?; exit $status'",
 ```
+
+## Upgrading From 7.2.1 to 7.3.0
+
+This is the combined upgrade path for the planned 7.3.0 release. Version 7.2.2
+was tagged and published to Packagist but deliberately not published to
+Drupal.org. Drupal.org consumers can move directly from 7.2.1 to 7.3.0 once it
+is published; there is no intermediate 7.2.2 installation step. Packagist
+consumers already on 7.2.2 follow the same guidance, with its fixes already
+installed. See the [channel skew policy](./docs/published-dependency-validation.md).
+
+The minimum versions do not change: Drupal remains `^11.3 || ^12`, and Emulsify
+Tools remains `^2.2`. Blocking CI covers Drupal 11.3 and 11.4; Drupal 12 beta and
+`dev-main` remain advisory compatibility checks. Drupal 11.4's `vendor/bin/dr`
+generation command is experimental; the existing Drush generator remains
+available.
+
+After 7.3.0 is available on your install channel, update the parent and Tools
+using the package already installed on the site. For Drupal.org installations:
+
+```bash
+composer require drupal/emulsify:^7.3 drupal/emulsify_tools:^2.2 --with-all-dependencies
+```
+
+For existing Packagist installations:
+
+```bash
+composer require emulsify-ds/emulsify-drupal:^7.3 drupal/emulsify_tools:^2.2 --with-all-dependencies
+```
+
+Keep one distribution of the parent theme installed; this upgrade does not
+require changing channels.
+
+### Required child-theme action
+
+**Delete your generated child theme's copied
+`templates/layout/page.html.twig` to receive parent-theme page fixes.** This is
+the release's one required manual migration step; updating the parent package
+does not remove files from an existing child theme. Newly generated child themes
+no longer contain that copy and inherit the parent's page template directly.
+
+If the old copy contains project customizations, preserve those changes in a
+small override that extends
+`@emulsify/templates/layout/page.html.twig` and overrides only the relevant named
+block, instead of retaining the complete copied template. The
+[template extension guide](./docs/template-extension.md) shows this replacement
+and documents the page, HTML, region, and block extension points. Drupal 11.3
+and 11.4 register the parent namespace automatically.
+
+Rebuild caches after updating the package and child template:
+
+```bash
+drush cr
+```
+
+### Parent changes inherited after the update
+
+- Five additional regions are declared consistently in the parent and starter:
+  `status`, `breadcrumb`, `highlighted`, `sidebar_first`, and `sidebar_second`.
+  The page template renders all ten declared regions. The added regions render
+  nothing until blocks are placed in them. Existing child themes with an
+  explicit `regions` list keep that list; adding these regions to a child's info
+  file is optional when the site wants to use them.
+- Nine named Twig blocks let children inherit page, HTML, region, and block
+  markup while customizing individual sections. Adding the blocks preserves the
+  parent's rendered bytes. Their names are a public contract.
+- Container and form template suggestions now cover classes, structural paths,
+  selectors, IDs, Layout Builder, and Views displays or block placements. Review
+  the [precedence guide](./docs/twig-hook-contract.md#template-suggestions) if a
+  child already implements similar hooks or matching template names.
+- Form errors have deterministic IDs, `aria-describedby` associations, and the
+  shared `form-item--error-message` class across all five error templates.
+  Drupal's Inline Form Errors module controls whether inline errors appear.
+  Datetime descriptions receive the `description` class, select options retain
+  their attributes, and radios receive `form-radios`. **Sites using bespoke
+  fieldset, details, or datetime error selectors may now get double styling. The
+  new `form-radios` class may also match a downstream rule added to compensate
+  for its previous absence.** Review those styles; no existing class is renamed
+  or removed.
+- The duplicate status-messages template is removed, message groups no longer
+  duplicate block IDs or use a page-footer landmark, and feed/progress templates
+  are filed under `templates/misc/`. Explicit includes of their old
+  `templates/media-library/` paths need review; basename-based overrides still
+  resolve. Block attributes now belong to the outer message wrapper, so review
+  styles that depend on the previous wrapper placement. The unnecessary oEmbed `raw` filter is
+  removed; Drupal's already-safe markup continues to render normally.
+- Favicon SVG processing allows supported static drawing elements, removes
+  unsafe or unsupported elements and attributes with warnings, rejects nested
+  SVG data URIs, and bounds rasterization resources. SVG dimensions above 4096
+  units are rejected. Exotic SVGs that previously passed may need simplifying
+  before upload. Manifest previews now validate managed package paths. Generated
+  packages continue to live in `public://favicon-package/`, outside the theme.
+  Previously stored public SVGs are not rewritten by the update; review and
+  re-upload existing sources when applying the new restrictions to them.
+- Branding, local-task, and form-error summary links have minimum pointer
+  targets of 24px through a zero-specificity rule. Child themes can still set
+  their presentation; check navigation and error-summary spacing after updating.
+
+### Fixes included from 7.2.2
+
+This direct upgrade also includes 7.2.2's saved favicon-preview corrections:
+previews use the enabled, existing saved package and actual maskable image,
+without reapplying its padding or background. Unsaved form changes do not
+replace the saved preview.
+
+Newly generated child themes also receive the copied tooling fixes from 7.2.2:
+audit output keeps machine-readable stdout; lint, fix, and format scripts
+propagate failures; Jest discovers project tests, executes native ESM, collects
+project coverage, and fails when no tests exist. Existing child projects keep
+their own scripts and configuration. The unnumbered sections above provide
+optional adoption diffs; these are not additional required migration steps.
+Whisk continues to declare `@emulsify/core: ^4.3.1`. Core 4.3.1/4.4.0 requires
+Node 24.13.0 even though Whisk advertises `>=24`; root release tooling requires
+24.15 or newer.
+
+The combined release adds working-tree library and breakpoint validation,
+rendered form accessibility coverage, stronger template and SVG regression
+checks, and Drupal 11.4 CI coverage. It also corrects README assets and identifies
+the external documentation site's pre-7.x Webpack guidance; the README and
+upgrade guide describe the 7.x Vite workflow. After upgrading, check the site's
+pages, forms, block placement, and favicon settings. Rebuild child assets only
+when adopting frontend changes or changing project sources.
 
 ## Upgrading From 7.2.0 to 7.2.1
 
