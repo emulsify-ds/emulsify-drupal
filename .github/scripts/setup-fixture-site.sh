@@ -71,6 +71,12 @@ rsync -a \
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 
+# Keep validation fixtures outside the distributable theme. Its dependency on
+# Inline Form Errors makes real submitted errors available to all form wrappers.
+mkdir -p "${fixture_dir}/web/modules/custom/form_a11y"
+rsync -a "${theme_source_dir}/.github/fixtures/form_a11y/" "${fixture_dir}/web/modules/custom/form_a11y/"
+./vendor/bin/drush en form_a11y -y
+
 # Contact is optional across Drupal install profiles/versions. Enable it when
 # present so form-render coverage is broader, but do not make the fixture depend
 # on the module existing.

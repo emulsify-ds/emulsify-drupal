@@ -74,6 +74,7 @@ async function main() {
       { label: 'Project Twig component', url: `${storybook.baseUrl}/iframe.html?id=consumer-status-panel--default&viewMode=story`, selector: '.emulsify-smoke', text: 'Your component library is ready' },
       { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.' },
       { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username' },
+      { label: 'Drupal form validation errors', url: `${drupalUrl}/emulsify-fixture/form-errors`, selector: 'main.section.main form', text: 'Fixture validation error for name.', validateForm: true },
     ];
     for (const target of targets) {
       const page = await browser.newPage();
@@ -81,11 +82,53 @@ async function main() {
       const errors = [];
       page.on('pageerror', (error) => errors.push(error.message));
       try {
-        const response = await page.goto(target.url, { waitUntil: 'networkidle0' });
+        let response = await page.goto(target.url, { waitUntil: 'networkidle0' });
+        if (target.validateForm) {
+          assert(response && response.ok(), `${target.label} must load before validation.`);
+          assert.equal(await page.$$eval('form .form-item--error-message', (elements) => elements.length), 0, 'The fixture form must start without errors.');
+          [response] = await Promise.all([
+            page.waitForNavigation({ waitUntil: 'networkidle0' }),
+            page.click('input[type="submit"][value="Validate fixture"]'),
+          ]);
+        }
         fs.writeFileSync(path.join(outputDir, `${target.label.toLowerCase().replaceAll(' ', '-')}.html`), await page.content());
         assert(response && response.ok(), `${target.label} must render with a successful response.`);
         await page.waitForSelector(target.selector, { visible: true, timeout: 30000 });
         assert((await page.$eval(target.selector, (element) => element.textContent)).includes(target.text), `${target.label} must contain the expected real rendered content.`);
+        if (target.validateForm) {
+          const formErrors = await page.evaluate(() => {
+            const messages = [...document.querySelectorAll('form .form-item--error-message')];
+            const controls = {
+              name: ['fixture-name'],
+              details: ['fixture-details', 'fixture-details-value'],
+              fieldset: ['fixture-fieldset', 'fixture-fieldset-value'],
+              date: ['edit-date-date', 'edit-date-time'],
+              storage: ['fixture-storage'],
+              radios: ['fixture-radios--wrapper', 'edit-radios-first', 'edit-radios-second'],
+              checkboxes: ['fixture-checkboxes--wrapper', 'edit-checkboxes-first', 'edit-checkboxes-second'],
+            };
+            return {
+              ids: messages.map((message) => message.id),
+              associations: Object.entries(controls).map(([name, ids]) => ids.every((id) => {
+                const control = document.getElementById(id);
+                const descriptions = control?.getAttribute('aria-describedby')?.split(/\s+/) || [];
+                // Composite option help belongs to the fieldset wrapper.
+                const needsDescription = !['radios', 'checkboxes'].includes(name) || control?.tagName === 'FIELDSET';
+                return descriptions.includes(`fixture-${name}--error`)
+                  && (!needsDescription || descriptions.some((description) => description.endsWith('--description')))
+                  && descriptions.every((description) => document.getElementById(description));
+              })),
+              descriptionsResolve: [...document.querySelectorAll('form [aria-describedby]')].every((element) => element.getAttribute('aria-describedby').split(/\s+/).every((id) => document.getElementById(id))),
+              detailsSummary: document.querySelector('#fixture-details > summary')?.getAttribute('aria-describedby')?.split(/\s+/).includes('fixture-details--error'),
+              radiosClass: Boolean(document.querySelector('#fixture-radios--wrapper .form-radios')),
+            };
+          });
+          assert.deepEqual(formErrors.ids.toSorted(), ['name', 'details', 'fieldset', 'date', 'storage', 'radios', 'checkboxes'].map((name) => `fixture-${name}--error`).sort(), 'All five error template variants, including composite controls, must have unique deterministic ids and the shared error class.');
+          assert(formErrors.associations.every(Boolean), 'Every invalid control and group must reference its error while retaining a valid description association.');
+          assert(formErrors.descriptionsResolve, 'Every form description reference must resolve to an existing element.');
+          assert(formErrors.detailsSummary, 'The focusable details summary must reference its group error.');
+          assert(formErrors.radiosClass, 'The radios wrapper must retain the form-radios styling hook.');
+        }
         assert.equal(errors.length, 0, `${target.label} browser errors: ${errors.join('; ')}`);
         if (option === '--inject-violation' && target === targets[0]) {
           // Disposable browser DOM only: prove the same gate catches new issues.

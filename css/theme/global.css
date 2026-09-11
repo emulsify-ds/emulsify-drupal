@@ -1,7 +1,7 @@
 /* Minimum pointer target size for standalone navigation (WCAG 2.2 SC 2.5.8).
  * Keep specificity at zero so child themes can supply their own presentation.
  */
-:where(.emulsify-branding-link, .emulsify-local-task > a) {
+:where(.emulsify-branding-link, .emulsify-local-task > a, [data-drupal-messages] a[href^="#"]) {
   display: inline-block;
   min-inline-size: 24px;
   min-block-size: 24px;

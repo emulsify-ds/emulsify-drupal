@@ -32,13 +32,13 @@
   {%- endif -%}
 
   {% if errors %}
-    <div>
+    <div id="{{ element['#id'] }}--error" class="form-item--error-message">
       {{ errors }}
     </div>
   {% endif %}
 
   {%- if description -%}
-    {% set description_attributes = create_attribute({id: attributes['aria-describedby']}) %}
+    {% set description_attributes = create_attribute({id: element['#id'] ~ '--description'}) %}
     <div{{ description_attributes }}>{{ description }}</div>
   {%- endif -%}
 
