@@ -6,6 +6,7 @@ namespace Drupal\form_a11y\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Template\Attribute;
 
 /**
  * Exercises all five error wrappers through a real Form API submission.
@@ -73,6 +74,47 @@ final class ValidationErrorsForm extends FormBase {
         ],
       ];
     }
+    $form['option_attributes'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Delivery options'),
+      '#id' => 'fixture-option-attributes',
+      '#description' => $this->t('Choose from the available delivery and collection options.'),
+      '#multiple' => TRUE,
+      '#size' => 6,
+      '#default_value' => ['flat_array', 'group_object'],
+      '#options' => [
+        'flat_array' => $this->t('Standard delivery'),
+        'flat_object' => $this->t('Unavailable express delivery'),
+        (string) $this->t('Collection options') => [
+          'group_array' => $this->t('Unavailable collection'),
+          'group_object' => $this->t('Local collection'),
+        ],
+      ],
+      '#options_attributes' => [
+        'flat_array' => [
+          'data-option-source' => 'flat-array',
+          'value' => 'spoof-flat-array',
+          'selected' => FALSE,
+        ],
+        'flat_object' => new Attribute([
+          'data-option-source' => 'flat-object',
+          'disabled' => TRUE,
+          'value' => 'spoof-flat-object',
+          'selected' => TRUE,
+        ]),
+        'group_array' => [
+          'data-option-source' => 'group-array',
+          'disabled' => TRUE,
+          'value' => 'spoof-group-array',
+          'selected' => TRUE,
+        ],
+        'group_object' => new Attribute([
+          'data-option-source' => 'group-object',
+          'value' => 'spoof-group-object',
+          'selected' => FALSE,
+        ]),
+      ],
+    ];
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Validate fixture'),

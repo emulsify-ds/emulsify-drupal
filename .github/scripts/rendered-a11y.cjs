@@ -18,6 +18,43 @@ function assertAccessible(results, label) {
   assert.equal(results.violations.length, 0, `${label}: ${results.violations.map(({ id, nodes }) => `${id} at ${nodes.map(({ target }) => target.join(' ')).join(', ')}`).join('; ')}`);
 }
 
+async function assertSelectOptionAttributes(page) {
+  const rendered = await page.evaluate(() => {
+    const select = document.getElementById('fixture-option-attributes');
+    if (!select) return null;
+    const options = [...select.options];
+    const result = {
+      labels: [...select.labels].map((label) => label.textContent.trim()),
+      multiple: select.multiple,
+      options: options.map((option) => ({
+        value: option.value,
+        source: option.dataset.optionSource,
+        disabled: option.disabled,
+        selected: option.selected,
+        selectedAttribute: option.hasAttribute('selected'),
+        group: option.parentElement.tagName === 'OPTGROUP' ? option.parentElement.label : null,
+      })),
+      submitted: new FormData(select.form).getAll(select.name),
+    };
+    // Even when selected programmatically, disabled options must not submit.
+    options.forEach((option) => { option.selected = true; });
+    result.enabledSubmitted = new FormData(select.form).getAll(select.name);
+    options.forEach((option, index) => { option.selected = result.options[index].selected; });
+    return result;
+  });
+  assert(rendered, 'The fixture must render the select with option attributes.');
+  assert.deepEqual(rendered.labels, ['Delivery options'], 'The select must retain its visible, associated label.');
+  assert(rendered.multiple, 'The fixture must exercise simultaneous flat and grouped selections.');
+  assert.deepEqual(rendered.options, [
+    { value: 'flat_array', source: 'flat-array', disabled: false, selected: true, selectedAttribute: true, group: null },
+    { value: 'flat_object', source: 'flat-object', disabled: true, selected: false, selectedAttribute: false, group: null },
+    { value: 'group_array', source: 'group-array', disabled: true, selected: false, selectedAttribute: false, group: 'Collection options' },
+    { value: 'group_object', source: 'group-object', disabled: false, selected: true, selectedAttribute: true, group: 'Collection options' },
+  ], 'Flat and grouped options must preserve array and Attribute data, disabled states, and canonical value/selected attributes.');
+  assert.deepEqual(rendered.submitted, ['flat_array', 'group_object'], 'Selected option values must remain canonical despite spoofed attributes.');
+  assert.deepEqual(rendered.enabledSubmitted, ['flat_array', 'group_object'], 'Disabled options must be excluded from form submission in both template branches.');
+}
+
 async function freePort() {
   const server = net.createServer();
   await new Promise((resolve, reject) => {
@@ -87,6 +124,7 @@ async function main() {
         if (target.validateForm) {
           assert(response && response.ok(), `${target.label} must load before validation.`);
           assert.equal(await page.$$eval('form .form-item--error-message', (elements) => elements.length), 0, 'The fixture form must start without errors.');
+          await assertSelectOptionAttributes(page);
           [response] = await Promise.all([
             page.waitForNavigation({ waitUntil: 'networkidle0' }),
             page.click('input[type="submit"][value="Validate fixture"]'),
@@ -101,6 +139,7 @@ async function main() {
           assert.deepEqual(currentPages, [`Page${target.currentPage}`], `${target.label} must identify exactly one current page, page ${target.currentPage}.`);
         }
         if (target.validateForm) {
+          await assertSelectOptionAttributes(page);
           const formErrors = await page.evaluate(() => {
             const messages = [...document.querySelectorAll('form .form-item--error-message')];
             const controls = {
@@ -174,4 +213,4 @@ if (require.main === module) {
   main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
-module.exports = { assertAccessible, wcagTags };
+module.exports = { assertAccessible, assertSelectOptionAttributes, wcagTags };

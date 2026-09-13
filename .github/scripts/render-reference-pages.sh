@@ -14,6 +14,12 @@ fi
 
 fixture_dir="$1"
 output_dir="$2"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+(
+  cd "$fixture_dir"
+  ./vendor/bin/drush php:script "$script_dir/select-options-smoke.php"
+)
 
 # Allow callers to reuse an existing server URL, but default to a random local
 # port so parallel matrix jobs do not collide on the same runner.
