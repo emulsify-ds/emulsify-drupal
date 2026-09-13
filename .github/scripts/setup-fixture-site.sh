@@ -89,7 +89,7 @@ if (!\Composer\Semver\Semver::satisfies($installed, $argv[1])) {
   --account-pass=admin \
   -y
 
-./vendor/bin/drush en emulsify_tools -y
+./vendor/bin/drush en emulsify_tools menu_link_content -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 
@@ -183,6 +183,10 @@ if (!$storage->loadByProperties(["title" => "Emulsify fixture page 2"])) {
   $node->save();
 }
 '
+
+# The ancestor and current link share a route but have different node IDs.
+# Core copies this main-menu block when the generated child theme is enabled.
+./vendor/bin/drush php:script "${theme_source_dir}/.github/scripts/setup-menu-fixture.php"
 
 # Add a non-admin account so user-template hooks have a real user entity
 # available in the fixture.

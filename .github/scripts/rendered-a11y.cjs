@@ -55,6 +55,40 @@ async function assertSelectOptionAttributes(page) {
   assert.deepEqual(rendered.enabledSubmitted, ['flat_array', 'group_object'], 'Disabled options must be excluded from form submission in both template branches.');
 }
 
+async function assertCurrentMenu(page, expectedPath) {
+  const rendered = await page.evaluate(() => {
+    const ancestor = document.querySelector('a[data-menu-fixture="ancestor"]');
+    const menu = ancestor?.closest('nav');
+    if (!menu) return null;
+    const current = menu.querySelector('a[data-menu-fixture="current"]');
+    return {
+      nested: ancestor.closest('li')?.querySelector('ul a[data-menu-fixture="current"]') === current,
+      links: [...menu.querySelectorAll('a[data-menu-fixture]')].map((link) => ({
+        fixture: link.dataset.menuFixture,
+        path: new URL(link.href).pathname,
+      })),
+      current: [...menu.querySelectorAll('[aria-current]')].map((link) => ({
+        tag: link.tagName,
+        fixture: link.dataset.menuFixture,
+        value: link.getAttribute('aria-current'),
+        path: new URL(link.href).pathname,
+      })),
+    };
+  });
+  assert(rendered, 'The main-menu block must render its real menu fixture.');
+  assert(rendered.nested, 'The current-page link must remain nested beneath the expanded ancestor.');
+  assert.deepEqual(rendered.links, [
+    { fixture: 'ancestor', path: '/node/2' },
+    { fixture: 'current', path: '/node/1' },
+  ], 'Menu links must retain their original URL attributes and nested order.');
+  assert.deepEqual(rendered.current, expectedPath ? [{
+    tag: 'A',
+    fixture: expectedPath === '/node/1' ? 'current' : 'ancestor',
+    value: 'page',
+    path: expectedPath,
+  }] : [], 'Exactly the matching page link must have aria-current; ancestors on a different page and unmatched pages must not.');
+}
+
 async function freePort() {
   const server = net.createServer();
   await new Promise((resolve, reject) => {
@@ -109,8 +143,9 @@ async function main() {
     browser = await puppeteer.launch({ headless: true });
     const targets = [
       { label: 'Project Twig component', url: `${storybook.baseUrl}/iframe.html?id=consumer-status-panel--default&viewMode=story`, selector: '.emulsify-smoke', text: 'Your component library is ready' },
-      { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.' },
-      { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username' },
+      { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.', currentMenuPath: '/node/1' },
+      { label: 'Drupal ancestor page', url: `${drupalUrl}/node/2`, selector: 'main.section.main', text: 'Second fixture body content for the frontpage view.', currentMenuPath: '/node/2' },
+      { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username', currentMenuPath: null },
       { label: 'Drupal paged view', url: `${drupalUrl}/node?page=1`, selector: 'main.section.main', text: 'Emulsify fixture page', currentPage: 2 },
       { label: 'Drupal form validation errors', url: `${drupalUrl}/emulsify-fixture/form-errors`, selector: 'main.section.main form', text: 'Fixture validation error for name.', validateForm: true },
     ];
@@ -134,6 +169,9 @@ async function main() {
         assert(response && response.ok(), `${target.label} must render with a successful response.`);
         await page.waitForSelector(target.selector, { visible: true, timeout: 30000 });
         assert((await page.$eval(target.selector, (element) => element.textContent)).includes(target.text), `${target.label} must contain the expected real rendered content.`);
+        if ('currentMenuPath' in target) {
+          await assertCurrentMenu(page, target.currentMenuPath);
+        }
         if (target.currentPage) {
           const currentPages = await page.$$eval('.pager [aria-current="page"]', (elements) => elements.map((element) => element.textContent.replace(/\s+/g, '')));
           assert.deepEqual(currentPages, [`Page${target.currentPage}`], `${target.label} must identify exactly one current page, page ${target.currentPage}.`);
@@ -213,4 +251,4 @@ if (require.main === module) {
   main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
-module.exports = { assertAccessible, assertSelectOptionAttributes, wcagTags };
+module.exports = { assertAccessible, assertCurrentMenu, assertSelectOptionAttributes, wcagTags };
