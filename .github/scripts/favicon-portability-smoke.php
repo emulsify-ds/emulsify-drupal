@@ -104,6 +104,17 @@ function emulsify_favicon_analysis_has_warning(array $analysis, string $expected
 }
 
 /**
+ * Returns an XPath inspector for the sanitized SVG document.
+ */
+function emulsify_favicon_sanitized_xpath(array $analysis): \DOMXPath {
+  $document = new \DOMDocument();
+  emulsify_favicon_assert($document->loadXML((string) ($analysis['sanitized_svg'] ?? ''), LIBXML_NONET), 'Sanitized SVG should remain valid XML.');
+  $xpath = new \DOMXPath($document);
+  $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
+  return $xpath;
+}
+
+/**
  * Loads normalized theme settings.
  */
 function emulsify_favicon_load_settings(string $theme_name, string $site_name): array {
@@ -158,6 +169,104 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], '<image href="data:image/png;base64,'), 'Base64 embedded raster image elements and href values should be preserved.');
   emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Embedded PNG images should not trigger an unsafe-markup warning.');
 
+  // Export wrappers must preserve artwork when their semantics are removed.
+  $illustrator = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 64 64">
+  <metadata><sfw xmlns="http://ns.adobe.com/SaveForWeb/1.0/"><slices/><sliceSourceBounds width="64" height="64"/></sfw></metadata>
+  <switch><g><circle id="illustrator-circle" cx="32" cy="32" r="24" fill="#ff0000"/><path id="illustrator-path" d="M16 32h32" stroke="#000000"/></g></switch>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($illustrator, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:g/svg:circle[@id="illustrator-circle"] | /svg:svg/svg:g/svg:path[@id="illustrator-path"])') === 2.0, 'Illustrator switch exports should retain their circle and path artwork.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:switch)') === 0.0, 'Switch wrappers should be unwrapped.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:metadata | //*[namespace-uri()="http://ns.adobe.com/SaveForWeb/1.0/"])') === 0.0, 'Illustrator Save-for-Web metadata should be removed.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Benign Illustrator switch exports should not trigger an unsafe-markup warning.');
+
+  $linked = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect id="background" width="64" height="64"/>
+  <a href="#mark"><circle id="mark" cx="32" cy="32" r="24"/><switch><path id="detail" d="M16 32h32"/></switch></a>
+  <rect id="foreground" width="8" height="8"/>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($linked, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  $shape_ids = [];
+  foreach ($xpath->query('/svg:svg/svg:rect | /svg:svg/svg:circle | /svg:svg/svg:path') as $shape) {
+    $shape_ids[] = $shape->getAttribute('id');
+  }
+  emulsify_favicon_assert($shape_ids === ['background', 'mark', 'detail', 'foreground'], 'Unwrapping nested link and switch elements should preserve every shape in drawing order.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:a | //svg:switch)') === 0.0, 'Links and nested switches should be unwrapped.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Local artwork links should not trigger an unsafe-markup warning.');
+
+  $pattern = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><pattern id="tiles" patternUnits="userSpaceOnUse" width="16" height="16"><rect width="16" height="16" fill="#ff0000"/><rect width="8" height="16" fill="#0000ff"/></pattern></defs>
+  <rect id="pattern-artwork" width="64" height="64" fill="url(#tiles)"/>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($pattern, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:defs/svg:pattern[@id="tiles"]/svg:rect)') === 2.0, 'Pattern fill definitions should retain their drawing primitives.');
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:rect[@id="pattern-artwork" and @fill="url(#tiles)"])') === 1.0, 'Pattern-filled artwork should retain its local fill reference.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Local pattern fills should not trigger an unsafe-markup warning.');
+
+  $inkscape = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" viewBox="0 0 64 64" inkscape:version="1.4" sodipodi:docname="icon.svg">
+  <metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:title>Icon</dc:title></cc:Work></rdf:RDF></metadata>
+  <sodipodi:namedview id="namedview1" inkscape:zoom="8"/>
+  <defs><inkscape:perspective id="perspective1"/></defs>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer"><circle id="inkscape-artwork" sodipodi:cx="32" cx="32" cy="32" r="24"/></g>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($inkscape, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:circle[@id="inkscape-artwork"])') === 1.0, 'Inkscape artwork should survive editor metadata cleanup.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:metadata | //*[namespace-uri() != "http://www.w3.org/2000/svg"] | //@*[namespace-uri() != ""])') === 0.0, 'Inkscape metadata, editor elements, and editor attributes should be removed.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Benign Inkscape exports should produce zero unsafe-markup warnings.');
+  emulsify_favicon_assert(($analysis['removed_unsafe_count'] ?? NULL) === 0, 'Benign Inkscape cleanup should record zero unsafe removals.');
+  emulsify_favicon_assert(($analysis['removed_metadata_count'] ?? 0) > 0, 'Benign Inkscape cleanup should track editor metadata removals separately.');
+
+  // These inert presentation elements were supported before the allow-list.
+  $presentation = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <path id="baseline" d="M0 32h64"/>
+    <marker id="arrow" markerWidth="8" markerHeight="8"><path d="M0 0l8 4-8 4z"/></marker>
+    <filter id="effects">
+      <feGaussianBlur stdDeviation="1"/><feColorMatrix type="saturate" values="1"/><feOffset dx="1"/>
+      <feBlend in2="SourceGraphic"/><feComposite in2="SourceGraphic"/><feFlood flood-color="#ff0000"/>
+      <feMerge><feMergeNode in="SourceGraphic"/></feMerge><feDropShadow dx="1" dy="1"/>
+      <feMorphology radius="1"/><feTurbulence baseFrequency="0.1"/><feDisplacementMap in2="SourceGraphic"/>
+      <feImage href="#baseline"/><feTile/>
+      <feSpecularLighting><fePointLight x="32" y="32" z="10"/></feSpecularLighting>
+      <feDiffuseLighting><feDistantLight azimuth="45" elevation="45"/></feDiffuseLighting>
+      <feSpecularLighting><feSpotLight x="32" y="32" z="10"/></feSpecularLighting>
+      <feComponentTransfer><feFuncR type="identity"/><feFuncG type="identity"/><feFuncB type="identity"/><feFuncA type="identity"/></feComponentTransfer>
+      <feConvolveMatrix order="1" kernelMatrix="1"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" filter="url(#effects)"/>
+  <path d="M0 32h64" marker-end="url(#arrow)"/>
+  <text><textPath href="#baseline">Icon</textPath></text>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($presentation, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  foreach ([
+    'filter', 'feGaussianBlur', 'feColorMatrix', 'feOffset', 'feBlend',
+    'feComposite', 'feFlood', 'feMerge', 'feMergeNode', 'feDropShadow',
+    'feMorphology', 'feTurbulence', 'feDisplacementMap', 'feImage', 'feTile',
+    'feSpecularLighting', 'feDiffuseLighting', 'fePointLight', 'feDistantLight',
+    'feSpotLight', 'feComponentTransfer', 'feFuncR', 'feFuncG', 'feFuncB',
+    'feFuncA', 'feConvolveMatrix', 'marker', 'textPath',
+  ] as $element_name) {
+    emulsify_favicon_assert($xpath->evaluate('count(//svg:' . $element_name . ')') > 0, $element_name . ' presentation elements should be preserved.');
+  }
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:marker/svg:path | //svg:rect[@filter="url(#effects)"] | //svg:path[@marker-end="url(#arrow)"] | //svg:textPath[@href="#baseline"])') === 4.0, 'Filter, marker, and textPath artwork and local references should survive.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Inert presentation elements should not trigger an unsafe-markup warning.');
+
   // Every bypass must report cleanup, not just a general source warning.
   $nested_svg = base64_encode('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
   $unsafe_vectors = [
@@ -180,6 +289,42 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
     'Nested SVG data URI' => [
       '<image href="data:image/svg+xml;base64,' . $nested_svg . '"/>',
       ['data:image/svg+xml', $nested_svg],
+    ],
+    'Remote filter image' => [
+      '<filter><feImage href="https://example.com/icon.png"/></filter>',
+      ['https://example.com/icon.png'],
+    ],
+    'Script filter image' => [
+      '<filter><feImage href="javascript:alert(1)"/></filter>',
+      ['javascript:', 'alert(1)'],
+    ],
+    'Nested SVG filter image' => [
+      '<filter><feImage href="data:image/svg+xml;base64,' . $nested_svg . '"/></filter>',
+      ['data:image/svg+xml', $nested_svg],
+    ],
+    'Namespaced remote filter image' => [
+      '<filter><feImage xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://example.com/icon.png"/></filter>',
+      ['https://example.com/icon.png'],
+    ],
+    'Unsafe link wrapper' => [
+      '<a href="javascript:alert(1)"><circle cx="32" cy="32" r="16"/></a>',
+      ['javascript:', 'alert(1)'],
+    ],
+    'Event on switch wrapper' => [
+      '<switch xmlns:ev="http://www.w3.org/2001/xml-events" ev:onload="alert(1)"><circle cx="32" cy="32" r="16"/></switch>',
+      ['onload=', 'alert(1)'],
+    ],
+    'Event on metadata' => [
+      '<metadata onload="alert(1)">Editor data</metadata>',
+      ['onload=', 'alert(1)'],
+    ],
+    'Event on editor element' => [
+      '<inkscape:perspective xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" onload="alert(1)"/>',
+      ['onload=', 'alert(1)'],
+    ],
+    'Script inside metadata' => [
+      '<metadata><script>alert(1)</script></metadata>',
+      ['<script', 'alert(1)'],
     ],
   ];
   foreach ($unsafe_vectors as $label => [$markup, $forbidden_fragments]) {

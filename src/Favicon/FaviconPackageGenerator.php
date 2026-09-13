@@ -34,6 +34,26 @@ final class FaviconPackageGenerator {
     'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline',
     'polygon', 'text', 'tspan', 'defs', 'symbol', 'use', 'image', 'clippath',
     'mask', 'lineargradient', 'radialgradient', 'stop', 'title', 'desc',
+    'filter', 'fegaussianblur', 'fecolormatrix', 'feoffset', 'feblend',
+    'fecomposite', 'feflood', 'femerge', 'femergenode', 'fedropshadow',
+    'femorphology', 'feturbulence', 'fedisplacementmap', 'feimage', 'fetile',
+    'fespecularlighting', 'fediffuselighting', 'fepointlight', 'fedistantlight',
+    'fespotlight', 'fecomponenttransfer', 'fefuncr', 'fefuncg', 'fefuncb',
+    'fefunca', 'feconvolvematrix', 'pattern', 'marker', 'textpath', 'metadata',
+    'switch', 'a',
+  ];
+
+  /**
+   * Non-rendering editor metadata, identified by namespace rather than prefix.
+   */
+  private const SVG_METADATA_NAMESPACES = [
+    'http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd',
+    'http://www.inkscape.org/namespaces/inkscape',
+    'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'http://purl.org/dc/elements/1.1/',
+    'http://creativecommons.org/ns#',
+    'http://ns.adobe.com/AdobeIllustrator/10.0/',
+    'http://ns.adobe.com/SaveForWeb/1.0/',
   ];
 
   /**
@@ -731,8 +751,12 @@ SVG,
       $declared_dimensions = $this->extractDeclaredDimensions($root);
     }
 
-    $removed_node_count = $this->stripDisallowedSvgNodes($document);
-    $removed_attribute_count = $this->stripDisallowedSvgAttributes($document);
+    // Inspect attributes before unwrapping links or removing editor metadata so
+    // unsafe attributes on those elements still produce a security warning.
+    $removed_attributes = $this->stripDisallowedSvgAttributes($document);
+    $removed_nodes = $this->stripDisallowedSvgNodes($document);
+    $removed_unsafe_count = $removed_nodes['unsafe'] + $removed_attributes['unsafe'];
+    $removed_metadata_count = $removed_nodes['metadata'] + $removed_attributes['metadata'];
 
     $sanitized = $document->saveXML($document->documentElement) ?: '';
     if ($sanitized === '') {
@@ -740,7 +764,7 @@ SVG,
     }
 
     $warnings = [];
-    if ($removed_node_count > 0 || $removed_attribute_count > 0) {
+    if ($removed_unsafe_count > 0) {
       $warnings[] = 'Unsafe SVG markup was removed from the favicon source before storage and generation.';
     }
     if ($view_box_was_normalized || $dimensions_were_normalized) {
@@ -760,6 +784,9 @@ SVG,
       'declared_dimensions' => $declared_dimensions,
       'uses_transparency' => $uses_transparency,
       'has_embedded_raster_images' => $has_embedded_raster_images,
+      // Ordinary editor cleanup is silent and separate from security warnings.
+      'removed_unsafe_count' => $removed_unsafe_count,
+      'removed_metadata_count' => $removed_metadata_count,
       'warnings' => $warnings,
     ];
   }
@@ -971,32 +998,55 @@ SVG,
   }
 
   /**
-   * Removes unsafe SVG nodes.
+   * Removes unsafe nodes and editor metadata while unwrapping artwork.
+   *
+   * @return array{unsafe: int, metadata: int}
+   *   Separate counts for security diagnostics and silent editor cleanup.
    */
-  private function stripDisallowedSvgNodes(\DOMDocument $document): int {
+  private function stripDisallowedSvgNodes(\DOMDocument $document): array {
     $removable = [];
+    $removed_counts = ['unsafe' => 0, 'metadata' => 0];
     foreach ($document->getElementsByTagName('*') as $element) {
       $tag_name = strtolower($element->localName ?? $element->nodeName);
-      if (!in_array($tag_name, self::ALLOWED_SVG_ELEMENTS, TRUE)
-        || !in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE)) {
-        $removable[] = $element;
+      $is_svg = in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE);
+      if (($is_svg && $tag_name === 'metadata')
+        || in_array($element->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
+        $removable[] = [$element, FALSE];
+        $removed_counts['metadata']++;
+      }
+      elseif (!$is_svg || !in_array($tag_name, self::ALLOWED_SVG_ELEMENTS, TRUE)) {
+        $removable[] = [$element, FALSE];
+        $removed_counts['unsafe']++;
+      }
+      elseif (in_array($tag_name, ['switch', 'a'], TRUE)) {
+        // These wrappers are structurally safe, but favicon artwork does not
+        // need conditional rendering or link semantics.
+        $removable[] = [$element, TRUE];
       }
     }
 
-    foreach ($removable as $element) {
+    foreach ($removable as [$element, $unwrap]) {
       if ($element->parentNode) {
+        if ($unwrap) {
+          while ($element->firstChild) {
+            $element->parentNode->insertBefore($element->firstChild, $element);
+          }
+        }
         $element->parentNode->removeChild($element);
       }
     }
 
-    return count($removable);
+    return $removed_counts;
   }
 
   /**
    * Removes unsafe attributes and external references from SVG elements.
+   *
+   * @return array{unsafe: int, metadata: int}
+   *   Separate counts for security diagnostics and silent editor cleanup.
    */
-  private function stripDisallowedSvgAttributes(\DOMDocument $document): int {
-    $removed_count = 0;
+  private function stripDisallowedSvgAttributes(\DOMDocument $document): array {
+    $removed_counts = ['unsafe' => 0, 'metadata' => 0];
     foreach ($document->getElementsByTagName('*') as $element) {
       $attributes = [];
       if ($element->hasAttributes()) {
@@ -1011,24 +1061,30 @@ SVG,
 
         if (str_starts_with($name, 'on')) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
           continue;
         }
 
         if ($name === 'style' || $this->svgAttributeContainsCssImport($value) || $this->svgAttributeHasUnsafeCssUrl($value)) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
           continue;
         }
 
         if ($name === 'href' && !$this->isSafeSvgHref($value)) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
+          continue;
+        }
+
+        if (in_array($attribute->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
+          $element->removeAttributeNode($attribute);
+          $removed_counts['metadata']++;
         }
       }
     }
 
-    return $removed_count;
+    return $removed_counts;
   }
 
   /**
@@ -1151,12 +1207,13 @@ SVG,
       $previous_limits = [];
       $image = new \Imagick();
       $merged = NULL;
+      $failure = NULL;
       try {
         foreach ($limits as $resource => $limit) {
           $previous_limits[$resource] = \Imagick::getResourceLimit($resource);
-          if (!\Imagick::setResourceLimit($resource, min($previous_limits[$resource], $limit))) {
-            throw new \RuntimeException('Unable to set favicon rasterization resource limits.');
-          }
+          $previous = $previous_limits[$resource];
+          $effective = $previous <= 0 ? $limit : min($previous, $limit);
+          \Imagick::setResourceLimit($resource, $effective);
         }
         $image->setBackgroundColor(new \ImagickPixel('transparent'));
         $image->setResolution(96, 96);
@@ -1165,12 +1222,30 @@ SVG,
         $merged->setImageFormat('png32');
         $source_data = (string) $merged->getImageBlob();
       }
+      catch (\Throwable $exception) {
+        $failure = $exception;
+      }
       finally {
-        $merged?->clear();
-        $image->clear();
-        foreach ($previous_limits as $resource => $limit) {
-          \Imagick::setResourceLimit($resource, $limit);
+        // Attempt every cleanup operation without masking the original error.
+        foreach ([$merged, $image] as $raster_image) {
+          try {
+            $raster_image?->clear();
+          }
+          catch (\Throwable $exception) {
+            $failure ??= $exception;
+          }
         }
+        foreach ($previous_limits as $resource => $limit) {
+          try {
+            \Imagick::setResourceLimit($resource, $limit);
+          }
+          catch (\Throwable $exception) {
+            $failure ??= $exception;
+          }
+        }
+      }
+      if ($failure !== NULL) {
+        throw $failure;
       }
     }
 

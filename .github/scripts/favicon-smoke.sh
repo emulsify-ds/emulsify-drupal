@@ -14,6 +14,7 @@ fixture_dir="$1"
 theme_name="${2:-emulsify}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+php "$script_dir/favicon-resource-limits.test.php"
 node --test "$script_dir/favicon-preview.test.cjs"
 
 (
