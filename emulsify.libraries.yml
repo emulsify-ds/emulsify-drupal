@@ -1,14 +1,14 @@
 global:
   css:
     theme:
-      css/theme/global.css: {}
+      dist/css/theme/global.css: { minified: true }
 
 favicon_admin:
   css:
     theme:
-      css/admin/favicon-preview.css: {}
+      dist/css/admin/favicon-preview.css: { minified: true }
   js:
-    js/admin/favicon-preview.js: {}
+    dist/js/admin/favicon-preview.js: { minified: true }
   dependencies:
     - core/drupal
     - core/once

@@ -4,8 +4,6 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const behaviorSource = fs.readFileSync(path.join(__dirname, '../../js/admin/favicon-preview.js'), 'utf8');
-
 function element(value = '') {
   return {
     value,
@@ -23,7 +21,7 @@ function element(value = '') {
   };
 }
 
-test('unsaved inputs leave saved preview framing and labels intact while helper state updates', () => {
+function assertPreviewBehavior(behaviorSource) {
   const names = {
     favicon_package_enabled: '1',
     favicon_background_color: '#ffffff',
@@ -94,4 +92,10 @@ test('unsaved inputs leave saved preview framing and labels intact while helper 
   assert.equal(notice.hidden, false);
   assert.equal(hint.hidden, false);
   assert.equal(snapshot(), savedPreview);
-});
+}
+
+for (const relativePath of ['assets/admin/favicon-preview.js', 'dist/js/admin/favicon-preview.js']) {
+  test(`${relativePath}: unsaved inputs leave saved preview framing and labels intact while helper state updates`, () => {
+    assertPreviewBehavior(fs.readFileSync(path.join(__dirname, '../..', relativePath), 'utf8'));
+  });
+}

@@ -49,7 +49,9 @@
    *   The theme settings form.
    */
   function syncThemeColorValue(form) {
-    const source = form.querySelector('[name="favicon_android_background_color"]');
+    const source = form.querySelector(
+      '[name="favicon_android_background_color"]',
+    );
     const target = form.querySelector('[name="favicon_theme_color"]');
     if (source && target) {
       // The PHP layer treats the Android background color as the source of
@@ -70,15 +72,20 @@
       return;
     }
 
-    const selectedFids = (inputValue(form, 'favicon_source_fid[fids]', '') || '').trim();
-    const fileInput = form.querySelector('input[type="file"][name^="files[favicon_source_fid"]');
-    const hasPendingFile = Boolean(fileInput && fileInput.files && fileInput.files.length > 0);
+    const selectedFids = (
+      inputValue(form, 'favicon_source_fid[fids]', '') || ''
+    ).trim();
+    const fileInput = form.querySelector(
+      'input[type="file"][name^="files[favicon_source_fid"]',
+    );
+    const hasPendingFile = Boolean(
+      fileInput && fileInput.files && fileInput.files.length > 0,
+    );
     const shouldShow = selectedFids !== '' || hasPendingFile;
 
     if (shouldShow) {
       hint.removeAttribute('hidden');
-    }
-    else {
+    } else {
       hint.setAttribute('hidden', 'hidden');
     }
   }
@@ -100,8 +107,12 @@
       state[name] = typeof value === 'boolean' ? value : String(value).trim();
     });
 
-    const fileInput = form.querySelector('input[type="file"][name^="files[favicon_source_fid"]');
-    state.hasPendingFile = Boolean(fileInput && fileInput.files && fileInput.files.length > 0);
+    const fileInput = form.querySelector(
+      'input[type="file"][name^="files[favicon_source_fid"]',
+    );
+    state.hasPendingFile = Boolean(
+      fileInput && fileInput.files && fileInput.files.length > 0,
+    );
 
     return state;
   }
@@ -118,8 +129,10 @@
    *   TRUE when both snapshots contain the same values.
    */
   function isSameTrackedState(left, right) {
-    return Object.keys(left).every((key) => left[key] === right[key])
-      && Object.keys(right).every((key) => left[key] === right[key]);
+    return (
+      Object.keys(left).every((key) => left[key] === right[key]) &&
+      Object.keys(right).every((key) => left[key] === right[key])
+    );
   }
 
   /**
@@ -140,20 +153,22 @@
       return;
     }
 
-    const isDirty = !isSameTrackedState(initialState, captureTrackedState(form));
+    const isDirty = !isSameTrackedState(
+      initialState,
+      captureTrackedState(form),
+    );
     if (notice) {
       if (isDirty) {
         notice.removeAttribute('hidden');
-      }
-      else {
+      } else {
         notice.setAttribute('hidden', 'hidden');
       }
     }
 
     if (button) {
       button.value = isDirty
-        ? (button.dataset.dirtyLabel || button.value)
-        : (button.dataset.defaultLabel || button.value);
+        ? button.dataset.dirtyLabel || button.value
+        : button.dataset.defaultLabel || button.value;
     }
   }
 
@@ -179,19 +194,29 @@
      *   Drupal behavior context.
      */
     attach(context) {
-      once('emulsify-favicon-preview', 'form.system-theme-settings, form[data-drupal-selector="system-theme-settings"]', context).forEach((form) => {
+      once(
+        'emulsify-favicon-preview',
+        'form.system-theme-settings, form[data-drupal-selector="system-theme-settings"]',
+        context,
+      ).forEach((form) => {
+        const refresh = () => refreshPreviews(form);
+
         TRACKED_NAMES.forEach((name) => {
           const input = form.querySelector(`[name="${name}"]`);
           if (!input) {
             return;
           }
-          input.addEventListener('input', () => refreshPreviews(form));
-          input.addEventListener('change', () => refreshPreviews(form));
+          input.addEventListener('input', refresh);
+          input.addEventListener('change', refresh);
         });
 
-        form.querySelectorAll('input[type="file"][name^="files[favicon_source_fid"]').forEach((input) => {
-          input.addEventListener('change', () => refreshPreviews(form));
-        });
+        form
+          .querySelectorAll(
+            'input[type="file"][name^="files[favicon_source_fid"]',
+          )
+          .forEach((input) => {
+            input.addEventListener('change', refresh);
+          });
 
         // Capture the initial persisted values after listeners are attached so
         // dirty-state UI compares against the loaded form, not later edits.

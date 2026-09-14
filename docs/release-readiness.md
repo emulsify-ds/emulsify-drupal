@@ -11,7 +11,9 @@ Use this checklist before publishing an Emulsify Drupal 7.x release.
 3. Run `npm ci --ignore-scripts`.
 4. Run `npm audit --omit=dev`.
 5. Run `npm audit` and triage any development-tool findings.
-6. Run `npm run lint:php`.
+6. Run `npm run build` and include the rebuilt parent `dist/` assets with any
+   source changes. Run `npm run lint` for PHP, JavaScript, and Sass, or
+   `npm run lint:php` for a PHP-only check.
 7. Run `npm run docs:check-commands` after documentation command example changes.
 8. Run `npm run release:check`.
 9. Run `npm run release:check -- --skip-smoke` after any release-guard edits.
@@ -65,6 +67,9 @@ a blocking check after upstream npm releases a clean bundle.
 
 ## CI coverage
 
+- Parent-theme assets are rebuilt with Emulsify Core, checked against committed
+  output, and tested through their Drupal library declarations and bundled
+  favicon behavior. JavaScript and Sass use Core's shared lint configurations.
 - Pull requests run Composer validation, `npm ci --ignore-scripts`, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including byte-for-byte Drupal core/Drush generation parity and component inspection.
 - The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, the blocking runtime audit, the advisory full dev-tool audit, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
 - Pull requests, pushes, scheduled runs, and manual Theme Readiness runs include a generated consumer job that builds Vite and Storybook, runs `npm run a11y`, and audits a real component plus Drupal pages against explicit WCAG 2.2 AA rules. The [consumer accessibility evidence](./consumer-accessibility.md) records current unsuppressed findings; a passing build alone does not make this gate pass.

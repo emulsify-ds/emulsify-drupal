@@ -8,6 +8,14 @@ const repoRoot = path.resolve(__dirname, '../..');
 const ROOT_CHECKS = [
   {
     relativePath: 'README.md',
+    heading: 'Build the parent theme assets',
+    packagePath: 'package.json',
+    packageLabel: 'the root project',
+    includeInlineCode: true,
+    expectedScripts: ['build', 'develop', 'lint'],
+  },
+  {
+    relativePath: 'README.md',
     heading: 'Generate a child theme',
     packagePath: 'whisk/package.json',
     packageLabel: 'generated child themes',

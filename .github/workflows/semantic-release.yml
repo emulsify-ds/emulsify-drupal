@@ -37,6 +37,18 @@ jobs:
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
 
+      - name: Build and verify parent theme assets
+        run: |
+          npm run build
+          git diff --exit-code -- dist
+          test -z "$(git status --porcelain --untracked-files=all -- dist)"
+
+      - name: Lint parent theme JavaScript and Sass
+        run: npm run lint:js && npm run lint:styles
+
+      - name: Test parent theme assets
+        run: node --test .github/scripts/parent-assets.test.cjs .github/scripts/favicon-preview.test.cjs
+
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev
 

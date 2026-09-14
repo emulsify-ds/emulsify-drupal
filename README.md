@@ -316,6 +316,39 @@ Please also follow the issue template and pull request templates provided. See b
 2. [Emulsify Tools Drupal Module](https://www.drupal.org/project/issues/emulsify_tools?categories=All)
 3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
 
+### Build the parent theme assets
+
+The parent theme's global styles and favicon settings UI are authored in
+`assets/` and built with `@emulsify/core`. Run these commands from this repository
+root using Node.js 24.15 or newer:
+
+```bash
+npm ci --ignore-scripts
+npm run build
+npm run lint
+```
+
+Use `npm run develop` to watch the Sass and JavaScript sources and produce
+readable output with source maps. Run `npm run build` before committing to
+restore minified production output without maps.
+
+| Source | Drupal library output |
+| --- | --- |
+| `assets/theme/global.scss` | `dist/css/theme/global.css` |
+| `assets/admin/favicon-preview.scss` | `dist/css/admin/favicon-preview.css` |
+| `assets/admin/favicon-preview.js` | `dist/js/admin/favicon-preview.js` |
+
+Edit the sources, then include the rebuilt `dist/` files in the same change.
+Production assets are committed so Composer installations do not require Node
+or an asset build. CI rebuilds them and checks that they match the committed
+output. The existing `emulsify/global` and `emulsify/favicon_admin` library names
+remain the attachment points.
+
+`project.emulsify.json` restricts Core's source discovery to `assets/`, keeping
+the Drupal PHP classes in `src/` outside the frontend build. Root linting covers
+PHP plus the JavaScript and Sass sources using Core's shared lint configuration.
+Generated child themes retain their own component-library build workflow.
+
 ### Committing Changes
 
 To facilitate automatic semantic release versioning, we utilize the [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog) standard through Commitizen. Follow these steps when committing your work to ensure semantic release can version correctly.
