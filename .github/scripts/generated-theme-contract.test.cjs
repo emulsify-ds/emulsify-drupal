@@ -102,6 +102,9 @@ function createValidTheme(t, overrides = {}) {
     packageJson,
     project,
   });
+  for (const relativePath of ['AGENTS.md', 'docs/drupal-integration.md', '.agents/skills']) {
+    fs.cpSync(path.join(DEFAULT_SOURCE_DIR, relativePath), path.join(themeDir, relativePath), { recursive: true });
+  }
   for (const referenceKey of ['logo', 'screenshot']) {
     const reference = contract.sourceInfo[referenceKey];
     if (reference && fs.existsSync(path.join(DEFAULT_SOURCE_DIR, reference))) {
@@ -156,6 +159,67 @@ test('accepts a valid generated machine name that contains the source name', (t)
     displayName: 'Whisk Project',
   }));
   assert.deepEqual(result.errors, []);
+});
+
+test('protects portable guidance and skill paths in the Starterkit source', () => {
+  for (const relativePath of ['/AGENTS.md', '/docs/drupal-integration.md', '/.agents/skills/**']) {
+    assert.ok(contract.starterkit.no_edit.includes(relativePath), `${relativePath} must bypass machine-name replacement`);
+  }
+  assert.ok(contract.starterkit.no_rename.includes('/.agents/skills/**'));
+});
+
+test('preserves guidance bytes during generation and permits project edits after build', (t) => {
+  const fixture = createValidTheme(t);
+  for (const relativePath of ['AGENTS.md', 'docs/drupal-integration.md', '.agents/skills/emulsify-drupal-integration/SKILL.md']) {
+    const source = fs.readFileSync(path.join(DEFAULT_SOURCE_DIR, relativePath));
+    assert.deepEqual(fs.readFileSync(path.join(fixture.themeDir, relativePath)), source);
+    fs.appendFileSync(path.join(fixture.themeDir, relativePath), '\nProject guidance customized by the team.\n');
+  }
+  const output = formatValidationResult(validate(fixture));
+  assert.match(output, /changed protected guidance file "AGENTS\.md" during generation/);
+  assert.match(output, /changed protected guidance file "docs\/drupal-integration\.md" during generation/);
+  assert.match(output, /changed protected guidance file "\.agents\/skills\/emulsify-drupal-integration\/SKILL\.md" during generation/);
+  assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
+});
+
+test('reports malformed skill manifests with actionable errors', (t) => {
+  for (const [contents, expectedError] of [
+    ['Missing frontmatter\n', /expected YAML frontmatter/],
+    ['---\nname: [\n---\n', /invalid skill manifest/],
+    ['---\nname: another-skill\ndescription: Integration guidance\n---\n', /name must match the skill directory/],
+    ['---\nname: emulsify-drupal-integration\ndescription: ""\n---\n', /description must be a nonempty string/],
+  ]) {
+    const fixture = createValidTheme(t);
+    writeFile(fixture.themeDir, '.agents/skills/emulsify-drupal-integration/SKILL.md', contents);
+    const output = formatValidationResult(validate(fixture));
+    assert.match(output, /FAIL documentation/);
+    assert.match(output, expectedError);
+    assert.doesNotMatch(output, /contract could not run/);
+  }
+});
+
+test('allows skill links back to theme docs and rejects missing or escaping targets', (t) => {
+  const fixture = createValidTheme(t);
+  const skillPath = path.join(fixture.themeDir, '.agents/skills/emulsify-drupal-integration/SKILL.md');
+  fs.appendFileSync(skillPath, '\n[Integration guide](../../../docs/drupal-integration.md)\n');
+  assert.deepEqual(validate(fixture, { checkBuiltAssets: true }).errors, []);
+
+  fs.appendFileSync(skillPath, '\n[Missing guide](../../../docs/missing.md)\n[Outside theme](../../../../outside.md)\n');
+  const output = formatValidationResult(validate(fixture, { checkBuiltAssets: true }));
+  assert.match(output, /documentation link "\.\.\/\.\.\/\.\.\/docs\/missing\.md"/);
+  assert.match(output, /resolves to missing local path "docs\/missing\.md"/);
+  assert.match(output, /documentation link "\.\.\/\.\.\/\.\.\/\.\.\/outside\.md"/);
+  assert.match(output, /resolves outside the generated child theme/);
+});
+
+test('rejects stale tokens and starter identities in generated guidance', (t) => {
+  const fixture = createValidTheme(t, { machineName: 'whisk_project', displayName: 'Whisk Project' });
+  fs.appendFileSync(path.join(fixture.themeDir, 'AGENTS.md'), '\n%%EMULSIFY_MACHINE_NAME%%\n');
+  fs.appendFileSync(path.join(fixture.themeDir, '.agents/skills/emulsify-drupal-integration/SKILL.md'), '\nnamespace: Drupal\\whiskHelper\n');
+  const output = formatValidationResult(validate(fixture));
+  assert.match(output, /stale documentation token/);
+  assert.match(output, /stale starter machine name "whisk"/);
+  assert.match(output, /expected "whisk_project"/);
 });
 
 test('reports an unreplaced Starterkit placeholder with its replacement', (t) => {
@@ -243,13 +307,17 @@ test('requires the generated documentation set', (t) => {
     'docs/development.md',
     'docs/support-information.md',
     'docs/upgrading.md',
+    'AGENTS.md',
+    'docs/drupal-integration.md',
+    '.agents/skills/emulsify-drupal-integration/SKILL.md',
   ]) {
     const fixture = createValidTheme(t);
     fs.rmSync(path.join(fixture.themeDir, requiredFile));
 
     const output = formatValidationResult(validate(fixture));
     assert.match(output, /FAIL generation/);
-    assert.ok(output.includes(`missing required generated file "${requiredFile}"`));
+    assert.ok(output.includes(`"${requiredFile}"`), output);
+    assert.match(output, /missing required generated (?:guidance )?file/);
     assert.match(output, /FAIL documentation/);
   }
 });
@@ -279,6 +347,18 @@ test('reports a documented npm command that package.json does not expose', (t) =
   assert.match(output, /FAIL documentation/);
   assert.match(output, /support-information\.md:\d+ documents npm run impossible-script/);
   assert.match(output, /package\.json has no "impossible-script" script/);
+});
+
+test('checks npm commands in every generated guidance entry point', (t) => {
+  for (const relativePath of ['AGENTS.md', 'docs/drupal-integration.md', '.agents/skills/emulsify-drupal-integration/SKILL.md']) {
+    const fixture = createValidTheme(t);
+    fs.appendFileSync(path.join(fixture.themeDir, relativePath), '\nRun `npm run impossible-script` for this project.\n');
+    const output = formatValidationResult(validate(fixture, { checkBuiltAssets: true }));
+    assert.match(output, /FAIL documentation/);
+    assert.ok(output.includes(`${relativePath}:`), output);
+    assert.match(output, /documents npm run impossible-script/);
+    assert.match(output, /package\.json has no "impossible-script" script/);
+  }
 });
 
 test('rejects retired terminology in docs without scanning third-party lock metadata', (t) => {

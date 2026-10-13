@@ -56,6 +56,10 @@ a blocking check after upstream npm releases a clean bundle.
   `singleDirectoryComponents`, `generatedFrom`, and `generatedFromVersion`
   support metadata.
 - Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
+- Confirm generated `AGENTS.md`, the Drupal integration guide, and the
+  integration skill survive Core and Drush generation with valid links and
+  skill metadata. Keep the guidance library-neutral and document discovery
+  from both the theme directory and a Drupal project root.
 - Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
 - Confirm `@emulsify/core` `4.5.0` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
 - Confirm the declared Whisk `@emulsify/core` range resolves to 4.5.0 or newer,

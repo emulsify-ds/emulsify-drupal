@@ -193,6 +193,22 @@ Generated child themes include the Vite and Storybook tooling from Emulsify
 Core 4. The selected component library owns the source structure and asset
 integration those tools consume.
 
+### AI-assisted theme development
+
+Generated child themes include an `AGENTS.md` entrypoint, a library-neutral
+[Drupal integration guide](./whisk/docs/drupal-integration.md), and an
+`emulsify-drupal-integration` skill. They guide an AI through discovering the
+installed theme and component contracts, mapping Drupal content, and verifying
+the result in Drupal. The selected component library supplies its own
+structure, component APIs, tokens, and asset integration instructions.
+
+For Codex, start in the generated child theme directory to discover its
+`.agents/skills/` folder. When starting from the Drupal project root, point the
+AI to the generated child theme's `AGENTS.md` and integration skill, or add those
+references to the project's existing root guidance. Generation does not modify
+the Drupal project's root instructions. See the
+[development guide](./whisk/docs/development.md#ai-assisted-development) for setup.
+
 ### Write Twig component includes
 
 For new project Twig, prefer Drupal Single Directory Component names:
@@ -309,6 +325,9 @@ See [docs/favicon-generation.md](./docs/favicon-generation.md) for generated fil
 The project maintainers have adopted a Code of Conduct that we expect project participants to adhere to. Please read the full text so that you can understand what actions will and will not be tolerated.
 
 ### Contribution Guide
+
+AI contributors should start with the repository's [AGENTS.md](./AGENTS.md),
+which distinguishes parent/starter maintenance from generated-theme work.
 
 Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
 

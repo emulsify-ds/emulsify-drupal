@@ -67,6 +67,16 @@ const ROOT_CHECKS = [
 ];
 
 const THEME_DOC_CHECKS = [
+  ...[
+    'AGENTS.md',
+    'docs/drupal-integration.md',
+    '.agents/skills/emulsify-drupal-integration/SKILL.md',
+  ].map((relativePath) => ({
+    relativePath,
+    packagePath: 'package.json',
+    packageLabel: 'the theme',
+    includeInlineCode: true,
+  })),
   {
     relativePath: 'README.md',
     packagePath: 'package.json',

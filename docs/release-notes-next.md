@@ -7,6 +7,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Added
 
+- Generated themes include `AGENTS.md`, a Drupal integration guide, and an
+  `emulsify-drupal-integration` skill. They discover the installed project's
+  conventions while leaving component-library details to the selected library.
+  Generation checks cover protected guidance, skill metadata, and links.
 - Nine named Twig blocks in the parent page, HTML, region, and base block
   templates let child themes extend individual sections. Their names are a
   public contract. Pre-change golden captures verify unchanged default bytes,

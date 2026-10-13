@@ -50,10 +50,34 @@ npm run inspect:components -- --json
 npm run inspect:components -- --help
 ```
 
-The component inspector discovers components and reports their metadata,
-dependencies, configuration issues, and orphaned files. It is safe to run
-before a component library is installed; a component-neutral project returns a
-valid empty report.
+The component inspector locates non-partial Twig templates recognized by
+Emulsify Core and reports source/output locations, template references, and
+namespace collisions. It is safe to run before a component library is
+installed; a component-neutral project returns a valid empty report. Read a
+component's schema, stories, and source for its API; the inventory does not
+prove Drupal registration or describe every component type.
+
+## AI-assisted development
+
+The theme's [AGENTS.md](../AGENTS.md) is a short entrypoint to project facts and
+documentation. The optional
+[Drupal integration skill](../.agents/skills/emulsify-drupal-integration/SKILL.md)
+routes component wiring work through
+[the integration guide](drupal-integration.md).
+
+For tools that discover repository skills from the session's working directory,
+start the session from this generated theme directory so `.agents/skills/` is
+in scope. A session started from the Drupal repository root may need an explicit
+instruction to read the theme's `AGENTS.md` and skill. Teams can add that routing
+to their existing site-root instructions or install the skill through their
+assistant's supported skill mechanism. Generation does not rewrite site-root
+instructions or configure a developer's AI tool.
+
+An installed library can supply `docs/component-library.md` through its normal
+file installation manifest. Read that guide when present, together with local
+component instructions and contracts. Its directory layout, props, slots,
+tokens, build entrypoints, and asset integration remain library-specific;
+Drupal field mappings and project conventions belong to this project.
 
 ## Development workflow
 
