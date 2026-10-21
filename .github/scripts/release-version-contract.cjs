@@ -17,12 +17,22 @@ function validateReleaseVersions({
   assert.equal(rootPackage.version, baselineVersion, 'Do not hand-edit the semantic-release-owned package.json version; it must match the latest tag\'s committed tooling metadata.');
   assert.equal(rootLock.version, rootPackage.version, 'package-lock.json version must match package.json tooling metadata.');
   assert.equal(rootLock.packages?.['']?.version, rootPackage.version, 'package-lock.json root package version must match package.json tooling metadata.');
-  assert.equal(generatedFromVersion, latestTag, 'Whisk generatedFromVersion must record the latest published starter source tag.');
+  assert.ok(typeof generatedFromVersion === 'string' && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(generatedFromVersion), 'Whisk generatedFromVersion must use a stable x.y.z version.');
+  const releasedVersions = new Set(tags.map((tag) => tag.replace(/^v/, '')));
+  const [major, minor, patch] = latestTag.split('.').map(Number);
+  const nextVersions = [
+    `${major}.${minor}.${patch + 1}`,
+    `${major}.${minor + 1}.0`,
+    `${major + 1}.0.0`,
+  ];
+  assert.ok(
+    generatedFromVersion === latestTag || (!releasedVersions.has(generatedFromVersion) && nextVersions.includes(generatedFromVersion)),
+    `Whisk generatedFromVersion must record the latest stable tag ${latestTag} or an untagged next patch, minor, or major version (${nextVersions.join(', ')}).`,
+  );
   assert.ok(readme.includes(`${latestTag.split('.')[0]}.x series`), 'README.md must describe the major series from the latest release tag.');
   assert.ok(readme.includes("Composer's installed package version is authoritative"), 'README.md must identify Composer installed metadata as the parent release authority.');
   assert.ok(readme.includes('version is owned by `@semantic-release/npm`'), 'README.md must explain semantic-release ownership of npm version metadata.');
 
-  const releasedVersions = new Set(tags.map((tag) => tag.replace(/^v/, '')));
   for (const line of draft.split(/\r?\n/)) {
     // Release titles are claims about this draft. Compatibility requirements and
     // links to historical releases in ordinary prose are not draft titles.

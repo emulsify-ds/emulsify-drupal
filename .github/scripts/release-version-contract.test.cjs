@@ -70,3 +70,54 @@ test('rejects stale starter lineage and missing release tags', () => {
   assert.throws(() => validateReleaseVersions(fixture({ generatedFromVersion: '7.2.0' })), /generatedFromVersion/);
   assert.throws(() => validateReleaseVersions(fixture({ latestTag: undefined })), /fetch the full Git history/);
 });
+
+test('accepts the latest starter tag or an untagged next patch, minor, or major version', () => {
+  for (const generatedFromVersion of ['7.2.2', '7.2.3', '7.3.0', '8.0.0']) {
+    assert.equal(validateReleaseVersions(fixture({
+      tags: ['7.2.2', '7.2.1'],
+      latestTag: '7.2.2',
+      generatedFromVersion,
+    })), '7.2.2');
+  }
+});
+
+test('rejects older starter lineage and skipped release increments', () => {
+  for (const generatedFromVersion of ['7.2.0', '7.2.1', '7.2.4', '7.3.1', '7.4.0', '8.0.1', '9.0.0']) {
+    assert.throws(() => validateReleaseVersions(fixture({
+      tags: ['7.2.2', '7.2.1'],
+      latestTag: '7.2.2',
+      generatedFromVersion,
+    })), /generatedFromVersion/);
+  }
+});
+
+test('rejects next starter versions that are already tagged, including v aliases', () => {
+  for (const tag of ['7.2.3', 'v7.2.3', '7.3.0', 'v7.3.0', '8.0.0', 'v8.0.0']) {
+    assert.throws(() => validateReleaseVersions(fixture({
+      tags: ['7.2.2', tag],
+      latestTag: '7.2.2',
+      generatedFromVersion: tag.replace(/^v/, ''),
+    })), /generatedFromVersion/);
+  }
+});
+
+test('rejects starter lineage outside canonical stable x.y.z versions', () => {
+  for (const generatedFromVersion of [
+    undefined, null, 7.3, '', '7', '7.3', 'v7.3.0', '7.3.0-beta.1',
+    '7.3.0+build.1', '7.3.0.1', '07.3.0', '7.03.0', '7.3.00', ' 7.3.0', '7.3.0\n',
+  ]) {
+    assert.throws(() => validateReleaseVersions(fixture({ generatedFromVersion })), /generatedFromVersion/);
+  }
+});
+
+test('keeps prepared starter lineage valid when its release tag is published', () => {
+  const generatedFromVersion = '7.3.0';
+  assert.equal(validateReleaseVersions(fixture({
+    tags: ['7.2.2', '7.2.1'],
+    latestTag: '7.2.2',
+    generatedFromVersion,
+  })), '7.2.2');
+  const published = fixture({ tags: ['7.3.0', '7.2.2', '7.2.1'], latestTag: '7.3.0', generatedFromVersion });
+  assert.equal(validateReleaseVersions(published), '7.3.0');
+  assert.throws(() => validateReleaseVersions({ ...published, generatedFromVersion: '7.2.2' }), /generatedFromVersion/);
+});

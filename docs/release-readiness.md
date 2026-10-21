@@ -103,6 +103,15 @@ titles that name an existing tag. Run the guard in a full Git checkout with tags
 (CI uses `fetch-depth: 0`). Published tags and Composer package metadata identify
 the parent release; `generatedFromVersion` describes starter lineage only.
 
+In a release PR, set `whisk/project.emulsify.json`'s `generatedFromVersion` to
+the version the release analyzer will publish. Starterkit copies that value
+into generated project metadata and `docs/upgrading.md`, so it must identify
+the release supplying the starter rather than the previous release. The guard
+accepts the latest stable tag or its immediate next patch, minor, or major
+version while that version is untagged. This lets the release PR pass before
+publication and keeps checks passing after the new tag becomes the latest.
+Existing generated projects retain their original starter baseline.
+
 ## Manual follow-up
 
 - After publishing, verify Drupal.org and Packagist show the Composer package license as `GPL-2.0-or-later`.
