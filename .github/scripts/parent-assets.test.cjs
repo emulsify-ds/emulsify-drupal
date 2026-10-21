@@ -6,7 +6,7 @@ const yaml = require('js-yaml');
 
 const root = path.resolve(__dirname, '../..');
 
-test('the parent build ships exactly the assets declared by Drupal libraries', () => {
+test('the parent build ships exactly the declared libraries and logo', () => {
   const libraries = yaml.load(fs.readFileSync(path.join(root, 'emulsify.libraries.yml'), 'utf8'));
   const declared = [];
   for (const library of Object.values(libraries)) {
@@ -18,6 +18,11 @@ test('the parent build ships exactly the assets declared by Drupal libraries', (
       declared.push(file);
     }
   }
+  const info = yaml.load(fs.readFileSync(path.join(root, 'emulsify.info.yml'), 'utf8'));
+  assert.equal(info.logo, 'assets/images/logo.svg');
+  const builtLogo = 'dist/components/images/logo.svg';
+  assert.deepEqual(fs.readFileSync(path.join(root, builtLogo)), fs.readFileSync(path.join(root, info.logo)), 'The built logo must match the declared source artwork');
+  declared.push(builtLogo);
   const dist = path.join(root, 'dist');
   const emitted = fs.readdirSync(dist, { recursive: true })
     .filter((file) => fs.statSync(path.join(dist, file)).isFile())
