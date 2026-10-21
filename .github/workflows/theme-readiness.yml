@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload stable9 parity report
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: stable9-template-parity-${{ matrix.artifact-suffix }}
           path: ${{ runner.temp }}/emulsify-template-parity.md
@@ -236,7 +236,7 @@ jobs:
 
       - name: Upload generated child theme smoke artifacts
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_inspect.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "generated-child-theme-smoke-${{ matrix.artifact-suffix }}"
           if-no-files-found: warn
@@ -280,7 +280,7 @@ jobs:
           printf 'PUPPETEER_EXECUTABLE_PATH=%s\n' "$chrome_path" >> "$GITHUB_ENV"
 
       - name: Cache Composer downloads
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/composer/files
           key: ${{ runner.os }}-emulsify-consumer-${{ hashFiles('composer.json', 'whisk/package.json', 'whisk/package-lock.json') }}
@@ -311,7 +311,7 @@ jobs:
 
       - name: Upload generated child theme extended artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generated-child-theme-storybook-a11y
           if-no-files-found: warn
