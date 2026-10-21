@@ -1,0 +1,133 @@
+{
+  "checkedAt": "2026-10-21T14:09:28.495Z",
+  "runtime": {
+    "php": "8.5.11",
+    "phpBinary": "/opt/homebrew/Cellar/php/8.5.11_1/bin/php",
+    "composer": "2.10.3",
+    "composerRootVersion": "7.2.2"
+  },
+  "manifestRanges": {
+    "composer": {
+      "drupal/core": "^11.3 || ^12",
+      "drupal/emulsify_tools": "^2.2"
+    }
+  },
+  "composerPolicy": {
+    "minimumStability": "dev",
+    "preferStable": true,
+    "pluginsEnabled": false,
+    "scriptsEnabled": false
+  },
+  "composerPackageCount": 66,
+  "composerInstalled": {
+    "asm89/stack-cors": "v2.4.0",
+    "composer/semver": "3.5.1",
+    "doctrine/lexer": "3.0.3",
+    "drupal/core": "11.4.11",
+    "drupal/core-composer-scaffold": "11.4.11",
+    "drupal/emulsify_tools": "2.2.2",
+    "egulias/email-validator": "4.0.4",
+    "guzzlehttp/guzzle": "7.16.0",
+    "guzzlehttp/promises": "2.6.0",
+    "guzzlehttp/psr7": "2.13.2",
+    "justinrainbow/json-schema": "6.13.1",
+    "marc-mabe/php-enum": "v4.7.2",
+    "masterminds/html5": "2.11.0",
+    "mck89/peast": "v1.18.1",
+    "pear/archive_tar": "1.6.1",
+    "pear/console_getopt": "v1.4.3",
+    "pear/pear_exception": "v1.0.2",
+    "pear/pear-core-minimal": "v1.10.18",
+    "php-tuf/composer-stager": "v2.1.1",
+    "psr/container": "2.0.2",
+    "psr/event-dispatcher": "1.0.0",
+    "psr/http-client": "1.0.3",
+    "psr/http-factory": "1.1.0",
+    "psr/http-message": "2.0",
+    "psr/log": "3.0.2",
+    "ralouphie/getallheaders": "3.0.3",
+    "revolt/event-loop": "v1.0.9",
+    "sebastian/diff": "7.0.1",
+    "symfony/console": "v7.4.21",
+    "symfony/dependency-injection": "v7.4.21",
+    "symfony/deprecation-contracts": "v3.7.1",
+    "symfony/error-handler": "v8.1.8",
+    "symfony/event-dispatcher": "v7.4.17",
+    "symfony/event-dispatcher-contracts": "v3.7.1",
+    "symfony/filesystem": "v7.4.21",
+    "symfony/finder": "v7.4.20",
+    "symfony/http-foundation": "v7.4.21",
+    "symfony/http-kernel": "v7.4.21",
+    "symfony/mailer": "v7.4.19",
+    "symfony/mime": "v7.4.19",
+    "symfony/polyfill-ctype": "v1.37.0",
+    "symfony/polyfill-deepclone": "v1.43.2",
+    "symfony/polyfill-iconv": "v1.43.0",
+    "symfony/polyfill-intl-grapheme": "v1.43.0",
+    "symfony/polyfill-intl-idn": "v1.43.0",
+    "symfony/polyfill-intl-normalizer": "v1.43.0",
+    "symfony/polyfill-mbstring": "v1.43.0",
+    "symfony/polyfill-php80": "v1.43.0",
+    "symfony/polyfill-php83": "v1.43.0",
+    "symfony/polyfill-php84": "v1.43.0",
+    "symfony/polyfill-php85": "v1.43.0",
+    "symfony/polyfill-php86": "v1.43.0",
+    "symfony/process": "v7.4.21",
+    "symfony/psr-http-message-bridge": "v7.4.21",
+    "symfony/routing": "v7.4.21",
+    "symfony/runtime": "v7.4.21",
+    "symfony/serializer": "v7.4.21",
+    "symfony/service-contracts": "v3.7.3",
+    "symfony/string": "v8.1.9",
+    "symfony/translation-contracts": "v3.7.1",
+    "symfony/validator": "v7.4.21",
+    "symfony/var-dumper": "v8.1.9",
+    "symfony/var-exporter": "v8.1.9",
+    "symfony/yaml": "v7.4.21",
+    "twig/html-extra": "v3.29.0",
+    "twig/twig": "v3.30.0"
+  },
+  "commandExitCodes": {
+    "update": 0,
+    "auditAttempts": [
+      100,
+      100,
+      100
+    ],
+    "validate": 0
+  },
+  "auditStatus": "unavailable",
+  "advisoryCount": null,
+  "abandonedPackageCount": null,
+  "auditFailureEndpoint": "https://packages.drupal.org/8/security-advisories",
+  "auditFailureHttpStatus": 503,
+  "isolatedInstallation": {
+    "directory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+    "lockfile": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg/composer.lock",
+    "lockfileSha256": "82f7ee7afbf3edac63acb71fca6f6f374aadc235823ab18a6f7d509aa1b0d29b",
+    "manifestSha256": "280e004111b8f2cb08515ead5e66cf8b3f5524a6ee1944e124b4251c670b6bcc",
+    "sourceManifestSha256": "280e004111b8f2cb08515ead5e66cf8b3f5524a6ee1944e124b4251c670b6bcc",
+    "sourceMetadataUnchanged": true,
+    "sourceLockfilePresent": false,
+    "sourceVendorDirectoryPresent": false
+  },
+  "commands": {
+    "update": {
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer update --no-interaction --no-plugins --no-scripts --prefer-dist",
+      "workingDirectory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+      "stdout": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg/update.stdout.log",
+      "stderr": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg/update.stderr.log"
+    },
+    "audit": {
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer audit --no-interaction --no-plugins --format=json",
+      "workingDirectory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+      "capture": "composer-audit-attempts.json"
+    },
+    "validate": {
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer validate --strict --no-check-publish",
+      "workingDirectory": "/Users/callinmullaney/Projects/emulsify-drupal",
+      "stdout": "./composer.json is valid\n",
+      "stderr": ""
+    }
+  }
+}

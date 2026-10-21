@@ -87,6 +87,7 @@ styling considerations.
 Run `npm run release:check -- --skip-smoke` for static validation and
 `npm run release:check` for the complete local gate. Use
 `npm run publish-test -- --no-ci` to review the analyzer's calculated release.
-The dated [dependency audit](./dependency-audit-2026-09-08.md) retains its
-recorded upstream browser-tooling advisory; its results are historical evidence,
-not a claim about a future dependency resolution.
+The dated [dependency audit](./dependency-audit-2026-10-21.md) records the root
+and fresh Whisk findings, upstream fix owners, and the unavailable Composer
+audit endpoint. Earlier audits remain history; results describe the recorded
+resolutions rather than future dependency trees.
