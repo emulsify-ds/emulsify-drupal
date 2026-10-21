@@ -10,7 +10,6 @@
  *   - below: The menu item child items.
  *   - title: The menu link title.
  *   - url: The menu link URL, instance of \Drupal\Core\Url
- *   - current_link_attributes: Attributes identifying the current page link.
  *   - localized_options: Menu link localized options.
  *   - is_expanded: TRUE if the link has visible children within the current
  *     menu tree.
@@ -37,7 +36,7 @@
     {% endif %}
     {% for item in items %}
       <li{{ item.attributes }}>
-        {{ link(item.title, item.url, item.current_link_attributes|default({})) }}
+        {{ link(item.title, item.url) }}
         {% if item.below %}
           {{ menus.menu_links(item.below, attributes, menu_level + 1) }}
         {% endif %}
