@@ -371,17 +371,15 @@ function extractYamlDependencyConstraint(contents, packageName) {
   return match[1].trim();
 }
 
-const FAVICON_SETTING_PREFIX = 'favicon_';
-
 function uniqueSorted(keys) {
   return [...new Set(keys)].sort();
 }
 
-function filterFaviconSettingKeys(keys) {
-  return uniqueSorted(keys.filter((key) => key.startsWith(FAVICON_SETTING_PREFIX)));
+function filterSettingKeys(keys, prefix) {
+  return uniqueSorted(keys.filter((key) => key.startsWith(prefix)));
 }
 
-function extractFaviconSchemaKeys(relativePath, schemaName) {
+function extractSettingSchemaKeys(relativePath, schemaName, prefix) {
   const lines = readFile(relativePath).split(/\r?\n/);
   const keys = [];
   let foundSchema = false;
@@ -411,7 +409,7 @@ function extractFaviconSchemaKeys(relativePath, schemaName) {
     }
 
     const keyMatch = line.match(/^ {4}([a-z0-9_]+):\s*$/);
-    if (keyMatch && keyMatch[1].startsWith(FAVICON_SETTING_PREFIX)) {
+    if (keyMatch && keyMatch[1].startsWith(prefix)) {
       keys.push(keyMatch[1]);
     }
   }
@@ -421,17 +419,17 @@ function extractFaviconSchemaKeys(relativePath, schemaName) {
   return uniqueSorted(keys);
 }
 
-function extractFaviconInstallKeys(relativePath) {
-  return filterFaviconSettingKeys([...readFile(relativePath).matchAll(/^([a-z0-9_]+):/gm)].map((match) => match[1]));
+function extractSettingInstallKeys(relativePath, prefix) {
+  return filterSettingKeys([...readFile(relativePath).matchAll(/^([a-z0-9_]+):/gm)].map((match) => match[1]), prefix);
 }
 
-function extractFaviconDefaultKeys(relativePath) {
+function extractSettingDefaultKeys(relativePath, prefix, className) {
   const contents = readFile(relativePath);
   const block = contents.match(/public const DEFAULTS = \[(.*?)\n  \];/s);
-  ensure(block, 'Unable to find FaviconSettings::DEFAULTS.');
+  ensure(block, `Unable to find ${className}::DEFAULTS.`);
   const keys = [...block[1].matchAll(/'([^']+)'\s*=>/g)].map((match) => match[1]);
-  const nonFaviconKeys = keys.filter((key) => !key.startsWith(FAVICON_SETTING_PREFIX));
-  ensure(nonFaviconKeys.length === 0, `FaviconSettings::DEFAULTS should contain only ${FAVICON_SETTING_PREFIX} keys. Found: ${nonFaviconKeys.join(', ')}.`);
+  const unexpectedKeys = keys.filter((key) => !key.startsWith(prefix));
+  ensure(unexpectedKeys.length === 0, `${className}::DEFAULTS should contain only ${prefix} keys. Found: ${unexpectedKeys.join(', ')}.`);
   return uniqueSorted(keys);
 }
 
@@ -463,7 +461,7 @@ function twigOutputReferencesPageRegion(template, region) {
   return outputTags.some((outputTag) => regionReferencePatterns.some((pattern) => pattern.test(outputTag)));
 }
 
-function compareFaviconSettingKeySets(label, keySets) {
+function compareSettingKeySets(label, keySets) {
   const issues = [];
   const { defaults, install, schema } = keySets;
 
@@ -474,7 +472,7 @@ function compareFaviconSettingKeySets(label, keySets) {
 
   const installExtraDefaults = keyDifference(install.keys, defaults.keys);
   if (installExtraDefaults.length > 0) {
-    issues.push(`${install.label} has extra favicon keys not in ${defaults.label}: ${formatKeys(installExtraDefaults)}.`);
+    issues.push(`${install.label} has extra settings keys not in ${defaults.label}: ${formatKeys(installExtraDefaults)}.`);
   }
 
   const schemaMissingDefaults = keyDifference(defaults.keys, schema.keys);
@@ -489,16 +487,16 @@ function compareFaviconSettingKeySets(label, keySets) {
 
   const schemaExtraDefaults = keyDifference(schema.keys, defaults.keys);
   if (schemaExtraDefaults.length > 0) {
-    issues.push(`${schema.label} has extra favicon keys not in ${defaults.label}: ${formatKeys(schemaExtraDefaults)}.`);
+    issues.push(`${schema.label} has extra settings keys not in ${defaults.label}: ${formatKeys(schemaExtraDefaults)}.`);
   }
 
   const schemaExtraInstall = keyDifference(schema.keys, install.keys);
   if (schemaExtraInstall.length > 0) {
-    issues.push(`${schema.label} has extra favicon keys not in ${install.label}: ${formatKeys(schemaExtraInstall)}.`);
+    issues.push(`${schema.label} has extra settings keys not in ${install.label}: ${formatKeys(schemaExtraInstall)}.`);
   }
 
   ensure(issues.length === 0, [
-    `Favicon settings key drift detected for ${label}.`,
+    `Theme settings key drift detected for ${label}.`,
     ...issues,
   ].join('\n'));
 }
@@ -587,6 +585,11 @@ function ensureFaviconSettingsFormDelegation() {
   ensure(faviconSettingsForm.includes('implements ContainerInjectionInterface'), 'FaviconSettingsForm must be container-creatable for Form API callbacks.');
   ensure(faviconSettingsForm.includes('public static function create(ContainerInterface $container): self'), 'FaviconSettingsForm must expose create() for class resolver construction.');
   ensure(faviconSettingsForm.includes("$container->get('lock')"), 'FaviconSettingsForm::create() must resolve the lock service explicitly.');
+  const mediaSettingsForm = readFile('src/Media/MediaEmbedSettingsForm.php');
+  ensure(themeSettingsHooks.includes('getInstanceFromDefinition(MediaEmbedSettingsForm::class)'), 'ThemeSettingsHooks must resolve MediaEmbedSettingsForm through the class resolver.');
+  ensure(!themeSettingsHooks.includes('private readonly MediaEmbedSettingsForm $'), 'ThemeSettingsHooks must not constructor-inject a non-service MediaEmbedSettingsForm.');
+  ensure(mediaSettingsForm.includes('implements ContainerInjectionInterface'), 'MediaEmbedSettingsForm must be container-creatable for Form API callbacks.');
+  ensure(mediaSettingsForm.includes('public static function create(ContainerInterface $container): self'), 'MediaEmbedSettingsForm must expose create() for class resolver construction.');
 }
 
 function ensureWhiskPackageScriptTargets(whiskPackage) {
@@ -1376,25 +1379,24 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Schema validity', () => {
-    const defaults = {
-      label: 'src/Favicon/FaviconSettings.php::DEFAULTS',
-      keys: extractFaviconDefaultKeys('src/Favicon/FaviconSettings.php'),
-    };
-
-    compareFaviconSettingKeySets('emulsify.settings', {
-      defaults,
-      install: { label: 'config/install/emulsify.settings.yml', keys: extractFaviconInstallKeys('config/install/emulsify.settings.yml') },
-      schema: { label: 'config/schema/emulsify.schema.yml emulsify.settings.mapping', keys: extractFaviconSchemaKeys('config/schema/emulsify.schema.yml', 'emulsify.settings') },
-    });
-
-    compareFaviconSettingKeySets('whisk.settings', {
-      defaults,
-      install: { label: 'whisk/config/install/whisk.settings.yml', keys: extractFaviconInstallKeys('whisk/config/install/whisk.settings.yml') },
-      schema: { label: 'whisk/config/schema/whisk.schema.yml whisk.settings.mapping', keys: extractFaviconSchemaKeys('whisk/config/schema/whisk.schema.yml', 'whisk.settings') },
-    });
-
-    const defaultKeys = defaults.keys;
-    return `Validated ${defaultKeys.length} favicon settings keys across defaults, install config, and schema files.`;
+    const counts = [];
+    for (const [source, className, prefix] of [
+      ['src/Favicon/FaviconSettings.php', 'FaviconSettings', 'favicon_'],
+      ['src/Media/MediaEmbedSettings.php', 'MediaEmbedSettings', 'media_embed_'],
+    ]) {
+      const defaults = { label: `${source}::DEFAULTS`, keys: extractSettingDefaultKeys(source, prefix, className) };
+      for (const [theme, directory] of [['emulsify', ''], ['whisk', 'whisk/']]) {
+        const install = `${directory}config/install/${theme}.settings.yml`;
+        const schema = `${directory}config/schema/${theme}.schema.yml`;
+        compareSettingKeySets(`${theme}.settings (${prefix})`, {
+          defaults,
+          install: { label: install, keys: extractSettingInstallKeys(install, prefix) },
+          schema: { label: `${schema} ${theme}.settings.mapping`, keys: extractSettingSchemaKeys(schema, `${theme}.settings`, prefix) },
+        });
+      }
+      counts.push(`${defaults.keys.length} ${prefix} settings keys`);
+    }
+    return `Validated ${counts.join(' and ')} across defaults, install config, and schema files.`;
   });
 }
 

@@ -26,3 +26,6 @@ favicon_manifest_display: standalone
 favicon_package_hash: ''
 favicon_package_path: ''
 favicon_package_generated_at: 0
+media_embed_privacy_mode: false
+media_embed_click_to_load: false
+media_embed_poster: provider

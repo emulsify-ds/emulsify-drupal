@@ -92,3 +92,12 @@ emulsify.settings:
     favicon_package_generated_at:
       type: integer
       label: 'Generated favicon package timestamp'
+    media_embed_privacy_mode:
+      type: boolean
+      label: 'Reduce YouTube and Vimeo player tracking'
+    media_embed_click_to_load:
+      type: boolean
+      label: 'Load video players only after a click'
+    media_embed_poster:
+      type: string
+      label: 'Video poster image source'

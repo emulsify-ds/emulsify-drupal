@@ -12,3 +12,8 @@ favicon_admin:
   dependencies:
     - core/drupal
     - core/once
+
+oembed_poster:
+  css:
+    theme:
+      dist/css/media/oembed-poster.css: { minified: true }

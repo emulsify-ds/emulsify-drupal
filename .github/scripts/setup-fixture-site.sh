@@ -95,7 +95,7 @@ if (!\Composer\Semver\Semver::satisfies($installed, $argv[1])) {
   --account-pass=admin \
   -y
 
-./vendor/bin/drush en emulsify_tools menu_link_content -y
+./vendor/bin/drush en emulsify_tools menu_link_content media -y
 ./vendor/bin/drush theme:enable emulsify -y
 ./vendor/bin/drush config:set system.theme default emulsify -y
 

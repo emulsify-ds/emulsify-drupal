@@ -320,6 +320,32 @@ describe its settings in config exports, optionally add these entries to the
       label: 'Social share image alternative text'
 ```
 
+### Optional media embed privacy and click to load
+
+The new **Media embeds** theme settings can reduce YouTube/Vimeo tracking or
+replace their players with a click-to-load poster. Both features are off by
+default. Choose a provider thumbnail or a neutral background; the thumbnail
+still makes a third-party image request before activation. Once the player
+loads, the provider receives visitor data. See [media embeds](./docs/media-embeds.md).
+
+Existing child themes inherit the feature. Overrides of
+`media-oembed-iframe.html.twig` must render `emulsify_oembed_poster` when present
+to get click to load, otherwise keep rendering `{{ media }}` inside the iframe
+document. Existing child schemas can optionally add these entries under the
+`mapping` for `<your_theme>.settings`:
+
+```yaml
+    media_embed_privacy_mode:
+      type: boolean
+      label: 'Reduce YouTube and Vimeo player tracking'
+    media_embed_click_to_load:
+      type: boolean
+      label: 'Load video players only after a click'
+    media_embed_poster:
+      type: string
+      label: 'Video poster image source'
+```
+
 ### Container and form template suggestions
 
 The parent theme now adds container suggestions by class, structural form path,

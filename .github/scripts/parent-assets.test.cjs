@@ -8,6 +8,8 @@ const root = path.resolve(__dirname, '../..');
 
 test('the parent build ships exactly the declared libraries and logo', () => {
   const libraries = yaml.load(fs.readFileSync(path.join(root, 'emulsify.libraries.yml'), 'utf8'));
+  assert.deepEqual(libraries.oembed_poster.css.theme, { 'dist/css/media/oembed-poster.css': { minified: true } });
+  assert.equal(libraries.oembed_poster.js, undefined, 'The iframe poster must work without a JavaScript placeholder');
   const declared = [];
   for (const library of Object.values(libraries)) {
     const assets = { ...Object.assign({}, ...Object.values(library.css ?? {})), ...library.js };

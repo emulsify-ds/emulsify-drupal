@@ -20,6 +20,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   cd "$fixture_dir"
   ./vendor/bin/drush php:script "$script_dir/select-options-smoke.php"
   ./vendor/bin/drush php:script "$script_dir/menu-current-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/oembed-embed-smoke.php"
 )
 
 # Allow callers to reuse an existing server URL, but default to a random local
