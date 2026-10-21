@@ -63,14 +63,30 @@ final class FaviconHeadBuilder {
     ], FALSE,
     ];
 
+    $theme_color_attributes = [
+      'name' => 'theme-color',
+      'content' => $theme_color,
+    ];
+    $dark_theme_color = (string) ($settings['favicon_dark_theme_color'] ?? '');
+    if ($dark_theme_color !== '') {
+      $theme_color_attributes['media'] = '(prefers-color-scheme: light)';
+    }
     $attachments['#attached']['html_head'][] = [[
       '#tag' => 'meta',
-      '#attributes' => [
-        'name' => 'theme-color',
-        'content' => $theme_color,
-      ],
+      '#attributes' => $theme_color_attributes,
     ], 'emulsify_favicon_theme_color',
     ];
+    if ($dark_theme_color !== '') {
+      $attachments['#attached']['html_head'][] = [[
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'theme-color',
+          'content' => $dark_theme_color,
+          'media' => '(prefers-color-scheme: dark)',
+        ],
+      ], 'emulsify_favicon_dark_theme_color',
+      ];
+    }
 
     if ($icon_name !== '') {
       $attachments['#attached']['html_head'][] = [[

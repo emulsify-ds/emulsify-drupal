@@ -1,6 +1,6 @@
 # Favicon Package Generation
 
-Emulsify 7.x generates a complete favicon package from one SVG source configured in the Drupal theme settings form for `emulsify` or a generated child theme.
+Emulsify 7.x generates a complete favicon package from a main SVG source and an optional dark-mode SVG configured in the Drupal theme settings form for `emulsify` or a generated child theme.
 
 ## Requirements
 
@@ -49,6 +49,7 @@ The hash is derived from the sanitized source SVG and favicon rendering settings
 Each generated package contains:
 
 - `favicon.svg`
+- `favicon-dark.svg` (only when a dark-mode option is enabled)
 - `favicon.ico`
 - `favicon-96x96.png`
 - `apple-touch-icon.png`
@@ -62,6 +63,41 @@ Each generated package contains:
 
 Do not manually edit generated package files. Change the source SVG or favicon settings, then regenerate the package so metadata, hash, and head attachments stay consistent.
 
+## Dark-mode browser tabs
+
+In **Browser favicon settings → Dark mode**, choose one of these treatments:
+
+- **None** keeps the main icon in both color schemes (the default).
+- **Invert** inverts the icon's RGB colors in dark mode while preserving its
+  transparency. This works best for single-color marks.
+- **Alternate icon** uses a separately uploaded SVG in dark mode. It has the
+  same upload limits, sanitizer, and diagnostics as the main icon. Its sanitized
+  portable copy is saved in config, and the managed upload lives under
+  `public://favicon-source/<theme_name>/dark`.
+
+Optionally enable **Use a different background in dark mode** and choose its
+color, or **Set a dark-mode browser theme color** and choose that color. An
+unchecked color option saves an empty value; it does not change the existing
+light color. A dark browser theme color emits separate light and dark
+`theme-color` metadata with matching color-scheme media attributes. The web app
+manifest continues to use the Android background color.
+
+These options store `favicon_dark_mode`, `favicon_dark_background_color`,
+`favicon_dark_theme_color`, `favicon_dark_source_fid`,
+`favicon_dark_source_svg`, and `favicon_dark_source_filename`. All are off or
+empty by default. Older generated themes receive these defaults from the
+parent even when their copied config schema predates these settings.
+
+Enabling a treatment or either dark color adds a generated
+`@media (prefers-color-scheme: dark)` rule to `favicon.svg` and writes
+`favicon-dark.svg`, which always shows the dark appearance. Chromium-based
+browsers and Firefox apply the SVG's dark-mode rule; other browsers show the
+light icon. See [color-scheme media queries in SVG](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme#embedded_elements).
+PNG, ICO, Apple, and Android icons keep their existing light appearance because
+those formats cannot follow the browser's color scheme. All defaults preserve
+the existing package hash, files, and head tags. **Reset to theme default** also
+clears the dark options and alternate icon.
+
 ## Saved package previews
 
 Admin previews show the enabled package referenced by saved theme settings, and
@@ -69,8 +105,10 @@ appear only when that managed package exists in the current environment. An
 uploaded SVG or portable SVG source alone does not produce a preview. Source
 and package diagnostics remain available when generation is needed.
 
-Browser previews use the same `favicon.svg` URL attached to the page head. The
-iOS preview uses its `apple-touch-icon.png` URL and saved iOS title. Android
+The Light tab preview uses the `favicon.svg` URL attached to the page head. The
+Dark tab preview uses the saved `favicon-dark.svg` when present, falling back to
+`favicon.svg` for older packages. Its dark appearance is independent of the
+administrator's own color scheme. The iOS preview uses its `apple-touch-icon.png` URL and saved iOS title. Android
 previews use the normal 192-pixel icon and the separate 512-pixel maskable icon
 from the saved manifest's package; the launcher label comes from that manifest.
 The generated files already contain their configured background and padding,

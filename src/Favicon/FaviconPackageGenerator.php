@@ -13,7 +13,7 @@ use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\file\Entity\File;
 
 /**
- * Generates favicon packages from a single uploaded SVG icon file.
+ * Generates favicon packages from SVG icon artwork.
  */
 final class FaviconPackageGenerator {
 
@@ -308,6 +308,11 @@ final class FaviconPackageGenerator {
     );
     $analysis = $this->validateSourceSvg($source_data, TRUE);
     $source_svg = (string) $analysis['sanitized_svg'];
+    $dark_analysis = $this->getDarkSourceAnalysis($normalized);
+    if ($dark_analysis !== NULL) {
+      $normalized['favicon_dark_source_svg'] = $dark_analysis['sanitized_svg'];
+    }
+    $has_dark_appearance = $this->hasDarkAppearance($normalized);
     $definition = $this->getPackageDefinition($theme_name, $normalized, $source_svg);
     $package_hash = $definition['hash'];
     $package_directory = $definition['path'];
@@ -335,13 +340,19 @@ final class FaviconPackageGenerator {
       $browser_padding = min($normalized['favicon_ios_padding'], $normalized['favicon_android_padding']);
       $this->writeBytes(
         $package_directory . '/favicon.svg',
-        $this->buildSvgFavicon(
+        $has_dark_appearance ? $this->buildDarkModeSvgFavicon($source_svg, $normalized, $browser_padding, FALSE) : $this->buildSvgFavicon(
           'image/svg+xml',
           $source_svg,
           $normalized['favicon_background_color'],
           $browser_padding,
         ),
       );
+      if ($has_dark_appearance) {
+        $this->writeBytes(
+          $package_directory . '/favicon-dark.svg',
+          $this->buildDarkModeSvgFavicon($source_svg, $normalized, $browser_padding, TRUE),
+        );
+      }
 
       $browser_png_32 = $this->renderPng(
         'image/svg+xml',
@@ -411,12 +422,24 @@ final class FaviconPackageGenerator {
         $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
       );
 
+      $metadata_settings = $normalized;
+      if (!$has_dark_appearance) {
+        // Preserve the exact legacy metadata when dark mode is not configured.
+        unset(
+          $metadata_settings['favicon_dark_mode'],
+          $metadata_settings['favicon_dark_background_color'],
+          $metadata_settings['favicon_dark_theme_color'],
+          $metadata_settings['favicon_dark_source_fid'],
+          $metadata_settings['favicon_dark_source_svg'],
+          $metadata_settings['favicon_dark_source_filename'],
+        );
+      }
       $metadata = [
         'theme' => $theme_name,
         'hash' => $package_hash,
         'generated_at' => $generated_at,
         'source' => $this->buildSourceMetadata($source, (string) $analysis['source_hash']),
-        'settings' => $normalized,
+        'settings' => $metadata_settings,
         'warnings' => $analysis['warnings'],
         'files' => [
           'favicon.svg',
@@ -429,6 +452,12 @@ final class FaviconPackageGenerator {
           'site.webmanifest',
         ],
       ];
+      if ($has_dark_appearance) {
+        $metadata['files'][] = 'favicon-dark.svg';
+      }
+      if ($dark_analysis !== NULL) {
+        $metadata['warnings'] = array_values(array_unique(array_merge($metadata['warnings'], $dark_analysis['warnings'])));
+      }
       $this->writeBytes(
         $package_directory . '/metadata.json',
         $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
@@ -607,7 +636,20 @@ final class FaviconPackageGenerator {
       $hash_settings['favicon_package_hash'],
       $hash_settings['favicon_package_path'],
       $hash_settings['favicon_package_generated_at'],
+      $hash_settings['favicon_dark_source_fid'],
+      $hash_settings['favicon_dark_source_svg'],
+      $hash_settings['favicon_dark_source_filename'],
     );
+    if (!$this->hasDarkAppearance($settings)) {
+      unset(
+        $hash_settings['favicon_dark_mode'],
+        $hash_settings['favicon_dark_background_color'],
+        $hash_settings['favicon_dark_theme_color'],
+      );
+    }
+    elseif ($settings['favicon_dark_mode'] === 'alternate') {
+      $hash_settings['favicon_dark_source_hash'] = $this->getDarkSourceAnalysis($settings)['source_hash'];
+    }
 
     return substr(hash('sha256', $this->encodeJson([
       'source_hash' => $source_hash,
@@ -707,6 +749,78 @@ SVG,
       $inset,
       $content_size,
       $content_size,
+    );
+  }
+
+  /**
+   * Indicates whether browser dark appearance has been configured.
+   */
+  private function hasDarkAppearance(array $settings): bool {
+    return ($settings['favicon_dark_mode'] ?? 'none') !== 'none'
+      || ($settings['favicon_dark_background_color'] ?? '') !== ''
+      || ($settings['favicon_dark_theme_color'] ?? '') !== '';
+  }
+
+  /**
+   * Revalidates portable alternate artwork before hashing or embedding it.
+   */
+  private function getDarkSourceAnalysis(array $settings): ?array {
+    if (($settings['favicon_dark_mode'] ?? 'none') !== 'alternate') {
+      return NULL;
+    }
+    $source_svg = trim((string) ($settings['favicon_dark_source_svg'] ?? ''));
+    if ($source_svg === '') {
+      throw new \InvalidArgumentException('Configure a dark-mode SVG source when using alternate artwork.');
+    }
+    return $this->validateSourceSvg($source_svg, FALSE);
+  }
+
+  /**
+   * Builds responsive browser artwork or its fixed dark preview.
+   */
+  private function buildDarkModeSvgFavicon(string $source_data, array $settings, int $padding, bool $fixed_dark): string {
+    $inset = (int) round(1024 * ($padding / 100));
+    $content_size = max(1, 1024 - ($inset * 2));
+    $dark_background = $settings['favicon_dark_background_color'] ?: $settings['favicon_background_color'];
+    $dark_rules = '.emulsify-favicon-background{fill:' . $dark_background . ';}';
+    $base_rules = '';
+    $definitions = '';
+    $dark_image = '';
+    if ($settings['favicon_dark_mode'] === 'invert') {
+      $definitions = '  <defs><filter id="emulsify-favicon-invert" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0"/></filter></defs>' . "\n";
+      $dark_rules .= '.emulsify-favicon-source{filter:url(#emulsify-favicon-invert);}';
+    }
+    elseif ($settings['favicon_dark_mode'] === 'alternate') {
+      $base_rules = '.emulsify-favicon-dark-source{display:none;}';
+      $dark_rules .= '.emulsify-favicon-source{display:none;}.emulsify-favicon-dark-source{display:inline;}';
+      $dark_image = sprintf(
+        '  <image class="emulsify-favicon-dark-source" href="data:image/svg+xml;base64,%s" x="%d" y="%d" width="%d" height="%d" preserveAspectRatio="xMidYMid meet"/>' . "\n",
+        base64_encode($settings['favicon_dark_source_svg']),
+        $inset,
+        $inset,
+        $content_size,
+        $content_size,
+      );
+    }
+    $style = $fixed_dark ? $dark_rules : $base_rules . '@media (prefers-color-scheme: dark){' . $dark_rules . '}';
+
+    return sprintf(
+      <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-hidden="true">
+  <style>%s</style>
+%s  <rect class="emulsify-favicon-background" width="1024" height="1024" rx="192" fill="%s"/>
+  <image class="emulsify-favicon-source" href="data:image/svg+xml;base64,%s" x="%d" y="%d" width="%d" height="%d" preserveAspectRatio="xMidYMid meet"/>
+%s</svg>
+SVG,
+      $style,
+      $definitions,
+      $settings['favicon_background_color'],
+      base64_encode($source_data),
+      $inset,
+      $inset,
+      $content_size,
+      $content_size,
+      $dark_image,
     );
   }
 

@@ -16,6 +16,14 @@
     'favicon_android_background_color',
     'favicon_android_padding',
     'favicon_source_fid[fids]',
+    'favicon_dark_mode',
+    'favicon_dark_background_enabled',
+    'favicon_dark_background_color',
+    'favicon_dark_theme_color_enabled',
+    'favicon_dark_theme_color',
+    'favicon_dark_source_fid[fids]',
+    'favicon_dark_source_svg',
+    'favicon_dark_source_filename',
   ];
 
   /**
@@ -107,12 +115,14 @@
       state[name] = typeof value === 'boolean' ? value : String(value).trim();
     });
 
-    const fileInput = form.querySelector(
-      'input[type="file"][name^="files[favicon_source_fid"]',
-    );
-    state.hasPendingFile = Boolean(
-      fileInput && fileInput.files && fileInput.files.length > 0,
-    );
+    ['favicon_source_fid', 'favicon_dark_source_fid'].forEach((name) => {
+      const fileInput = form.querySelector(
+        `input[type="file"][name^="files[${name}"]`,
+      );
+      state[`${name}PendingFile`] = Boolean(
+        fileInput && fileInput.files && fileInput.files.length > 0,
+      );
+    });
 
     return state;
   }
@@ -212,7 +222,7 @@
 
         form
           .querySelectorAll(
-            'input[type="file"][name^="files[favicon_source_fid"]',
+            'input[type="file"][name^="files[favicon_source_fid"], input[type="file"][name^="files[favicon_dark_source_fid"]',
           )
           .forEach((input) => {
             input.addEventListener('change', refresh);

@@ -254,6 +254,43 @@ drush cr
   Rebuild Drupal caches after changing library overrides. Parent `dist/` assets
   are shipped with the theme; this migration does not require a frontend build.
 
+### Optional dark-mode favicons
+
+The parent theme settings now offer an inverted or alternate SVG icon, a
+separate dark background, and a dark browser theme color. Everything is off by
+default, preserving existing packages and head tags. Enable the desired options
+under **Browser favicon settings → Dark mode** and save to regenerate. PNG,
+ICO, Apple, and Android output keeps its existing appearance. See
+[favicon generation](./docs/favicon-generation.md#dark-mode-browser-tabs).
+
+Existing generated themes inherit the feature even with their older config
+schema: the parent supplies missing defaults. To describe the new values in
+config exports, optionally copy these entries into the `mapping` under
+`<your_theme>.settings` in your theme's `config/schema/<your_theme>.schema.yml`:
+
+```yaml
+    favicon_dark_mode:
+      type: string
+      label: 'Dark-mode icon treatment'
+    favicon_dark_background_color:
+      type: string
+      label: 'Optional dark-mode icon background color'
+    favicon_dark_theme_color:
+      type: string
+      label: 'Optional dark-mode browser theme color'
+    favicon_dark_source_fid:
+      type: sequence
+      label: 'Dark-mode icon file IDs'
+      sequence:
+        type: integer
+    favicon_dark_source_svg:
+      type: text
+      label: 'Portable dark-mode SVG source markup'
+    favicon_dark_source_filename:
+      type: string
+      label: 'Dark-mode source SVG filename'
+```
+
 ### Container and form template suggestions
 
 The parent theme now adds container suggestions by class, structural form path,

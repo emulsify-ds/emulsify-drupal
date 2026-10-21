@@ -1158,6 +1158,7 @@ function runStaticChecks() {
       'Imagick',
       'public://favicon-package/<theme_name>/<package_hash>',
       'favicon.svg',
+      'favicon-dark.svg',
       'favicon.ico',
       'favicon-96x96.png',
       'apple-touch-icon.png',

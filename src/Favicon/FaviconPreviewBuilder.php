@@ -70,7 +70,9 @@ final class FaviconPreviewBuilder {
    */
   private function buildBrowserMarkup(array $settings, ?File $source_file): string {
     $source_url = Html::escape($this->resolvePreviewSourceUrl('browser', $settings, $source_file));
+    $dark_source_url = Html::escape($this->resolvePreviewSourceUrl('browser_dark', $settings, $source_file));
     $empty_class = $source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
+    $dark_empty_class = $dark_source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
 
     return sprintf(
       '<div class="emulsify-favicon-preview emulsify-favicon-preview--browser" data-favicon-preview-group="browser">'
@@ -98,8 +100,8 @@ final class FaviconPreviewBuilder {
       . '</div>',
       $empty_class,
       $source_url,
-      $empty_class,
-      $source_url,
+      $dark_empty_class,
+      $dark_source_url,
     );
   }
 
@@ -184,6 +186,7 @@ final class FaviconPreviewBuilder {
 
     $filename = match ($platform) {
       'browser' => 'favicon.svg',
+      'browser_dark' => is_file($package_path . '/favicon-dark.svg') ? 'favicon-dark.svg' : 'favicon.svg',
       'ios' => 'apple-touch-icon.png',
       'maskable' => 'web-app-manifest-512x512-maskable.png',
       default => 'web-app-manifest-192x192.png',

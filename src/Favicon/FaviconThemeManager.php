@@ -99,9 +99,33 @@ final class FaviconThemeManager {
    *   The resolved source context, or an empty array if no source exists.
    */
   public function resolveSourceContext(array $settings, bool $requires_rasterization): array {
-    $source_svg = FaviconSettings::getPortableSourceSvg($settings);
-    $source_filename = (string) ($settings['favicon_source_filename'] ?: 'favicon.svg');
-    $source_fid = FaviconSettings::getSourceFileId($settings);
+    return $this->resolveSourceContextForPrefix($settings, $requires_rasterization, 'favicon_source');
+  }
+
+  /**
+   * Resolves the optional alternate dark-mode source from managed file or config.
+   *
+   * @return array<string, mixed>
+   *   The resolved source context, or an empty array if no source exists.
+   */
+  public function resolveDarkSourceContext(array $settings, bool $requires_rasterization): array {
+    return $this->resolveSourceContextForPrefix($settings, $requires_rasterization, 'favicon_dark_source');
+  }
+
+  /**
+   * Resolves either source with the same validation and portable fallback rules.
+   *
+   * @return array<string, mixed>
+   *   The resolved source context, or an empty array if no source exists.
+   */
+  private function resolveSourceContextForPrefix(array $settings, bool $requires_rasterization, string $prefix): array {
+    $source_settings = [
+      'favicon_source_fid' => $settings[$prefix . '_fid'] ?? [],
+      'favicon_source_svg' => $settings[$prefix . '_svg'] ?? '',
+    ];
+    $source_svg = FaviconSettings::getPortableSourceSvg($source_settings);
+    $source_filename = (string) (($settings[$prefix . '_filename'] ?? '') ?: 'favicon.svg');
+    $source_fid = FaviconSettings::getSourceFileId($source_settings);
     $source_file = $source_fid ? File::load($source_fid) : NULL;
     if ($source_fid && !$source_file && $source_svg === '') {
       throw new \InvalidArgumentException('The uploaded icon file could not be loaded.');
@@ -176,7 +200,7 @@ final class FaviconThemeManager {
         $status['source_available'] = TRUE;
         $definition = $this->packageGenerator->getPackageDefinition(
           $theme_name,
-          $settings,
+          $this->resolveDarkSourceSettings($settings),
           $source_context['source_svg'],
         );
         $status['hash'] = $definition['hash'];
@@ -229,6 +253,8 @@ final class FaviconThemeManager {
     if ($source_context === []) {
       throw new \InvalidArgumentException(sprintf('No portable SVG source is available for theme %s.', $theme_name));
     }
+
+    $settings = $this->resolveDarkSourceSettings($settings);
 
     $definition = $this->packageGenerator->getPackageDefinition(
       $theme_name,
@@ -335,6 +361,23 @@ final class FaviconThemeManager {
     }
 
     return NULL;
+  }
+
+  /**
+   * Supplies the sanitized alternate source before hashing or generating files.
+   */
+  private function resolveDarkSourceSettings(array $settings): array {
+    if (($settings['favicon_dark_mode'] ?? 'none') !== 'alternate') {
+      return $settings;
+    }
+
+    $source_context = $this->resolveDarkSourceContext($settings, FALSE);
+    if ($source_context === []) {
+      throw new \InvalidArgumentException('Upload a dark-mode SVG icon before using an alternate dark-mode favicon.');
+    }
+    $settings['favicon_dark_source_svg'] = $source_context['source_svg'];
+    $settings['favicon_dark_source_filename'] = $source_context['source_filename'];
+    return $settings;
   }
 
   /**

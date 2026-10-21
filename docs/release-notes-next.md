@@ -7,6 +7,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Added
 
+- Optional dark-mode favicons can invert a single-color mark or use an alternate
+  SVG, with separate dark background and browser theme colors. Settings default
+  to off, preserving existing output. Saved previews show the generated dark
+  appearance. See [favicon generation](./favicon-generation.md#dark-mode-browser-tabs).
 - Generated themes include `AGENTS.md`, a Drupal integration guide, and an
   `emulsify-drupal-integration` skill. They discover the installed project's
   conventions while leaving component-library details to the selected library.

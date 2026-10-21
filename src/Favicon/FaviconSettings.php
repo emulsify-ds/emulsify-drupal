@@ -20,6 +20,12 @@ final class FaviconSettings {
     'favicon_source_fid' => [],
     'favicon_source_svg' => '',
     'favicon_source_filename' => '',
+    'favicon_dark_mode' => 'none',
+    'favicon_dark_background_color' => '',
+    'favicon_dark_theme_color' => '',
+    'favicon_dark_source_fid' => [],
+    'favicon_dark_source_svg' => '',
+    'favicon_dark_source_filename' => '',
     'favicon_background_color' => '#ffffff',
     'favicon_theme_color' => '#ffffff',
     'favicon_ios_background_color' => '#ffffff',
@@ -65,6 +71,14 @@ final class FaviconSettings {
     $normalized['favicon_source_fid'] = self::normalizeFileIds($normalized['favicon_source_fid']);
     $normalized['favicon_source_svg'] = trim((string) $normalized['favicon_source_svg']);
     $normalized['favicon_source_filename'] = trim((string) $normalized['favicon_source_filename']);
+    $normalized['favicon_dark_mode'] = in_array($normalized['favicon_dark_mode'], ['none', 'invert', 'alternate'], TRUE)
+      ? $normalized['favicon_dark_mode']
+      : 'none';
+    $normalized['favicon_dark_background_color'] = self::normalizeOptionalColor($normalized['favicon_dark_background_color']);
+    $normalized['favicon_dark_theme_color'] = self::normalizeOptionalColor($normalized['favicon_dark_theme_color']);
+    $normalized['favicon_dark_source_fid'] = self::normalizeFileIds($normalized['favicon_dark_source_fid']);
+    $normalized['favicon_dark_source_svg'] = trim((string) $normalized['favicon_dark_source_svg']);
+    $normalized['favicon_dark_source_filename'] = trim((string) $normalized['favicon_dark_source_filename']);
     $normalized['favicon_ios_padding'] = self::clampPadding($normalized['favicon_ios_padding']);
     $normalized['favicon_android_padding'] = self::clampPadding($normalized['favicon_android_padding']);
     $normalized['favicon_background_color'] = self::normalizeColor($normalized['favicon_background_color']);
@@ -200,6 +214,16 @@ final class FaviconSettings {
     }
 
     return '#ffffff';
+  }
+
+  /**
+   * Normalizes an optional hex color without enabling it for invalid input.
+   */
+  private static function normalizeOptionalColor(mixed $value): string {
+    $candidate = strtolower(trim((string) $value));
+    return preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/', $candidate)
+      ? self::normalizeColor($candidate)
+      : '';
   }
 
   /**
