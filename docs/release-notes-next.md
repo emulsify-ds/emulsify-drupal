@@ -54,6 +54,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Compatibility and validation
 
+- Parent assets moved to `dist/`; update child `libraries-override` path keys.
+  `emulsify/global` now supplies the 24px `:where()` target rule. See the
+  [asset migration and opt-out guidance](../UPGRADE.md#parent-changes-inherited-after-the-update).
 - Drupal and Tools minimums remain `^11.3 || ^12` and `^2.2`. Blocking CI now
   includes Drupal 11.4; Drupal 12 beta and `dev-main` remain advisory checks.
   Drupal 11.4's `vendor/bin/dr` is documented as experimental.

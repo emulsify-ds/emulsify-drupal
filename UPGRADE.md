@@ -1,30 +1,6 @@
 # Upgrade Guide
 
-## Unreleased: container and form template suggestions
-
-The parent theme now adds container suggestions by class, structural form path,
-Drupal selector, and ID; a shared Layout Builder form fallback; Views exposed
-outer-form suggestions by View and display; and an exposed-form suggestion for
-an individual configured block placement. Existing generated themes inherit
-these hooks after updating the parent and rebuilding Drupal caches. No copied
-starter-file changes or additional module dependencies are needed.
-
-Existing form-ID suggestions retain their `#id` fallback and empty/null
-behavior. The new shared Layout Builder suggestion comes before the exact
-form-ID suggestion; the new Views variants come after the generic exposed-form
-suggestion, with the block placement last. Drupal selects the last available
-candidate. See the [full precedence and filename examples](./docs/twig-hook-contract.md#template-suggestions)
-before adding overrides.
-
-If your child theme already implements the same suggestion hooks, both parent
-and child implementations run, with the child last. Review duplicate logic and
-ordering, particularly child hooks that append generic form suggestions after
-more specific parent suggestions. Existing templates matching the new
-candidates can start taking effect after the update. The
-`form--views-exposed-form--…` templates affect the outer `<form>`;
-`views-exposed-form--…` templates continue to control its inner filter layout.
-
-## Unreleased: copied Node and test guidance
+## Copied Node and test guidance: first shipped in 7.2.2 on Packagist; Drupal.org with 7.3.0
 
 The effective Node minimum for Emulsify Core 4.5.0 is 24.13.0, while
 Whisk still advertises `>=24`; no engine field is changed. The copied guides
@@ -88,7 +64,7 @@ index 01f15b6..992b108 100644
  - **Drupal cannot find project assets:** follow the selected component library's build and Drupal integration guidance, then confirm its declared outputs exist and its libraries are attached.
 ```
 
-## Unreleased: project Jest discovery and ESM
+## Project Jest discovery and ESM: first shipped in 7.2.2 on Packagist; Drupal.org with 7.3.0
 
 New child themes search their project root, execute native ESM, and report
 coverage for project JavaScript, including files that tests never import.
@@ -133,7 +109,7 @@ parent-theme update does not rewrite them.
 +};
 ```
 
-## Unreleased: preserve lint failures
+## Preserve lint failures: first shipped in 7.2.2 on Packagist; Drupal.org with 7.3.0
 
 Copied starter scripts now run every constituent check and fail if any check
 fails. Existing child themes can apply this `package.json` diff; updating the
@@ -254,6 +230,53 @@ drush cr
   have minimum pointer targets of 24px through a zero-specificity rule. Child
   themes can still set their presentation; check navigation and error-summary
   spacing after updating.
+- Parent library assets now live under `dist/`. Library names are unchanged;
+  update any child-theme `libraries-override` keys that replace or remove these
+  files, using paths relative to the parent theme:
+
+  | Library | Old path | New path |
+  | --- | --- | --- |
+  | `emulsify/global` | `css/theme/global.css` | `dist/css/theme/global.css` |
+  | `emulsify/favicon_admin` | `css/admin/favicon-preview.css` | `dist/css/admin/favicon-preview.css` |
+  | `emulsify/favicon_admin` | `js/admin/favicon-preview.js` | `dist/js/admin/favicon-preview.js` |
+
+  Drupal silently ignores overrides keyed to the old paths. The formerly empty
+  `emulsify/global` placeholder now loads real CSS: the `:where()` rule sets
+  24px minimum pointer targets for branding, local-task, pager, and form-error
+  summary links. To opt out of this parent rule, disable `emulsify/global` in
+  the child theme's `.info.yml`:
+
+  ```yaml
+  libraries-override:
+    emulsify/global: false
+  ```
+
+  Rebuild Drupal caches after changing library overrides. Parent `dist/` assets
+  are shipped with the theme; this migration does not require a frontend build.
+
+### Container and form template suggestions
+
+The parent theme now adds container suggestions by class, structural form path,
+Drupal selector, and ID; a shared Layout Builder form fallback; Views exposed
+outer-form suggestions by View and display; and an exposed-form suggestion for
+an individual configured block placement. Existing generated themes inherit
+these hooks after updating the parent and rebuilding Drupal caches. No copied
+starter-file changes or additional module dependencies are needed.
+
+Existing form-ID suggestions retain their `#id` fallback and empty/null
+behavior. The new shared Layout Builder suggestion comes before the exact
+form-ID suggestion; the new Views variants come after the generic exposed-form
+suggestion, with the block placement last. Drupal selects the last available
+candidate. See the [full precedence and filename examples](./docs/twig-hook-contract.md#template-suggestions)
+before adding overrides.
+
+If your child theme already implements the same suggestion hooks, both parent
+and child implementations run, with the child last. Review duplicate logic and
+ordering, particularly child hooks that append generic form suggestions after
+more specific parent suggestions. Existing templates matching the new
+candidates can start taking effect after the update. The
+`form--views-exposed-form--…` templates affect the outer `<form>`;
+`views-exposed-form--…` templates continue to control its inner filter layout.
 
 ### Fixes included from 7.2.2
 
@@ -266,7 +289,7 @@ Newly generated child themes also receive the copied tooling fixes from 7.2.2:
 audit output keeps machine-readable stdout; lint, fix, and format scripts
 propagate failures; Jest discovers project tests, executes native ESM, collects
 project coverage, and fails when no tests exist. Existing child projects keep
-their own scripts and configuration. The unnumbered sections above provide
+their own scripts and configuration. The 7.2.2 Packagist sections above provide
 optional adoption diffs; these are not additional required migration steps.
 
 ### Frontend tooling and validation
