@@ -1,0 +1,32 @@
+{
+    "youtube": {
+        "iframe": "<!DOCTYPE html>\n<html>\n  <head>\n    <css-placeholder token=\"fixed-oembed-placeholder-token\">\n  </head>\n  <body style=\"margin: 0\">\n    <iframe width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/abcdefghijk?feature=oembed\" title=\"YouTube fixture\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>\n  </body>\n</html>\n",
+        "formatter_attributes": {
+            "src": "https://fixture.example.test/media/oembed?url=https%3A//www.youtube.com/watch%3Fv%3Dabcdefghijk&max_width=640&max_height=360&hash=fixed-oembed-fixture-hash",
+            "scrolling": false,
+            "width": 640,
+            "height": 360,
+            "class": [
+                "media-oembed-content"
+            ],
+            "loading": "lazy",
+            "title": "YouTube fixture & \"title\""
+        },
+        "formatter": "<iframe src=\"https://fixture.example.test/media/oembed?url=https%3A//www.youtube.com/watch%3Fv%3Dabcdefghijk&amp;max_width=640&amp;max_height=360&amp;hash=fixed-oembed-fixture-hash\" width=\"640\" height=\"360\" class=\"media-oembed-content\" loading=\"lazy\" title=\"YouTube fixture &amp; &quot;title&quot;\"></iframe>\n"
+    },
+    "vimeo": {
+        "iframe": "<!DOCTYPE html>\n<html>\n  <head>\n    <css-placeholder token=\"fixed-oembed-placeholder-token\">\n  </head>\n  <body style=\"margin: 0\">\n    <iframe src=\"https://player.vimeo.com/video/123456789?app_id=122963\" width=\"640\" height=\"360\" frameborder=\"0\" title=\"Vimeo fixture\" allow=\"autoplay; fullscreen; picture-in-picture\" allowfullscreen></iframe>\n  </body>\n</html>\n",
+        "formatter_attributes": {
+            "src": "https://fixture.example.test/media/oembed?url=https%3A//vimeo.com/123456789&max_width=640&max_height=360&hash=fixed-oembed-fixture-hash",
+            "scrolling": false,
+            "width": 640,
+            "height": 360,
+            "class": [
+                "media-oembed-content"
+            ],
+            "loading": "lazy",
+            "title": "Vimeo fixture & \"title\""
+        },
+        "formatter": "<iframe src=\"https://fixture.example.test/media/oembed?url=https%3A//vimeo.com/123456789&amp;max_width=640&amp;max_height=360&amp;hash=fixed-oembed-fixture-hash\" width=\"640\" height=\"360\" class=\"media-oembed-content\" loading=\"lazy\" title=\"Vimeo fixture &amp; &quot;title&quot;\"></iframe>\n"
+    }
+}
