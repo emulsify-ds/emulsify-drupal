@@ -715,7 +715,7 @@ function runStaticChecks() {
     ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '11.4.*' && entry.experimental === false), 'Drupal 11.4 readiness coverage must be blocking.');
     ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.3'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
     ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.4'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
-    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '>=12.0.0-beta1 <12.0.0-RC1@beta' && entry['php-version'] === '8.5'), 'theme-readiness.yml should run Drupal 12 beta smoke checks on PHP 8.5.');
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '>=12.0.0-beta1 <12.0.0-RC1@beta' && entry['php-version'] === '8.5' && entry.experimental === false), 'Drupal 12 beta readiness coverage must be blocking on PHP 8.5.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
       ensure(readinessMatrix.some((entry) => entry['drupal-version'] === 'dev-main' && entry['php-version'] === '8.5' && entry.experimental === true), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
@@ -913,7 +913,8 @@ function runStaticChecks() {
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
       ensure(readme.includes('Drupal 12 forward compatibility'), 'README.md should describe Drupal 12 as forward-compatible.');
       ensure(readme.includes('Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.'), 'README.md should identify the blocking Drupal and PHP matrix coverage.');
-      ensure(readme.includes('Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks'), 'README.md should identify Drupal 12 beta and development branch checks as non-blocking.');
+      ensure(readme.includes('Drupal 12 beta readiness is blocking on PHP 8.5.'), 'README.md should identify blocking Drupal 12 beta coverage on PHP 8.5.');
+      ensure(readme.includes('`dev-main` remains an advisory compatibility check.'), 'README.md should identify development branch checks as advisory.');
     }
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');

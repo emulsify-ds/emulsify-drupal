@@ -9,8 +9,8 @@
 **Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components.
 
 Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
-Drupal 12 beta and `dev-main` jobs are non-blocking compatibility checks; they
-do not establish verified Drupal 12 support.
+Drupal 12 beta readiness is blocking on PHP 8.5.
+`dev-main` remains an advisory compatibility check.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 

@@ -49,13 +49,13 @@ jobs:
             drupal-version: '11.4.*'
             php-version: '8.3'
             experimental: false
-          # No beta is published as of 2026-09-11. Flip to blocking once beta1
-          # is out. Composer needs a range rather than the invalid beta* glob.
+          # Beta readiness is verified and blocking on PHP 8.5. Keep the
+          # development branch advisory and use a bounded Composer beta range.
           - label: Drupal 12 Beta
             artifact-suffix: drupal-12-beta-php-8-5
             drupal-version: '>=12.0.0-beta1 <12.0.0-RC1@beta'
             php-version: '8.5'
-            experimental: true
+            experimental: false
           - label: Drupal Dev Branch
             artifact-suffix: drupal-dev-main-php-8-5
             drupal-version: 'dev-main'
@@ -129,8 +129,10 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: php .github/scripts/twig-helper-contract.php /tmp/emulsify-fixture
 
+      # Published Paragraphs 1.23 supports Drupal 11, so keep this optional
+      # characterization on stable Drupal 11 legs.
       - name: Characterize Drupal hooks with test-only Paragraphs
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && !matrix.experimental }}
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && !matrix.experimental && startsWith(matrix.drupal-version, '11.') }}
         working-directory: /tmp/emulsify-fixture
         run: |
           composer require --dev --no-interaction --with-all-dependencies 'drupal/paragraphs:^1.23'
