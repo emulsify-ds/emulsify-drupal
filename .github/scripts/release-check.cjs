@@ -1159,6 +1159,7 @@ function runStaticChecks() {
       'public://favicon-package/<theme_name>/<package_hash>',
       'favicon.svg',
       'favicon-dark.svg',
+      'share-image.png',
       'favicon.ico',
       'favicon-96x96.png',
       'apple-touch-icon.png',

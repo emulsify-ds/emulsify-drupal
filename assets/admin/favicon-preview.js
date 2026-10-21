@@ -24,6 +24,10 @@
     'favicon_dark_source_fid[fids]',
     'favicon_dark_source_svg',
     'favicon_dark_source_filename',
+    'favicon_share_image_enabled',
+    'favicon_share_image_background_color',
+    'favicon_share_image_padding',
+    'favicon_share_image_alt',
   ];
 
   /**

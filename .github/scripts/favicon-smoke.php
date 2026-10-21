@@ -112,6 +112,7 @@ $generator = new FaviconPackageGenerator(
   \Drupal::service('lock'),
 );
 $settings = emulsify_favicon_smoke_load_settings($theme_name, $site_name);
+emulsify_favicon_smoke_assert($settings['favicon_share_image_enabled'] === FALSE, 'Existing favicon settings must keep social share image generation disabled by default.');
 $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
 $realpath = \Drupal::service('file_system')->realpath($definition['path']);
 if ($realpath && is_dir($realpath)) {
@@ -183,6 +184,7 @@ emulsify_favicon_smoke_assert($actual_files === $sorted_expected_files, 'The exi
 
 $metadata = json_decode(file_get_contents($realpath . '/metadata.json'), TRUE, 512, JSON_THROW_ON_ERROR);
 emulsify_favicon_smoke_assert(($metadata['files'] ?? NULL) === array_slice($expected_files, 0, -1), 'The existing favicon fixture metadata file list changed.');
+emulsify_favicon_smoke_assert(!is_file($realpath . '/share-image.png'), 'The existing favicon fixture must not generate a social image without opting in.');
 emulsify_favicon_smoke_assert(hash_file('sha256', $realpath . '/favicon.svg') === '49e60516a43d2137b2d7e396fb242c3d69de7de012d0bbd47ecb3fe6c970e526', 'The existing favicon fixture SVG bytes changed.');
 
 // Raster bytes vary between GD/Imagick versions; their dimensions are stable.

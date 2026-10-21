@@ -38,6 +38,18 @@ emulsify.settings:
     favicon_dark_source_filename:
       type: string
       label: 'Dark-mode source SVG filename'
+    favicon_share_image_enabled:
+      type: boolean
+      label: 'Enable generated social share image'
+    favicon_share_image_background_color:
+      type: string
+      label: 'Social share image background color'
+    favicon_share_image_padding:
+      type: integer
+      label: 'Social share image padding'
+    favicon_share_image_alt:
+      type: string
+      label: 'Social share image alternative text'
     favicon_background_color:
       type: string
       label: 'Icon background color'

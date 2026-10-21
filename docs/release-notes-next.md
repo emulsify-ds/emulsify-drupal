@@ -7,6 +7,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Added
 
+- An optional default social share image uses the configured favicon SVG to
+  generate a branded 1200 × 630 PNG and sharing metadata. Existing sharing tags,
+  including Metatag images, take precedence. See
+  [favicon generation](./favicon-generation.md#default-social-share-image).
 - Optional dark-mode favicons can invert a single-color mark or use an alternate
   SVG, with separate dark background and browser theme colors. Settings default
   to off, preserving existing output. Saved previews show the generated dark

@@ -283,6 +283,10 @@ final class FaviconThemeManager {
         'path' => $definition['path'],
         'generated_at' => (int) ($metadata['generated_at'] ?? 0),
       ];
+    if ($settings['favicon_package_hash'] !== $result['hash'] || $settings['favicon_package_path'] !== $result['path']) {
+      // Reusing an existing package can still change cached page attachments.
+      $this->cacheTagsInvalidator->invalidateTags(['rendered']);
+    }
 
     $updated_settings = FaviconSettings::normalize($settings, $this->getSiteName());
     $updated_settings['favicon_source_svg'] = $source_context['source_svg'];

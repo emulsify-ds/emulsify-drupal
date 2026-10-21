@@ -291,6 +291,35 @@ config exports, optionally copy these entries into the `mapping` under
       label: 'Dark-mode source SVG filename'
 ```
 
+### Optional social share image
+
+The favicon settings can also generate a default 1200 × 630 social share image
+from the main SVG, with its own background, padding, and alternative text.
+This is off by default. Existing `og:image`, `twitter:image`, or `twitter:card`
+metadata takes precedence, including images set through Metatag. Social sites
+cache previews, so deployed changes may take time to appear. See
+[default social share images](./docs/favicon-generation.md#default-social-share-image).
+
+Existing generated themes inherit the feature through parent defaults. To
+describe its settings in config exports, optionally add these entries to the
+`mapping` under `<your_theme>.settings` in
+`config/schema/<your_theme>.schema.yml`:
+
+```yaml
+    favicon_share_image_enabled:
+      type: boolean
+      label: 'Enable generated social share image'
+    favicon_share_image_background_color:
+      type: string
+      label: 'Social share image background color'
+    favicon_share_image_padding:
+      type: integer
+      label: 'Social share image padding'
+    favicon_share_image_alt:
+      type: string
+      label: 'Social share image alternative text'
+```
+
 ### Container and form template suggestions
 
 The parent theme now adds container suggestions by class, structural form path,

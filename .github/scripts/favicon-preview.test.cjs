@@ -42,11 +42,15 @@ function assertPreviewBehavior(behaviorSource) {
     'favicon_dark_source_fid[fids]': '',
     favicon_dark_source_svg: '',
     favicon_dark_source_filename: '',
+    favicon_share_image_enabled: '',
+    favicon_share_image_background_color: '#ffffff',
+    favicon_share_image_padding: '20',
+    favicon_share_image_alt: '',
   };
   const inputs = Object.fromEntries(Object.entries(names).map(([name, value]) => [name, element(value)]));
   inputs.favicon_package_enabled.type = 'checkbox';
   inputs.favicon_package_enabled.checked = true;
-  for (const name of ['favicon_dark_background_enabled', 'favicon_dark_theme_color_enabled']) {
+  for (const name of ['favicon_dark_background_enabled', 'favicon_dark_theme_color_enabled', 'favicon_share_image_enabled']) {
     inputs[name].type = 'checkbox';
     inputs[name].checked = false;
   }
@@ -100,7 +104,7 @@ function assertPreviewBehavior(behaviorSource) {
   inputs.favicon_android_background_color.dispatch('change');
   assert.equal(notice.hidden, true);
   assert.equal(button.value, 'Regenerate package');
-  for (const name of Object.keys(names).filter((name) => name.includes('favicon_dark_'))) {
+  for (const name of Object.keys(names).filter((name) => name.includes('favicon_dark_') || name.includes('favicon_share_image_'))) {
     const input = inputs[name];
     if (input.type === 'checkbox') input.checked = true;
     else input.value = `${input.value}changed`;

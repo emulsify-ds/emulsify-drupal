@@ -421,6 +421,19 @@ final class FaviconPackageGenerator {
         $package_directory . '/site.webmanifest',
         $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
       );
+      if ($normalized['favicon_share_image_enabled']) {
+        $this->writeBytes(
+          $package_directory . '/share-image.png',
+          $this->renderRectangularPng(
+            'image/svg+xml',
+            $source_svg,
+            1200,
+            630,
+            $normalized['favicon_share_image_background_color'],
+            $normalized['favicon_share_image_padding'],
+          ),
+        );
+      }
 
       $metadata_settings = $normalized;
       if (!$has_dark_appearance) {
@@ -432,6 +445,14 @@ final class FaviconPackageGenerator {
           $metadata_settings['favicon_dark_source_fid'],
           $metadata_settings['favicon_dark_source_svg'],
           $metadata_settings['favicon_dark_source_filename'],
+        );
+      }
+      if (!$normalized['favicon_share_image_enabled']) {
+        unset(
+          $metadata_settings['favicon_share_image_enabled'],
+          $metadata_settings['favicon_share_image_background_color'],
+          $metadata_settings['favicon_share_image_padding'],
+          $metadata_settings['favicon_share_image_alt'],
         );
       }
       $metadata = [
@@ -454,6 +475,9 @@ final class FaviconPackageGenerator {
       ];
       if ($has_dark_appearance) {
         $metadata['files'][] = 'favicon-dark.svg';
+      }
+      if ($normalized['favicon_share_image_enabled']) {
+        $metadata['files'][] = 'share-image.png';
       }
       if ($dark_analysis !== NULL) {
         $metadata['warnings'] = array_values(array_unique(array_merge($metadata['warnings'], $dark_analysis['warnings'])));
@@ -639,7 +663,15 @@ final class FaviconPackageGenerator {
       $hash_settings['favicon_dark_source_fid'],
       $hash_settings['favicon_dark_source_svg'],
       $hash_settings['favicon_dark_source_filename'],
+      $hash_settings['favicon_share_image_alt'],
     );
+    if (!$settings['favicon_share_image_enabled']) {
+      unset(
+        $hash_settings['favicon_share_image_enabled'],
+        $hash_settings['favicon_share_image_background_color'],
+        $hash_settings['favicon_share_image_padding'],
+      );
+    }
     if (!$this->hasDarkAppearance($settings)) {
       unset(
         $hash_settings['favicon_dark_mode'],
@@ -1292,11 +1324,18 @@ SVG,
    * Renders a source asset into a square PNG with padding.
    */
   private function renderPng(string $mime_type, string $source_data, int $size, string $background_color, int $padding): string {
-    $source_image = $this->createSourceImage($mime_type, $source_data, $size);
+    return $this->renderRectangularPng($mime_type, $source_data, $size, $size, $background_color, $padding);
+  }
+
+  /**
+   * Renders centered artwork with padding measured from the canvas height.
+   */
+  private function renderRectangularPng(string $mime_type, string $source_data, int $width, int $height, string $background_color, int $padding): string {
+    $source_image = $this->createSourceImage($mime_type, $source_data, max($width, $height));
     $source_width = imagesx($source_image);
     $source_height = imagesy($source_image);
 
-    $canvas = imagecreatetruecolor($size, $size);
+    $canvas = imagecreatetruecolor($width, $height);
     if ($canvas === FALSE) {
       throw new \RuntimeException('Unable to allocate the favicon canvas.');
     }
@@ -1305,16 +1344,16 @@ SVG,
     imagesavealpha($canvas, TRUE);
     [$red, $green, $blue] = $this->hexToRgb($background_color);
     $background = imagecolorallocatealpha($canvas, $red, $green, $blue, 0);
-    imagefilledrectangle($canvas, 0, 0, $size, $size, $background);
+    imagefilledrectangle($canvas, 0, 0, $width, $height, $background);
 
-    // All raster outputs share the same centering and padding rules so the
-    // browser, iOS, and Android assets stay visually aligned.
-    $inner_size = max(1, $size - (2 * (int) round($size * ($padding / 100))));
-    $scale = min($inner_size / $source_width, $inner_size / $source_height);
+    $inset = (int) round($height * ($padding / 100));
+    $inner_width = max(1, $width - (2 * $inset));
+    $inner_height = max(1, $height - (2 * $inset));
+    $scale = min($inner_width / $source_width, $inner_height / $source_height);
     $target_width = max(1, (int) round($source_width * $scale));
     $target_height = max(1, (int) round($source_height * $scale));
-    $target_x = (int) floor(($size - $target_width) / 2);
-    $target_y = (int) floor(($size - $target_height) / 2);
+    $target_x = (int) floor(($width - $target_width) / 2);
+    $target_y = (int) floor(($height - $target_height) / 2);
 
     imagealphablending($source_image, TRUE);
     imagecopyresampled(

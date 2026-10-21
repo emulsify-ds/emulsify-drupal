@@ -50,6 +50,7 @@ Each generated package contains:
 
 - `favicon.svg`
 - `favicon-dark.svg` (only when a dark-mode option is enabled)
+- `share-image.png` (only when the social share image is enabled)
 - `favicon.ico`
 - `favicon-96x96.png`
 - `apple-touch-icon.png`
@@ -98,6 +99,41 @@ those formats cannot follow the browser's color scheme. All defaults preserve
 the existing package hash, files, and head tags. **Reset to theme default** also
 clears the dark options and alternate icon.
 
+## Default social share image
+
+Enable **Social share image** in the favicon settings to generate a branded
+1200 × 630 PNG from the main sanitized SVG. Choose a background color and
+padding from 0–40%; padding is the percentage of the image's height kept clear
+on every edge. The icon stays centered and keeps its aspect ratio. Alternative
+text describes the image; leave it blank to use the current site name.
+
+The settings are `favicon_share_image_enabled` (off by default),
+`favicon_share_image_background_color` (white), `favicon_share_image_padding`
+(20%), and `favicon_share_image_alt` (empty). Enabling the feature adds
+`share-image.png` to the hashed package and its metadata file list. The source,
+background, and padding determine its URL; changing alternative text does not
+change the image or its hash. With the feature off, existing favicon output and
+head tags stay unchanged.
+
+For an enabled, existing favicon package containing that PNG, Emulsify adds:
+
+- Open Graph properties: `og:image`, `og:image:type`, `og:image:width`,
+  `og:image:height`, and `og:image:alt`.
+- X/Twitter metadata: `twitter:card` (`summary_large_image`), `twitter:image`,
+  and `twitter:image:alt`.
+
+Image URLs are absolute. These tags supply a default image for link previews
+on LinkedIn, Slack, Facebook, and X. If any module or other earlier attachment
+already supplies `og:image`, `twitter:image`, or `twitter:card`, Emulsify adds
+none of these sharing tags and leaves the existing sharing metadata intact.
+Sites whose Metatag configuration sets an image keep it.
+
+Social sites cache images, so changes can take a while to appear. Each image
+change creates a new package URL, but external caches may still need a refresh.
+After deploying to a public environment, check a page with
+[LinkedIn's Post Inspector](https://www.linkedin.com/post-inspector/) and
+[Facebook's Sharing Debugger](https://developers.facebook.com/tools/debug/).
+
 ## Saved package previews
 
 Admin previews show the enabled package referenced by saved theme settings, and
@@ -114,6 +150,11 @@ from the saved manifest's package; the launcher label comes from that manifest.
 The generated files already contain their configured background and padding,
 so the preview adds no second layer of either. Tab chrome and launcher masks
 provide viewing context; they are not additional favicon output.
+
+The social link-card preview shows the saved `share-image.png`, site name, and
+domain only when that enabled package contains the image. It represents the
+theme's default image; a social site may use a page-specific Metatag image
+instead.
 
 Changing unsaved colors, padding, labels, or the source upload leaves those
 previews unchanged. The pending-changes notice and generation controls indicate

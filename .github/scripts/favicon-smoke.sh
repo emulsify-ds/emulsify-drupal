@@ -40,4 +40,14 @@ node --test "$script_dir/favicon-preview.test.cjs"
   ./vendor/bin/drush emulsify_tools:favicon-status "$theme_name"
   EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_DARK_SETTINGS_MODE=assert-tools \
     ./vendor/bin/drush php:script "$script_dir/favicon-dark-settings-smoke.php"
+
+  ./vendor/bin/drush php:script "$script_dir/favicon-share-image-smoke.php"
+  EMULSIFY_FAVICON_THEME="$theme_name" \
+    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
+  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_SHARE_SETTINGS_MODE=prepare-tools \
+    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
+  ./vendor/bin/drush emulsify_tools:favicon-generate "$theme_name"
+  ./vendor/bin/drush emulsify_tools:favicon-status "$theme_name"
+  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_SHARE_SETTINGS_MODE=assert-tools \
+    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
 )

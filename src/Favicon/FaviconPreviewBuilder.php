@@ -7,12 +7,15 @@ namespace Drupal\emulsify\Favicon;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\Entity\File;
 
 /**
  * Builds lightweight admin previews for generated favicon packages.
  */
 final class FaviconPreviewBuilder {
+
+  use StringTranslationTrait;
 
   /**
    * The file URL generator.
@@ -62,6 +65,40 @@ final class FaviconPreviewBuilder {
 
     return [
       '#markup' => Markup::create($this->buildAndroidMarkup($settings, $source_file)),
+    ];
+  }
+
+  /**
+   * Builds a link-card preview from the saved generated share image.
+   */
+  public function buildSharePreview(array $settings): array {
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (empty($settings['favicon_package_enabled']) || empty($settings['favicon_share_image_enabled'])
+      || !FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))
+      || !is_file($package_path . '/metadata.json') || !is_file($package_path . '/share-image.png')) {
+      return [];
+    }
+
+    $site_name = (string) \Drupal::config('system.site')->get('name');
+    $alt = trim((string) ($settings['favicon_share_image_alt'] ?? ''));
+    if ($alt === '') {
+      $alt = $site_name;
+    }
+    $source_url = $this->fileUrlGenerator->generateString($package_path . '/share-image.png');
+    return [
+      '#markup' => Markup::create(sprintf(
+        '<div class="emulsify-favicon-preview emulsify-favicon-preview--share" data-favicon-preview-group="share">'
+        . '<p class="emulsify-favicon-preview__summary">%s</p>'
+        . '<figure class="emulsify-favicon-preview__card" data-preview-canvas="share" style="margin:0">'
+        . '<img src="%s" alt="%s" width="1200" height="630" style="max-width:100%%;height:auto" data-preview-image loading="lazy" />'
+        . '<figcaption><strong>%s</strong><br /><span>%s</span></figcaption>'
+        . '</figure></div>',
+        Html::escape((string) $this->t('This link card shows the saved generated share image. Save changes to update it.')),
+        Html::escape($source_url),
+        Html::escape($alt),
+        Html::escape($site_name),
+        Html::escape(\Drupal::request()->getHost()),
+      )),
     ];
   }
 

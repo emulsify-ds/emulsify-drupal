@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\emulsify\Favicon;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 
 /**
@@ -98,6 +99,57 @@ final class FaviconHeadBuilder {
       ], 'emulsify_favicon_ios_title',
       ];
     }
+    $this->applyShareImage($attachments, $settings);
+  }
+
+  /**
+   * Supplies fallback sharing metadata without overriding existing metadata.
+   */
+  private function applyShareImage(array &$attachments, array $settings): void {
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (empty($settings['favicon_package_enabled']) || empty($settings['favicon_share_image_enabled'])
+      || !FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))
+      || !is_file($package_path . '/metadata.json') || !is_file($package_path . '/share-image.png')) {
+      return;
+    }
+    foreach ($attachments['#attached']['html_head'] ?? [] as $item) {
+      $attributes = $item[0]['#attributes'] ?? [];
+      if (!is_array($attributes)) {
+        continue;
+      }
+      foreach ($attributes as $attribute => $value) {
+        if (in_array(strtolower((string) $attribute), ['name', 'property'], TRUE)
+          && is_scalar($value) && in_array(strtolower(trim((string) $value)), ['og:image', 'twitter:image', 'twitter:card'], TRUE)) {
+          return;
+        }
+      }
+    }
+
+    $url = $this->fileUrlGenerator->generateAbsoluteString($package_path . '/share-image.png');
+    $alt = trim((string) ($settings['favicon_share_image_alt'] ?? ''));
+    if ($alt === '') {
+      $alt = (string) \Drupal::config('system.site')->get('name');
+    }
+    foreach ([
+      ['property', 'og:image', $url],
+      ['property', 'og:image:type', 'image/png'],
+      ['property', 'og:image:width', '1200'],
+      ['property', 'og:image:height', '630'],
+      ['property', 'og:image:alt', $alt],
+      ['name', 'twitter:card', 'summary_large_image'],
+      ['name', 'twitter:image', $url],
+      ['name', 'twitter:image:alt', $alt],
+    ] as [$attribute, $name, $content]) {
+      $attachments['#attached']['html_head'][] = [[
+        '#tag' => 'meta',
+        '#attributes' => [$attribute => $name, 'content' => $content],
+      ], 'emulsify_favicon_share_' . str_replace(':', '_', $name),
+      ];
+    }
+    CacheableMetadata::createFromRenderArray($attachments)
+      ->addCacheTags(['config:' . basename(dirname($package_path)) . '.settings', 'config:system.site'])
+      ->addCacheContexts(['url.site'])
+      ->applyTo($attachments);
   }
 
   /**

@@ -8,6 +8,10 @@ favicon_dark_theme_color: ''
 favicon_dark_source_fid: []
 favicon_dark_source_svg: ''
 favicon_dark_source_filename: ''
+favicon_share_image_enabled: false
+favicon_share_image_background_color: '#ffffff'
+favicon_share_image_padding: 20
+favicon_share_image_alt: ''
 favicon_background_color: '#ffffff'
 favicon_theme_color: '#ffffff'
 favicon_ios_background_color: '#ffffff'

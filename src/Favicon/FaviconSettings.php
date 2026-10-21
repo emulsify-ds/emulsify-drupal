@@ -26,6 +26,10 @@ final class FaviconSettings {
     'favicon_dark_source_fid' => [],
     'favicon_dark_source_svg' => '',
     'favicon_dark_source_filename' => '',
+    'favicon_share_image_enabled' => FALSE,
+    'favicon_share_image_background_color' => '#ffffff',
+    'favicon_share_image_padding' => 20,
+    'favicon_share_image_alt' => '',
     'favicon_background_color' => '#ffffff',
     'favicon_theme_color' => '#ffffff',
     'favicon_ios_background_color' => '#ffffff',
@@ -79,6 +83,10 @@ final class FaviconSettings {
     $normalized['favicon_dark_source_fid'] = self::normalizeFileIds($normalized['favicon_dark_source_fid']);
     $normalized['favicon_dark_source_svg'] = trim((string) $normalized['favicon_dark_source_svg']);
     $normalized['favicon_dark_source_filename'] = trim((string) $normalized['favicon_dark_source_filename']);
+    $normalized['favicon_share_image_enabled'] = (bool) $normalized['favicon_share_image_enabled'];
+    $normalized['favicon_share_image_background_color'] = self::normalizeOptionalColor($normalized['favicon_share_image_background_color']) ?: '#ffffff';
+    $normalized['favicon_share_image_padding'] = self::clampPadding($normalized['favicon_share_image_padding']);
+    $normalized['favicon_share_image_alt'] = trim((string) $normalized['favicon_share_image_alt']);
     $normalized['favicon_ios_padding'] = self::clampPadding($normalized['favicon_ios_padding']);
     $normalized['favicon_android_padding'] = self::clampPadding($normalized['favicon_android_padding']);
     $normalized['favicon_background_color'] = self::normalizeColor($normalized['favicon_background_color']);
