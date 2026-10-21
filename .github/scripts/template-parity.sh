@@ -11,28 +11,27 @@ if [ "$#" -lt 2 ]; then
   exit 1
 fi
 
-fixture_dir="$1"
-repo_root="$2"
+fixture_dir="$(cd "$1" && pwd -P)"
+repo_root="$(cd "$2" && pwd -P)"
 report_file="${3:-}"
 stable9_templates_dir="${fixture_dir}/web/core/themes/stable9/templates"
+contrib_stable9_templates_dir="${fixture_dir}/web/themes/contrib/stable9/templates"
 repo_templates_dir="${repo_root}/templates"
 whisk_templates_dir="${repo_root}/whisk/templates"
-stable9_list="$(mktemp)"
-repo_list="$(mktemp)"
-exact_matches_list="$(mktemp)"
-modified_matches_list="$(mktemp)"
-emulsify_only_list="$(mktemp)"
+composer_bin="${COMPOSER_BIN:-composer}"
+stable9_source="Drupal core"
+stable9_list="$(mktemp "${TMPDIR:-/tmp}/emulsify-stable9.XXXXXX")"
+repo_list="$(mktemp "${TMPDIR:-/tmp}/emulsify-templates.XXXXXX")"
+exact_matches_list="$(mktemp "${TMPDIR:-/tmp}/emulsify-exact.XXXXXX")"
+modified_matches_list="$(mktemp "${TMPDIR:-/tmp}/emulsify-modified.XXXXXX")"
+emulsify_only_list="$(mktemp "${TMPDIR:-/tmp}/emulsify-only.XXXXXX")"
+composer_output="$(mktemp "${TMPDIR:-/tmp}/emulsify-composer.XXXXXX")"
 
 cleanup() {
-  rm -f "$stable9_list" "$repo_list" "$exact_matches_list" "$modified_matches_list" "$emulsify_only_list"
+  rm -f "$stable9_list" "$repo_list" "$exact_matches_list" "$modified_matches_list" "$emulsify_only_list" "$composer_output"
 }
 
 trap cleanup EXIT
-
-if [ ! -d "$stable9_templates_dir" ]; then
-  echo "Unable to locate stable9 templates in the fixture." >&2
-  exit 1
-fi
 
 if [ ! -d "$repo_templates_dir" ]; then
   echo "Unable to locate the repo templates directory." >&2
@@ -61,11 +60,57 @@ if [ -d "$whisk_templates_dir" ]; then
   done < <(find "$whisk_templates_dir" -type f -print0)
 fi
 
+if [ ! -d "$stable9_templates_dir" ]; then
+  stable9_templates_dir="$contrib_stable9_templates_dir"
+  stable9_source="Contrib drupal/stable9"
+fi
+if [ ! -d "$stable9_templates_dir" ]; then
+  # Only the disposable site may acquire this comparison baseline. Keep the
+  # fixture's core/platform constraints intact while Composer finds a release.
+  case "${fixture_dir}/" in
+    "${repo_root}/"*)
+      echo "Stable9 fallback installation requires a disposable fixture outside the source checkout." >&2
+      exit 1
+      ;;
+  esac
+  composer_status=0
+  (
+    cd "$fixture_dir" || exit 1
+    "$composer_bin" require --dev --no-interaction --prefer-dist --with-all-dependencies 'drupal/stable9:*@stable'
+  ) >"$composer_output" 2>&1 || composer_status="$?"
+  if [ "$composer_status" -eq 0 ]; then
+    cat "$composer_output"
+  else
+    cat "$composer_output" >&2
+  fi
+  if [ "$composer_status" -eq 2 ]; then
+    skip_message="SKIP Stable9 template parity: no stable contrib drupal/stable9 release resolves under this fixture's dependency and platform constraints. Whisk-to-parent template checks passed; baseline coverage was not verified."
+    echo "$skip_message"
+    if [ -n "$report_file" ]; then
+      mkdir -p "$(dirname "$report_file")"
+      printf '# Stable9 template parity report\n\n%s\n' "$skip_message" >"$report_file"
+    fi
+    exit 0
+  elif [ "$composer_status" -ne 0 ]; then
+    echo "Stable9 baseline installation failed with Composer status ${composer_status}." >&2
+    exit "$composer_status"
+  fi
+  if [ ! -d "$stable9_templates_dir" ]; then
+    echo "Composer succeeded but contrib stable9 templates are missing at ${stable9_templates_dir}." >&2
+    exit 1
+  fi
+fi
+
 # Compare sorted basenames for coverage and retain repo paths for reporting.
 (
   cd "$stable9_templates_dir"
   find . -type f -name '*.html.twig' | sed 's#.*/##' | sort -u
 ) >"$stable9_list"
+
+if [ ! -s "$stable9_list" ]; then
+  echo "The stable9 baseline contains no .html.twig templates." >&2
+  exit 1
+fi
 
 (
   cd "$repo_templates_dir"
@@ -100,6 +145,7 @@ if [ -n "$report_file" ]; then
   {
     echo "# Stable9 template parity report"
     echo
+    echo "- Stable9 source: ${stable9_source}"
     echo "- Stable9 templates covered: $(wc -l <"$stable9_list" | tr -d ' ')"
     echo "- Exact baseline copies: $(wc -l <"$exact_matches_list" | tr -d ' ')"
     echo "- Modified relative to stable9: $(wc -l <"$modified_matches_list" | tr -d ' ')"

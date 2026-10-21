@@ -37,6 +37,16 @@ cd "$fixture_dir"
 # fixture behavior explicit so CI tests the requested matrix version.
 "$composer_bin" config --no-interaction audit.block-insecure false
 
+# Prerelease core and Drush dependencies may still need development builds.
+# Set the disposable fixture's policy before resolving anything, while stable
+# matrix legs retain the project template's stable dependency policy.
+case "$drupal_version" in
+  *dev*|*alpha*|*beta*|*RC*|*rc*)
+    "$composer_bin" config --no-interaction minimum-stability dev
+    "$composer_bin" config --no-interaction prefer-stable true
+    ;;
+esac
+
 # The project template uses caret ranges that can install a newer Drupal minor.
 # Pin its core packages to the matrix constraint before resolving dependencies so
 # every leg tests the requested minor or prerelease, including after Drush adds
@@ -48,15 +58,11 @@ cd "$fixture_dir"
   "drupal/core-recipe-unpack:${drupal_version}"
 "$composer_bin" update --no-interaction --no-audit --no-security-blocking
 
-# Drupal 12's Symfony 8 and Guzzle 8 dependencies require Drush 14. Until Drush
-# 14 and its dependencies have stable releases, allow their development builds
-# only in this disposable fixture; prefer tagged releases when available.
+# Drupal 12's Symfony 8 and Guzzle 8 dependencies require Drush 14.
 drush_constraint="^13"
 core_major="$(php -r 'require "vendor/autoload.php"; echo explode(".", \Drupal::VERSION)[0];')"
 if [ "$core_major" -ge 12 ]; then
   drush_constraint="^14"
-  "$composer_bin" config --no-interaction minimum-stability dev
-  "$composer_bin" config --no-interaction prefer-stable true
 fi
 
 # Copy the current checkout into the fixture as a contrib theme. This avoids
@@ -125,12 +131,13 @@ if (!$storage->load("page")) {
 }
 
 // Drupal 11.4+ standard profiles can omit the page body field as well as the
-// bundle. Seed real renderable content using APIs that remain in Drupal 12.
+// bundle. The fixture needs no summary; text_long also exists in Drupal 12,
+// which removed text_with_summary.
 if (!FieldStorageConfig::loadByName("node", "body")) {
   FieldStorageConfig::create([
     "entity_type" => "node",
     "field_name" => "body",
-    "type" => "text_with_summary",
+    "type" => "text_long",
   ])->save();
 }
 if (!FieldConfig::loadByName("node", "page", "body")) {

@@ -184,13 +184,24 @@ function runSmokeCheck(name, command, argsList, cwd, options = {}) {
     cwd,
     encoding: 'utf8',
     env: { ...process.env, ...(options.env || {}) },
-    stdio: 'inherit',
+    stdio: options.skipPrefix ? 'pipe' : 'inherit',
   });
+
+  if (options.skipPrefix) {
+    process.stdout.write(result.stdout || '');
+    process.stderr.write(result.stderr || '');
+  }
 
   if (result.status !== 0) {
     const status = options.warnOnly ? 'WARN' : 'FAIL';
     addResult(status, name, options.failMessage || `${command} ${argsList.join(' ')} exited with status ${result.status}.`);
     return false;
+  }
+
+  const skip = options.skipPrefix && result.stdout.split(/\r?\n/).find((line) => line.startsWith(options.skipPrefix));
+  if (skip) {
+    addResult('SKIP', name, skip.slice(options.skipPrefix.length));
+    return true;
   }
 
   addResult('PASS', name, options.passMessage || 'Completed successfully.');
@@ -1447,7 +1458,10 @@ function runSmokeChecks() {
     'bash',
     [path.join(repoRoot, '.github/scripts/template-parity.sh'), baseFixture, repoRoot],
     repoRoot,
-    { passMessage: 'Verified that Emulsify covers every stable9 template basename without declaring stable9 as the parent theme.' },
+    {
+      skipPrefix: 'SKIP Stable9 template parity: ',
+      passMessage: 'Verified that Emulsify covers every stable9 template basename without declaring stable9 as the parent theme.',
+    },
   );
 
   runSmokeCheck(
