@@ -751,7 +751,7 @@ SVG,
       $declared_dimensions = $this->extractDeclaredDimensions($root);
     }
 
-    // Inspect attributes before unwrapping links or removing editor metadata so
+    // Inspect attributes before converting links or removing editor metadata so
     // unsafe attributes on those elements still produce a security warning.
     $removed_attributes = $this->stripDisallowedSvgAttributes($document);
     $removed_nodes = $this->stripDisallowedSvgNodes($document);
@@ -1006,6 +1006,10 @@ SVG,
   private function stripDisallowedSvgNodes(\DOMDocument $document): array {
     $removable = [];
     $removed_counts = ['unsafe' => 0, 'metadata' => 0];
+    foreach ((new \DOMXPath($document))->query('//processing-instruction()') as $instruction) {
+      $removable[] = [$instruction, FALSE];
+      $removed_counts['unsafe']++;
+    }
     foreach ($document->getElementsByTagName('*') as $element) {
       $tag_name = strtolower($element->localName ?? $element->nodeName);
       $is_svg = in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE);
@@ -1027,7 +1031,17 @@ SVG,
 
     foreach ($removable as [$element, $unwrap]) {
       if ($element->parentNode) {
-        if ($unwrap) {
+        if ($unwrap && strtolower($element->localName ?? $element->nodeName) === 'a') {
+          $group = $document->createElementNS($element->namespaceURI, 'g');
+          foreach ($element->attributes as $attribute) {
+            $group->setAttributeNodeNS(clone $attribute);
+          }
+          while ($element->firstChild) {
+            $group->appendChild($element->firstChild);
+          }
+          $element->parentNode->insertBefore($group, $element);
+        }
+        elseif ($unwrap) {
           while ($element->firstChild) {
             $element->parentNode->insertBefore($element->firstChild, $element);
           }
@@ -1048,6 +1062,7 @@ SVG,
   private function stripDisallowedSvgAttributes(\DOMDocument $document): array {
     $removed_counts = ['unsafe' => 0, 'metadata' => 0];
     foreach ($document->getElementsByTagName('*') as $element) {
+      $is_link = strtolower($element->localName ?? $element->nodeName) === 'a';
       $attributes = [];
       if ($element->hasAttributes()) {
         foreach ($element->attributes as $attribute) {
@@ -1056,7 +1071,9 @@ SVG,
       }
 
       foreach ($attributes as $attribute) {
-        $name = strtolower($attribute->localName ?? $attribute->nodeName);
+        // DOM can keep undeclared prefixes in localName; inspect the last part.
+        $name_parts = explode(':', strtolower($attribute->nodeName));
+        $name = end($name_parts);
         $value = trim((string) $attribute->nodeValue);
 
         if (str_starts_with($name, 'on')) {
@@ -1065,7 +1082,8 @@ SVG,
           continue;
         }
 
-        if ($name === 'style' || $this->svgAttributeContainsCssImport($value) || $this->svgAttributeHasUnsafeCssUrl($value)) {
+        $css_value = $this->decodeSvgCssEscapes($value);
+        if ($name === 'style' || $this->svgAttributeContainsCssImport($css_value) || $this->svgAttributeHasUnsafeCssUrl($css_value)) {
           $element->removeAttributeNode($attribute);
           $removed_counts['unsafe']++;
           continue;
@@ -1080,11 +1098,38 @@ SVG,
         if (in_array($attribute->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
           $element->removeAttributeNode($attribute);
           $removed_counts['metadata']++;
+          continue;
+        }
+
+        if ($is_link && in_array($name, [
+          'href', 'target', 'download', 'ping', 'rel', 'hreflang', 'type', 'referrerpolicy',
+        ], TRUE)) {
+          $element->removeAttributeNode($attribute);
         }
       }
     }
 
     return $removed_counts;
+  }
+
+  /**
+   * Decodes CSS escapes for checks without rewriting safe attribute values.
+   */
+  private function decodeSvgCssEscapes(string $value): string {
+    return preg_replace_callback(
+      '/\\\\(?:([0-9a-f]{1,6})(?:\r\n|[ \t\r\n\f])?|([^\r\n\f])|\r\n|[\r\n\f])/i',
+      static function (array $matches): string {
+        if (($matches[1] ?? '') === '') {
+          return $matches[2] ?? '';
+        }
+        $codepoint = (int) hexdec($matches[1]);
+        if ($codepoint === 0 || $codepoint > 0x10FFFF || ($codepoint >= 0xD800 && $codepoint <= 0xDFFF)) {
+          return "\u{FFFD}";
+        }
+        return mb_chr($codepoint, 'UTF-8');
+      },
+      $value,
+    ) ?? $value;
   }
 
   /**

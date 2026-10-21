@@ -158,6 +158,11 @@ function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generato
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], 'href="#mark"'), 'Symbol/use references should be preserved.');
   emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Local symbol/use references should not trigger an unsafe-markup warning.');
 
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><use xmlns:x="http://www.w3.org/1999/xlink" x:href="#mark"/></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:use/@*[local-name()="href" and namespace-uri()="http://www.w3.org/1999/xlink" and .="#mark"])') === 1.0, 'Local xlink references should survive when an alternate namespace prefix is used.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Alternate-prefix local references should not trigger an unsafe-markup warning.');
+
   $analysis = $generator->validateSourceSvg($gradients, FALSE);
   emulsify_favicon_assert(str_contains((string) $analysis['sanitized_svg'], 'linearGradient'), 'Inline gradients should be preserved.');
 
@@ -193,12 +198,34 @@ SVG;
   $analysis = $generator->validateSourceSvg($linked, FALSE);
   $xpath = emulsify_favicon_sanitized_xpath($analysis);
   $shape_ids = [];
-  foreach ($xpath->query('/svg:svg/svg:rect | /svg:svg/svg:circle | /svg:svg/svg:path') as $shape) {
+  foreach ($xpath->query('/svg:svg//svg:rect | /svg:svg//svg:circle | /svg:svg//svg:path') as $shape) {
     $shape_ids[] = $shape->getAttribute('id');
   }
-  emulsify_favicon_assert($shape_ids === ['background', 'mark', 'detail', 'foreground'], 'Unwrapping nested link and switch elements should preserve every shape in drawing order.');
-  emulsify_favicon_assert($xpath->evaluate('count(//svg:a | //svg:switch)') === 0.0, 'Links and nested switches should be unwrapped.');
+  emulsify_favicon_assert($shape_ids === ['background', 'mark', 'detail', 'foreground'], 'Converting links and unwrapping switches should preserve every shape in drawing order.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:a | //svg:switch)') === 0.0, 'Link and switch semantics should be removed.');
   emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Local artwork links should not trigger an unsafe-markup warning.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><a href="#" transform="translate(5,5)" fill="red"><rect/></a></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:g[@transform="translate(5,5)" and @fill="red"]/svg:rect[not(@*)])') === 1.0, 'Link conversion should preserve the group transform, inherited fill, and child artwork.');
+  emulsify_favicon_assert($xpath->evaluate('count(//svg:a | //svg:g/@href)') === 0.0, 'Styled link conversion should remove the anchor and its href.');
+
+  $grouped_link = <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">
+  <a id="styled-link" class="icon-layer" opacity=".5" stroke="black" stroke-width="2" clip-path="url(#clip)" mask="url(#mask)" filter="url(#filter)" role="img" aria-label="mark" href="#mark" xlink:href="#mark" target="_blank" download="icon.svg" ping="https://example.com/ping" rel="nofollow" hreflang="en" type="image/svg+xml" referrerpolicy="no-referrer" onclick="alert(1)" style="fill:blue"><rect width="10" height="10"/></a>
+</svg>
+SVG;
+  $analysis = $generator->validateSourceSvg($grouped_link, FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  $group = $xpath->query('/svg:svg/svg:g[@id="styled-link"]')->item(0);
+  emulsify_favicon_assert($group instanceof \DOMElement, 'Links should become groups rather than lose their wrapper attributes.');
+  foreach (['class' => 'icon-layer', 'opacity' => '.5', 'stroke' => 'black', 'stroke-width' => '2', 'clip-path' => 'url(#clip)', 'mask' => 'url(#mask)', 'filter' => 'url(#filter)', 'role' => 'img', 'aria-label' => 'mark'] as $attribute => $value) {
+    emulsify_favicon_assert($group->getAttribute($attribute) === $value, 'Converted groups should preserve safe ' . $attribute . ' attributes.');
+  }
+  foreach (['href', 'xlink:href', 'target', 'download', 'ping', 'rel', 'hreflang', 'type', 'referrerpolicy', 'onclick', 'style'] as $attribute) {
+    emulsify_favicon_assert(!$group->hasAttribute($attribute), 'Converted groups should remove link-only or unsafe ' . $attribute . ' attributes.');
+  }
+  emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Unsafe attributes on converted links should still produce an unsafe-markup warning.');
 
   $pattern = <<<'SVG'
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -286,6 +313,14 @@ SVG;
       '<rect ev:onload="alert(1)" xmlns:ev="http://www.w3.org/2001/xml-events"/>',
       ['onload=', 'alert(1)'],
     ],
+    'Alternate-prefix remote image' => [
+      '<image xmlns:x="http://www.w3.org/1999/xlink" x:href="text:/etc/passwd"/>',
+      ['x:href=', 'text:/etc/passwd'],
+    ],
+    'Stylesheet processing instruction inside SVG' => [
+      '<?xml-stylesheet type="text/css" href="https://example.com/icon.css"?>',
+      ['<?xml-stylesheet', 'https://example.com/icon.css'],
+    ],
     'Nested SVG data URI' => [
       '<image href="data:image/svg+xml;base64,' . $nested_svg . '"/>',
       ['data:image/svg+xml', $nested_svg],
@@ -352,6 +387,16 @@ SVG;
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><image href="https://example.com/icon.png" width="64" height="64"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains((string) $analysis['sanitized_svg'], 'https://example.com/icon.png'), 'Remote image href values should be stripped.');
 
+  foreach ([
+    'image' => '<image xlink:href="text:/etc/passwd"/>',
+    'rect' => '<rect ev:onclick="alert(1)"/>',
+  ] as $element_name => $markup) {
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' . $markup . '</svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:' . $element_name . '[not(@*)])') === 1.0, 'Undeclared prefixed unsafe attributes should be stripped while retaining the ' . $element_name . ' element.');
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Undeclared prefixed unsafe attributes should produce an unsafe-markup warning.');
+  }
+
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" onload="alert(1)"><rect width="64" height="64" onclick="alert(1)"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onclick='), 'Inline event handlers should be stripped.');
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'onload='), 'Root event handlers should be stripped.');
@@ -379,6 +424,13 @@ SVG;
   $sanitized_svg = (string) $analysis['sanitized_svg'];
   emulsify_favicon_assert(!str_contains($sanitized_svg, 'https://example.com/filter.svg'), 'External CSS url() attribute references should be stripped from sanitized SVG output.');
   emulsify_favicon_assert(str_contains($sanitized_svg, 'fill="url(#g)"'), 'Local CSS url() fragment references should be preserved.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="url(\23 g)" stroke="u\72l(#g)" filter="u\72 l(https://example.com/filter.svg#f)"/></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:rect/@filter)') === 0.0, 'Escaped CSS url() function names should not retain external references.');
+  $rect = $xpath->query('/svg:svg/svg:rect')->item(0);
+  emulsify_favicon_assert($rect instanceof \DOMElement && $rect->getAttribute('fill') === 'url(\23 g)' && $rect->getAttribute('stroke') === 'u\72l(#g)', 'Escaped local CSS fragments and url() function names should be preserved.');
+  emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Escaped external CSS references should produce an unsafe-markup warning.');
 
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" filter="url(javascript:alert(1))"/></svg>', FALSE);
   emulsify_favicon_assert(!str_contains(strtolower((string) $analysis['sanitized_svg']), 'javascript:'), 'javascript: CSS url() attribute references should be stripped from sanitized SVG output.');
