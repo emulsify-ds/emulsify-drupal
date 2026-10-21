@@ -58,8 +58,8 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   `emulsify/global` now supplies the 24px `:where()` target rule. See the
   [asset migration and opt-out guidance](../UPGRADE.md#parent-changes-inherited-after-the-update).
 - Drupal and Tools minimums remain `^11.3 || ^12` and `^2.2`. Blocking CI now
-  includes Drupal 11.4; Drupal 12 beta is blocking on PHP 8.5, while `dev-main`
-  remains advisory.
+  includes Drupal 11.4; Drupal 12 beta is blocking on PHP 8.5. Drupal 11.5 beta
+  on PHP 8.3 and `dev-main` remain advisory.
   Drupal 11.4's `vendor/bin/dr` is documented as experimental.
 - Static checks protect the favicon API used by Emulsify Tools 2.2. Fixture
   smoke tests run the published package's favicon generate and status Drush

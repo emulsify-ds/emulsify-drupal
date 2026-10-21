@@ -49,6 +49,12 @@ jobs:
             drupal-version: '11.4.*'
             php-version: '8.3'
             experimental: false
+          # Keep the next Drupal 11 minor advisory alongside stable 11.4.
+          - label: Drupal 11.5 Beta
+            artifact-suffix: drupal-11-5-beta-php-8-3
+            drupal-version: '>=11.5.0-beta1 <11.5.0-RC1@beta'
+            php-version: '8.3'
+            experimental: true
           # Beta readiness is verified and blocking on PHP 8.5. Keep the
           # development branch advisory and use a bounded Composer beta range.
           - label: Drupal 12 Beta

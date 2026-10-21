@@ -23,6 +23,9 @@ function validateReadinessMatrix(source, requiredTargets) {
   for (const target of requiredTargets) {
     assert.ok(entries.some((entry) => entry['drupal-version'] === target), `theme-readiness.yml should smoke test Drupal ${target} in its readiness matrix.`);
   }
+  assert.ok(entries.some((entry) => entry['drupal-version'] === '>=11.5.0-beta1 <11.5.0-RC1@beta'
+    && entry['php-version'] === '8.3' && entry.experimental === true),
+    'Drupal 11.5 beta readiness coverage must be advisory on PHP 8.3.');
   return entries;
 }
 

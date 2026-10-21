@@ -11,6 +11,7 @@
 Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
 Drupal 12 beta readiness is blocking on PHP 8.5.
 `dev-main` remains an advisory compatibility check.
+Drupal 11.5 beta coverage is advisory on PHP 8.3.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 

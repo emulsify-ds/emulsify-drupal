@@ -24,6 +24,7 @@ if (args[0] === 'create-project') fs.mkdirSync(args.at(-1), { recursive: true })
     for (const [constraint, development, coreMajor] of [
       ['11.3.*', false, '11'],
       ['11.4.*', false, '11'],
+      ['>=11.5.0-beta1 <11.5.0-RC1@beta', true, '11'],
       ['12.*', false, '12'],
       ['>=12.0.0-beta1 <12.0.0-RC1@beta', true, '12'],
       ['dev-main', true, '12'],

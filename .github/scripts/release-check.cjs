@@ -711,7 +711,7 @@ function runStaticChecks() {
     ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
     ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
     ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
-    const readinessMatrix = validateReadinessMatrix(themeReadinessWorkflow, [...supportedDrupalSmokeTargets, '11.4.*', '>=12.0.0-beta1 <12.0.0-RC1@beta']);
+    const readinessMatrix = validateReadinessMatrix(themeReadinessWorkflow, [...supportedDrupalSmokeTargets, '11.4.*', '>=11.5.0-beta1 <11.5.0-RC1@beta', '>=12.0.0-beta1 <12.0.0-RC1@beta']);
     ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '11.4.*' && entry.experimental === false), 'Drupal 11.4 readiness coverage must be blocking.');
     ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.3'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
     ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.4'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');

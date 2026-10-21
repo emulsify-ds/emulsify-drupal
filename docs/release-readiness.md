@@ -72,8 +72,9 @@ a blocking check after upstream npm releases a clean bundle.
 ## CI coverage
 
 - Blocking Theme Readiness legs cover Drupal 11.3 on PHP 8.3, 8.4, and 8.5,
-  Drupal 11.4 on PHP 8.3, and Drupal 12 beta on PHP 8.5. `dev-main` remains
-  advisory. The optional Paragraphs characterization runs only on stable
+  Drupal 11.4 on PHP 8.3, and Drupal 12 beta on PHP 8.5. Drupal 11.5 beta on
+  PHP 8.3 and `dev-main` remain advisory. The optional Paragraphs
+  characterization runs only on stable
   Drupal 11 legs because published Paragraphs 1.23 does not support Drupal 12.
 - Parent-theme assets are rebuilt with Emulsify Core, checked against committed
   output, and tested through their Drupal library declarations and bundled
