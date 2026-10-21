@@ -213,12 +213,18 @@ if (!$storage->loadByProperties(["name" => "fixture-user"])) {
 
 # Route the front page to the node listing captured by the render smoke tests.
 ./vendor/bin/drush php:eval '
+use Drupal\views\Entity\View;
+
 // The render smoke captures /node; accessibility checks also visit its second
 // page so they exercise a real view, node teaser, and current pager item.
-\Drupal::configFactory()
-  ->getEditable("views.view.frontpage")
-  ->set("display.default.display_options.pager.options.items_per_page", 1)
-  ->save();
+// Drupal 12 renamed the complete optional frontpage View to promoted_content.
+$view = View::load("frontpage") ?: View::load("promoted_content");
+if (!$view) {
+  throw new \RuntimeException("The fixture requires the core frontpage or promoted_content View.");
+}
+$display = $view->get("display");
+$display["default"]["display_options"]["pager"]["options"]["items_per_page"] = 1;
+$view->set("display", $display)->enable()->save();
 \Drupal::configFactory()
   ->getEditable("system.site")
   ->set("page.front", "/node")
