@@ -1004,6 +1004,22 @@ function runStaticChecks() {
     return `Verified ${templates.length} unique Twig template basenames.`;
   });
 
+  runStaticCheck('Form error target IDs', () => {
+    const errorId = `id="{{ element['#id'] }}--error"`;
+    const errorWrapper = new RegExp(`<div\\b[^>]*\\s${escapeRegExp(errorId)}[^>]*>\\s*\\{\\{-?\\s*errors\\s*-?\\}\\}\\s*</div>`);
+    for (const templatePath of [
+      'templates/form/form-element.html.twig',
+      'templates/form/fieldset.html.twig',
+      'templates/form/details.html.twig',
+      'templates/form/datetime-wrapper.html.twig',
+      'templates/admin/form-element--new-storage-type.html.twig',
+    ]) {
+      const template = stripTwigComments(readFile(templatePath)).replace(/<!--[\s\S]*?-->/g, '');
+      ensure(errorWrapper.test(template), `${templatePath} must render ${errorId} on the wrapper containing {{ errors }} so Inline Form Errors can target it.`);
+    }
+    return 'Verified matching Inline Form Errors target IDs on all five error wrappers.';
+  });
+
   runStaticCheck('Theme region rendering', () => {
     const checkedRegions = [
       { metadataPath: 'emulsify.info.yml', metadataContents: emulsifyInfo, templatePath: 'templates/layout/page.html.twig' },

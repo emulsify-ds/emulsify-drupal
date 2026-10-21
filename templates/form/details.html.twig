@@ -38,7 +38,10 @@
   {% endif %}
 
   {%- if description -%}
-    {% set description_attributes = create_attribute({id: element['#id'] ~ '--description'}) %}
+    {% set description_attributes = create_attribute() %}
+    {% if element['#id'] is not empty %}
+      {% set description_attributes = description_attributes.setAttribute('id', element['#id'] ~ '--description') %}
+    {% endif %}
     <div{{ description_attributes }}>{{ description }}</div>
   {%- endif -%}
 

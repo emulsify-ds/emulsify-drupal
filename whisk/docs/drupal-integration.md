@@ -67,6 +67,13 @@ converts suggestion underscores to template filename hyphens and chooses the
 highest-priority available candidate. An override may use a normal core
 suggestion, an inherited suggestion, or a project-specific suggestion.
 
+Overrides of `form-element`, `fieldset`, `details`, `datetime-wrapper`, or
+`form-element--new-storage-type` must keep
+`id="{{ element['#id'] }}--error"` on the wrapper around `{{ errors }}`,
+including through component mappings. With Inline Form Errors enabled, parent
+hooks reference this ID regardless of the selected override. See "Inline form
+error references" in the installed parent's `docs/twig-hook-contract.md`.
+
 For page, HTML, region, or base block changes, prefer the parent's documented
 Twig extension blocks when they cover the requirement. For example, a local
 page override can preserve the page wrapper while adding content:

@@ -223,6 +223,12 @@ drush cr
 - Form errors have deterministic IDs, `aria-describedby` associations, and the
   shared `form-item--error-message` class across all five error templates.
   Drupal's Inline Form Errors module controls whether inline errors appear.
+  Overrides of `form-element`, `fieldset`, `details`, `datetime-wrapper`, and
+  `form-element--new-storage-type` must render
+  `id="{{ element['#id'] }}--error"` on the element wrapping `{{ errors }}`,
+  including when mapping errors to components. Parent hooks add references to
+  that ID regardless of the selected override. See
+  [Inline form error references](./docs/twig-hook-contract.md#inline-form-error-references).
   Datetime descriptions receive the `description` class, select options retain
   their attributes, and radios receive `form-radios`. **Sites using bespoke
   fieldset, details, or datetime error selectors may now get double styling. The

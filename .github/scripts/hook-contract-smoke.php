@@ -518,4 +518,19 @@ finally {
     }
   }
 }
+
+// Render the real details template outside Form API, which supplies no #id.
+$details = [
+  '#type' => 'details',
+  '#title' => 'Details without an ID',
+  '#description' => 'Standalone details description',
+  'content' => ['#markup' => 'details-child-content'],
+];
+$details_output = (string) \Drupal::service('renderer')->renderInIsolation($details);
+emulsify_hook_same(FALSE, array_key_exists('#id', $details), 'Standalone details rendering does not generate an element ID');
+emulsify_hook_same(TRUE, str_contains($details_output, '<details'), 'Standalone details uses the actual details template');
+emulsify_hook_same(FALSE, str_contains($details_output, 'id="--description"'), 'Details without an element ID does not invent a description ID');
+emulsify_hook_same(TRUE, str_contains($details_output, 'Standalone details description'), 'Details without an element ID still renders its description');
+emulsify_hook_same(TRUE, str_contains($details_output, 'details-child-content'), 'Details without an element ID still renders its children');
+
 fwrite(STDOUT, "PASS {$assertions} hook contract and Drupal template-selection assertions on PHP " . PHP_VERSION . ".\n");

@@ -150,6 +150,49 @@ filter layout. When a child theme already implements equivalent container or
 form hooks, review its appended order before removing duplicate logic: a later
 child-theme generic suggestion can otherwise outrank an inherited specific one.
 
+## Inline form error references
+
+When Drupal's Inline Form Errors module is enabled,
+`FormErrorHooks::elementInfoAlter()` registers `preRenderErrors()` before
+rendering. After validation, the callback acts on elements with nonempty
+`#errors` and `#id`, an empty `#error_no_message`, and a `form_element`,
+`details`, `fieldset`, or `datetime_wrapper` theme wrapper (including wrapper
+suggestions).
+
+It appends `<#id>--error` to the element's `aria-describedby` and merges it with
+existing help-text references without duplicate IDs. For details it also adds
+the reference to the summary attributes. `describeChildren()` adds the same
+reference to descendant input controls, except types `hidden`, `submit`, and
+`button`; inaccessible children and their descendants are skipped. Fieldset
+preprocessing preserves these error references alongside the rendered help text.
+
+These hooks run regardless of which parent or child template renders the
+wrapper. Any override or suggestion of these five templates, including one
+that delegates rendering to a component, must render
+`id="{{ element['#id'] }}--error"` on the element wrapping `{{ errors }}`:
+
+- `templates/form/form-element.html.twig`
+- `templates/form/fieldset.html.twig`
+- `templates/form/details.html.twig`
+- `templates/form/datetime-wrapper.html.twig`
+- `templates/admin/form-element--new-storage-type.html.twig`
+
+Preserve the error message and its element-derived ID together:
+
+```twig
+{% if errors %}
+  <div id="{{ element['#id'] }}--error" class="form-item--error-message">
+    {{ errors }}
+  </div>
+{% endif %}
+```
+
+Pass both the message and its ID when mapping the wrapper to a component.
+Omitting the target leaves the hook's `aria-describedby` references pointing
+to an element that does not exist. Details rendered outside forms may have no
+`#id`; their descriptions must remain visible without inventing a
+`--description` ID.
+
 ## PHP and JavaScript ownership
 
 These Drupal preprocess variables and suggestion generators have no JavaScript
