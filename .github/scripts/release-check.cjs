@@ -1070,6 +1070,48 @@ function runStaticChecks() {
     return 'Favicon settings expose the 7.x portable source method names only.';
   });
 
+  runStaticCheck('Emulsify Tools 2.2 favicon API', () => {
+    // Published Tools releases call these APIs directly, including constructing
+    // the theme manager with positional arguments.
+    const faviconThemeManager = readFile('src/Favicon/FaviconThemeManager.php');
+    const constructor = faviconThemeManager.match(/^[ \t]*public\s+function\s+__construct\s*\(([^)]*)\)/m);
+    ensure(constructor, 'FaviconThemeManager must keep its public constructor for Emulsify Tools 2.2.');
+    const parameters = constructor[1].split(',')
+      .map((parameter) => parameter.trim().replace(/\b(public|protected|private|readonly)\s+/g, '').replace(/\s+/g, ' '))
+      .filter(Boolean);
+    const expectedParameters = [
+      'ThemeSettingsProvider $themeSettingsProvider',
+      'ConfigFactoryInterface $configFactory',
+      'FileSystemInterface $fileSystem',
+      'CacheTagsInvalidatorInterface $cacheTagsInvalidator',
+      'FileUrlGeneratorInterface $fileUrlGenerator',
+      'TimeInterface $time',
+      'LockBackendInterface $lock',
+    ];
+    ensure(JSON.stringify(parameters) === JSON.stringify(expectedParameters), `FaviconThemeManager constructor parameters must retain the Emulsify Tools 2.2 order: ${expectedParameters.join(', ')}.`);
+
+    for (const [className, methods, staticModifier] of [
+      ['FaviconThemeManager', [
+        'loadThemeSettings',
+        'generatePackage',
+        'writeThemeSettings',
+        'resetThemeSettings',
+        'resolveStoredSourceFile',
+        'buildPackageStatus',
+        'getRuntimeDependencyStatus',
+      ], ''],
+      ['FaviconPackageGenerator', ['validateSourceFile'], ''],
+      ['FaviconSettings', ['normalize', 'getSourceFileId'], 'static\\s+'],
+    ]) {
+      const source = readFile(`src/Favicon/${className}.php`);
+      for (const method of methods) {
+        ensure(new RegExp(`^[ \\t]*public\\s+${staticModifier}function\\s+${method}\\s*\\(`, 'm').test(source), `${className}::${method}() must remain public${staticModifier ? ' and static' : ''} for Emulsify Tools 2.2.`);
+      }
+    }
+    ensure(/^[ \t]*public\s+const\s+DEFAULTS\s*=/m.test(readFile('src/Favicon/FaviconSettings.php')), 'FaviconSettings::DEFAULTS must remain public for Emulsify Tools 2.2.');
+    return 'Verified the public favicon APIs and constructor parameter order used by published Emulsify Tools 2.2 releases.';
+  });
+
   runStaticCheck('Favicon runtime behavior', () => {
     const faviconPackageGenerator = readFile('src/Favicon/FaviconPackageGenerator.php');
     const faviconThemeManager = readFile('src/Favicon/FaviconThemeManager.php');

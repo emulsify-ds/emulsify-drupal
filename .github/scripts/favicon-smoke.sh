@@ -2,9 +2,8 @@
 
 set -euo pipefail
 
-# Thin wrapper around favicon-smoke.php. Running through Drush gives the PHP
-# script a fully bootstrapped Drupal container while keeping the CI workflow
-# shell-readable.
+# Running through Drush gives the PHP helpers a fully bootstrapped Drupal
+# container while keeping the CI workflow shell-readable.
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <fixture-dir> [theme-name]" >&2
   exit 1
@@ -22,4 +21,13 @@ node --test "$script_dir/favicon-preview.test.cjs"
   EMULSIFY_FAVICON_THEME="$theme_name" \
     ./vendor/bin/drush php:eval "require '${script_dir}/favicon-smoke.php';"
   ./vendor/bin/drush php:script "$script_dir/favicon-preview-smoke.php"
+
+  # Clear package metadata and configure a portable source so the published
+  # Tools commands must generate and persist a complete favicon package.
+  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_MODE=prepare \
+    ./vendor/bin/drush php:eval "require '${script_dir}/favicon-portability-smoke.php';"
+  ./vendor/bin/drush emulsify_tools:favicon-generate "$theme_name"
+  ./vendor/bin/drush emulsify_tools:favicon-status "$theme_name"
+  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_MODE=assert-generated \
+    ./vendor/bin/drush php:eval "require '${script_dir}/favicon-portability-smoke.php';"
 )

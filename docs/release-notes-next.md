@@ -46,7 +46,8 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   handlers, namespaced event attributes, and nested SVG data URIs are removed
   with warnings. Oversized canvases are rejected and rasterization is bounded.
   Some previously accepted artwork may need simplifying. Manifest previews
-  validate managed package paths, and unreachable favicon code is removed.
+  validate managed package paths, and unused internal favicon helpers are
+  removed while preserving the public API used by Emulsify Tools.
 - Branding, local-task, and form-error summary links, plus links in full pagers,
   receive minimum pointer target sizes while allowing child themes to set their
   presentation.
@@ -56,6 +57,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 - Drupal and Tools minimums remain `^11.3 || ^12` and `^2.2`. Blocking CI now
   includes Drupal 11.4; Drupal 12 beta and `dev-main` remain advisory checks.
   Drupal 11.4's `vendor/bin/dr` is documented as experimental.
+- Static checks protect the favicon API used by Emulsify Tools 2.2. Fixture
+  smoke tests run the published package's favicon generate and status Drush
+  commands and verify the saved package path and generated files.
 - Pull requests verify the parent library and breakpoint contract against the
   working tree. Rendered accessibility coverage includes a form with validation
   errors and page 2 of a paged view, with exactly one current pager item;
