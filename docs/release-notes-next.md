@@ -89,12 +89,15 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 ## Consumer action
 
 Existing generated child themes must delete their copied
-`templates/layout/page.html.twig` to receive parent fixes. This is the one
-required manual migration step. Preserve customizations through a namespaced
-parent extension and selected blocks instead of a full copy. Parent updates
-do not rewrite existing child files. See [UPGRADE.md](../UPGRADE.md) for the
-combined path, optional adoption of the earlier copied-tooling fixes, and
-styling considerations.
+`templates/layout/page.html.twig` to receive parent fixes. Preserve customizations
+through a namespaced parent extension and selected blocks instead of a full
+copy. Parent updates do not rewrite existing child files. See
+[UPGRADE.md](../UPGRADE.md) for the combined path, optional adoption of the earlier
+copied-tooling fixes, and styling considerations.
+
+Sites using the generated favicon package must [regenerate it in development
+and export their theme settings](../UPGRADE.md#after-updating-regenerate-favicons-and-export-config)
+before deploying the update.
 
 Run `npm run release:check -- --skip-smoke` for static validation and
 `npm run release:check` for the complete local gate. Use

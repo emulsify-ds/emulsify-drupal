@@ -166,6 +166,15 @@ the emitted head links until regeneration updates the saved reference.
 
 Generated favicon packages are environment-local build artifacts. They are expected to exist in each deployed environment, but they should be recreated from configuration rather than treated as hand-maintained source files.
 
+For upgrades to 7.3.0 with generated packages enabled, [regenerate in development
+and export config](../UPGRADE.md#after-updating-regenerate-favicons-and-export-config)
+after updating code and running database updates, then commit the changed
+`<theme>.settings.yml` before deploying. This records the new defaults and
+current package hash from the stricter SVG cleanup; with the same source and
+effective settings, only
+`favicon_package_generated_at` can still differ when environments rebuild the
+files, as in 7.2. Sites without the generated package need no action.
+
 Generation happens only in these workflows:
 
 1. Save the Emulsify Drupal theme settings form after configuring or changing favicon-related settings.

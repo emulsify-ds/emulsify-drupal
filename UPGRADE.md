@@ -158,10 +158,10 @@ require changing channels.
 ### Required child-theme action
 
 **Delete your generated child theme's copied
-`templates/layout/page.html.twig` to receive parent-theme page fixes.** This is
-the release's one required manual migration step; updating the parent package
-does not remove files from an existing child theme. Newly generated child themes
-no longer contain that copy and inherit the parent's page template directly.
+`templates/layout/page.html.twig` to receive parent-theme page fixes.** Updating
+the parent package does not remove files from an existing child theme. Newly
+generated child themes no longer contain that copy and inherit the parent's
+page template directly.
 
 If the old copy contains project customizations, preserve those changes in a
 small override that extends
@@ -176,6 +176,28 @@ Rebuild caches after updating the package and child template:
 ```bash
 drush cr
 ```
+
+### After updating: regenerate favicons and export config
+
+For sites with the generated favicon package enabled:
+
+1. In a development environment, after updating the code and running database
+   updates, save the theme's settings page (use **Regenerate package** to force
+   a rebuild) or run
+   `drush emulsify_tools:favicon-generate <theme>` (replace `<theme>` with your
+   theme's machine name).
+2. Run `drush config:export` and commit the changed `<theme>.settings.yml`.
+3. Deploy as usual, regenerating environment-local package files after config
+   import.
+
+Generation saves all favicon defaults, including 7.3's ten new keys, and the
+stricter SVG cleanup can change the package hash and directory for
+editor-exported sources. Exporting once records the new keys and current
+package hash; with the same source and effective settings, only
+`favicon_package_generated_at` can still differ between environments that
+rebuild the files, as in 7.2.
+
+Sites without the generated favicon package need no action.
 
 ### Parent changes inherited after the update
 
