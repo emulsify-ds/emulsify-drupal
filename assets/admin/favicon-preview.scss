@@ -35,7 +35,12 @@
     padding: 1rem;
     box-shadow: var(--emulsify-favicon-preview-shadow);
 
+    &--light {
+      color-scheme: light;
+    }
+
     &--dark {
+      color-scheme: dark;
       border-color: rgb(255 255 255 / 12%);
       background: linear-gradient(180deg, #1c2431 0%, #111821 100%);
       color: #f5f7fb;

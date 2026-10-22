@@ -92,6 +92,9 @@ try {
     }
     $links = array_column(array_column($attachments['#attached']['html_head_link'], 0), 'href', 'rel');
     $browser_dom = emulsify_preview_document($browser);
+    foreach (['light' => 'Light tab', 'dark' => 'Dark tab'] as $scheme => $title) {
+      emulsify_preview_assert($browser_dom->query('//div[contains(concat(" ", normalize-space(@class), " "), " emulsify-favicon-preview__card--' . $scheme . ' ")]/h4[text()="' . $title . '"]')->length === 1, "$label: each browser card must select the color scheme matching its title.");
+    }
     foreach ($browser_dom->query('//img') as $image) {
       emulsify_preview_assert($image->getAttribute('src') === $links['icon'], "$label: browser preview must use the emitted SVG head link, never a source SVG.");
     }

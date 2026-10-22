@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const postcss = require('postcss');
 const test = require('node:test');
 const vm = require('node:vm');
 
@@ -135,3 +136,16 @@ for (const relativePath of ['assets/admin/favicon-preview.js', 'dist/js/admin/fa
     assertPreviewBehavior(fs.readFileSync(path.join(__dirname, '../..', relativePath), 'utf8'));
   });
 }
+
+test('built browser preview cards enforce their labeled color schemes', () => {
+  const css = postcss.parse(fs.readFileSync(path.join(__dirname, '../../dist/css/admin/favicon-preview.css'), 'utf8'));
+  const schemes = {};
+  css.walkRules((rule) => {
+    for (const scheme of ['light', 'dark']) {
+      if (rule.selectors.includes(`.emulsify-favicon-preview__card--${scheme}`)) {
+        rule.walkDecls('color-scheme', (declaration) => { schemes[scheme] = declaration.value; });
+      }
+    }
+  });
+  assert.deepEqual(schemes, { light: 'light', dark: 'dark' }, 'Each browser card must select its color scheme independently of the administrator');
+});

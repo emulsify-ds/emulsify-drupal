@@ -115,7 +115,7 @@ final class FaviconPreviewBuilder {
       '<div class="emulsify-favicon-preview emulsify-favicon-preview--browser" data-favicon-preview-group="browser">'
       . '<p class="emulsify-favicon-preview__summary">Browser tabs use the generated SVG favicon and ICO. These previews show the saved generated assets. Save changes to update them.</p>'
       . '<div class="emulsify-favicon-preview__grid">'
-      . '<div class="emulsify-favicon-preview__card">'
+      . '<div class="emulsify-favicon-preview__card emulsify-favicon-preview__card--light">'
       . '<h4>Light tab</h4>'
       . '<div class="emulsify-favicon-preview__tab">'
       . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:transparent; --preview-padding:0%%">'

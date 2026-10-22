@@ -142,10 +142,13 @@ appear only when that managed package exists in the current environment. An
 uploaded SVG or portable SVG source alone does not produce a preview. Source
 and package diagnostics remain available when generation is needed.
 
-The Light tab preview uses the `favicon.svg` URL attached to the page head. The
-Dark tab preview uses the saved `favicon-dark.svg` when present, falling back to
-`favicon.svg` for older packages. Its dark appearance is independent of the
-administrator's own color scheme. The iOS preview uses its `apple-touch-icon.png` URL and saved iOS title. Android
+The Light tab preview uses the `favicon.svg` URL attached to the page head in a
+card with `color-scheme: light`, so it shows the light icon even when the
+administrator uses dark mode. The Dark tab card sets `color-scheme: dark` and
+uses the saved `favicon-dark.svg` when present, falling back to `favicon.svg`
+for older packages. Both previews use their labeled color scheme independently
+of the administrator's own color scheme. The iOS preview uses its
+`apple-touch-icon.png` URL and saved iOS title. Android
 previews use the normal 192-pixel icon and the separate 512-pixel maskable icon
 from the saved manifest's package; the launcher label comes from that manifest.
 The generated files already contain their configured background and padding,
