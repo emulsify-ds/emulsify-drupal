@@ -135,9 +135,9 @@ installed. See the [channel skew policy](./docs/published-dependency-validation.
 
 The minimum versions do not change: Drupal remains `^11.3 || ^12`, and Emulsify
 Tools remains `^2.2`. Blocking CI covers Drupal 11.3 and 11.4, plus Drupal 12
-beta on PHP 8.5. `dev-main` remains advisory. Drupal 11.4's `vendor/bin/dr`
-generation command is experimental; the existing Drush generator remains
-available.
+beta on PHP 8.5. Drupal 11.5 beta and `dev-main` remain advisory. Drupal 11.4's
+`vendor/bin/dr` generation command is experimental; the existing Drush generator
+remains available.
 
 After 7.3.0 is available on your install channel, update the parent and Tools
 using the package already installed on the site. For Drupal.org installations:
@@ -214,10 +214,6 @@ Sites without the generated favicon package need no action.
   Numbered pager links retain the visually hidden "Page" prefix and no longer
   rely on a title attribute to announce the current page. Existing CSS classes
   are preserved.
-- Container and form template suggestions now cover classes, structural paths,
-  selectors, IDs, Layout Builder, and Views displays or block placements. Review
-  the [precedence guide](./docs/twig-hook-contract.md#template-suggestions) if a
-  child already implements similar hooks or matching template names.
 - Form errors have deterministic IDs, `aria-describedby` associations, and the
   shared `form-item--error-message` class across all five error templates.
   Drupal's Inline Form Errors module controls whether inline errors appear.
@@ -256,6 +252,8 @@ Sites without the generated favicon package need no action.
   have minimum pointer targets of 24px through a zero-specificity rule. Child
   themes can still set their presentation; check navigation and error-summary
   spacing after updating.
+- The parent's declared default logo at `assets/images/logo.svg` now ships as
+  a valid Emulsify SVG and is visible on light backgrounds.
 - Parent library assets now live under `dist/`. Library names are unchanged;
   update any child-theme `libraries-override` keys that replace or remove these
   files, using paths relative to the parent theme:
@@ -267,10 +265,9 @@ Sites without the generated favicon package need no action.
   | `emulsify/favicon_admin` | `js/admin/favicon-preview.js` | `dist/js/admin/favicon-preview.js` |
 
   Drupal silently ignores overrides keyed to the old paths. The formerly empty
-  `emulsify/global` placeholder now loads real CSS: the `:where()` rule sets
-  24px minimum pointer targets for branding, local-task, pager, and form-error
-  summary links. To opt out of this parent rule, disable `emulsify/global` in
-  the child theme's `.info.yml`:
+  `emulsify/global` placeholder now loads the pointer-target rule described
+  above. To opt out of this parent rule, disable `emulsify/global` in the child
+  theme's `.info.yml`:
 
   ```yaml
   libraries-override:
@@ -283,9 +280,11 @@ Sites without the generated favicon package need no action.
 ### Optional dark-mode favicons
 
 The parent theme settings now offer an inverted or alternate SVG icon, a
-separate dark background, and a dark browser theme color. Everything is off by
-default, preserving existing packages and head tags. Enable the desired options
-under **Browser favicon settings → Dark mode** and save to regenerate. PNG,
+separate dark background, and a dark browser theme color. Invert reverses the
+mark and light background together unless a dark background is chosen.
+Everything is off by default, preserving existing packages and head tags.
+Enable the desired options under **Browser favicon settings → Dark mode** and
+save to regenerate. Saved tab previews use their labeled color schemes. PNG,
 ICO, Apple, and Android output keeps its existing appearance. See
 [favicon generation](./docs/favicon-generation.md#dark-mode-browser-tabs).
 
@@ -321,9 +320,11 @@ config exports, optionally copy these entries into the `mapping` under
 
 The favicon settings can also generate a default 1200 × 630 social share image
 from the main SVG, with its own background, padding, and alternative text.
-This is off by default. Existing `og:image`, `twitter:image`, or `twitter:card`
-metadata takes precedence, including images set through Metatag. Social sites
-cache previews, so deployed changes may take time to appear. See
+This is off by default. Existing `og:image`, `og:image:url`,
+`og:image:secure_url`, `twitter:image`, `twitter:image:src`, or `twitter:card`
+metadata takes precedence case-insensitively, including images set through
+Metatag. Social sites cache previews, so deployed changes may take time to
+appear. See
 [default social share images](./docs/favicon-generation.md#default-social-share-image).
 
 Existing generated themes inherit the feature through parent defaults. To
@@ -354,7 +355,10 @@ default. Choose a provider thumbnail or a neutral background; the thumbnail
 still makes a third-party image request before activation. Once the player
 loads, the provider receives visitor data. See [media embeds](./docs/media-embeds.md).
 
-Existing child themes inherit the feature. Overrides of
+Existing child themes inherit the hooks and template. Save these options on
+the child theme the site uses; Drupal core does not inherit a base theme's
+saved settings. Review the media guide's CSP requirements and iframe
+Back-button behavior before enabling click to load. Overrides of
 `media-oembed-iframe.html.twig` must render `emulsify_oembed_poster` when present
 to get click to load, otherwise keep rendering `{{ media }}` inside the iframe
 document. Existing child schemas can optionally add these entries under the

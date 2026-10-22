@@ -13,11 +13,10 @@ The uploaded source must be an SVG file with a `viewBox`. Non-square sources are
 
 Source uploads are limited to 5 MB. The sanitized portable SVG copy is stored in theme config for portability; copies larger than 256 KB are allowed but flagged as review noise because they make config exports harder to inspect.
 
-The sanitizer allows static SVG drawing elements: `svg`, `g`, `path`, `rect`,
-`circle`, `ellipse`, `line`, `polyline`, `polygon`, `text`, `tspan`, `defs`,
-`symbol`, `use`, `image`, `clipPath`, `mask`, `linearGradient`, `radialGradient`,
-`stop`, `title`, and `desc`. Unsupported elements, event handlers (including
-namespaced attributes), styles, and unsafe references are removed with a
+The sanitizer supports static SVG drawing elements, including shapes, groups,
+text and text paths, reusable symbols, images, gradients, clipping paths,
+masks, patterns, markers, and filters. Unsupported elements, event handlers
+(including namespaced attributes), styles, and unsafe references are removed with a
 warning. Image data URIs may contain PNG, GIF, JPEG, or WebP; nested SVG data
 URIs are removed. Simplify unsupported artwork to static drawing elements
 before uploading it.

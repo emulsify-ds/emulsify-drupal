@@ -9,16 +9,21 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 - Optional YouTube and Vimeo embed settings reduce player tracking or replace
   the player with a keyboard-accessible, JavaScript-free click-to-load poster.
-  Provider thumbnails are optional. See [media embeds](./media-embeds.md) for
-  privacy caveats and the contract for child template overrides.
+  Both options default to off; provider thumbnails are optional. Posters fit
+  small frames, declare the interface language, and keep keyboard focus visible
+  over thumbnails. See [media embeds](./media-embeds.md) for privacy caveats,
+  settings scope, CSP requirements, and the contract for child template overrides.
 - An optional default social share image uses the configured favicon SVG to
-  generate a branded 1200 × 630 PNG and sharing metadata. Existing sharing tags,
-  including Metatag images, take precedence. See
+  generate a branded 1200 × 630 PNG and sharing metadata. Existing `og:image`,
+  `twitter:image`, `twitter:card`, and their supported image URL aliases take
+  precedence, including metadata supplied by Metatag. See
   [favicon generation](./favicon-generation.md#default-social-share-image).
-- Optional dark-mode favicons can invert a single-color mark or use an alternate
-  SVG, with separate dark background and browser theme colors. Settings default
-  to off, preserving existing output. Saved previews show the generated dark
-  appearance. See [favicon generation](./favicon-generation.md#dark-mode-browser-tabs).
+- Optional dark-mode favicons offer inverted or alternate SVG artwork, with
+  separate dark background and browser theme colors. Invert also reverses the
+  light background unless a dark background is chosen. Settings default to off,
+  preserving existing output. Saved Light tab and Dark tab previews show their
+  respective appearances independently of the administrator's color scheme.
+  See [favicon generation](./favicon-generation.md#dark-mode-browser-tabs).
 - Generated themes include `AGENTS.md`, a Drupal integration guide, and an
   `emulsify-drupal-integration` skill. They discover the installed project's
   conventions while leaving component-library details to the selected library.
@@ -65,14 +70,19 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   validate managed package paths, and unused internal favicon helpers are
   removed while preserving the public API used by Emulsify Tools.
 - Branding, local-task, and form-error summary links, plus links in full pagers,
-  receive minimum pointer target sizes while allowing child themes to set their
-  presentation.
+  receive 24px minimum pointer targets through a zero-specificity `:where()`
+  rule while allowing child themes to set their presentation.
+- The parent's declared default logo now ships as a valid Emulsify SVG and is
+  visible on light backgrounds.
 
 ## Compatibility and validation
 
 - Parent assets moved to `dist/`; update child `libraries-override` path keys.
-  `emulsify/global` now supplies the 24px `:where()` target rule. See the
-  [asset migration and opt-out guidance](../UPGRADE.md#parent-changes-inherited-after-the-update).
+  See the [asset migration and global-rule opt-out guidance](../UPGRADE.md#parent-changes-inherited-after-the-update).
+- Newly generated themes use Emulsify Core `^4.5.0`, which requires Node
+  24.13.0 or newer; existing child manifests and lockfiles remain project-owned.
+  Root release tooling requires Node 24.15 or newer. See the
+  [frontend upgrade guidance](../UPGRADE.md#frontend-tooling-and-validation).
 - Drupal and Tools minimums remain `^11.3 || ^12` and `^2.2`. Blocking CI now
   includes Drupal 11.4; Drupal 12 beta is blocking on PHP 8.5. Drupal 11.5 beta
   on PHP 8.3 and `dev-main` remain advisory.
