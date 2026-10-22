@@ -11,12 +11,17 @@
 declare(strict_types=1);
 
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Security\DoTrustedCallbackTrait;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\emulsify\Hook\ContainerHooks;
 use Drupal\emulsify\Hook\FieldHooks;
+use Drupal\emulsify\Hook\FormErrorHooks;
 use Drupal\emulsify\Hook\FormHooks;
 use Drupal\emulsify\Hook\ParagraphHooks;
 use Drupal\emulsify\Hook\ViewsHooks;
+use Drupal\emulsify\Render\FormErrorRenderer;
 use Drupal\node\Entity\Node;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\views\Entity\View;
@@ -36,6 +41,65 @@ function emulsify_hook_same(mixed $expected, mixed $actual, string $message): vo
     throw new RuntimeException($message . ': expected ' . var_export($expected, TRUE) . ', got ' . var_export($actual, TRUE));
   }
 }
+
+$error_callback = [FormErrorRenderer::class, 'preRenderErrors'];
+emulsify_hook_same(TRUE, is_subclass_of(FormErrorRenderer::class, TrustedCallbackInterface::class), 'Inline errors use the trusted callback interface');
+emulsify_hook_same(['preRenderErrors'], FormErrorRenderer::trustedCallbacks(), 'Only the inline error render callback is trusted');
+foreach ([FALSE, TRUE] as $enabled) {
+  $module_handler = new class($enabled) extends ModuleHandler {
+    public function __construct(private readonly bool $enabled) {}
+
+    public function moduleExists($module): bool {
+      return $module === 'inline_form_errors' && $this->enabled;
+    }
+  };
+  $info = ['textfield' => ['#pre_render' => ['existing_callback']], 'container' => []];
+  (new FormErrorHooks($module_handler))->elementInfoAlter($info);
+  emulsify_hook_same($enabled ? [
+    'textfield' => ['#pre_render' => ['existing_callback', $error_callback]],
+    'container' => ['#pre_render' => [$error_callback]],
+  ] : ['textfield' => ['#pre_render' => ['existing_callback']], 'container' => []], $info, 'Inline error callback registration respects the module gate and existing callbacks');
+}
+$trusted_callbacks = new class {
+  use DoTrustedCallbackTrait;
+};
+$element = [
+  '#id' => 'fixture-group',
+  '#errors' => 'Required field',
+  '#theme_wrappers' => ['details__fixture' => []],
+  '#attributes' => ['aria-describedby' => ['group-help', 'group-help']],
+  '#summary_attributes' => ['aria-describedby' => 'summary-help'],
+  'control' => ['#type' => 'textfield', '#input' => TRUE, '#attributes' => ['aria-describedby' => (new Attribute(['aria-describedby' => 'control-help control-help']))['aria-describedby']]],
+  'nested' => ['control' => ['#type' => 'select', '#input' => TRUE]],
+  'hidden' => ['#type' => 'hidden', '#input' => TRUE, '#attributes' => ['aria-describedby' => 'hidden-help']],
+  'submit' => ['#type' => 'submit', '#input' => TRUE],
+  'button' => ['#type' => 'button', '#input' => TRUE],
+  'inaccessible' => ['#access' => FALSE, 'control' => ['#type' => 'textfield', '#input' => TRUE]],
+];
+$rendered = $trusted_callbacks->doTrustedCallback($error_callback, [$element], 'Unexpected untrusted callback %s');
+emulsify_hook_same('group-help fixture-group--error', $rendered['#attributes']['aria-describedby'], 'Error references retain help and remove duplicate tokens');
+emulsify_hook_same('summary-help fixture-group--error', $rendered['#summary_attributes']['aria-describedby'], 'Details summaries reference their group error');
+emulsify_hook_same('control-help fixture-group--error', $rendered['control']['#attributes']['aria-describedby'], 'Attribute value objects retain control help references');
+emulsify_hook_same('fixture-group--error', $rendered['nested']['control']['#attributes']['aria-describedby'], 'Nested controls reference their group error');
+foreach (['hidden', 'submit', 'button', 'inaccessible'] as $key) {
+  emulsify_hook_same($element[$key], $rendered[$key], 'Noninteractive or inaccessible descendants retain their exact arrays');
+}
+foreach ([
+  ['#id' => 'no-error', '#theme_wrappers' => ['form_element']],
+  ['#errors' => 'Required', '#theme_wrappers' => ['form_element']],
+  ['#id' => 'suppressed', '#errors' => 'Required', '#error_no_message' => TRUE, '#theme_wrappers' => ['form_element']],
+  ['#id' => 'unsupported', '#errors' => 'Required', '#theme_wrappers' => ['container']],
+] as $unchanged) {
+  emulsify_hook_same($unchanged, $trusted_callbacks->doTrustedCallback($error_callback, [$unchanged], 'Unexpected untrusted callback %s'), 'Elements without a renderable inline error remain unchanged');
+}
+$variables = [
+  'errors' => 'Required field',
+  'element' => ['#id' => 'fieldset', '#attributes' => ['aria-describedby' => ['fieldset--description', 'extra-help', 'fieldset--error', 'fieldset--error']]],
+  'description' => ['content' => 'Fieldset help'],
+  'attributes' => new Attribute(['aria-describedby' => 'wrapper--description']),
+];
+(new FormErrorHooks(\Drupal::moduleHandler()))->preprocessFieldset($variables);
+emulsify_hook_same('wrapper--description extra-help fieldset--error', $variables['attributes']['aria-describedby']->value(), 'Fieldset delegation retains rendered help and error references without stale description IDs');
 
 /**
  * Supplies the entity methods read by the paragraph preprocessor.

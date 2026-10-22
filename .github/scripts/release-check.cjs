@@ -541,6 +541,7 @@ function getStrictTypeClassFiles() {
   return [
     ...listFilesRecursive('src/Favicon', (filePath) => filePath.endsWith('.php')),
     ...listFilesRecursive('src/Hook', (filePath) => filePath.endsWith('.php')),
+    ...listFilesRecursive('src/Render', (filePath) => filePath.endsWith('.php')),
   ].sort();
 }
 
@@ -1086,6 +1087,16 @@ function runStaticChecks() {
     ensureHookAttributeMigration(themeEntrypoint);
     ensureFaviconSettingsFormDelegation();
     return 'Legacy procedural hook includes are absent and migrated hooks are implemented with attributes.';
+  });
+
+  runStaticCheck('Inline form error render callback', () => {
+    const hooks = readFile('src/Hook/FormErrorHooks.php');
+    const renderer = readFile('src/Render/FormErrorRenderer.php');
+    ensure(hooks.includes("[FormErrorRenderer::class, 'preRenderErrors']"), 'FormErrorHooks must register the dedicated inline error render callback.');
+    ensure(!hooks.includes('function preRenderErrors('), 'Inline error rendering must live outside the hook handler.');
+    ensure(renderer.includes('implements TrustedCallbackInterface'), 'FormErrorRenderer must use the trusted callback interface fast path.');
+    ensure(renderer.includes("return ['preRenderErrors'];"), 'FormErrorRenderer must trust only its preRenderErrors callback.');
+    return 'Inline form errors use a dedicated interface-trusted render callback.';
   });
 
   runStaticCheck('PHP strict typing', () => {

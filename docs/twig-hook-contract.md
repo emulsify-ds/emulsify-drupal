@@ -155,7 +155,8 @@ child-theme generic suggestion can otherwise outrank an inherited specific one.
 ## Inline form error references
 
 When Drupal's Inline Form Errors module is enabled,
-`FormErrorHooks::elementInfoAlter()` registers `preRenderErrors()` before
+`FormErrorHooks::elementInfoAlter()` registers
+`FormErrorRenderer::preRenderErrors()` through `TrustedCallbackInterface` before
 rendering. After validation, the callback acts on elements with nonempty
 `#errors` and `#id`, an empty `#error_no_message`, and a `form_element`,
 `details`, `fieldset`, or `datetime_wrapper` theme wrapper (including wrapper
