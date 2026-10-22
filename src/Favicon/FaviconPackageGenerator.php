@@ -1154,9 +1154,11 @@ SVG,
    */
   private function stripDisallowedSvgNodes(\DOMDocument $document): array {
     $removable = [];
+    $links = [];
+    $switches = [];
     $removed_counts = ['unsafe' => 0, 'metadata' => 0];
     foreach ((new \DOMXPath($document))->query('//processing-instruction()') as $instruction) {
-      $removable[] = [$instruction, FALSE];
+      $removable[] = $instruction;
       $removed_counts['unsafe']++;
     }
     foreach ($document->getElementsByTagName('*') as $element) {
@@ -1164,39 +1166,75 @@ SVG,
       $is_svg = in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE);
       if (($is_svg && $tag_name === 'metadata')
         || in_array($element->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
-        $removable[] = [$element, FALSE];
+        $removable[] = $element;
         $removed_counts['metadata']++;
       }
       elseif (!$is_svg || !in_array($tag_name, self::ALLOWED_SVG_ELEMENTS, TRUE)) {
-        $removable[] = [$element, FALSE];
+        $removable[] = $element;
         $removed_counts['unsafe']++;
       }
-      elseif (in_array($tag_name, ['switch', 'a'], TRUE)) {
-        // These wrappers are structurally safe, but favicon artwork does not
-        // need conditional rendering or link semantics.
-        $removable[] = [$element, TRUE];
+      elseif ($tag_name === 'a') {
+        $links[] = $element;
+      }
+      elseif ($tag_name === 'switch') {
+        $switches[] = $element;
       }
     }
 
-    foreach ($removable as [$element, $unwrap]) {
+    foreach ($removable as $element) {
       if ($element->parentNode) {
-        if ($unwrap && strtolower($element->localName ?? $element->nodeName) === 'a') {
-          $group = $document->createElementNS($element->namespaceURI, 'g');
-          foreach ($element->attributes as $attribute) {
-            $group->setAttributeNodeNS(clone $attribute);
-          }
-          while ($element->firstChild) {
-            $group->appendChild($element->firstChild);
-          }
-          $element->parentNode->insertBefore($group, $element);
-        }
-        elseif ($unwrap) {
-          while ($element->firstChild) {
-            $element->parentNode->insertBefore($element->firstChild, $element);
-          }
-        }
         $element->parentNode->removeChild($element);
       }
+    }
+
+    foreach ($links as $element) {
+      if (!$element->parentNode) {
+        continue;
+      }
+      $replacement_name = 'g';
+      for ($ancestor = $element->parentNode; $ancestor instanceof \DOMElement; $ancestor = $ancestor->parentNode) {
+        if (in_array(strtolower($ancestor->localName ?? $ancestor->nodeName), ['text', 'tspan', 'textpath'], TRUE)) {
+          $replacement_name = 'tspan';
+          break;
+        }
+      }
+      $replacement = $document->createElementNS($element->namespaceURI, $replacement_name);
+      foreach ($element->attributes as $attribute) {
+        if ($attribute->namespaceURI === NULL && str_contains($attribute->nodeName, ':')) {
+          // Keep undeclared prefixes inert instead of promoting their names.
+          $replacement->setAttribute($attribute->nodeName, $attribute->value);
+        }
+        else {
+          $replacement->setAttributeNS($attribute->namespaceURI, $attribute->nodeName, $attribute->value);
+        }
+      }
+      while ($element->firstChild) {
+        $replacement->appendChild($element->firstChild);
+      }
+      $element->parentNode->replaceChild($replacement, $element);
+    }
+
+    // Choose only after cleanup. Outer switches must see nested conditions
+    // before those nested wrappers are unwrapped later in document order.
+    foreach ($switches as $element) {
+      if (!$element->parentNode) {
+        continue;
+      }
+      $selected = NULL;
+      foreach ($element->childNodes as $child) {
+        if (!$child instanceof \DOMElement) {
+          continue;
+        }
+        $selected ??= $child;
+        if (!$child->hasAttribute('requiredExtensions') && !$child->hasAttribute('requiredFeatures')) {
+          $selected = $child;
+          break;
+        }
+      }
+      if ($selected !== NULL) {
+        $element->parentNode->insertBefore($selected, $element);
+      }
+      $element->parentNode->removeChild($element);
     }
 
     return $removed_counts;
@@ -1307,7 +1345,7 @@ SVG,
    * Checks whether CSS url() references leave the current SVG document.
    */
   private function svgAttributeHasUnsafeCssUrl(string $value): bool {
-    if (!preg_match_all('/url\(\s*([^)]+?)\s*\)/i', $value, $matches)) {
+    if (!preg_match_all('/url\(\s*([^)]*)(?:\)|$)/i', $value, $matches)) {
       return FALSE;
     }
 

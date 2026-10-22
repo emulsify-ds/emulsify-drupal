@@ -240,11 +240,15 @@ Sites without the generated favicon package need no action.
   resolve. Block attributes now belong to the outer message wrapper, so review
   styles that depend on the previous wrapper placement. The unnecessary oEmbed `raw` filter is
   removed; Drupal's already-safe markup continues to render normally.
-- Favicon SVG processing allows supported static drawing elements, removes
-  unsafe or unsupported elements and attributes with warnings, rejects nested
-  SVG data URIs, and bounds rasterization resources. SVG dimensions above 4096
-  units are rejected. Exotic SVGs that previously passed may need simplifying
-  before upload. Manifest previews now validate managed package paths. Generated
+- Favicon SVG processing allows supported static drawing elements and removes
+  unsafe or unsupported elements, event handlers, external references (including
+  unclosed CSS `url(` values), and nested SVG data URIs with warnings. Link
+  wrappers become groups or text spans, preserving artwork, presentation
+  attributes, and their namespaces. Conditional switches retain one alternative,
+  preferring a child without `requiredExtensions` or `requiredFeatures`.
+  Rasterization resources are bounded. SVG dimensions above 4096 units are
+  rejected. Exotic SVGs that previously passed may need simplifying before
+  upload. Manifest previews now validate managed package paths. Generated
   packages continue to live in `public://favicon-package/`, outside the theme.
   Previously stored public SVGs are not rewritten by the update; review and
   re-upload existing sources when applying the new restrictions to them.

@@ -188,6 +188,35 @@ SVG;
   emulsify_favicon_assert($xpath->evaluate('count(//svg:metadata | //*[namespace-uri()="http://ns.adobe.com/SaveForWeb/1.0/"])') === 0.0, 'Illustrator Save-for-Web metadata should be removed.');
   emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Benign Illustrator switch exports should not trigger an unsafe-markup warning.');
 
+  foreach ([
+    'first unconditional alternative' => [
+      '<g id="first"><rect/></g><g id="second"><circle/></g>',
+      'first', FALSE,
+    ],
+    'unconditional fallback after conditional alternatives' => [
+      '<g id="extensions" requiredExtensions="urn:unsupported"><rect/></g><g id="features" requiredFeatures="urn:unsupported"><path/></g><g id="fallback"><circle/></g><g id="later"><ellipse/></g>',
+      'fallback', FALSE,
+    ],
+    'fallback after unsafe alternatives are removed' => [
+      '<script>alert(1)</script><foreignObject><div>unsafe</div></foreignObject><g id="fallback"><circle/></g><g id="later"><rect/></g>',
+      'fallback', TRUE,
+    ],
+    'first remaining alternative when every alternative is conditional' => [
+      '<script>alert(1)</script><g id="first-conditional" requiredFeatures="urn:unsupported"><rect/></g><g id="second-conditional" requiredExtensions="urn:unsupported"><circle/></g>',
+      'first-conditional', TRUE,
+    ],
+    'outer fallback before an inner conditional switch is collapsed' => [
+      '<switch requiredExtensions="urn:unsupported"><g id="wrong"><rect/></g></switch><g id="fallback"><circle/></g>',
+      'fallback', FALSE,
+    ],
+  ] as $label => [$alternatives, $expected_id, $unsafe_warning]) {
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><switch>' . $alternatives . '</switch></svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/*)') === 1.0 && $xpath->evaluate('count(/svg:svg/svg:g[@id="' . $expected_id . '"])') === 1.0, 'Switch cleanup should keep only the ' . $label . '.');
+    emulsify_favicon_assert($xpath->evaluate('count(//svg:switch | //svg:script | //svg:foreignObject)') === 0.0, 'Selected switch artwork should contain no conditional wrappers or unsafe elements.');
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed') === $unsafe_warning, 'Switch selection should warn only when unsafe markup was removed: ' . $label . '.');
+  }
+
   $linked = <<<'SVG'
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect id="background" width="64" height="64"/>
@@ -226,6 +255,38 @@ SVG;
     emulsify_favicon_assert(!$group->hasAttribute($attribute), 'Converted groups should remove link-only or unsafe ' . $attribute . ' attributes.');
   }
   emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Unsafe attributes on converted links should still produce an unsafe-markup warning.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text><a href="#">W</a></text></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('string(/svg:svg/svg:text)') === 'W' && $xpath->evaluate('count(//svg:text//svg:a | //svg:text//svg:g)') === 0.0, 'Linked glyphs must remain renderable text, without an invalid group inside text.');
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:text/svg:tspan | /svg:svg/svg:text/text()[.="W"])') === 1.0, 'A text link may become a tspan or be unwrapped without losing its glyph.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Removing safe text-link semantics should remain silent.');
+
+  foreach ([
+    '<text>%s</text>',
+    '<text><tspan>%s</tspan></text>',
+    '<text><textPath href="#baseline">%s</textPath></text>',
+  ] as $text_wrapper) {
+    $linked_text = sprintf($text_wrapper, '<a href="#" fill="red" font-weight="700">W</a>');
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><path id="baseline" d="M0 50h64"/></defs>' . $linked_text . '</svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    emulsify_favicon_assert($xpath->evaluate('string(/svg:svg/svg:text)') === 'W' && $xpath->evaluate('count(//svg:text//svg:g | //svg:text//svg:a)') === 0.0, 'Links nested in text, tspan, and textPath must preserve a valid text structure.');
+    emulsify_favicon_assert($xpath->evaluate('count(//svg:text//svg:tspan[@fill="red" and @font-weight="700" and .="W"])') === 1.0, 'Converted text links must retain their inherited presentation attributes.');
+    emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Safe nested text-link conversion should not report unsafe cleanup.');
+  }
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><a xmlns:f="urn:emulsify:foreign" xmlns:xlink="http://www.w3.org/1999/xlink" f:transform="translate(5,5)" xlink:title="linked title" fill="red"><rect id="namespace-artwork"/></a></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:g[@fill="red"]/svg:rect[@id="namespace-artwork"])') === 1.0, 'Namespaced link attributes must not disrupt ordinary grouped artwork.');
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:g/@*[local-name()="transform" and namespace-uri()="urn:emulsify:foreign" and .="translate(5,5)"])') === 1.0 && $xpath->evaluate('count(/svg:svg/svg:g/@transform)') === 0.0, 'Foreign transform metadata must retain its namespace and remain inert, rather than becoming a rendering transform.');
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:g/@*[local-name()="title" and namespace-uri()="http://www.w3.org/1999/xlink" and .="linked title"])') === 1.0 && $xpath->evaluate('count(/svg:svg/svg:g/@title)') === 0.0, 'An xlink title must retain its namespace instead of becoming a plain title attribute.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Preserving safe namespaced metadata on a link should remain silent.');
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><a f:transform="translate(5,5)"><rect id="undeclared-prefix-artwork"/></a></svg>', FALSE);
+  $document = new \DOMDocument();
+  emulsify_favicon_assert($document->loadXML((string) $analysis['sanitized_svg'], LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING), 'Undeclared prefixed metadata must not crash link conversion.');
+  $group = $document->getElementsByTagName('g')->item(0);
+  emulsify_favicon_assert($group instanceof \DOMElement && !$group->hasAttribute('transform') && $group->getElementsByTagName('rect')->length === 1, 'An undeclared prefixed transform must remain inert and retain its artwork.');
 
   $pattern = <<<'SVG'
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -424,6 +485,22 @@ SVG;
   $sanitized_svg = (string) $analysis['sanitized_svg'];
   emulsify_favicon_assert(!str_contains($sanitized_svg, 'https://example.com/filter.svg'), 'External CSS url() attribute references should be stripped from sanitized SVG output.');
   emulsify_favicon_assert(str_contains($sanitized_svg, 'fill="url(#g)"'), 'Local CSS url() fragment references should be preserved.');
+
+  foreach ([
+    'url(https://example.com/filter.svg#f',
+    'url("https://example.com/filter.svg#f',
+    'u\72l(https://example.com/filter.svg#f',
+  ] as $unclosed_url) {
+    $attribute = htmlspecialchars($unclosed_url, ENT_QUOTES | ENT_XML1, 'UTF-8');
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect id="unclosed-reference" filter="' . $attribute . '"/></svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:rect[@id="unclosed-reference" and not(@filter)])') === 1.0, 'An unclosed external CSS URL must be removed through the end of its attribute value.');
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Unclosed external CSS URLs must produce an unsafe-markup warning.');
+  }
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><filter id="local"><feOffset dx="1"/></filter></defs><rect filter="url(#local"/></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:rect[@filter="url(#local"])') === 1.0, 'An unclosed local CSS fragment must not be confused with an external reference.');
+  emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Safe local CSS fragments should not report unsafe cleanup.');
 
   $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="url(\23 g)" stroke="u\72l(#g)" filter="u\72 l(https://example.com/filter.svg#f)"/></svg>', FALSE);
   $xpath = emulsify_favicon_sanitized_xpath($analysis);
