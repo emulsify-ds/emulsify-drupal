@@ -119,7 +119,10 @@ final class FaviconHeadBuilder {
       }
       foreach ($attributes as $attribute => $value) {
         if (in_array(strtolower((string) $attribute), ['name', 'property'], TRUE)
-          && is_scalar($value) && in_array(strtolower(trim((string) $value)), ['og:image', 'twitter:image', 'twitter:card'], TRUE)) {
+          && is_scalar($value) && in_array(strtolower(trim((string) $value)), [
+            'og:image', 'og:image:url', 'og:image:secure_url',
+            'twitter:image', 'twitter:image:src', 'twitter:card',
+          ], TRUE)) {
           return;
         }
       }

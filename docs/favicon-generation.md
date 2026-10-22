@@ -125,8 +125,10 @@ For an enabled, existing favicon package containing that PNG, Emulsify adds:
 
 Image URLs are absolute. These tags supply a default image for link previews
 on LinkedIn, Slack, Facebook, and X. If any module or other earlier attachment
-already supplies `og:image`, `twitter:image`, or `twitter:card`, Emulsify adds
-none of these sharing tags and leaves the existing sharing metadata intact.
+already supplies `og:image`, `og:image:url`, `og:image:secure_url`,
+`twitter:image`, `twitter:image:src`, or `twitter:card` (case-insensitively),
+Emulsify adds none of these sharing tags and leaves the existing sharing
+metadata intact.
 Sites whose Metatag configuration sets an image keep it.
 
 Social sites cache images, so changes can take a while to appear. Each image

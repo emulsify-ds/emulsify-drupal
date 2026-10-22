@@ -197,8 +197,11 @@ try {
   }
 
   foreach (['name', 'property', 'PROPERTY'] as $attribute) {
-    foreach (['og:image', 'twitter:image', 'twitter:card'] as $identity) {
-      $existing = [['#tag' => 'meta', '#attributes' => [$attribute => ' ' . strtoupper($identity) . ' ', 'content' => 'Existing Metatag value']], 'metatag_fixture'];
+    foreach ([
+      'OG:IMAGE', 'oG:ImAgE:uRl', 'Og:IMAGE:Secure_URL',
+      'TWITTER:IMAGE', 'TwItTeR:ImAgE:SrC', 'TWITTER:CARD',
+    ] as $identity) {
+      $existing = [['#tag' => 'meta', '#attributes' => [$attribute => ' ' . $identity . ' ', 'content' => 'Existing Metatag value']], 'metatag_fixture'];
       $guarded = ['#attached' => ['html_head' => [$existing]], '#cache' => $original_cache];
       $head->apply($guarded, $head_settings);
       emulsify_share_assert(emulsify_share_tags($guarded) === [], 'Any existing social image or Twitter card must suppress all fallback sharing tags.');
