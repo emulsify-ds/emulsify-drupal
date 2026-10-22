@@ -289,6 +289,20 @@ try {
     $variables = $preprocess(emulsify_oembed_resource($resources['youtube'], $html));
     emulsify_oembed_assert((string) $variables['media'] === $html && !isset($variables['emulsify_oembed_poster']), 'Unknown or malformed player markup must pass through unchanged: ' . $html);
   }
+  foreach ([
+    ['youtube', 'https://youtube.com.evil.example/embed/x'],
+    ['youtube', 'https://evil.example/www.youtube.com/embed/x'],
+    ['youtube', '//www.youtube.com/embed/x'],
+    ['youtube', 'http://www.youtube.com/embed/x'],
+    ['youtube', 'https://www.youtube.com@evil.example/embed/x'],
+    ['vimeo', 'https://player.vimeo.com.evil.example/video/1'],
+  ] as [$provider, $url]) {
+    $html = '<iframe src="' . $url . '"></iframe>';
+    $variables = $preprocess(emulsify_oembed_resource($resources[$provider], $html));
+    emulsify_oembed_assert((string) $variables['media'] === $html && !isset($variables['emulsify_oembed_poster']), 'Invalid player URLs must pass through unchanged without a poster: ' . $url);
+  }
+  $uppercase_host = $preprocess(emulsify_oembed_resource($resources['youtube'], '<iframe src="https://WWW.YOUTUBE.COM/embed/x"></iframe>'));
+  emulsify_oembed_assert(($uppercase_host['emulsify_oembed_poster']['player_url'] ?? NULL) === 'https://www.youtube-nocookie.com/embed/x?autoplay=1', 'Uppercase YouTube hosts must be accepted and receive privacy and autoplay settings.');
   $unknown = new Provider('Other video', 'https://video.example.test/', [['url' => 'https://video.example.test/oembed', 'formats' => ['json']]]);
   $unknown_resource = Resource::video($fixtures['youtube']['html'], 640, 360, $unknown);
   emulsify_oembed_assert((string) $preprocess($unknown_resource)['media'] === $unknown_resource->getHtml(), 'Unknown providers must pass through unchanged.');
