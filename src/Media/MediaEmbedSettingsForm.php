@@ -50,13 +50,13 @@ final class MediaEmbedSettingsForm implements ContainerInjectionInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Use privacy-enhanced embeds'),
       '#default_value' => $settings['media_embed_privacy_mode'],
-      '#description' => $this->t('Reduces provider tracking where supported. The provider still receives data when the video plays.'),
+      '#description' => $this->t('Uses YouTube\'s privacy-enhanced player and asks Vimeo not to track. The player still loads from the provider when the page is viewed, unless click to load is also on.'),
     ];
     $media['media_embed_click_to_load'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Require a click to load embedded media'),
       '#default_value' => $settings['media_embed_click_to_load'],
-      '#description' => $this->t('Your browser does not contact the media provider until you click to load, except for a provider thumbnail when that option is selected.'),
+      '#description' => $this->t('Visitors\' browsers do not contact the video provider until someone clicks Play video, except to load the provider\'s thumbnail when that placeholder is selected.'),
     ];
     $media['media_embed_poster'] = [
       '#type' => 'select',
