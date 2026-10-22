@@ -28,7 +28,7 @@ final class ContainerHooks {
     $attributes = $element['#attributes'] ?? [];
 
     foreach ((array) ($attributes['class'] ?? []) as $class) {
-      if ($class !== '') {
+      if (is_scalar($class) && trim((string) $class) !== '') {
         $suggestions[] = 'container__class__' . str_replace('-', '_', (string) $class);
       }
     }

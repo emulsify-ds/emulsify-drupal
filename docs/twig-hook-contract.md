@@ -84,8 +84,10 @@ classes `['form-actions', 'compact']`, structural parents
 | ID, highest priority | `container--id--checkout-actions.html.twig` |
 
 Classes come from `#attributes['class']`; a class string is treated as one
-entry, not split on spaces. Empty-string classes are skipped. Paths use
-`#array_parents`, preserving the form's render structure even when `#tree` is
+entry, not split on spaces. Non-scalar classes and classes that are empty after
+trimming are skipped. Other class values keep their original text except for
+hyphen-to-underscore replacement. Paths use `#array_parents`, preserving the
+form's render structure even when `#tree` is
 false and value-oriented `#parents` is flattened. Each additional ancestor
 produces a more specific candidate, including numeric path segments.
 
@@ -137,7 +139,7 @@ adds no View-specific candidates. A DOM `#id` of `views_exposed_form` alone
 still gets the existing generic ID suggestion, but no Views-specific variants.
 
 `FormHooks::preprocessBlock()` copies a nonempty `elements['#id']` to
-`content['#emulsify_block_id']` only when that content's `#form_id` is
+`content['#emulsify_block_id']` only when content is an array whose `#form_id` is
 `views_exposed_form`. The form hook uses this value for the final block-specific
 candidate, replacing hyphens with underscores. This identifies a configured
 block placement, not the Views block plugin ID. It is available only when the

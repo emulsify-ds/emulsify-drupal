@@ -20,7 +20,7 @@ final class FormHooks {
   #[Hook('preprocess_block')]
   public function preprocessBlock(array &$variables): void {
     // Carry the placed block's stable ID into its exposed form before render.
-    if (!empty($variables['elements']['#id']) && ($variables['content']['#form_id'] ?? '') === 'views_exposed_form') {
+    if (!empty($variables['elements']['#id']) && is_array($variables['content'] ?? NULL) && ($variables['content']['#form_id'] ?? '') === 'views_exposed_form') {
       $variables['content']['#emulsify_block_id'] = $variables['elements']['#id'];
     }
   }

@@ -10,6 +10,7 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Template\Attribute;
 use Drupal\emulsify\Hook\ContainerHooks;
 use Drupal\emulsify\Hook\FieldHooks;
@@ -197,6 +198,16 @@ foreach ([
 }
 emulsify_hook_same(FALSE, isset($exposed_form['#emulsify_block_id']), 'Rendering a block does not leak its ID into the source form');
 
+$rendered_block = [
+  'elements' => ['#id' => 'already-rendered'],
+  'content' => Markup::create('<p>Already rendered block content</p>'),
+  'theme_hook_suggestions' => ['block', 'block__existing'],
+  '#cache' => ['tags' => ['block:existing'], 'contexts' => ['user.permissions']],
+];
+$original = $rendered_block;
+$form_hook->preprocessBlock($rendered_block);
+emulsify_hook_same($original, $rendered_block, 'Rendered Markup block content preserves all variables, suggestions, and cache metadata');
+
 $container_hook = new ContainerHooks();
 $container_element = [
   '#attributes' => ['class' => ['form-wrapper', '', 'form-actions'], 'data-drupal-selector' => 'edit-actions', 'id' => 'checkout-actions'],
@@ -231,6 +242,25 @@ foreach ([
   $container_hook->themeSuggestionsContainerAlter($suggestions, ['element' => $element]);
   emulsify_hook_same($expected, $suggestions, 'Container attribute, structural path, and ID gates');
 }
+
+// Drupal's error handler can log warnings without failing a smoke command.
+set_error_handler(static function (int $severity, string $message, string $file, int $line): never {
+  throw new ErrorException($message, 0, $severity, $file, $line);
+});
+try {
+  foreach ([
+    [[NULL, '', " \t\n", [], ['nested'], new stdClass()], []],
+    [[NULL, 'form-actions', [], '0', 0, 12, 2.5, TRUE, FALSE, " \t", ' padded-class ', ['nested'], 'form-actions'], ['container__class__form_actions', 'container__class__0', 'container__class__0', 'container__class__12', 'container__class__2.5', 'container__class__1', 'container__class__ padded_class ', 'container__class__form_actions']],
+  ] as [$classes, $expected]) {
+    $suggestions = ['existing'];
+    $container_hook->themeSuggestionsContainerAlter($suggestions, ['element' => ['#attributes' => ['class' => $classes]]]);
+    emulsify_hook_same(array_merge(['existing'], $expected), $suggestions, 'Malformed class entries are skipped without warnings while valid scalar spelling, order, and duplicates survive');
+  }
+}
+finally {
+  restore_error_handler();
+}
+
 $selectors = [];
 foreach (['edit-actions', 'edit-actions--2'] as $id) {
   $suggestions = [];
