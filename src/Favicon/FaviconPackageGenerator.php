@@ -814,6 +814,9 @@ SVG,
     $inset = (int) round(1024 * ($padding / 100));
     $content_size = max(1, 1024 - ($inset * 2));
     $dark_background = $settings['favicon_dark_background_color'] ?: $settings['favicon_background_color'];
+    if ($settings['favicon_dark_mode'] === 'invert' && $settings['favicon_dark_background_color'] === '') {
+      $dark_background = sprintf('#%06x', 0xffffff ^ hexdec(substr($dark_background, 1)));
+    }
     $dark_rules = '.emulsify-favicon-background{fill:' . $dark_background . ';}';
     $base_rules = '';
     $definitions = '';

@@ -309,7 +309,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         'alternate' => $this->t('Use a different SVG icon'),
       ],
       '#default_value' => $settings['favicon_dark_mode'],
-      '#description' => $this->t('Applies to browser tabs in dark mode. Apple and Android icons keep their existing appearance.'),
+      '#description' => $this->t('Applies to browser tabs in dark mode. Invert also inverts the light background unless you choose a dark background. Apple and Android icons keep their existing appearance.'),
     ];
     $dark_mode['favicon_dark_background_enabled'] = [
       '#type' => 'checkbox',

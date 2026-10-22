@@ -138,6 +138,10 @@ try {
     emulsify_dark_assert(str_contains($style, '@media (prefers-color-scheme: dark)'), "$label must respond to the browser color scheme.");
     emulsify_dark_assert(!str_contains($fixed_style, '@media'), "$label preview must have a fixed dark appearance.");
     $background = $configured['favicon_dark_background_color'] ?: $settings['favicon_background_color'];
+    if ($configured['favicon_dark_mode'] === 'invert' && $configured['favicon_dark_background_color'] === '') {
+      $background = '#543210';
+      emulsify_dark_assert($background !== $settings['favicon_background_color'], 'Inversion must give this fixture a different dark background.');
+    }
     emulsify_dark_assert(str_contains($style, '.emulsify-favicon-background{fill:' . $background . ';}'), "$label must use the effective dark background.");
     emulsify_dark_assert(str_contains($fixed_style, '.emulsify-favicon-background{fill:' . $background . ';}'), "$label preview must use the same dark background.");
     emulsify_dark_assert($responsive->evaluate('string(/svg:svg/svg:rect/@fill)') === $settings['favicon_background_color'], "$label must preserve the light background.");
@@ -190,6 +194,25 @@ try {
     emulsify_dark_assert($metas[1][0]['#attributes'] === ['name' => 'theme-color', 'content' => $configured['favicon_dark_theme_color'], 'media' => '(prefers-color-scheme: dark)'], 'Dark theme color must have its matching media query.');
   }
 
+  // Fixed expected colors catch inversion of the complete tile, rather than
+  // repeating the implementation's RGB calculation in the assertion.
+  $black_source = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" fill="#000000"/></svg>';
+  foreach (['#ffffff' => '#000000', '#005b99' => '#ffa466'] as $light_background => $dark_background) {
+    $configured = array_replace($settings, ['favicon_background_color' => $light_background, 'favicon_dark_mode' => 'invert']);
+    $package = emulsify_dark_generate($generator, $theme, $black_source, $configured);
+    foreach (['favicon.svg', 'favicon-dark.svg'] as $filename) {
+      $svg = emulsify_dark_svg($package['files'][$filename]);
+      $style = $svg->evaluate('string(/svg:svg/svg:style)');
+      emulsify_dark_assert(str_contains($style, '.emulsify-favicon-background{fill:' . $dark_background . ';}'), "{$filename} must invert {$light_background} to {$dark_background}.");
+      emulsify_dark_assert($svg->evaluate('string(/svg:svg/svg:rect/@fill)') === $light_background, 'The shared tile rectangle must retain the light background; dark CSS supplies its inverse.');
+      if (is_string($artifact_directory) && $artifact_directory !== '') {
+        $directory = rtrim($artifact_directory, '/') . '/invert-' . substr($light_background, 1);
+        emulsify_dark_assert(is_dir($directory) || mkdir($directory, 0777, TRUE), 'Unable to export inverted tile fixtures.');
+        emulsify_dark_assert(file_put_contents($directory . '/' . $filename, $package['files'][$filename]) !== FALSE, 'Unable to export inverted tile artwork.');
+      }
+    }
+  }
+
   $invalid = array_replace($settings, ['favicon_dark_background_color' => '#fff;}</style>', 'favicon_dark_theme_color' => 'url(https://example.com)']);
   emulsify_dark_assert($generator->getPackageDefinition($theme, $invalid, $source)['hash'] === $baseline_hash, 'Invalid dark colors must not activate output or inject CSS.');
   try {
@@ -199,7 +222,7 @@ try {
   catch (InvalidArgumentException $exception) {
     emulsify_dark_assert(str_contains($exception->getMessage(), 'dark-mode SVG source'), 'Missing alternate artwork must have a clear validation error.');
   }
-  fwrite(STDOUT, "PASS Favicon dark mode: inactive byte identity, active hashes, responsive/fixed SVGs, unchanged raster/manifest output, sanitized alternate artwork, and media-aware head tags.\n");
+  fwrite(STDOUT, "PASS Favicon dark mode: inactive byte identity, active hashes, responsive/fixed SVGs, inverted tile backgrounds and explicit overrides, unchanged raster/manifest output, sanitized alternate artwork, and media-aware head tags.\n");
 }
 finally {
   \Drupal::service('file_system')->deleteRecursive('public://favicon-package/' . $theme);

@@ -70,7 +70,8 @@ In **Browser favicon settings → Dark mode**, choose one of these treatments:
 
 - **None** keeps the main icon in both color schemes (the default).
 - **Invert** inverts the icon's RGB colors in dark mode while preserving its
-  transparency. This works best for single-color marks.
+  transparency. The light background is inverted too, unless you choose a dark
+  background. This works best for single-color marks.
 - **Alternate icon** uses a separately uploaded SVG in dark mode. It has the
   same upload limits, sanitizer, and diagnostics as the main icon. Its sanitized
   portable copy is saved in config, and the managed upload lives under
