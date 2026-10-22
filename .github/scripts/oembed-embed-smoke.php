@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldItemList;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\emulsify\Hook\FieldHooks;
 use Drupal\media\IFrameMarkup;
 use Drupal\media\IFrameUrlHelper;
@@ -141,8 +142,8 @@ function emulsify_oembed_document(string $html): DOMDocument {
 /**
  * Creates a fixed resource with optional provider markup and hostile title.
  */
-function emulsify_oembed_resource(Resource $resource, string $html, string $title = 'Fixture <img src=x onerror=alert(1)> & "title"'): Resource {
-  return Resource::video($html, 640, 360, $resource->getProvider(), $title, 'Fixture author', 'https://fixture.example.test/author', 3600, $resource->getThumbnailUrl()->toString(), 640, 360);
+function emulsify_oembed_resource(Resource $resource, string $html, string $title = 'Fixture <img src=x onerror=alert(1)> & "title"', int $width = 640, int $height = 360): Resource {
+  return Resource::video($html, $width, $height, $resource->getProvider(), $title, 'Fixture author', 'https://fixture.example.test/author', 3600, $resource->getThumbnailUrl()->toString(), $width, $height);
 }
 
 $theme_name = (string) \Drupal::config('system.theme')->get('default');
@@ -159,7 +160,7 @@ $set_settings = static function (array $settings) use ($config, $defaults): void
   $config->save();
 };
 $preprocess = static function (Resource $resource) use ($hook): array {
-  $variables = ['resource' => $resource, 'media' => IFrameMarkup::create($resource->getHtml()), '#cache' => ['tags' => ['oembed:existing']]];
+  $variables = ['resource' => $resource, 'media' => IFrameMarkup::create($resource->getHtml()), '#cache' => ['tags' => ['oembed:existing'], 'contexts' => ['user.permissions'], 'max-age' => 3600]];
   $hook->preprocessMediaOembedIframe($variables);
   return $variables;
 };
@@ -167,6 +168,11 @@ $render = static function (Resource $resource) use ($renderer): string {
   $element = ['#theme' => 'media_oembed_iframe', '#resource' => $resource, '#media' => IFrameMarkup::create($resource->getHtml()), '#placeholder_token' => 'fixed-oembed-placeholder-token'];
   return (string) $renderer->renderInIsolation($element);
 };
+$language_code = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId();
+$artifacts = getenv('EMULSIFY_OEMBED_ARTIFACT_DIR');
+if ($artifacts && !is_dir($artifacts) && !mkdir($artifacts, 0777, TRUE) && !is_dir($artifacts)) {
+  throw new RuntimeException('Unable to create poster artifact directory.');
+}
 
 try {
   emulsify_oembed_assert(\Drupal\emulsify\Media\MediaEmbedSettings::normalize([]) === $defaults, 'Existing child settings without media keys must retain the off defaults.');
@@ -176,6 +182,11 @@ try {
     foreach ($resources as $name => $resource) {
       $variables = $preprocess($resource);
       emulsify_oembed_assert(array_diff(array_merge(['oembed:existing'], $tags), $variables['#cache']['tags']) === [], 'Inner embeds must retain existing and active/base theme settings cache tags even when off.');
+      emulsify_oembed_assert(in_array('user.permissions', $variables['#cache']['contexts'], TRUE) && $variables['#cache']['max-age'] === 3600, 'Inner embeds must preserve existing cache contexts and max-age.');
+      emulsify_oembed_assert(in_array('languages:language_interface', $variables['#cache']['contexts'], TRUE) === !empty($settings['media_embed_click_to_load']), 'Only poster documents must vary by interface language.');
+      if (empty($settings['media_embed_click_to_load'])) {
+        emulsify_oembed_assert(!emulsify_oembed_document($render($resource))->documentElement->hasAttribute('lang'), 'Documents without a poster must retain their original HTML language attributes.');
+      }
       $outer = $field_variables[$name];
       $outer['#cache']['tags'] = ['oembed:outer'];
       (new FieldHooks())->preprocessField($outer);
@@ -216,12 +227,14 @@ try {
       foreach ([FALSE, TRUE] as $privacy) {
         $set_settings(['media_embed_click_to_load' => TRUE, 'media_embed_privacy_mode' => $privacy, 'media_embed_poster' => $poster]);
         $variables = $preprocess($custom);
+        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_code'] === $language_code, 'Posters must expose the current interface language to child templates.');
         $player_url = $privacy ? $privacy_url : $source;
         $player_url = str_contains($player_url, 'autoplay=0') ? str_replace('autoplay=0', 'autoplay=1', $player_url) : str_replace('#chapter', '&autoplay=1#chapter', $player_url);
         emulsify_oembed_assert($variables['emulsify_oembed_poster']['player_url'] === $player_url, 'Play links must enable autoplay while preserving all unrelated URL bytes.');
         emulsify_oembed_assert(in_array('emulsify/oembed_poster', $variables['#attached']['library'] ?? [], TRUE), 'Posters must attach the local CSS library.');
         $html = $render($custom);
         $document = emulsify_oembed_document($html);
+        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Poster documents must declare the current interface language.');
         $xpath = new DOMXPath($document);
         emulsify_oembed_assert($xpath->query('//iframe | //script | //noscript | //@onerror')->length === 0, 'Poster documents must omit the player iframe and escape hostile provider titles.');
         $anchor = $document->getElementsByTagName('a')->item(0);
@@ -236,11 +249,27 @@ try {
         else {
           emulsify_oembed_assert($xpath->query('//*[@src] | //link | //object | //embed')->length === 0, 'Neutral posters must not contain third-party resource requests.');
         }
-        if (($artifacts = getenv('EMULSIFY_OEMBED_ARTIFACT_DIR')) && $privacy) {
-          if (!is_dir($artifacts) && !mkdir($artifacts, 0777, TRUE) && !is_dir($artifacts)) {
-            throw new RuntimeException('Unable to create poster artifact directory.');
-          }
+        if ($artifacts && $privacy) {
           file_put_contents($artifacts . '/' . $name . '-' . $poster . '.html', $html);
+        }
+      }
+    }
+  }
+
+  foreach ($resources as $name => $resource) {
+    foreach ([[200, 113], [320, 180]] as [$width, $height]) {
+      $small = emulsify_oembed_resource($resource, $resource->getHtml(), width: $width, height: $height);
+      foreach (['provider', 'neutral'] as $poster) {
+        $set_settings(['media_embed_click_to_load' => TRUE, 'media_embed_poster' => $poster]);
+        $variables = $preprocess($small);
+        emulsify_oembed_assert($variables['emulsify_oembed_poster']['aspect_ratio'] === $width . ' / ' . $height, 'Small resources must retain their aspect ratio for child templates.');
+        $html = $render($small);
+        $document = emulsify_oembed_document($html);
+        $anchors = $document->getElementsByTagName('a');
+        emulsify_oembed_assert($anchors->length === 1 && !$anchors->item(0)->hasAttribute('style'), 'Small posters must retain one native play link without inline geometry.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Small poster documents must declare the current interface language.');
+        if ($artifacts) {
+          file_put_contents($artifacts . '/' . $name . '-' . $poster . '-' . $width . 'x' . $height . '.html', $html);
         }
       }
     }

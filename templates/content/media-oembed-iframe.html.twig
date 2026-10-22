@@ -5,12 +5,12 @@
  */
 #}
 <!DOCTYPE html>
-<html>
+<html{% if emulsify_oembed_poster %} lang="{{ emulsify_oembed_poster.language_code }}"{% endif %}>
   <head>
     <css-placeholder token="{{ placeholder_token }}">
   </head>
   <body{% if emulsify_oembed_poster %} class="emulsify-oembed-document"{% endif %} style="margin: 0">
-    {% if emulsify_oembed_poster %}<a class="emulsify-oembed-poster" href="{{ emulsify_oembed_poster.player_url }}" referrerpolicy="strict-origin-when-cross-origin" style="aspect-ratio: {{ emulsify_oembed_poster.aspect_ratio }}">
+    {% if emulsify_oembed_poster %}<a class="emulsify-oembed-poster" href="{{ emulsify_oembed_poster.player_url }}" referrerpolicy="strict-origin-when-cross-origin">
       {% if emulsify_oembed_poster.thumbnail_url %}<img class="emulsify-oembed-poster__thumbnail" src="{{ emulsify_oembed_poster.thumbnail_url }}" alt=""{% if emulsify_oembed_poster.thumbnail_width and emulsify_oembed_poster.thumbnail_height %} width="{{ emulsify_oembed_poster.thumbnail_width }}" height="{{ emulsify_oembed_poster.thumbnail_height }}"{% endif %} referrerpolicy="no-referrer" />{% endif %}
       <span class="emulsify-oembed-poster__play" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M18 12v24l20-12z" fill="currentColor" /></svg></span>
       <span class="emulsify-oembed-poster__label">{{ 'Play video'|t }}{% if emulsify_oembed_poster.title %}<span class="emulsify-oembed-visually-hidden">: {{ emulsify_oembed_poster.title }}</span>{% endif %}</span>

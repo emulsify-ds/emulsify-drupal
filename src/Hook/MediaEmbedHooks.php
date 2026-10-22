@@ -8,6 +8,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Extension\ThemeSettingsProvider;
 use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\emulsify\Media\MediaEmbedSettings;
 use Drupal\media\IFrameMarkup;
@@ -133,7 +134,11 @@ final class MediaEmbedHooks {
       'thumbnail_width' => max(0, (int) $resource->getThumbnailWidth()),
       'thumbnail_height' => max(0, (int) $resource->getThumbnailHeight()),
       'aspect_ratio' => $width > 0 && $height > 0 ? $width . ' / ' . $height : '16 / 9',
+      'language_code' => \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId(),
     ];
+    CacheableMetadata::createFromRenderArray($variables)
+      ->addCacheContexts(['languages:language_interface'])
+      ->applyTo($variables);
     $variables['#attached']['library'][] = 'emulsify/oembed_poster';
   }
 

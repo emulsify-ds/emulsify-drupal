@@ -75,6 +75,28 @@
   white-space: nowrap;
 }
 
+@media (max-height: 160px) {
+  :where(.emulsify-oembed-poster) {
+    gap: 0.375rem;
+  }
+
+  :where(.emulsify-oembed-poster__play) {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  :where(.emulsify-oembed-poster__play svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  :where(.emulsify-oembed-poster__label) {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+}
+
 @media (forced-colors: active) {
   :where(.emulsify-oembed-poster__thumbnail) {
     display: none;
