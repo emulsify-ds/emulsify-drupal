@@ -10,9 +10,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 - Optional YouTube and Vimeo embed settings reduce player tracking or replace
   the player with a keyboard-accessible, JavaScript-free click-to-load poster.
   Both options default to off; provider thumbnails are optional. Posters fit
-  small frames, declare the interface language, and keep keyboard focus visible
-  over thumbnails. See [media embeds](./media-embeds.md) for privacy caveats,
-  settings scope, CSP requirements, and the contract for child template overrides.
+  small frames, declare the interface language and direction, and keep keyboard
+  focus visible over thumbnails. See [media embeds](./media-embeds.md) for privacy
+  caveats, settings scope, CSP requirements, and the contract for child template
+  overrides.
 - An optional default social share image uses the configured favicon SVG to
   generate a branded 1200 × 630 PNG and sharing metadata. Existing `og:image`,
   `twitter:image`, `twitter:card`, and their supported image URL aliases take

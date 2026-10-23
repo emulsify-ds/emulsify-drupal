@@ -56,7 +56,7 @@ final class MediaEmbedSettingsForm implements ContainerInjectionInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Require a click to load embedded media'),
       '#default_value' => $settings['media_embed_click_to_load'],
-      '#description' => $this->t('Visitors\' browsers do not contact the video provider until someone clicks Play video, except to load the provider\'s thumbnail when that placeholder is selected.'),
+      '#description' => $this->t('For YouTube and Vimeo videos, visitors\' browsers don\'t contact the provider until someone clicks Play video, except to load the provider\'s thumbnail when that placeholder is selected. Other embeds load as before.'),
     ];
     $media['media_embed_poster'] = [
       '#type' => 'select',

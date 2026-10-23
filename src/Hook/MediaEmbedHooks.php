@@ -126,6 +126,7 @@ final class MediaEmbedHooks {
         // An unusable thumbnail still leaves a working neutral play link.
       }
     }
+    $language = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE);
     $variables['emulsify_oembed_poster'] = [
       'player_url' => $this->setPlayerParameter($player_url, 'autoplay'),
       'title' => (string) ($resource->getTitle() ?: $iframe->getAttribute('title')),
@@ -134,7 +135,8 @@ final class MediaEmbedHooks {
       'thumbnail_width' => max(0, (int) $resource->getThumbnailWidth()),
       'thumbnail_height' => max(0, (int) $resource->getThumbnailHeight()),
       'aspect_ratio' => $width > 0 && $height > 0 ? $width . ' / ' . $height : '16 / 9',
-      'language_code' => \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId(),
+      'language_code' => $language->getId(),
+      'language_direction' => $language->getDirection(),
     ];
     CacheableMetadata::createFromRenderArray($variables)
       ->addCacheContexts(['languages:language_interface'])

@@ -5,7 +5,7 @@
  */
 #}
 <!DOCTYPE html>
-<html{% if emulsify_oembed_poster %} lang="{{ emulsify_oembed_poster.language_code }}"{% endif %}>
+<html{% if emulsify_oembed_poster %} lang="{{ emulsify_oembed_poster.language_code }}" dir="{{ emulsify_oembed_poster.language_direction }}"{% endif %}>
   <head>
     <css-placeholder token="{{ placeholder_token }}">
   </head>

@@ -66,10 +66,11 @@ Child themes overriding `media-oembed-iframe.html.twig` must render
 `emulsify_oembed_poster` when present to receive click-to-load behavior, and
 otherwise render `{{ media }}`. The variable contains `player_url`, `title`,
 `provider`, `thumbnail_url`, `thumbnail_width`, `thumbnail_height`,
-`aspect_ratio`, and the current interface `language_code`. The parent's
-template sets the document language only for posters and shows the complete
-translated, escaped link, decorative play icon, hidden title, and optional
-thumbnail. Controls become compact in frames 160 pixels high or shorter.
+`aspect_ratio`, and the current interface `language_code` and
+`language_direction`. The parent's template sets the document language and
+direction only for posters and shows the complete translated, escaped link,
+decorative play icon, hidden title, and optional thumbnail. Controls become
+compact in frames 160 pixels high or shorter.
 
 Keep provider HTML inside this iframe document, as Drupal core does. Do not
 print `media` in the surrounding page or replace core's `IFrameMarkup` trust

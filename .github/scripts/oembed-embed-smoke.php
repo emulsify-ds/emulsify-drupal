@@ -168,7 +168,9 @@ $render = static function (Resource $resource) use ($renderer): string {
   $element = ['#theme' => 'media_oembed_iframe', '#resource' => $resource, '#media' => IFrameMarkup::create($resource->getHtml()), '#placeholder_token' => 'fixed-oembed-placeholder-token'];
   return (string) $renderer->renderInIsolation($element);
 };
-$language_code = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId();
+$language = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE);
+$language_code = $language->getId();
+$language_direction = $language->getDirection();
 $artifacts = getenv('EMULSIFY_OEMBED_ARTIFACT_DIR');
 if ($artifacts && !is_dir($artifacts) && !mkdir($artifacts, 0777, TRUE) && !is_dir($artifacts)) {
   throw new RuntimeException('Unable to create poster artifact directory.');
@@ -185,7 +187,9 @@ try {
       emulsify_oembed_assert(in_array('user.permissions', $variables['#cache']['contexts'], TRUE) && $variables['#cache']['max-age'] === 3600, 'Inner embeds must preserve existing cache contexts and max-age.');
       emulsify_oembed_assert(in_array('languages:language_interface', $variables['#cache']['contexts'], TRUE) === !empty($settings['media_embed_click_to_load']), 'Only poster documents must vary by interface language.');
       if (empty($settings['media_embed_click_to_load'])) {
-        emulsify_oembed_assert(!emulsify_oembed_document($render($resource))->documentElement->hasAttribute('lang'), 'Documents without a poster must retain their original HTML language attributes.');
+        $document = emulsify_oembed_document($render($resource));
+        emulsify_oembed_assert(!$document->documentElement->hasAttribute('lang'), 'Documents without a poster must retain their original HTML language attributes.');
+        emulsify_oembed_assert(!$document->documentElement->hasAttribute('dir'), 'Documents without a poster must retain their original HTML direction attributes.');
       }
       $outer = $field_variables[$name];
       $outer['#cache']['tags'] = ['oembed:outer'];
@@ -228,6 +232,7 @@ try {
         $set_settings(['media_embed_click_to_load' => TRUE, 'media_embed_privacy_mode' => $privacy, 'media_embed_poster' => $poster]);
         $variables = $preprocess($custom);
         emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_code'] === $language_code, 'Posters must expose the current interface language to child templates.');
+        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_direction'] === $language_direction, 'Posters must expose the current interface language direction to child templates.');
         $player_url = $privacy ? $privacy_url : $source;
         $player_url = str_contains($player_url, 'autoplay=0') ? str_replace('autoplay=0', 'autoplay=1', $player_url) : str_replace('#chapter', '&autoplay=1#chapter', $player_url);
         emulsify_oembed_assert($variables['emulsify_oembed_poster']['player_url'] === $player_url, 'Play links must enable autoplay while preserving all unrelated URL bytes.');
@@ -235,6 +240,7 @@ try {
         $html = $render($custom);
         $document = emulsify_oembed_document($html);
         emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Poster documents must declare the current interface language.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === $language_direction, 'Poster documents must declare the current interface language direction.');
         $xpath = new DOMXPath($document);
         emulsify_oembed_assert($xpath->query('//iframe | //script | //noscript | //@onerror')->length === 0, 'Poster documents must omit the player iframe and escape hostile provider titles.');
         $anchor = $document->getElementsByTagName('a')->item(0);
@@ -268,6 +274,7 @@ try {
         $anchors = $document->getElementsByTagName('a');
         emulsify_oembed_assert($anchors->length === 1 && !$anchors->item(0)->hasAttribute('style'), 'Small posters must retain one native play link without inline geometry.');
         emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Small poster documents must declare the current interface language.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === $language_direction, 'Small poster documents must declare the current interface language direction.');
         if ($artifacts) {
           file_put_contents($artifacts . '/' . $name . '-' . $poster . '-' . $width . 'x' . $height . '.html', $html);
         }
