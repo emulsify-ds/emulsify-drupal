@@ -895,19 +895,24 @@ SVG,
     $has_embedded_raster_images = $this->documentHasRasterImages($document);
     $uses_transparency = $this->documentUsesTransparency($document);
 
-    if ($view_box_was_normalized || $dimensions_were_normalized) {
-      $view_box = $this->normalizeSvgCanvas($root, $view_box);
-      $declared_dimensions = $this->extractDeclaredDimensions($root);
+    try {
+      if ($view_box_was_normalized || $dimensions_were_normalized) {
+        $view_box = $this->normalizeSvgCanvas($root, $view_box);
+        $declared_dimensions = $this->extractDeclaredDimensions($root);
+      }
+
+      // Inspect attributes before converting links or removing editor metadata so
+      // unsafe attributes on those elements still produce a security warning.
+      $removed_attributes = $this->stripDisallowedSvgAttributes($document);
+      $removed_nodes = $this->stripDisallowedSvgNodes($document);
+      $removed_unsafe_count = $removed_nodes['unsafe'] + $removed_attributes['unsafe'];
+      $removed_metadata_count = $removed_nodes['metadata'] + $removed_attributes['metadata'];
+
+      $sanitized = $document->saveXML($document->documentElement) ?: '';
     }
-
-    // Inspect attributes before converting links or removing editor metadata so
-    // unsafe attributes on those elements still produce a security warning.
-    $removed_attributes = $this->stripDisallowedSvgAttributes($document);
-    $removed_nodes = $this->stripDisallowedSvgNodes($document);
-    $removed_unsafe_count = $removed_nodes['unsafe'] + $removed_attributes['unsafe'];
-    $removed_metadata_count = $removed_nodes['metadata'] + $removed_attributes['metadata'];
-
-    $sanitized = $document->saveXML($document->documentElement) ?: '';
+    catch (\DOMException $exception) {
+      throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.', 0, $exception);
+    }
     if ($sanitized === '') {
       throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.');
     }
@@ -1199,15 +1204,7 @@ SVG,
         }
       }
       $replacement = $document->createElementNS($element->namespaceURI, $replacement_name);
-      foreach ($element->attributes as $attribute) {
-        if ($attribute->namespaceURI === NULL && str_contains($attribute->nodeName, ':')) {
-          // Keep undeclared prefixes inert instead of promoting their names.
-          $replacement->setAttribute($attribute->nodeName, $attribute->value);
-        }
-        else {
-          $replacement->setAttributeNS($attribute->namespaceURI, $attribute->nodeName, $attribute->value);
-        }
-      }
+      $removed_counts['unsafe'] += $this->copySvgAttributes($element, $replacement);
       while ($element->firstChild) {
         $replacement->appendChild($element->firstChild);
       }
@@ -1226,18 +1223,50 @@ SVG,
           continue;
         }
         $selected ??= $child;
-        if (!$child->hasAttribute('requiredExtensions') && !$child->hasAttribute('requiredFeatures')) {
+        if (!$child->hasAttribute('requiredExtensions') && !$child->hasAttribute('systemLanguage')) {
           $selected = $child;
           break;
         }
       }
       if ($selected !== NULL) {
+        if ($element->hasAttributes()) {
+          $replacement = $document->createElementNS($element->namespaceURI, 'g');
+          $removed_counts['unsafe'] += $this->copySvgAttributes($element, $replacement);
+          $replacement->appendChild($selected);
+          $selected = $replacement;
+        }
         $element->parentNode->insertBefore($selected, $element);
       }
       $element->parentNode->removeChild($element);
     }
 
     return $removed_counts;
+  }
+
+  /**
+   * Copies SVG attributes while dropping malformed names.
+   *
+   * @return int
+   *   The number of unsafe attributes that could not be copied.
+   */
+  private function copySvgAttributes(\DOMElement $source, \DOMElement $destination): int {
+    $removed_count = 0;
+    foreach ($source->attributes as $attribute) {
+      try {
+        if ($attribute->namespaceURI === NULL && str_contains($attribute->nodeName, ':')) {
+          // Keep undeclared prefixes inert instead of promoting their names.
+          $destination->setAttribute($attribute->nodeName, $attribute->value);
+        }
+        else {
+          $destination->setAttributeNS($attribute->namespaceURI, $attribute->nodeName, $attribute->value);
+        }
+      }
+      catch (\DOMException) {
+        $removed_count++;
+      }
+    }
+
+    return $removed_count;
   }
 
   /**
@@ -1353,7 +1382,7 @@ SVG,
       $target = trim((string) $raw_target, " \t\n\r\0\x0B\"'");
       $target = html_entity_decode($target, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-      if ($target === '' || !str_starts_with($target, '#')) {
+      if ($target !== '' && !str_starts_with($target, '#')) {
         return TRUE;
       }
     }

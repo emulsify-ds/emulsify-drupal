@@ -240,8 +240,9 @@ Sites without the generated favicon package need no action.
   unsafe or unsupported elements, event handlers, external references (including
   unclosed CSS `url(` values), and nested SVG data URIs with warnings. Link
   wrappers become groups or text spans, preserving artwork, presentation
-  attributes, and their namespaces. Conditional switches retain one alternative,
-  preferring a child without `requiredExtensions` or `requiredFeatures`.
+  attributes, and their namespaces. Switches keep the alternative browsers show
+  by default (the first child without `requiredExtensions` or `systemLanguage`),
+  along with the switch's own attributes.
   Rasterization resources are bounded. SVG dimensions above 4096 units are
   rejected. Exotic SVGs that previously passed may need simplifying before
   upload. Manifest previews now validate managed package paths. Generated

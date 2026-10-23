@@ -61,11 +61,11 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   filter while retaining Drupal's safe-markup behavior.
 - Favicon sources allow supported static SVG elements. Links become groups or
   text spans, preserving artwork, presentation attributes, and attribute
-  namespaces. Conditional switches retain one alternative, preferring a child
-  without `requiredExtensions` or `requiredFeatures`. Scripts, animation, event
-  handlers, nested SVG data URIs, and external references (including unclosed CSS
-  `url(` values) are removed with warnings. Oversized canvases are rejected and
-  rasterization is bounded.
+  namespaces. Switches keep the alternative browsers show by default (the first
+  child without `requiredExtensions` or `systemLanguage`), along with the
+  switch's own attributes. Scripts, animation, event handlers, nested SVG data
+  URIs, and external references (including unclosed CSS `url(` values) are removed
+  with warnings. Oversized canvases are rejected and rasterization is bounded.
   Some previously accepted artwork may need simplifying. Manifest previews
   validate managed package paths, and unused internal favicon helpers are
   removed while preserving the public API used by Emulsify Tools.
