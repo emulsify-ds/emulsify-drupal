@@ -65,8 +65,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   namespaces. Switches keep the alternative browsers show by default (the first
   child without `requiredExtensions` or `systemLanguage`), along with the
   switch's own attributes. Scripts, animation, event handlers, nested SVG data
-  URIs, and external references (including unclosed CSS `url(` values) are removed
-  with warnings. Oversized canvases are rejected and rasterization is bounded.
+  URIs, and external references (including unclosed CSS `url(` values, CSS image
+  functions such as `image-set()`, and `xml:base`) are removed with warnings.
+  Oversized canvases are rejected and rasterization is bounded.
   Some previously accepted artwork may need simplifying. Manifest previews
   validate managed package paths, and unused internal favicon helpers are
   removed while preserving the public API used by Emulsify Tools.

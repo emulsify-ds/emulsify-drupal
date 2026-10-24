@@ -238,7 +238,8 @@ Sites without the generated favicon package need no action.
   removed; Drupal's already-safe markup continues to render normally.
 - Favicon SVG processing allows supported static drawing elements and removes
   unsafe or unsupported elements, event handlers, external references (including
-  unclosed CSS `url(` values), and nested SVG data URIs with warnings. Link
+  unclosed CSS `url(` values, CSS image functions such as `image-set()`, and
+  `xml:base`), and nested SVG data URIs with warnings. Link
   wrappers become groups or text spans, preserving artwork, presentation
   attributes, and their namespaces. Switches keep the alternative browsers show
   by default (the first child without `requiredExtensions` or `systemLanguage`),

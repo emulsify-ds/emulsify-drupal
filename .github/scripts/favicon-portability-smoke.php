@@ -528,6 +528,57 @@ SVG;
   }
 
   foreach ([
+    'image-set' => ['mask', "image-set('https://evil.example/m.png' 1x)"],
+    '-webkit-image-set' => ['cursor', '-webkit-image-set("https://evil.example/c.png" 1x), auto'],
+    'image' => ['mask', "image('https://evil.example/m.png')"],
+    'cross-fade' => ['mask', "cross-fade('https://evil.example/a.png' 50%, 'https://evil.example/b.png')"],
+    '-webkit-cross-fade' => ['mask', "-webkit-cross-fade('https://evil.example/a.png', 'https://evil.example/b.png', 50%)"],
+    'src' => ['mask', "src('https://evil.example/m.png')"],
+    'CSS-escaped image-set' => ['mask', "image\\2d set('https://evil.example/m.png' 1x)"],
+    'mixed-case image-set' => ['mask', "ImAgE-SeT('https://evil.example/m.png' 1x)"],
+    'image after a non-name character' => ['mask', "_image('https://evil.example/m.png')"],
+  ] as $label => [$name, $value]) {
+    $attribute = htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect id="image-function-artwork" ' . $name . '="' . $attribute . '"/></svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:rect[@id="image-function-artwork" and not(@' . $name . ')])') === 1.0, 'CSS image functions should be stripped without losing artwork: ' . $label . '.');
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'CSS image functions should produce an unsafe-markup warning: ' . $label . '.');
+  }
+
+  foreach ([
+    'Logo image',
+    'myimage-set(Logo)',
+    '1image(Logo)',
+    '-image(Logo)',
+    'my-webkit-image-set(Logo)',
+    'image-set (Logo)',
+  ] as $label) {
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect aria-label="' . $label . '"/></svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    $rect = $xpath->query('/svg:svg/svg:rect')->item(0);
+    emulsify_favicon_assert($rect instanceof \DOMElement && $rect->getAttribute('aria-label') === $label, 'Text that does not call a CSS image function should remain unchanged: ' . $label . '.');
+    emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'CSS image function near-matches should not report unsafe cleanup: ' . $label . '.');
+  }
+
+  $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" xml:base="https://evil.example/root/" xml:lang="en"><g xml:base="https://evil.example/group/"><text xml:space="preserve" xml:lang="de"> W </text></g></svg>', FALSE);
+  $xpath = emulsify_favicon_sanitized_xpath($analysis);
+  emulsify_favicon_assert($xpath->evaluate('count(//@*[local-name()="base" and namespace-uri()="http://www.w3.org/XML/1998/namespace"])') === 0.0, 'XML base references should be removed from the root and nested elements.');
+  emulsify_favicon_assert($xpath->evaluate('count(/svg:svg[@xml:lang="en"]/svg:g/svg:text[@xml:space="preserve" and @xml:lang="de" and .=" W "])') === 1.0, 'Removing XML base references should preserve artwork, XML whitespace, and language attributes.');
+  emulsify_favicon_assert(($analysis['removed_unsafe_count'] ?? NULL) === 2 && emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Each XML base reference should count as unsafe markup and produce a warning.');
+
+  foreach ([
+    'url(&amp;#35;g)' => TRUE,
+    'url(&amp;num;g)' => TRUE,
+    'url(&#35;g)' => FALSE,
+  ] as $encoded_url => $unsafe_warning) {
+    $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g"><stop stop-color="#000"/></linearGradient></defs><rect id="entity-reference-artwork" fill="' . $encoded_url . '"/></svg>', FALSE);
+    $xpath = emulsify_favicon_sanitized_xpath($analysis);
+    $rect = $xpath->query('/svg:svg/svg:rect[@id="entity-reference-artwork"]')->item(0);
+    emulsify_favicon_assert($rect instanceof \DOMElement && ($unsafe_warning ? !$rect->hasAttribute('fill') : $rect->getAttribute('fill') === 'url(#g)'), 'CSS URL checks should use the XML-decoded value without decoding entities again: ' . $encoded_url . '.');
+    emulsify_favicon_assert(emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed') === $unsafe_warning, 'Entity-hidden relative CSS URLs should warn, while XML-decoded local fragments remain safe: ' . $encoded_url . '.');
+  }
+
+  foreach ([
     'url(https://example.com/filter.svg#f',
     'url("https://example.com/filter.svg#f',
     'u\72l(https://example.com/filter.svg#f',

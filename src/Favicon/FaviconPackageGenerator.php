@@ -1297,14 +1297,16 @@ SVG,
         $name = end($name_parts);
         $value = trim((string) $attribute->nodeValue);
 
-        if (str_starts_with($name, 'on')) {
+        if (str_starts_with($name, 'on')
+          || ($attribute->namespaceURI === 'http://www.w3.org/XML/1998/namespace' && $attribute->localName === 'base')) {
           $element->removeAttributeNode($attribute);
           $removed_counts['unsafe']++;
           continue;
         }
 
         $css_value = $this->decodeSvgCssEscapes($value);
-        if ($name === 'style' || $this->svgAttributeContainsCssImport($css_value) || $this->svgAttributeHasUnsafeCssUrl($css_value)) {
+        if ($name === 'style' || $this->svgAttributeContainsCssImport($css_value)
+          || $this->svgAttributeContainsCssImageFunction($css_value) || $this->svgAttributeHasUnsafeCssUrl($css_value)) {
           $element->removeAttributeNode($attribute);
           $removed_counts['unsafe']++;
           continue;
@@ -1376,6 +1378,13 @@ SVG,
   }
 
   /**
+   * Checks for CSS image functions that can fetch resources without url().
+   */
+  private function svgAttributeContainsCssImageFunction(string $value): bool {
+    return (bool) preg_match('/(?<![a-z0-9-])(?:image-set|-webkit-image-set|image|cross-fade|-webkit-cross-fade|src)\(/i', $value);
+  }
+
+  /**
    * Checks whether CSS url() references leave the current SVG document.
    */
   private function svgAttributeHasUnsafeCssUrl(string $value): bool {
@@ -1385,7 +1394,6 @@ SVG,
 
     foreach ($matches[1] as $raw_target) {
       $target = trim((string) $raw_target, " \t\n\r\0\x0B\"'");
-      $target = html_entity_decode($target, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
       if ($target !== '' && !str_starts_with($target, '#')) {
         return TRUE;
