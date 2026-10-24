@@ -826,6 +826,7 @@ function runStaticChecks() {
     ensure(rootPackage.scripts['test:generated-theme'] === 'node --test .github/scripts/generated-theme-contract.test.cjs', 'package.json should expose the focused generated child theme contract tests.');
     ensure(rootPackage.scripts['release:check'], 'package.json should expose a release:check script.');
     ensure(rootPackage.devDependencies && rootPackage.devDependencies['js-yaml'], 'package.json should declare js-yaml directly for generated Drupal metadata validation.');
+    ensure(rootPackage.devDependencies && rootPackage.devDependencies.postcss, 'package.json should declare postcss directly because the asset tests require it.');
     const phpLintScript = rootPackage.scripts['lint:php'] || '';
     for (const prunedPath of ['./.git', './node_modules', './vendor', './whisk/node_modules']) {
       ensure(phpLintScript.includes(`-path '${prunedPath}'`), `package.json lint:php should prune ${prunedPath}.`);
