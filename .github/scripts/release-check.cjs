@@ -538,11 +538,7 @@ const MIGRATED_THEME_HOOK_FILES = [
 ];
 
 function getStrictTypeClassFiles() {
-  return [
-    ...listFilesRecursive('src/Favicon', (filePath) => filePath.endsWith('.php')),
-    ...listFilesRecursive('src/Hook', (filePath) => filePath.endsWith('.php')),
-    ...listFilesRecursive('src/Render', (filePath) => filePath.endsWith('.php')),
-  ].sort();
+  return listFilesRecursive('src', (filePath) => filePath.endsWith('.php')).sort();
 }
 
 function getStrictTypeScriptFiles() {

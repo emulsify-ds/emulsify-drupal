@@ -140,7 +140,13 @@ try {
     $background = $configured['favicon_dark_background_color'] ?: $settings['favicon_background_color'];
     if ($configured['favicon_dark_mode'] === 'invert' && $configured['favicon_dark_background_color'] === '') {
       $background = '#543210';
-      emulsify_dark_assert($background !== $settings['favicon_background_color'], 'Inversion must give this fixture a different dark background.');
+      foreach (['favicon.svg' => $style, 'favicon-dark.svg' => $fixed_style] as $filename => $generated_style) {
+        $pattern = $filename === 'favicon.svg'
+          ? '/@media \(prefers-color-scheme: dark\)\{\s*\.emulsify-favicon-background\{fill:([^;}]+);\}/'
+          : '/\.emulsify-favicon-background\{fill:([^;}]+);\}/';
+        emulsify_dark_assert(preg_match($pattern, $generated_style, $matches) === 1, "$filename must declare its dark tile color.");
+        emulsify_dark_assert($matches[1] !== $settings['favicon_background_color'], "Inversion must give $filename a different dark background.");
+      }
     }
     emulsify_dark_assert(str_contains($style, '.emulsify-favicon-background{fill:' . $background . ';}'), "$label must use the effective dark background.");
     emulsify_dark_assert(str_contains($fixed_style, '.emulsify-favicon-background{fill:' . $background . ';}'), "$label preview must use the same dark background.");

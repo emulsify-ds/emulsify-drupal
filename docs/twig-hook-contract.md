@@ -253,9 +253,8 @@ exposed forms, and separate block placements. The temporary Twig loader and
 registry entries are restored after these checks. Entities are never saved and
 site configuration is not changed.
 
-The expanded suite passes 170 assertions on Drupal 11.3.16 / PHP 8.3.33
-(Emulsify Tools 2.2.1, Paragraphs 1.23.0) and Drupal 11.4.4 / PHP 8.5.10
-(Emulsify Tools 2.2.0, Paragraphs 1.21.0).
+The suite runs in CI's "Characterize Drupal hooks with test-only Paragraphs"
+step of the Theme Readiness workflow.
 
 Install `drupal/paragraphs` as a test-only Composer dependency in that fixture,
 then run with its selected PHP runtime:
