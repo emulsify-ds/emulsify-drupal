@@ -95,6 +95,7 @@ try {
     foreach (['light' => 'Light tab', 'dark' => 'Dark tab'] as $scheme => $title) {
       emulsify_preview_assert($browser_dom->query('//div[contains(concat(" ", normalize-space(@class), " "), " emulsify-favicon-preview__card--' . $scheme . ' ")]/h4[text()="' . $title . '"]')->length === 1, "$label: each browser card must select the color scheme matching its title.");
     }
+    emulsify_preview_assert($browser_dom->query('//div[contains(concat(" ", normalize-space(@class), " "), " emulsify-favicon-preview__card--light ")]/div[contains(concat(" ", normalize-space(@class), " "), " emulsify-favicon-preview__tab--light ")]')->length === 1, "$label: the Light tab must use its own light surface.");
     foreach ($browser_dom->query('//img') as $image) {
       emulsify_preview_assert($image->getAttribute('src') === $links['icon'], "$label: browser preview must use the emitted SVG head link, never a source SVG.");
     }

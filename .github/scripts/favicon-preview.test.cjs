@@ -140,12 +140,29 @@ for (const relativePath of ['assets/admin/favicon-preview.js', 'dist/js/admin/fa
 test('built browser preview cards enforce their labeled color schemes', () => {
   const css = postcss.parse(fs.readFileSync(path.join(__dirname, '../../dist/css/admin/favicon-preview.css'), 'utf8'));
   const schemes = {};
+  const lightColors = { 'card--light': {}, 'tab--light': {} };
   css.walkRules((rule) => {
     for (const scheme of ['light', 'dark']) {
       if (rule.selectors.includes(`.emulsify-favicon-preview__card--${scheme}`)) {
         rule.walkDecls('color-scheme', (declaration) => { schemes[scheme] = declaration.value; });
       }
     }
+    for (const part of Object.keys(lightColors)) {
+      if (rule.selectors.includes(`.emulsify-favicon-preview__${part}`)) {
+        rule.walkDecls((declaration) => { lightColors[part][declaration.prop] = declaration.value; });
+      }
+    }
   });
   assert.deepEqual(schemes, { light: 'light', dark: 'dark' }, 'Each browser card must select its color scheme independently of the administrator');
+  for (const [part, declarations] of Object.entries(lightColors)) {
+    const colors = {
+      background: declarations.background ?? declarations['background-color'],
+      border: declarations['border-color'] ?? declarations.border,
+      color: declarations.color,
+    };
+    for (const [property, value] of Object.entries(colors)) {
+      assert.ok(value, `${part} must set its own ${property}`);
+      assert.doesNotMatch(value, /var\(\s*--(?:gin-|emulsify-favicon-preview-surface)/, `${part} ${property} must be independent of the administrator's surface colors`);
+    }
+  }
 });

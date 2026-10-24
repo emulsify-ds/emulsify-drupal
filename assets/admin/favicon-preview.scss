@@ -37,6 +37,9 @@
 
     &--light {
       color-scheme: light;
+      border-color: rgb(0 0 0 / 12%);
+      background: linear-gradient(180deg, #fff 0%, #f3f5f8 100%);
+      color: #1c2431;
     }
 
     &--dark {
@@ -61,6 +64,12 @@
     border-radius: 999px;
     background: var(--emulsify-favicon-preview-surface);
     padding: 0.45rem 0.7rem;
+
+    &--light {
+      border-color: rgb(0 0 0 / 12%);
+      background: #fff;
+      color: inherit;
+    }
 
     &--dark {
       border-color: rgb(255 255 255 / 12%);

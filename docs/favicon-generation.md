@@ -148,7 +148,9 @@ card with `color-scheme: light`, so it shows the light icon even when the
 administrator uses dark mode. The Dark tab card sets `color-scheme: dark` and
 uses the saved `favicon-dark.svg` when present, falling back to `favicon.svg`
 for older packages. Both previews use their labeled color scheme independently
-of the administrator's own color scheme. The iOS preview uses its
+of the administrator's own color scheme. Each tab card also draws its own light
+or dark surface, so a dark admin theme does not change the Light tab card.
+The iOS preview uses its
 `apple-touch-icon.png` URL and saved iOS title. Android
 previews use the normal 192-pixel icon and the separate 512-pixel maskable icon
 from the saved manifest's package; the launcher label comes from that manifest.

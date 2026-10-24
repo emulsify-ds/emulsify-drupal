@@ -117,7 +117,7 @@ final class FaviconPreviewBuilder {
       . '<div class="emulsify-favicon-preview__grid">'
       . '<div class="emulsify-favicon-preview__card emulsify-favicon-preview__card--light">'
       . '<h4>Light tab</h4>'
-      . '<div class="emulsify-favicon-preview__tab">'
+      . '<div class="emulsify-favicon-preview__tab emulsify-favicon-preview__tab--light">'
       . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:transparent; --preview-padding:0%%">'
       . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview on a light tab" data-preview-image loading="lazy" /></span>'
       . '</span>'
