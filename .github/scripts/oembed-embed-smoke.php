@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldItemList;
+use Drupal\Core\Language\Language;
+use Drupal\Core\Language\LanguageDefault;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManager;
 use Drupal\emulsify\Hook\FieldHooks;
 use Drupal\media\IFrameMarkup;
 use Drupal\media\IFrameUrlHelper;
@@ -150,7 +153,8 @@ $theme_name = (string) \Drupal::config('system.theme')->get('default');
 $config = \Drupal::configFactory()->getEditable($theme_name . '.settings');
 $original_settings = $config->getRawData();
 $theme_manager->setActiveTheme(\Drupal::service('theme.initialization')->initTheme($theme_name));
-$hook = \Drupal::service('class_resolver')->getInstanceFromDefinition(\Drupal\emulsify\Hook\MediaEmbedHooks::class);
+$container = \Drupal::getContainer();
+$original_language_manager = \Drupal::languageManager();
 $defaults = \Drupal\emulsify\Media\MediaEmbedSettings::DEFAULTS;
 $tags = array_map(static fn(string $name): string => 'config:' . $name . '.settings', array_merge([$theme_name], array_keys($theme_manager->getActiveTheme()->getBaseThemeExtensions())));
 $set_settings = static function (array $settings) use ($config, $defaults): void {
@@ -159,24 +163,35 @@ $set_settings = static function (array $settings) use ($config, $defaults): void
   }
   $config->save();
 };
-$preprocess = static function (Resource $resource) use ($hook): array {
-  $variables = ['resource' => $resource, 'media' => IFrameMarkup::create($resource->getHtml()), '#cache' => ['tags' => ['oembed:existing'], 'contexts' => ['user.permissions'], 'max-age' => 3600]];
-  $hook->preprocessMediaOembedIframe($variables);
-  return $variables;
-};
-$render = static function (Resource $resource) use ($renderer): string {
-  $element = ['#theme' => 'media_oembed_iframe', '#resource' => $resource, '#media' => IFrameMarkup::create($resource->getHtml()), '#placeholder_token' => 'fixed-oembed-placeholder-token'];
-  return (string) $renderer->renderInIsolation($element);
-};
-$language = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE);
-$language_code = $language->getId();
-$language_direction = $language->getDirection();
 $artifacts = getenv('EMULSIFY_OEMBED_ARTIFACT_DIR');
 if ($artifacts && !is_dir($artifacts) && !mkdir($artifacts, 0777, TRUE) && !is_dir($artifacts)) {
   throw new RuntimeException('Unable to create poster artifact directory.');
 }
 
 try {
+  $language_manager = new class(new LanguageDefault(['id' => 'en', 'direction' => LanguageInterface::DIRECTION_LTR])) extends LanguageManager {
+    public function getCurrentLanguage($type = LanguageInterface::TYPE_INTERFACE) {
+      return match ($type) {
+        LanguageInterface::TYPE_INTERFACE => new Language(['id' => 'ar', 'direction' => LanguageInterface::DIRECTION_RTL]),
+        LanguageInterface::TYPE_CONTENT => new Language(['id' => 'fr', 'direction' => LanguageInterface::DIRECTION_LTR]),
+        default => $this->getDefaultLanguage(),
+      };
+    }
+  };
+  $container->set('language_manager', $language_manager);
+  emulsify_oembed_assert($language_manager->getDefaultLanguage()->getId() === 'en' && $language_manager->getDefaultLanguage()->getDirection() === 'ltr', 'The language fixture must have a left-to-right English default.');
+  emulsify_oembed_assert($language_manager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId() === 'fr' && $language_manager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getDirection() === 'ltr', 'The language fixture must have left-to-right French content.');
+  emulsify_oembed_assert($language_manager->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getId() === 'ar' && $language_manager->getCurrentLanguage(LanguageInterface::TYPE_INTERFACE)->getDirection() === 'rtl', 'The language fixture must have a distinct right-to-left Arabic interface.');
+  $hook = \Drupal::service('class_resolver')->getInstanceFromDefinition(\Drupal\emulsify\Hook\MediaEmbedHooks::class);
+  $preprocess = static function (Resource $resource) use ($hook): array {
+    $variables = ['resource' => $resource, 'media' => IFrameMarkup::create($resource->getHtml()), '#cache' => ['tags' => ['oembed:existing'], 'contexts' => ['user.permissions'], 'max-age' => 3600]];
+    $hook->preprocessMediaOembedIframe($variables);
+    return $variables;
+  };
+  $render = static function (Resource $resource) use ($renderer): string {
+    $element = ['#theme' => 'media_oembed_iframe', '#resource' => $resource, '#media' => IFrameMarkup::create($resource->getHtml()), '#placeholder_token' => 'fixed-oembed-placeholder-token'];
+    return (string) $renderer->renderInIsolation($element);
+  };
   emulsify_oembed_assert(\Drupal\emulsify\Media\MediaEmbedSettings::normalize([]) === $defaults, 'Existing child settings without media keys must retain the off defaults.');
   emulsify_oembed_assert(\Drupal\emulsify\Media\MediaEmbedSettings::normalize(['media_embed_poster' => 'invalid'])['media_embed_poster'] === 'provider', 'Unknown poster choices must normalize to provider.');
   foreach ([[], ['media_embed_privacy_mode' => TRUE], ['media_embed_click_to_load' => TRUE]] as $settings) {
@@ -231,16 +246,16 @@ try {
       foreach ([FALSE, TRUE] as $privacy) {
         $set_settings(['media_embed_click_to_load' => TRUE, 'media_embed_privacy_mode' => $privacy, 'media_embed_poster' => $poster]);
         $variables = $preprocess($custom);
-        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_code'] === $language_code, 'Posters must expose the current interface language to child templates.');
-        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_direction'] === $language_direction, 'Posters must expose the current interface language direction to child templates.');
+        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_code'] === 'ar', 'Posters must expose the Arabic interface language, not the default or content language, to child templates.');
+        emulsify_oembed_assert($variables['emulsify_oembed_poster']['language_direction'] === 'rtl', 'Posters must expose the right-to-left interface language direction to child templates.');
         $player_url = $privacy ? $privacy_url : $source;
         $player_url = str_contains($player_url, 'autoplay=0') ? str_replace('autoplay=0', 'autoplay=1', $player_url) : str_replace('#chapter', '&autoplay=1#chapter', $player_url);
         emulsify_oembed_assert($variables['emulsify_oembed_poster']['player_url'] === $player_url, 'Play links must enable autoplay while preserving all unrelated URL bytes.');
         emulsify_oembed_assert(in_array('emulsify/oembed_poster', $variables['#attached']['library'] ?? [], TRUE), 'Posters must attach the local CSS library.');
         $html = $render($custom);
         $document = emulsify_oembed_document($html);
-        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Poster documents must declare the current interface language.');
-        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === $language_direction, 'Poster documents must declare the current interface language direction.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === 'ar', 'Poster documents must declare the Arabic interface language.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === 'rtl', 'Poster documents must declare the right-to-left interface language direction.');
         $xpath = new DOMXPath($document);
         emulsify_oembed_assert($xpath->query('//iframe | //script | //noscript | //@onerror')->length === 0, 'Poster documents must omit the player iframe and escape hostile provider titles.');
         $anchor = $document->getElementsByTagName('a')->item(0);
@@ -273,8 +288,8 @@ try {
         $document = emulsify_oembed_document($html);
         $anchors = $document->getElementsByTagName('a');
         emulsify_oembed_assert($anchors->length === 1 && !$anchors->item(0)->hasAttribute('style'), 'Small posters must retain one native play link without inline geometry.');
-        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === $language_code, 'Small poster documents must declare the current interface language.');
-        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === $language_direction, 'Small poster documents must declare the current interface language direction.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('lang') === 'ar', 'Small poster documents must declare the Arabic interface language.');
+        emulsify_oembed_assert($document->documentElement->getAttribute('dir') === 'rtl', 'Small poster documents must declare the right-to-left interface language direction.');
         if ($artifacts) {
           file_put_contents($artifacts . '/' . $name . '-' . $poster . '-' . $width . 'x' . $height . '.html', $html);
         }
@@ -336,6 +351,7 @@ try {
   }
 }
 finally {
+  $container->set('language_manager', $original_language_manager);
   $config->setData($original_settings)->save();
   $theme_manager->setActiveTheme($original_theme);
 }
