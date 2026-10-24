@@ -1244,7 +1244,7 @@ SVG,
   }
 
   /**
-   * Copies SVG attributes while dropping malformed names.
+   * Copies SVG attributes without changing their rendering semantics.
    *
    * @return int
    *   The number of unsafe attributes that could not be copied.
@@ -1252,6 +1252,11 @@ SVG,
   private function copySvgAttributes(\DOMElement $source, \DOMElement $destination): int {
     $removed_count = 0;
     foreach ($source->attributes as $attribute) {
+      if ($destination->localName === 'tspan' && $attribute->namespaceURI === NULL
+        && in_array($attribute->nodeName, ['x', 'y', 'dx', 'dy', 'rotate', 'textLength', 'lengthAdjust'], TRUE)) {
+        // These attributes are inert on links but position text on spans.
+        continue;
+      }
       try {
         if ($attribute->namespaceURI === NULL && str_contains($attribute->nodeName, ':')) {
           // Keep undeclared prefixes inert instead of promoting their names.

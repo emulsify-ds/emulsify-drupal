@@ -285,15 +285,17 @@ SVG;
   emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Removing safe text-link semantics should remain silent.');
 
   foreach ([
-    '<text>%s</text>',
-    '<text><tspan>%s</tspan></text>',
-    '<text><textPath href="#baseline">%s</textPath></text>',
+    '<text x="1" y="9">%s</text>',
+    '<text x="1" y="9"><tspan>%s</tspan></text>',
+    '<text x="1" y="9"><textPath href="#baseline">%s</textPath></text>',
   ] as $text_wrapper) {
-    $linked_text = sprintf($text_wrapper, '<a href="#" fill="red" font-weight="700">W</a>');
+    $linked_text = sprintf($text_wrapper, '<a href="#" x="40" y="60" dx="5" dy="6" rotate="45" textLength="20" lengthAdjust="spacingAndGlyphs" fill="red" font-weight="700">W</a>');
     $analysis = $generator->validateSourceSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><path id="baseline" d="M0 50h64"/></defs>' . $linked_text . '</svg>', FALSE);
     $xpath = emulsify_favicon_sanitized_xpath($analysis);
     emulsify_favicon_assert($xpath->evaluate('string(/svg:svg/svg:text)') === 'W' && $xpath->evaluate('count(//svg:text//svg:g | //svg:text//svg:a)') === 0.0, 'Links nested in text, tspan, and textPath must preserve a valid text structure.');
     emulsify_favicon_assert($xpath->evaluate('count(//svg:text//svg:tspan[@fill="red" and @font-weight="700" and .="W"])') === 1.0, 'Converted text links must retain their inherited presentation attributes.');
+    emulsify_favicon_assert($xpath->evaluate('count(/svg:svg/svg:text[@x="1" and @y="9"])') === 1.0, 'Converting text links should preserve the parent text position.');
+    emulsify_favicon_assert($xpath->evaluate('count(//svg:text//svg:tspan/@x | //svg:text//svg:tspan/@y | //svg:text//svg:tspan/@dx | //svg:text//svg:tspan/@dy | //svg:text//svg:tspan/@rotate | //svg:text//svg:tspan/@textLength | //svg:text//svg:tspan/@lengthAdjust)') === 0.0, 'Converted text links must omit anchor attributes that would start positioning or sizing the glyph on a tspan.');
     emulsify_favicon_assert(!emulsify_favicon_analysis_has_warning($analysis, 'Unsafe SVG markup was removed'), 'Safe nested text-link conversion should not report unsafe cleanup.');
   }
 
