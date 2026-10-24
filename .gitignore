@@ -1,6 +1,10 @@
 # Ignore compiled files.
 dist
 
+# Ship the parent theme's production assets with Composer distributions.
+!/dist/
+/dist/**/*.map
+
 # npm
 node_modules
 

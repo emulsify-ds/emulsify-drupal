@@ -1,0 +1,42 @@
+{
+  "checkedAt": "2026-10-21T14:09:28.495Z",
+  "captureFormat": "Command output envelope; this is not native Composer audit JSON.",
+  "auditResultAvailable": false,
+  "failure": {
+    "endpoint": "https://packages.drupal.org/8/security-advisories",
+    "httpStatus": 503,
+    "description": "All three unchanged audit attempts failed before producing native JSON."
+  },
+  "timestampNote": "capturedAt is the retained stderr capture filesystem timestamp. Explicit command start/finish timestamps are available for attempt 3.",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer audit --no-interaction --no-plugins --format=json",
+      "workingDirectory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+      "capturedAt": "2026-10-21T14:05:29.828Z",
+      "exitCode": 100,
+      "stdout": "",
+      "stderr": "\nIn CurlDownloader.php line 686:\n                                                                               \n  The \"https://packages.drupal.org/8/security-advisories\" file could not be d  \n  ownloaded (HTTP/2 503 )                                                      \n                                                                               \n\naudit [--no-dev] [-f|--format FORMAT] [--locked] [--abandoned ABANDONED] [--ignore-severity IGNORE-SEVERITY] [--ignore-unreachable]\n\n"
+    },
+    {
+      "attempt": 2,
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer audit --no-interaction --no-plugins --format=json",
+      "workingDirectory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+      "capturedAt": "2026-10-21T14:07:23.181Z",
+      "exitCode": 100,
+      "stdout": "",
+      "stderr": "\nIn CurlDownloader.php line 686:\n                                                                               \n  The \"https://packages.drupal.org/8/security-advisories\" file could not be d  \n  ownloaded (HTTP/2 503 )                                                      \n                                                                               \n\naudit [--no-dev] [-f|--format FORMAT] [--locked] [--abandoned ABANDONED] [--ignore-severity IGNORE-SEVERITY] [--ignore-unreachable]\n\n"
+    },
+    {
+      "attempt": 3,
+      "command": "COMPOSER_ROOT_VERSION=7.2.2 composer audit --no-interaction --no-plugins --format=json",
+      "workingDirectory": "/private/tmp/emulsify-composer-audit-2026-10-21.jMNiqg",
+      "capturedAt": "2026-10-21T14:08:00.460Z",
+      "exitCode": 100,
+      "stdout": "",
+      "stderr": "\nIn CurlDownloader.php line 686:\n                                                                               \n  The \"https://packages.drupal.org/8/security-advisories\" file could not be d  \n  ownloaded (HTTP/2 503 )                                                      \n                                                                               \n\naudit [--no-dev] [-f|--format FORMAT] [--locked] [--abandoned ABANDONED] [--ignore-severity IGNORE-SEVERITY] [--ignore-unreachable]\n\n",
+      "startedAt": "2026-10-21T14:07:59Z",
+      "finishedAt": "2026-10-21T14:08:00Z"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "auditDate": "2026-10-21",
+  "method": "Read-only npm pack and tar -xOf package.json inspection; no package install or root lockfile modification.",
+  "command": "npm pack npm@11.21.1 --ignore-scripts --pack-destination /private/tmp/emulsify-npm-bundle-2026-10-21 --json",
+  "package": "npm",
+  "version": "11.21.1",
+  "compatibleWithInstalledParentRange": true,
+  "installedParent": {
+    "name": "@semantic-release/npm",
+    "version": "13.1.5",
+    "declaredNpmRange": "^11.6.2",
+    "installedNpmVersion": "11.19.1"
+  },
+  "tarball": {
+    "filename": "npm-11.21.1.tgz",
+    "integrity": "sha512-YTzL6QBEJXyHcTu0JiUc7RKMp+mzlJtl7rGLmERaXUQeFHIMc9atdr6G9M9C8vDWbv40epoTQAzNL2/PtZVDhQ==",
+    "shasum": "77c0bf80b262ae49293836d3c98fbea2ffd4490a",
+    "sha256": "dd77c48eb845f4856c2cdba347cfb52bd877a2655a1ea48ff0c4796e3df9dd7b"
+  },
+  "bundles": [
+    {
+      "name": "brace-expansion",
+      "installedVersion": "5.0.9",
+      "installedInBundle": true,
+      "inspectedVersion": "5.0.12",
+      "remainingMatchingAdvisories": []
+    },
+    {
+      "name": "http-cache-semantics",
+      "installedVersion": "4.2.0",
+      "installedInBundle": true,
+      "inspectedVersion": "4.3.0",
+      "remainingMatchingAdvisories": []
+    },
+    {
+      "name": "ip-address",
+      "installedVersion": "10.5.0",
+      "installedInBundle": true,
+      "inspectedVersion": "10.7.2",
+      "remainingMatchingAdvisories": []
+    },
+    {
+      "name": "postcss-selector-parser",
+      "installedVersion": "7.1.4",
+      "installedInBundle": true,
+      "inspectedVersion": "7.1.6",
+      "remainingMatchingAdvisories": []
+    },
+    {
+      "name": "undici",
+      "installedVersion": "6.28.0",
+      "installedInBundle": true,
+      "inspectedVersion": "6.29.0",
+      "remainingMatchingAdvisories": []
+    }
+  ],
+  "limitation": "This checks only the five packages and advisory ranges in the saved root audit; npm 11.21.1 and its complete dependency tree were not installed or audited."
+}

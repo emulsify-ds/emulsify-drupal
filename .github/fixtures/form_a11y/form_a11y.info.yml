@@ -1,0 +1,9 @@
+name: Emulsify form accessibility fixture
+type: module
+description: Exercises real form validation in the disposable readiness site.
+package: Testing
+core_version_requirement: ^11.3 || ^12
+dependencies:
+  - drupal:datetime
+  - drupal:field_ui
+  - drupal:inline_form_errors

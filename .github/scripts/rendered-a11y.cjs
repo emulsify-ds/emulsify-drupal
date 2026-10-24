@@ -18,6 +18,77 @@ function assertAccessible(results, label) {
   assert.equal(results.violations.length, 0, `${label}: ${results.violations.map(({ id, nodes }) => `${id} at ${nodes.map(({ target }) => target.join(' ')).join(', ')}`).join('; ')}`);
 }
 
+async function assertSelectOptionAttributes(page) {
+  const rendered = await page.evaluate(() => {
+    const select = document.getElementById('fixture-option-attributes');
+    if (!select) return null;
+    const options = [...select.options];
+    const result = {
+      labels: [...select.labels].map((label) => label.textContent.trim()),
+      multiple: select.multiple,
+      options: options.map((option) => ({
+        value: option.value,
+        source: option.dataset.optionSource,
+        disabled: option.disabled,
+        selected: option.selected,
+        selectedAttribute: option.hasAttribute('selected'),
+        group: option.parentElement.tagName === 'OPTGROUP' ? option.parentElement.label : null,
+      })),
+      submitted: new FormData(select.form).getAll(select.name),
+    };
+    // Even when selected programmatically, disabled options must not submit.
+    options.forEach((option) => { option.selected = true; });
+    result.enabledSubmitted = new FormData(select.form).getAll(select.name);
+    options.forEach((option, index) => { option.selected = result.options[index].selected; });
+    return result;
+  });
+  assert(rendered, 'The fixture must render the select with option attributes.');
+  assert.deepEqual(rendered.labels, ['Delivery options'], 'The select must retain its visible, associated label.');
+  assert(rendered.multiple, 'The fixture must exercise simultaneous flat and grouped selections.');
+  assert.deepEqual(rendered.options, [
+    { value: 'flat_array', source: 'flat-array', disabled: false, selected: true, selectedAttribute: true, group: null },
+    { value: 'flat_object', source: 'flat-object', disabled: true, selected: false, selectedAttribute: false, group: null },
+    { value: 'group_array', source: 'group-array', disabled: true, selected: false, selectedAttribute: false, group: 'Collection options' },
+    { value: 'group_object', source: 'group-object', disabled: false, selected: true, selectedAttribute: true, group: 'Collection options' },
+  ], 'Flat and grouped options must preserve array and Attribute data, disabled states, and canonical value/selected attributes.');
+  assert.deepEqual(rendered.submitted, ['flat_array', 'group_object'], 'Selected option values must remain canonical despite spoofed attributes.');
+  assert.deepEqual(rendered.enabledSubmitted, ['flat_array', 'group_object'], 'Disabled options must be excluded from form submission in both template branches.');
+}
+
+async function assertCurrentMenu(page, expectedPath) {
+  const rendered = await page.evaluate(() => {
+    const ancestor = document.querySelector('a[data-menu-fixture="ancestor"]');
+    const menu = ancestor?.closest('nav');
+    if (!menu) return null;
+    const current = menu.querySelector('a[data-menu-fixture="current"]');
+    return {
+      nested: ancestor.closest('li')?.querySelector('ul a[data-menu-fixture="current"]') === current,
+      links: [...menu.querySelectorAll('a[data-menu-fixture]')].map((link) => ({
+        fixture: link.dataset.menuFixture,
+        path: new URL(link.href).pathname,
+      })),
+      current: [...menu.querySelectorAll('[aria-current]')].map((link) => ({
+        tag: link.tagName,
+        fixture: link.dataset.menuFixture,
+        value: link.getAttribute('aria-current'),
+        path: new URL(link.href).pathname,
+      })),
+    };
+  });
+  assert(rendered, 'The main-menu block must render its real menu fixture.');
+  assert(rendered.nested, 'The current-page link must remain nested beneath the expanded ancestor.');
+  assert.deepEqual(rendered.links, [
+    { fixture: 'ancestor', path: '/node/2' },
+    { fixture: 'current', path: '/node/1' },
+  ], 'Menu links must retain their original URL attributes and nested order.');
+  assert.deepEqual(rendered.current, expectedPath ? [{
+    tag: 'A',
+    fixture: expectedPath === '/node/1' ? 'current' : 'ancestor',
+    value: 'page',
+    path: expectedPath,
+  }] : [], 'Exactly the matching page link must have aria-current; ancestors on a different page and unmatched pages must not.');
+}
+
 async function freePort() {
   const server = net.createServer();
   await new Promise((resolve, reject) => {
@@ -72,8 +143,11 @@ async function main() {
     browser = await puppeteer.launch({ headless: true });
     const targets = [
       { label: 'Project Twig component', url: `${storybook.baseUrl}/iframe.html?id=consumer-status-panel--default&viewMode=story`, selector: '.emulsify-smoke', text: 'Your component library is ready' },
-      { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.' },
-      { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username' },
+      { label: 'Drupal node page', url: `${drupalUrl}/node/1`, selector: 'main.section.main', text: 'Fixture body content for template parity checks.', currentMenuPath: '/node/1' },
+      { label: 'Drupal ancestor page', url: `${drupalUrl}/node/2`, selector: 'main.section.main', text: 'Second fixture body content for the frontpage view.', currentMenuPath: '/node/2' },
+      { label: 'Drupal login form', url: `${drupalUrl}/user/login`, selector: 'main.section.main form', text: 'Username', currentMenuPath: null },
+      { label: 'Drupal paged view', url: `${drupalUrl}/node?page=1`, selector: 'main.section.main', text: 'Emulsify fixture page', currentPage: 2 },
+      { label: 'Drupal form validation errors', url: `${drupalUrl}/emulsify-fixture/form-errors`, selector: 'main.section.main form', text: 'Fixture validation error for name.', validateForm: true },
     ];
     for (const target of targets) {
       const page = await browser.newPage();
@@ -81,11 +155,62 @@ async function main() {
       const errors = [];
       page.on('pageerror', (error) => errors.push(error.message));
       try {
-        const response = await page.goto(target.url, { waitUntil: 'networkidle0' });
+        let response = await page.goto(target.url, { waitUntil: 'networkidle0' });
+        if (target.validateForm) {
+          assert(response && response.ok(), `${target.label} must load before validation.`);
+          assert.equal(await page.$$eval('form .form-item--error-message', (elements) => elements.length), 0, 'The fixture form must start without errors.');
+          await assertSelectOptionAttributes(page);
+          [response] = await Promise.all([
+            page.waitForNavigation({ waitUntil: 'networkidle0' }),
+            page.click('input[type="submit"][value="Validate fixture"]'),
+          ]);
+        }
         fs.writeFileSync(path.join(outputDir, `${target.label.toLowerCase().replaceAll(' ', '-')}.html`), await page.content());
         assert(response && response.ok(), `${target.label} must render with a successful response.`);
         await page.waitForSelector(target.selector, { visible: true, timeout: 30000 });
         assert((await page.$eval(target.selector, (element) => element.textContent)).includes(target.text), `${target.label} must contain the expected real rendered content.`);
+        if ('currentMenuPath' in target) {
+          await assertCurrentMenu(page, target.currentMenuPath);
+        }
+        if (target.currentPage) {
+          const currentPages = await page.$$eval('.pager [aria-current="page"]', (elements) => elements.map((element) => element.textContent.replace(/\s+/g, '')));
+          assert.deepEqual(currentPages, [`Page${target.currentPage}`], `${target.label} must identify exactly one current page, page ${target.currentPage}.`);
+        }
+        if (target.validateForm) {
+          await assertSelectOptionAttributes(page);
+          const formErrors = await page.evaluate(() => {
+            const messages = [...document.querySelectorAll('form .form-item--error-message')];
+            const controls = {
+              name: ['fixture-name'],
+              details: ['fixture-details', 'fixture-details-value'],
+              fieldset: ['fixture-fieldset', 'fixture-fieldset-value'],
+              date: ['edit-date-date', 'edit-date-time'],
+              storage: ['fixture-storage'],
+              radios: ['fixture-radios--wrapper', 'edit-radios-first', 'edit-radios-second'],
+              checkboxes: ['fixture-checkboxes--wrapper', 'edit-checkboxes-first', 'edit-checkboxes-second'],
+            };
+            return {
+              ids: messages.map((message) => message.id),
+              associations: Object.entries(controls).map(([name, ids]) => ids.every((id) => {
+                const control = document.getElementById(id);
+                const descriptions = control?.getAttribute('aria-describedby')?.split(/\s+/) || [];
+                // Composite option help belongs to the fieldset wrapper.
+                const needsDescription = !['radios', 'checkboxes'].includes(name) || control?.tagName === 'FIELDSET';
+                return descriptions.includes(`fixture-${name}--error`)
+                  && (!needsDescription || descriptions.some((description) => description.endsWith('--description')))
+                  && descriptions.every((description) => document.getElementById(description));
+              })),
+              descriptionsResolve: [...document.querySelectorAll('form [aria-describedby]')].every((element) => element.getAttribute('aria-describedby').split(/\s+/).every((id) => document.getElementById(id))),
+              detailsSummary: document.querySelector('#fixture-details > summary')?.getAttribute('aria-describedby')?.split(/\s+/).includes('fixture-details--error'),
+              radiosClass: Boolean(document.querySelector('#fixture-radios--wrapper .form-radios')),
+            };
+          });
+          assert.deepEqual(formErrors.ids.toSorted(), ['name', 'details', 'fieldset', 'date', 'storage', 'radios', 'checkboxes'].map((name) => `fixture-${name}--error`).sort(), 'All five error template variants, including composite controls, must have unique deterministic ids and the shared error class.');
+          assert(formErrors.associations.every(Boolean), 'Every invalid control and group must reference its error while retaining a valid description association.');
+          assert(formErrors.descriptionsResolve, 'Every form description reference must resolve to an existing element.');
+          assert(formErrors.detailsSummary, 'The focusable details summary must reference its group error.');
+          assert(formErrors.radiosClass, 'The radios wrapper must retain the form-radios styling hook.');
+        }
         assert.equal(errors.length, 0, `${target.label} browser errors: ${errors.join('; ')}`);
         if (option === '--inject-violation' && target === targets[0]) {
           // Disposable browser DOM only: prove the same gate catches new issues.
@@ -126,4 +251,4 @@ if (require.main === module) {
   main().catch((error) => { console.error(error.message); process.exitCode = 1; });
 }
 
-module.exports = { assertAccessible, wcagTags };
+module.exports = { assertAccessible, assertCurrentMenu, assertSelectOptionAttributes, wcagTags };

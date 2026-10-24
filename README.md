@@ -1,4 +1,4 @@
-![Emulsify Design System](https://github.com/emulsify-ds/.github/blob/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
+![Emulsify Design System](https://raw.githubusercontent.com/emulsify-ds/.github/6bd435be881bd820bddfa05d88905efe29176a0a/assets/images/header.png)
 
 # Emulsify Drupal
 
@@ -6,16 +6,20 @@
 
 ### Storybook, Emulsify Core 4, and a Vite-based build workflow for Drupal 11.3+
 
-**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components. Until Drupal 12 beta or stable recommended-project releases are available, Drupal core development branch coverage is experimental.
+**Emulsify Drupal** is the official Drupal parent theme for Emulsify. It provides [Storybook](https://storybook.js.org/) integration, Emulsify Core 4 tooling, and a [Vite](https://vite.dev/)-based build workflow for Drupal 11.3+ with Drupal 12 forward compatibility. Your selected component library supplies the components.
+
+Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.
+Drupal 12 beta readiness is blocking on PHP 8.5.
+`dev-main` remains an advisory compatibility check.
+Drupal 11.5 beta coverage is advisory on PHP 8.3.
 
 The current 7.x series no longer depends on `stable9`; Emulsify now ships its own complete template layer instead of inheriting one from a Drupal parent theme.
 
 ## Documentation
 
-Use this README and [UPGRADE.md](./UPGRADE.md) for the current 7.x installation
-and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
-also contains guides for older release lines; check the guide's version before
-following its commands.
+This README and [UPGRADE.md](./UPGRADE.md) are authoritative for the 7.x
+installation and upgrade workflow. The [Emulsify documentation site](https://emulsify.info/docs)
+currently documents the pre-7.x Webpack-based tooling and is being rewritten.
 
 ### Quick Links
 
@@ -28,10 +32,13 @@ following its commands.
 7. [Favicon generation lifecycle](./docs/favicon-generation.md)
 8. [Optional design-token integration](./docs/design-token-integration.md)
 9. [Release readiness checklist](./docs/release-readiness.md)
+10. [Twig hook variables and template suggestion precedence](./docs/twig-hook-contract.md)
+11. [Extend parent templates](./docs/template-extension.md)
+12. [Privacy and click-to-load media embeds](./docs/media-embeds.md)
 
 ## Demo
 
-1. [Storybook](http://storybook.emulsify.info/)
+1. [Storybook](https://storybook.emulsify.info/)
 
 ## License
 
@@ -136,7 +143,8 @@ The `whisk` directory is the Whisk starter source used by both generation method
 
 You can also generate the same child theme with Drupal core's standard
 Starterkit command from the root of your Drupal site. On Drupal 11.4 and newer,
-use the Composer-installed `dr` executable:
+use the Composer-installed `dr` executable, which Drupal introduced as an
+[experimental CLI](https://www.drupal.org/blog/drupal-11-4-0):
 
 ```bash
 vendor/bin/dr generate-theme my_theme --starterkit whisk --path themes/custom
@@ -186,6 +194,22 @@ npm run develop
 Generated child themes include the Vite and Storybook tooling from Emulsify
 Core 4. The selected component library owns the source structure and asset
 integration those tools consume.
+
+### AI-assisted theme development
+
+Generated child themes include an `AGENTS.md` entrypoint, a library-neutral
+[Drupal integration guide](./whisk/docs/drupal-integration.md), and an
+`emulsify-drupal-integration` skill. They guide an AI through discovering the
+installed theme and component contracts, mapping Drupal content, and verifying
+the result in Drupal. The selected component library supplies its own
+structure, component APIs, tokens, and asset integration instructions.
+
+For Codex, start in the generated child theme directory to discover its
+`.agents/skills/` folder. When starting from the Drupal project root, point the
+AI to the generated child theme's `AGENTS.md` and integration skill, or add those
+references to the project's existing root guidance. Generation does not modify
+the Drupal project's root instructions. See the
+[development guide](./whisk/docs/development.md#ai-assisted-development) for setup.
 
 ### Write Twig component includes
 
@@ -244,8 +268,8 @@ npm run build
 npm run storybook-build
 ```
 
-Whisk advertises Node.js `>=24`, while Emulsify Core 4.3.1 and 4.4.0 require
-`>=24.13.0`; the effective frontend floor for those versions is therefore
+New child themes declare `@emulsify/core: ^4.5.0`. Whisk advertises Node.js
+`>=24`, while Emulsify Core 4.5.0 requires `>=24.13.0`; the effective frontend floor is
 **24.13.0**. Root release tooling separately requires **24.15 or newer**. Both
 `.nvmrc` files select the Node 24 line without pinning its minor version. These
 declared requirements differ; a Node 24.0 installation does not satisfy Emulsify
@@ -257,7 +281,7 @@ These checks verify the expected local workflow:
 
 1. Compare `node --version` with the effective Node.js floor above.
 2. `npm install` installs Emulsify Core 4 and the generated child theme tooling.
-3. `npm run test` verifies the generated Jest setup. It passes when no project tests exist yet.
+3. `npm run test` runs project tests and collects coverage. Add a project test first; the generated setup fails when no tests are found.
 4. `npm run inspect:components` reports the component inventory and related project health information.
 5. After component-library installation, `npm run build` compiles its Drupal-facing assets with the Vite build workflow.
 6. `npm run storybook-build` verifies the component library's static Storybook build.
@@ -304,11 +328,47 @@ The project maintainers have adopted a Code of Conduct that we expect project pa
 
 ### Contribution Guide
 
+AI contributors should start with the repository's [AGENTS.md](./AGENTS.md),
+which distinguishes parent/starter maintenance from generated-theme work.
+
 Please also follow the issue template and pull request templates provided. See below for the correct places to post issues:
 
 1. [Emulsify Drupal](https://www.drupal.org/project/issues/emulsify?categories=All)
 2. [Emulsify Tools Drupal Module](https://www.drupal.org/project/issues/emulsify_tools?categories=All)
 3. [Emulsify Twig Extensions](https://github.com/emulsify-ds/emulsify-twig-extensions/issues)
+
+### Build the parent theme assets
+
+The parent theme's global styles and favicon settings UI are authored in
+`assets/` and built with `@emulsify/core`. Run these commands from this repository
+root using Node.js 24.15 or newer:
+
+```bash
+npm ci --ignore-scripts
+npm run build
+npm run lint
+```
+
+Use `npm run develop` to watch the Sass and JavaScript sources and produce
+readable output with source maps. Run `npm run build` before committing to
+restore minified production output without maps.
+
+| Source | Drupal library output |
+| --- | --- |
+| `assets/theme/global.scss` | `dist/css/theme/global.css` |
+| `assets/admin/favicon-preview.scss` | `dist/css/admin/favicon-preview.css` |
+| `assets/admin/favicon-preview.js` | `dist/js/admin/favicon-preview.js` |
+
+Edit the sources, then include the rebuilt `dist/` files in the same change.
+Production assets are committed so Composer installations do not require Node
+or an asset build. CI rebuilds them and checks that they match the committed
+output. The existing `emulsify/global` and `emulsify/favicon_admin` library names
+remain the attachment points.
+
+`project.emulsify.json` restricts Core's source discovery to `assets/`, keeping
+the Drupal PHP classes in `src/` outside the frontend build. Root linting covers
+PHP plus the JavaScript and Sass sources using Core's shared lint configuration.
+Generated child themes retain their own component-library build workflow.
 
 ### Committing Changes
 

@@ -7,12 +7,15 @@ namespace Drupal\emulsify\Favicon;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\Entity\File;
 
 /**
  * Builds lightweight admin previews for generated favicon packages.
  */
 final class FaviconPreviewBuilder {
+
+  use StringTranslationTrait;
 
   /**
    * The file URL generator.
@@ -66,19 +69,55 @@ final class FaviconPreviewBuilder {
   }
 
   /**
+   * Builds a link-card preview from the saved generated share image.
+   */
+  public function buildSharePreview(array $settings): array {
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (empty($settings['favicon_package_enabled']) || empty($settings['favicon_share_image_enabled'])
+      || !FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))
+      || !is_file($package_path . '/metadata.json') || !is_file($package_path . '/share-image.png')) {
+      return [];
+    }
+
+    $site_name = (string) \Drupal::config('system.site')->get('name');
+    $alt = trim((string) ($settings['favicon_share_image_alt'] ?? ''));
+    if ($alt === '') {
+      $alt = $site_name;
+    }
+    $source_url = $this->fileUrlGenerator->generateString($package_path . '/share-image.png');
+    return [
+      '#markup' => Markup::create(sprintf(
+        '<div class="emulsify-favicon-preview emulsify-favicon-preview--share" data-favicon-preview-group="share">'
+        . '<p class="emulsify-favicon-preview__summary">%s</p>'
+        . '<figure class="emulsify-favicon-preview__card" data-preview-canvas="share" style="margin:0">'
+        . '<img src="%s" alt="%s" width="1200" height="630" style="max-width:100%%;height:auto" data-preview-image loading="lazy" />'
+        . '<figcaption><strong>%s</strong><br /><span>%s</span></figcaption>'
+        . '</figure></div>',
+        Html::escape((string) $this->t('This link card shows the saved generated share image. Save changes to update it.')),
+        Html::escape($source_url),
+        Html::escape($alt),
+        Html::escape($site_name),
+        Html::escape(\Drupal::request()->getHost()),
+      )),
+    ];
+  }
+
+  /**
    * Builds browser preview markup.
    */
   private function buildBrowserMarkup(array $settings, ?File $source_file): string {
     $source_url = Html::escape($this->resolvePreviewSourceUrl('browser', $settings, $source_file));
+    $dark_source_url = Html::escape($this->resolvePreviewSourceUrl('browser_dark', $settings, $source_file));
     $empty_class = $source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
+    $dark_empty_class = $dark_source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
 
     return sprintf(
       '<div class="emulsify-favicon-preview emulsify-favicon-preview--browser" data-favicon-preview-group="browser">'
       . '<p class="emulsify-favicon-preview__summary">Browser tabs use the generated SVG favicon and ICO. These previews show the saved generated assets. Save changes to update them.</p>'
       . '<div class="emulsify-favicon-preview__grid">'
-      . '<div class="emulsify-favicon-preview__card">'
+      . '<div class="emulsify-favicon-preview__card emulsify-favicon-preview__card--light">'
       . '<h4>Light tab</h4>'
-      . '<div class="emulsify-favicon-preview__tab">'
+      . '<div class="emulsify-favicon-preview__tab emulsify-favicon-preview__tab--light">'
       . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:transparent; --preview-padding:0%%">'
       . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview on a light tab" data-preview-image loading="lazy" /></span>'
       . '</span>'
@@ -98,8 +137,8 @@ final class FaviconPreviewBuilder {
       . '</div>',
       $empty_class,
       $source_url,
-      $empty_class,
-      $source_url,
+      $dark_empty_class,
+      $dark_source_url,
     );
   }
 
@@ -184,6 +223,7 @@ final class FaviconPreviewBuilder {
 
     $filename = match ($platform) {
       'browser' => 'favicon.svg',
+      'browser_dark' => is_file($package_path . '/favicon-dark.svg') ? 'favicon-dark.svg' : 'favicon.svg',
       'ios' => 'apple-touch-icon.png',
       'maskable' => 'web-app-manifest-512x512-maskable.png',
       default => 'web-app-manifest-192x192.png',
@@ -202,7 +242,11 @@ final class FaviconPreviewBuilder {
    * Reads the launcher label from the manifest referenced by the saved package.
    */
   private function resolveAndroidPreviewLabel(array $settings): string {
-    $manifest_path = ($settings['favicon_package_path'] ?? '') . '/site.webmanifest';
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (!FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))) {
+      return '';
+    }
+    $manifest_path = $package_path . '/site.webmanifest';
     if (!is_readable($manifest_path)) {
       return '';
     }

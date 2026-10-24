@@ -39,7 +39,7 @@
     "vite": "vite build --watch --config node_modules/@emulsify/core/config/vite/vite.config.js"
   },
   "dependencies": {
-    "@emulsify/core": "^4.3.1"
+    "@emulsify/core": "^4.5.0"
   },
   "overrides": {
     "glob": "^13.0.6",

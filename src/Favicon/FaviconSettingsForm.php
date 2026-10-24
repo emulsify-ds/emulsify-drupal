@@ -20,7 +20,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\Entity\File;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Builds and processes the Emulsify favicon theme settings UI.
@@ -46,6 +45,8 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'maskable_icon_notice',
     'generation_hint',
     'dirty_state',
+    'favicon_dark_background_enabled',
+    'favicon_dark_theme_color_enabled',
     'emulsify_tools_apply_admin_theme_favicon',
   ];
 
@@ -57,6 +58,16 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'favicon_source_fid',
     'favicon_source_svg',
     'favicon_source_filename',
+    'favicon_dark_mode',
+    'favicon_dark_background_color',
+    'favicon_dark_theme_color',
+    'favicon_dark_source_fid',
+    'favicon_dark_source_svg',
+    'favicon_dark_source_filename',
+    'favicon_share_image_enabled',
+    'favicon_share_image_background_color',
+    'favicon_share_image_padding',
+    'favicon_share_image_alt',
     'favicon_background_color',
     'favicon_theme_color',
     'favicon_ios_background_color',
@@ -69,6 +80,11 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'favicon_manifest_short_name',
     'favicon_manifest_display',
   ];
+
+  /**
+   * Source setting prefixes sharing upload, sanitization, and config handling.
+   */
+  private const SOURCE_PREFIXES = ['favicon_source', 'favicon_dark_source'];
 
   /**
    * Generates favicon packages from uploaded theme assets.
@@ -97,7 +113,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     LoggerChannelFactoryInterface $loggerChannelFactory,
     FileUrlGeneratorInterface $fileUrlGenerator,
     TimeInterface $time,
-    #[Autowire(service: 'lock')]
     LockBackendInterface $lock,
   ) {
     $this->faviconThemeManager = new FaviconThemeManager(
@@ -191,14 +206,15 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       '#type' => 'hidden',
       '#default_value' => $settings['favicon_package_generated_at'],
     ];
-    $form['favicon_source_svg'] = [
-      '#type' => 'hidden',
-      '#default_value' => $settings['favicon_source_svg'],
-    ];
-    $form['favicon_source_filename'] = [
-      '#type' => 'hidden',
-      '#default_value' => $settings['favicon_source_filename'],
-    ];
+    foreach (self::SOURCE_PREFIXES as $prefix) {
+      foreach (['svg', 'filename'] as $suffix) {
+        $key = $prefix . '_' . $suffix;
+        $form[$key] = [
+          '#type' => 'hidden',
+          '#default_value' => $settings[$key],
+        ];
+      }
+    }
     $form['favicon_theme_color'] = [
       '#type' => 'hidden',
       '#default_value' => $settings['favicon_android_background_color'],
@@ -239,25 +255,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         ],
       ],
     ];
-    $form['emulsify_favicon']['source']['favicon_source_fid'] = [
-      '#type' => 'managed_file',
-      '#title' => $this->t('Icon File'),
-      '#default_value' => $settings['favicon_source_fid'],
-      '#progress_indicator' => 'bar',
-      '#progress_message' => $this->t('Uploading icon file...'),
-      '#upload_location' => 'public://favicon-source/' . $theme_name,
-      '#upload_validators' => [
-        'FileExtension' => [
-          'extensions' => 'svg',
-        ],
-      ],
-      '#description' => $this->t('Use an SVG icon file. Non-square sources are centered on a square canvas. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
-    ];
-    $form['emulsify_favicon']['source']['portable_source_notice'] = [
-      '#type' => 'item',
-      '#title' => $this->t('Portable source config'),
-      '#markup' => '<span class="description">' . $this->buildPortableSourceDescription($package_status) . '</span>',
-    ];
+    $form['emulsify_favicon']['source'] += $this->buildSourceFields('favicon_source', $theme_name, $settings, $package_status);
     if (!$has_generated_package) {
       $form['emulsify_favicon']['source']['generation_hint'] = [
         '#type' => 'container',
@@ -274,14 +272,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         ],
       ];
     }
-    if ($package_status['source_diagnostics'] !== '') {
-      $form['emulsify_favicon']['source']['source_diagnostics_notice'] = [
-        '#type' => 'item',
-        '#title' => $this->t('Source diagnostics'),
-        '#markup' => $package_status['source_diagnostics'],
-      ];
-    }
-
     $form['emulsify_favicon']['package_status_notice'] = [
       '#type' => 'item',
       '#title' => $this->t('Current generated package'),
@@ -304,6 +294,61 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       '#default_value' => $settings['favicon_background_color'],
       '#description' => $this->t('Applied to the square browser favicon, SVG favicon, and ICO.'),
     ];
+    $form['emulsify_favicon']['browser']['dark_mode'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Dark mode'),
+      '#open' => TRUE,
+    ];
+    $dark_mode = &$form['emulsify_favicon']['browser']['dark_mode'];
+    $dark_mode['favicon_dark_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Icon treatment'),
+      '#options' => [
+        'none' => $this->t('Use the same icon'),
+        'invert' => $this->t('Invert icon colors'),
+        'alternate' => $this->t('Use a different SVG icon'),
+      ],
+      '#default_value' => $settings['favicon_dark_mode'],
+      '#description' => $this->t('Applies to browser tabs in dark mode. Invert also inverts the light background unless you choose a dark background. Apple and Android icons keep their existing appearance.'),
+    ];
+    $dark_mode['favicon_dark_background_enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use a different background in dark mode'),
+      '#default_value' => $settings['favicon_dark_background_color'] !== '',
+    ];
+    $dark_mode['favicon_dark_background_color'] = [
+      '#type' => 'color',
+      '#title' => $this->t('Dark-mode icon background color'),
+      '#default_value' => $settings['favicon_dark_background_color'] ?: '#000000',
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_dark_background_enabled"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $dark_mode['favicon_dark_theme_color_enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Set a dark-mode browser theme color'),
+      '#default_value' => $settings['favicon_dark_theme_color'] !== '',
+    ];
+    $dark_mode['favicon_dark_theme_color'] = [
+      '#type' => 'color',
+      '#title' => $this->t('Dark-mode browser theme color'),
+      '#default_value' => $settings['favicon_dark_theme_color'] ?: '#000000',
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_dark_theme_color_enabled"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $dark_mode['dark_source'] = [
+      '#type' => 'container',
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_dark_mode"]' => ['value' => 'alternate'],
+        ],
+      ],
+    ] + $this->buildSourceFields('favicon_dark_source', $theme_name, $settings, $this->buildDarkSourceStatus($settings));
     if ($has_preview_source) {
       $form['emulsify_favicon']['browser']['preview'] = $this->previewBuilder->buildBrowserPreview($settings);
     }
@@ -384,6 +429,56 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($settings);
     }
 
+    $form['emulsify_favicon']['share'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Social share image'),
+      '#open' => FALSE,
+      '#description' => $this->t('Provides a default share image when Metatag has not already set one. Social sites cache images, so changes can take time to appear. Changing the image creates a new URL; changing only its alternative text does not.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_package_enabled"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $share = &$form['emulsify_favicon']['share'];
+    $share['favicon_share_image_enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Generate a social share image'),
+      '#default_value' => $settings['favicon_share_image_enabled'],
+      '#description' => $this->t('Uses the main SVG icon to create a 1200 by 630 pixel PNG.'),
+    ];
+    $share['settings'] = [
+      '#type' => 'container',
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_share_image_enabled"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $share['settings']['favicon_share_image_background_color'] = [
+      '#type' => 'color',
+      '#title' => $this->t('Image background color'),
+      '#default_value' => $settings['favicon_share_image_background_color'],
+    ];
+    $share['settings']['favicon_share_image_padding'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Image padding'),
+      '#default_value' => $settings['favicon_share_image_padding'],
+      '#min' => 0,
+      '#max' => 40,
+      '#description' => $this->t('Percentage of the image height kept clear on every edge. For this 630-pixel-high image, 20% leaves 126 pixels clear on each edge.'),
+    ];
+    $share['settings']['favicon_share_image_alt'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Image alternative text'),
+      '#default_value' => $settings['favicon_share_image_alt'],
+      '#maxlength' => 200,
+      '#description' => $this->t('Describe the image. Leave blank to use the site name.'),
+    ];
+    if ($has_preview_source) {
+      $share['preview'] = $this->previewBuilder->buildSharePreview($settings);
+    }
+
     if ($package_status['source_available'] || $has_generated_package) {
       $form['emulsify_favicon']['actions'] = [
         '#type' => 'actions',
@@ -462,6 +557,103 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
   }
 
   /**
+   * Builds the same managed upload, portability notice, and diagnostics.
+   */
+  private function buildSourceFields(string $prefix, string $theme_name, array $settings, array $status): array {
+    $dark = $prefix === 'favicon_dark_source';
+    $fields = [
+      $prefix . '_fid' => [
+        '#type' => 'managed_file',
+        '#title' => $dark ? $this->t('Dark-mode icon file') : $this->t('Icon File'),
+        '#default_value' => $settings[$prefix . '_fid'],
+        '#progress_indicator' => 'bar',
+        '#progress_message' => $this->t('Uploading icon file...'),
+        '#upload_location' => 'public://favicon-source/' . $theme_name . ($dark ? '/dark' : ''),
+        '#upload_validators' => [
+          'FileExtension' => [
+            'extensions' => 'svg',
+          ],
+        ],
+        '#description' => $this->t('Use an SVG icon file. Non-square sources are centered on a square canvas. Embedded base64 raster image data is allowed, but it may scale less cleanly than a pure vector source.'),
+      ],
+      'portable_source_notice' => [
+        '#type' => 'item',
+        '#title' => $this->t('Portable source config'),
+        '#markup' => '<span class="description">' . $this->buildPortableSourceDescription($status) . '</span>',
+      ],
+    ];
+    if ($status['source_diagnostics'] !== '') {
+      $fields['source_diagnostics_notice'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Source diagnostics'),
+        '#markup' => $status['source_diagnostics'],
+      ];
+    }
+    return $fields;
+  }
+
+  /**
+   * Builds diagnostics for the alternate source using the shared source path.
+   */
+  private function buildDarkSourceStatus(array $settings): array {
+    $source_svg = (string) $settings['favicon_dark_source_svg'];
+    $status = [
+      'portable_source_available' => $source_svg !== '',
+      'portable_source_missing' => FALSE,
+      'portable_source_size' => strlen($source_svg),
+      'source_diagnostics' => '',
+    ];
+    try {
+      $context = $this->resolveSourceContext($settings, FALSE, 'favicon_dark_source');
+      $status['portable_source_missing'] = ($context['source_file'] ?? NULL) instanceof File && $source_svg === '';
+      $status['source_diagnostics'] = $this->buildSourceDiagnosticsMarkup(
+        $context['analysis']['warnings'] ?? [],
+        $status['portable_source_missing'],
+        $status['portable_source_size'],
+      );
+    }
+    catch (\InvalidArgumentException $exception) {
+      $status['source_diagnostics'] = $this->buildAdminMessageMarkup('error', 'alert', $this->t('@message', ['@message' => $exception->getMessage()]));
+    }
+    return $status;
+  }
+
+  /**
+   * Normalizes submitted settings and clears unchecked optional colors.
+   */
+  private function normalizeSubmittedSettings(FormStateInterface $form_state): array {
+    foreach ([
+      'favicon_dark_background_color' => 'favicon_dark_background_enabled',
+      'favicon_dark_theme_color' => 'favicon_dark_theme_color_enabled',
+    ] as $color => $checkbox) {
+      if (!$form_state->getValue($checkbox)) {
+        $form_state->setValue($color, '');
+      }
+    }
+    $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
+    foreach ([
+      'favicon_dark_background_color',
+      'favicon_dark_theme_color',
+      'favicon_share_image_enabled',
+      'favicon_share_image_background_color',
+      'favicon_share_image_padding',
+      'favicon_share_image_alt',
+    ] as $key) {
+      $form_state->setValue($key, $settings[$key]);
+    }
+    return $settings;
+  }
+
+  /**
+   * Resolves either source without changing the Tools-facing manager API.
+   */
+  private function resolveSourceContext(array $settings, bool $requires_rasterization, string $prefix): array {
+    return $prefix === 'favicon_dark_source'
+      ? $this->faviconThemeManager->resolveDarkSourceContext($settings, FALSE)
+      : $this->faviconThemeManager->resolveSourceContext($settings, $requires_rasterization);
+  }
+
+  /**
    * Validates the generated favicon package settings.
    */
   private function doValidateFaviconSettings(FormStateInterface $form_state): void {
@@ -470,33 +662,30 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     }
 
     $site_name = $this->getSiteName();
-    $settings = FaviconSettings::normalize($form_state->getValues(), $site_name);
+    $settings = $this->normalizeSubmittedSettings($form_state);
     $form_state->setValue('favicon_theme_color', $settings['favicon_android_background_color']);
     $form_state->setValue('favicon_manifest_name', $site_name);
     $form_state->setValue('favicon_manifest_display', 'standalone');
 
-    try {
-      $source_context = $this->faviconThemeManager->resolveSourceContext(
-        $settings,
-        !empty($settings['favicon_package_enabled']),
-      );
-    }
-    catch (\InvalidArgumentException $exception) {
-      $form_state->setErrorByName('favicon_source_fid', $this->t('@message', ['@message' => $exception->getMessage()]));
-      return;
-    }
+    foreach (self::SOURCE_PREFIXES as $prefix) {
+      try {
+        $source_context = $this->resolveSourceContext($settings, !empty($settings['favicon_package_enabled']), $prefix);
+      }
+      catch (\InvalidArgumentException $exception) {
+        $form_state->setErrorByName($prefix . '_fid', $this->t('@message', ['@message' => $exception->getMessage()]));
+        return;
+      }
 
-    if ($source_context !== []) {
-      $form_state->setValue('favicon_source_svg', $source_context['source_svg']);
-      $form_state->setValue('favicon_source_filename', $source_context['source_filename']);
-    }
-
-    if (empty($settings['favicon_package_enabled'])) {
-      return;
-    }
-
-    if ($source_context === []) {
-      $form_state->setErrorByName('favicon_source_fid', $this->t('Upload an SVG icon file before enabling the generated favicon package.'));
+      if ($source_context !== []) {
+        $form_state->setValue($prefix . '_svg', $source_context['source_svg']);
+        $form_state->setValue($prefix . '_filename', $source_context['source_filename']);
+      }
+      elseif ($prefix === 'favicon_dark_source' ? $settings['favicon_dark_mode'] === 'alternate' : !empty($settings['favicon_package_enabled'])) {
+        $message = $prefix === 'favicon_dark_source'
+          ? $this->t('Upload a dark-mode SVG icon file before choosing an alternate dark-mode favicon.')
+          : $this->t('Upload an SVG icon file before enabling the generated favicon package.');
+        $form_state->setErrorByName($prefix . '_fid', $message);
+      }
     }
   }
 
@@ -510,7 +699,7 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     }
 
     $array_parents = $trigger['#array_parents'] ?? [];
-    return in_array('favicon_source_fid', $array_parents, TRUE)
+    return (in_array('favicon_source_fid', $array_parents, TRUE) || in_array('favicon_dark_source_fid', $array_parents, TRUE))
       && end($array_parents) === 'remove_button';
   }
 
@@ -524,19 +713,19 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
 
     $theme_name = FaviconSettings::resolveThemeName($form_state);
     $current_settings = $this->faviconThemeManager->loadThemeSettings($theme_name);
-    $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
-
-    try {
-      $source_context = $this->faviconThemeManager->resolveSourceContext(
-        $settings,
-        !empty($settings['favicon_package_enabled']),
-      );
-    }
-    catch (\InvalidArgumentException) {
-      return;
-    }
-
-    if ($source_context !== []) {
+    $settings = $this->normalizeSubmittedSettings($form_state);
+    $contexts = [];
+    foreach (self::SOURCE_PREFIXES as $prefix) {
+      try {
+        $source_context = $this->resolveSourceContext($settings, !empty($settings['favicon_package_enabled']), $prefix);
+      }
+      catch (\InvalidArgumentException) {
+        return;
+      }
+      $contexts[$prefix] = $source_context;
+      if ($source_context === []) {
+        continue;
+      }
       if ($source_context['source_file'] instanceof File) {
         try {
           $this->persistSanitizedSourceFile($source_context['source_file'], $source_context['source_svg']);
@@ -553,13 +742,13 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         }
       }
 
-      $form_state->setValue('favicon_source_svg', $source_context['source_svg']);
-      $form_state->setValue('favicon_source_filename', $source_context['source_filename']);
-      $settings['favicon_source_svg'] = $source_context['source_svg'];
-      $settings['favicon_source_filename'] = $source_context['source_filename'];
+      $form_state->setValue($prefix . '_svg', $source_context['source_svg']);
+      $form_state->setValue($prefix . '_filename', $source_context['source_filename']);
+      $settings[$prefix . '_svg'] = $source_context['source_svg'];
+      $settings[$prefix . '_filename'] = $source_context['source_filename'];
     }
 
-    if (empty($settings['favicon_package_enabled']) || $source_context === []) {
+    if (empty($settings['favicon_package_enabled']) || $contexts['favicon_source'] === []) {
       return;
     }
 
@@ -576,6 +765,8 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
       foreach ([
         'favicon_source_svg',
         'favicon_source_filename',
+        'favicon_dark_source_svg',
+        'favicon_dark_source_filename',
         'favicon_package_hash',
         'favicon_package_path',
         'favicon_package_generated_at',

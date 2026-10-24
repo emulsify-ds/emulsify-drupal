@@ -15,12 +15,12 @@
 #}
 {% block content %}
   {% if site_logo %}
-    <a href="{{ path('<front>') }}" rel="home">
+    <a href="{{ path('<front>') }}" rel="home" class="emulsify-branding-link">
       <img src="{{ site_logo }}" alt="{{ 'Home'|t }}" fetchpriority="high" />
     </a>
   {% endif %}
   {% if site_name %}
-    <a href="{{ path('<front>') }}" rel="home">{{ site_name }}</a>
+    <a href="{{ path('<front>') }}" rel="home" class="emulsify-branding-link">{{ site_name }}</a>
   {% endif %}
   {{ site_slogan }}
 {% endblock %}

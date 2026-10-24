@@ -1,7 +1,7 @@
 # Published dependency validation
 
-The `Published Dependency Compatibility` workflow installs the latest stable
-Emulsify release from both public Composer routes in four fresh Drupal sites.
+The `Published Dependency Compatibility` workflow installs each public Composer
+route's latest available stable Emulsify release in four fresh Drupal sites.
 It checks the declared `drupal/core: ^11.3 || ^12` and
 `drupal/emulsify_tools: ^2.2` requirements without changing those constraints.
 
@@ -15,10 +15,39 @@ It checks the declared `drupal/core: ^11.3 || ^12` and
 Each leg reads the live
 [Drupal.org JSON](https://packages.drupal.org/files/packages/8/p2/drupal/emulsify.json)
 and [Packagist JSON](https://repo.packagist.org/p2/emulsify-ds/emulsify-drupal.json)
-endpoints and compares their latest stable version with the repository's latest
-stable tag. Both published Drupal and Tools requirements must equal the
-repository's current Composer requirements. The actual installed theme version
-must equal the verified release; this catches a registry change during the run.
+endpoints and records both latest stable versions alongside the repository's
+latest stable tag. Each leg selects its own route's release and pins that exact
+version during Composer resolution with `update --with=package:version`. The
+fixture retains a normal caret requirement and passes strict validation. The
+selected release must have a matching repository tag,
+and its published Drupal and Tools requirements must equal `composer.json` at
+that tag. Unreleased changes to the checkout's requirements do not alter the
+expected metadata of an already published package. The actual installed theme
+version must equal the selected release.
+
+Publication differences must match the explicit
+[allowed-omission policy](../.github/scripts/publication-skew.json). Its only
+exception is Drupal.org's missing `7.2.2`; it does not permit Packagist lag or
+any other missing release. That known exception passes without GitHub warnings
+and appears as ordinary metadata in the job summary and `metadata.json`.
+
+The check reconciles every stable repository tag and published version from
+the older route's latest stable version onward. Every repository release in
+that window must appear in both channels unless the policy explicitly permits
+its omission from that specific channel. Intermediate gaps fail even when a
+channel's latest version matches the repository. Unknown published versions
+without repository tags, missing stable releases, and releases absent from
+both channels also fail. Either channel's publication errors fail every leg,
+regardless of which route is selected for installation. Requirement metadata is
+still checked against the exact selected route's matching release tag.
+
+The comparison window avoids treating the registries' different legacy
+histories as new publication failures. Its starting version, observed channel
+versions, allowed omissions, and errors are retained in `metadata.json`; the
+exact policy is copied alongside that evidence. A passing check establishes
+publication consistency within this window except for the listed omission.
+Adding an exception requires a reviewed change to the policy; there is no
+blanket allowance for delayed publication.
 
 The fixture is a new Composer project with `minimum-stability: dev` and
 `prefer-stable: true`, matching the policy already declared by this package.
@@ -66,6 +95,27 @@ bash .github/scripts/published-dependency-check.sh '^12' emulsify-ds/emulsify-dr
 The script refuses an existing fixture directory and verifies the actual PHP
 major/minor version. It does not emulate a PHP version through Composer's
 `config.platform` setting.
+
+Before downloading packages, each leg runs offline metadata regression checks
+for matched channels, the known omission without warnings, unknown newer and
+intermediate gaps, the opposite direction of publication lag, matching
+release-tag requirements, prerelease exclusion, unknown tags, and Composer's
+minified metadata. Run those checks alone with:
+
+```sh
+php .github/scripts/published-package-metadata.test.php
+```
+
+## Allowed Drupal.org omission
+
+Version `7.2.2` was deliberately not published to Drupal.org. This omission is
+accepted indefinitely and recorded explicitly in the policy. With Drupal.org
+at `7.2.1` and Packagist and the repository at `7.2.2`, the compatibility matrix
+selects each route's available release and passes without warning noise. Both
+selected versions still need matching repository tags and requirements. If a
+later release such as `7.3.0` is missing from either registry, the `7.2.2`
+exception does not cover it: the check fails until publication is reconciled
+or a separate omission is explicitly reviewed and added to the policy.
 
 ## Recorded run: September 8, 2026
 

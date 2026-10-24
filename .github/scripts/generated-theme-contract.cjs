@@ -17,6 +17,11 @@ const SECTION_LABELS = {
   build: 'build',
 };
 const REQUIRED_DOCUMENTED_SCRIPTS = ['develop', 'build', 'storybook-build', 'test', 'a11y'];
+const REQUIRED_GUIDANCE_FILES = [
+  'AGENTS.md',
+  'docs/drupal-integration.md',
+  '.agents/skills/emulsify-drupal-integration/SKILL.md',
+];
 const IGNORED_SCAN_DIRECTORIES = new Set(['node_modules', 'dist', '.out', '.coverage', '.git']);
 
 function readJson(absolutePath) {
@@ -200,7 +205,6 @@ function validateGeneratedTheme({
       .filter((file) => path.basename(file) !== '.DS_Store')
       .map((file) => toRelative(sourceDir, file)),
     'config/jest.config.js',
-    'templates/layout/page.html.twig',
     'screenshot.png',
     '.nvmrc',
   ].filter((relativePath) => fs.existsSync(path.join(sourceDir, relativePath)));
@@ -440,6 +444,7 @@ function validateGeneratedTheme({
   }
 
   validateConfigReferences({ addError, themeDir, themeLabel, files, packageJson: parsed.package });
+  validateGeneratedGuidance({ addError, themeDir, themeLabel, sourceDir, files, relativeFiles, checkBuiltAssets });
   validateMarkdownReferences({ addError, themeDir, themeLabel, files });
   validateGeneratedDocumentation({
     addError,
@@ -454,6 +459,36 @@ function validateGeneratedTheme({
   validatePlaceholders({ addError, themeDir, themeLabel, machineName, displayName, description, contract, files });
 
   return { machineName, errors, checkBuiltAssets, generationOnly: false };
+}
+
+function validateGeneratedGuidance({ addError, themeDir, themeLabel, sourceDir, files, relativeFiles, checkBuiltAssets }) {
+  const guidanceFiles = new Set([
+    ...REQUIRED_GUIDANCE_FILES,
+    ...listFiles(path.join(sourceDir, '.agents/skills')).map((file) => toRelative(sourceDir, file)),
+  ]);
+  for (const relativePath of guidanceFiles) {
+    if (!relativeFiles.has(relativePath)) {
+      addError('generation', `${themeLabel} is missing required generated guidance file ${JSON.stringify(relativePath)}.`);
+    }
+    else if (!checkBuiltAssets && !fs.readFileSync(path.join(themeDir, relativePath)).equals(fs.readFileSync(path.join(sourceDir, relativePath)))) {
+      // Check the generator's copy, then allow projects to customize guidance.
+      addError('documentation', `${themeLabel} changed protected guidance file ${JSON.stringify(relativePath)} during generation; expected Starterkit no_edit content to remain byte-for-byte identical.`);
+    }
+  }
+
+  for (const file of files.filter((file) => /^\.agents\/skills\/[^/]+\/SKILL\.md$/.test(toRelative(themeDir, file)))) {
+    const relativePath = toRelative(themeDir, file);
+    try {
+      const frontmatter = fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+      if (!frontmatter) throw new Error('expected YAML frontmatter bounded by ---');
+      const metadata = yaml.load(frontmatter[1]);
+      if (!isMapping(metadata) || metadata.name !== path.basename(path.dirname(file))) throw new Error('frontmatter name must match the skill directory');
+      if (typeof metadata.description !== 'string' || !metadata.description.trim()) throw new Error('frontmatter description must be a nonempty string');
+    }
+    catch (error) {
+      addError('documentation', `${themeLabel} has invalid skill manifest in ${JSON.stringify(relativePath)}: ${error.message}.`);
+    }
+  }
 }
 
 function validateGeneratedDocumentation({

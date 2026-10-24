@@ -13,7 +13,7 @@ use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\file\Entity\File;
 
 /**
- * Generates favicon packages from a single uploaded SVG icon file.
+ * Generates favicon packages from SVG icon artwork.
  */
 final class FaviconPackageGenerator {
 
@@ -21,6 +21,40 @@ final class FaviconPackageGenerator {
    * Maximum allowed upload size in bytes.
    */
   public const MAX_FILE_SIZE = 5242880;
+
+  /**
+   * Maximum SVG canvas dimension, ample for icons exported up to 4096 units.
+   */
+  public const MAX_SVG_DIMENSION = 4096;
+
+  /**
+   * Static SVG drawing elements supported by favicon sources.
+   */
+  private const ALLOWED_SVG_ELEMENTS = [
+    'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline',
+    'polygon', 'text', 'tspan', 'defs', 'symbol', 'use', 'image', 'clippath',
+    'mask', 'lineargradient', 'radialgradient', 'stop', 'title', 'desc',
+    'filter', 'fegaussianblur', 'fecolormatrix', 'feoffset', 'feblend',
+    'fecomposite', 'feflood', 'femerge', 'femergenode', 'fedropshadow',
+    'femorphology', 'feturbulence', 'fedisplacementmap', 'feimage', 'fetile',
+    'fespecularlighting', 'fediffuselighting', 'fepointlight', 'fedistantlight',
+    'fespotlight', 'fecomponenttransfer', 'fefuncr', 'fefuncg', 'fefuncb',
+    'fefunca', 'feconvolvematrix', 'pattern', 'marker', 'textpath', 'metadata',
+    'switch', 'a',
+  ];
+
+  /**
+   * Non-rendering editor metadata, identified by namespace rather than prefix.
+   */
+  private const SVG_METADATA_NAMESPACES = [
+    'http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd',
+    'http://www.inkscape.org/namespaces/inkscape',
+    'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'http://purl.org/dc/elements/1.1/',
+    'http://creativecommons.org/ns#',
+    'http://ns.adobe.com/AdobeIllustrator/10.0/',
+    'http://ns.adobe.com/SaveForWeb/1.0/',
+  ];
 
   /**
    * Portable SVG config larger than this should be treated as review noise.
@@ -274,6 +308,11 @@ final class FaviconPackageGenerator {
     );
     $analysis = $this->validateSourceSvg($source_data, TRUE);
     $source_svg = (string) $analysis['sanitized_svg'];
+    $dark_analysis = $this->getDarkSourceAnalysis($normalized);
+    if ($dark_analysis !== NULL) {
+      $normalized['favicon_dark_source_svg'] = $dark_analysis['sanitized_svg'];
+    }
+    $has_dark_appearance = $this->hasDarkAppearance($normalized);
     $definition = $this->getPackageDefinition($theme_name, $normalized, $source_svg);
     $package_hash = $definition['hash'];
     $package_directory = $definition['path'];
@@ -301,14 +340,19 @@ final class FaviconPackageGenerator {
       $browser_padding = min($normalized['favicon_ios_padding'], $normalized['favicon_android_padding']);
       $this->writeBytes(
         $package_directory . '/favicon.svg',
-        $this->buildSvgFavicon(
+        $has_dark_appearance ? $this->buildDarkModeSvgFavicon($source_svg, $normalized, $browser_padding, FALSE) : $this->buildSvgFavicon(
           'image/svg+xml',
           $source_svg,
           $normalized['favicon_background_color'],
           $browser_padding,
-          FALSE,
         ),
       );
+      if ($has_dark_appearance) {
+        $this->writeBytes(
+          $package_directory . '/favicon-dark.svg',
+          $this->buildDarkModeSvgFavicon($source_svg, $normalized, $browser_padding, TRUE),
+        );
+      }
 
       $browser_png_32 = $this->renderPng(
         'image/svg+xml',
@@ -377,13 +421,46 @@ final class FaviconPackageGenerator {
         $package_directory . '/site.webmanifest',
         $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
       );
+      if ($normalized['favicon_share_image_enabled']) {
+        $this->writeBytes(
+          $package_directory . '/share-image.png',
+          $this->renderRectangularPng(
+            'image/svg+xml',
+            $source_svg,
+            1200,
+            630,
+            $normalized['favicon_share_image_background_color'],
+            $normalized['favicon_share_image_padding'],
+          ),
+        );
+      }
 
+      $metadata_settings = $normalized;
+      if (!$has_dark_appearance) {
+        // Preserve the exact legacy metadata when dark mode is not configured.
+        unset(
+          $metadata_settings['favicon_dark_mode'],
+          $metadata_settings['favicon_dark_background_color'],
+          $metadata_settings['favicon_dark_theme_color'],
+          $metadata_settings['favicon_dark_source_fid'],
+          $metadata_settings['favicon_dark_source_svg'],
+          $metadata_settings['favicon_dark_source_filename'],
+        );
+      }
+      if (!$normalized['favicon_share_image_enabled']) {
+        unset(
+          $metadata_settings['favicon_share_image_enabled'],
+          $metadata_settings['favicon_share_image_background_color'],
+          $metadata_settings['favicon_share_image_padding'],
+          $metadata_settings['favicon_share_image_alt'],
+        );
+      }
       $metadata = [
         'theme' => $theme_name,
         'hash' => $package_hash,
         'generated_at' => $generated_at,
         'source' => $this->buildSourceMetadata($source, (string) $analysis['source_hash']),
-        'settings' => $normalized,
+        'settings' => $metadata_settings,
         'warnings' => $analysis['warnings'],
         'files' => [
           'favicon.svg',
@@ -396,6 +473,15 @@ final class FaviconPackageGenerator {
           'site.webmanifest',
         ],
       ];
+      if ($has_dark_appearance) {
+        $metadata['files'][] = 'favicon-dark.svg';
+      }
+      if ($normalized['favicon_share_image_enabled']) {
+        $metadata['files'][] = 'share-image.png';
+      }
+      if ($dark_analysis !== NULL) {
+        $metadata['warnings'] = array_values(array_unique(array_merge($metadata['warnings'], $dark_analysis['warnings'])));
+      }
       $this->writeBytes(
         $package_directory . '/metadata.json',
         $this->encodeJson($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
@@ -574,7 +660,28 @@ final class FaviconPackageGenerator {
       $hash_settings['favicon_package_hash'],
       $hash_settings['favicon_package_path'],
       $hash_settings['favicon_package_generated_at'],
+      $hash_settings['favicon_dark_source_fid'],
+      $hash_settings['favicon_dark_source_svg'],
+      $hash_settings['favicon_dark_source_filename'],
+      $hash_settings['favicon_share_image_alt'],
     );
+    if (!$settings['favicon_share_image_enabled']) {
+      unset(
+        $hash_settings['favicon_share_image_enabled'],
+        $hash_settings['favicon_share_image_background_color'],
+        $hash_settings['favicon_share_image_padding'],
+      );
+    }
+    if (!$this->hasDarkAppearance($settings)) {
+      unset(
+        $hash_settings['favicon_dark_mode'],
+        $hash_settings['favicon_dark_background_color'],
+        $hash_settings['favicon_dark_theme_color'],
+      );
+    }
+    elseif ($settings['favicon_dark_mode'] === 'alternate') {
+      $hash_settings['favicon_dark_source_hash'] = $this->getDarkSourceAnalysis($settings)['source_hash'];
+    }
 
     return substr(hash('sha256', $this->encodeJson([
       'source_hash' => $source_hash,
@@ -655,11 +762,7 @@ final class FaviconPackageGenerator {
   /**
    * Generates an SVG favicon wrapper around the uploaded source.
    */
-  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding, bool $sanitize_svg): string {
-    if ($sanitize_svg) {
-      $source_data = $this->sanitizeSvg($source_data);
-    }
-
+  private function buildSvgFavicon(string $mime_type, string $source_data, string $background_color, int $padding): string {
     $encoded_source = base64_encode($source_data);
     $inset = (int) round(1024 * ($padding / 100));
     $content_size = max(1, 1024 - ($inset * 2));
@@ -682,10 +785,78 @@ SVG,
   }
 
   /**
-   * Sanitizes SVG uploads while allowing embedded image data URIs.
+   * Indicates whether browser dark appearance has been configured.
    */
-  private function sanitizeSvg(string $source_data): string {
-    return (string) $this->inspectSvgMarkup($source_data)['sanitized_svg'];
+  private function hasDarkAppearance(array $settings): bool {
+    return ($settings['favicon_dark_mode'] ?? 'none') !== 'none'
+      || ($settings['favicon_dark_background_color'] ?? '') !== ''
+      || ($settings['favicon_dark_theme_color'] ?? '') !== '';
+  }
+
+  /**
+   * Revalidates portable alternate artwork before hashing or embedding it.
+   */
+  private function getDarkSourceAnalysis(array $settings): ?array {
+    if (($settings['favicon_dark_mode'] ?? 'none') !== 'alternate') {
+      return NULL;
+    }
+    $source_svg = trim((string) ($settings['favicon_dark_source_svg'] ?? ''));
+    if ($source_svg === '') {
+      throw new \InvalidArgumentException('Configure a dark-mode SVG source when using alternate artwork.');
+    }
+    return $this->validateSourceSvg($source_svg, FALSE);
+  }
+
+  /**
+   * Builds responsive browser artwork or its fixed dark preview.
+   */
+  private function buildDarkModeSvgFavicon(string $source_data, array $settings, int $padding, bool $fixed_dark): string {
+    $inset = (int) round(1024 * ($padding / 100));
+    $content_size = max(1, 1024 - ($inset * 2));
+    $dark_background = $settings['favicon_dark_background_color'] ?: $settings['favicon_background_color'];
+    if ($settings['favicon_dark_mode'] === 'invert' && $settings['favicon_dark_background_color'] === '') {
+      $dark_background = sprintf('#%06x', 0xffffff ^ hexdec(substr($dark_background, 1)));
+    }
+    $dark_rules = '.emulsify-favicon-background{fill:' . $dark_background . ';}';
+    $base_rules = '';
+    $definitions = '';
+    $dark_image = '';
+    if ($settings['favicon_dark_mode'] === 'invert') {
+      $definitions = '  <defs><filter id="emulsify-favicon-invert" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0"/></filter></defs>' . "\n";
+      $dark_rules .= '.emulsify-favicon-source{filter:url(#emulsify-favicon-invert);}';
+    }
+    elseif ($settings['favicon_dark_mode'] === 'alternate') {
+      $base_rules = '.emulsify-favicon-dark-source{display:none;}';
+      $dark_rules .= '.emulsify-favicon-source{display:none;}.emulsify-favicon-dark-source{display:inline;}';
+      $dark_image = sprintf(
+        '  <image class="emulsify-favicon-dark-source" href="data:image/svg+xml;base64,%s" x="%d" y="%d" width="%d" height="%d" preserveAspectRatio="xMidYMid meet"/>' . "\n",
+        base64_encode($settings['favicon_dark_source_svg']),
+        $inset,
+        $inset,
+        $content_size,
+        $content_size,
+      );
+    }
+    $style = $fixed_dark ? $dark_rules : $base_rules . '@media (prefers-color-scheme: dark){' . $dark_rules . '}';
+
+    return sprintf(
+      <<<'SVG'
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-hidden="true">
+  <style>%s</style>
+%s  <rect class="emulsify-favicon-background" width="1024" height="1024" rx="192" fill="%s"/>
+  <image class="emulsify-favicon-source" href="data:image/svg+xml;base64,%s" x="%d" y="%d" width="%d" height="%d" preserveAspectRatio="xMidYMid meet"/>
+%s</svg>
+SVG,
+      $style,
+      $definitions,
+      $settings['favicon_background_color'],
+      base64_encode($source_data),
+      $inset,
+      $inset,
+      $content_size,
+      $content_size,
+      $dark_image,
+    );
   }
 
   /**
@@ -697,7 +868,8 @@ SVG,
   private function inspectSvgMarkup(string $source_data): array {
     $document = $this->loadSvgDocument($source_data);
     $root = $document->documentElement;
-    if (!$root || strtolower($root->localName ?? $root->nodeName) !== 'svg') {
+    if (!$root || strtolower($root->localName ?? $root->nodeName) !== 'svg'
+      || !in_array($root->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE)) {
       throw new \InvalidArgumentException('The uploaded icon file must be an SVG.');
     }
 
@@ -705,8 +877,16 @@ SVG,
     if ($view_box === NULL) {
       throw new \InvalidArgumentException('The uploaded SVG must define a viewBox.');
     }
+    if ($view_box[2] > self::MAX_SVG_DIMENSION || $view_box[3] > self::MAX_SVG_DIMENSION) {
+      throw new \InvalidArgumentException('SVG viewBox width and height must not exceed ' . self::MAX_SVG_DIMENSION . ' units.');
+    }
 
     $declared_dimensions = $this->extractDeclaredDimensions($root);
+    foreach ($declared_dimensions as $dimension) {
+      if ($dimension !== NULL && (!is_finite($dimension) || $dimension > self::MAX_SVG_DIMENSION)) {
+        throw new \InvalidArgumentException('SVG width and height must not exceed ' . self::MAX_SVG_DIMENSION . ' units.');
+      }
+    }
     $view_box_was_normalized = !$this->isSquare($view_box[2], $view_box[3]);
     $dimensions_were_normalized = $declared_dimensions['width'] !== NULL
       && $declared_dimensions['height'] !== NULL
@@ -715,21 +895,30 @@ SVG,
     $has_embedded_raster_images = $this->documentHasRasterImages($document);
     $uses_transparency = $this->documentUsesTransparency($document);
 
-    if ($view_box_was_normalized || $dimensions_were_normalized) {
-      $view_box = $this->normalizeSvgCanvas($root, $view_box);
-      $declared_dimensions = $this->extractDeclaredDimensions($root);
+    try {
+      if ($view_box_was_normalized || $dimensions_were_normalized) {
+        $view_box = $this->normalizeSvgCanvas($root, $view_box);
+        $declared_dimensions = $this->extractDeclaredDimensions($root);
+      }
+
+      // Inspect attributes before converting links or removing editor metadata so
+      // unsafe attributes on those elements still produce a security warning.
+      $removed_attributes = $this->stripDisallowedSvgAttributes($document);
+      $removed_nodes = $this->stripDisallowedSvgNodes($document);
+      $removed_unsafe_count = $removed_nodes['unsafe'] + $removed_attributes['unsafe'];
+      $removed_metadata_count = $removed_nodes['metadata'] + $removed_attributes['metadata'];
+
+      $sanitized = $document->saveXML($document->documentElement) ?: '';
     }
-
-    $removed_node_count = $this->stripDisallowedSvgNodes($document);
-    $removed_attribute_count = $this->stripDisallowedSvgAttributes($document);
-
-    $sanitized = $document->saveXML($document->documentElement) ?: '';
+    catch (\DOMException $exception) {
+      throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.', 0, $exception);
+    }
     if ($sanitized === '') {
       throw new \InvalidArgumentException('The uploaded SVG could not be sanitized.');
     }
 
     $warnings = [];
-    if ($removed_node_count > 0 || $removed_attribute_count > 0) {
+    if ($removed_unsafe_count > 0) {
       $warnings[] = 'Unsafe SVG markup was removed from the favicon source before storage and generation.';
     }
     if ($view_box_was_normalized || $dimensions_were_normalized) {
@@ -749,6 +938,9 @@ SVG,
       'declared_dimensions' => $declared_dimensions,
       'uses_transparency' => $uses_transparency,
       'has_embedded_raster_images' => $has_embedded_raster_images,
+      // Ordinary editor cleanup is silent and separate from security warnings.
+      'removed_unsafe_count' => $removed_unsafe_count,
+      'removed_metadata_count' => $removed_metadata_count,
       'warnings' => $warnings,
     ];
   }
@@ -821,7 +1013,7 @@ SVG,
 
     $values = [];
     foreach ($parts as $part) {
-      if (!is_numeric($part)) {
+      if (!is_numeric($part) || !is_finite((float) $part)) {
         return NULL;
       }
       $values[] = (float) $part;
@@ -852,7 +1044,7 @@ SVG,
       return NULL;
     }
 
-    if (!preg_match('/^(-?(?:\d+|\d*\.\d+))(?:px|pt|pc|mm|cm|in)?$/i', $candidate, $matches)) {
+    if (!preg_match('/^(-?(?:\d+|\d*\.\d+)(?:e[+-]?\d+)?)(?:px|pt|pc|mm|cm|in)?$/i', $candidate, $matches)) {
       return NULL;
     }
 
@@ -960,14 +1152,37 @@ SVG,
   }
 
   /**
-   * Removes unsafe SVG nodes.
+   * Removes unsafe nodes and editor metadata while unwrapping artwork.
+   *
+   * @return array{unsafe: int, metadata: int}
+   *   Separate counts for security diagnostics and silent editor cleanup.
    */
-  private function stripDisallowedSvgNodes(\DOMDocument $document): int {
+  private function stripDisallowedSvgNodes(\DOMDocument $document): array {
     $removable = [];
+    $links = [];
+    $switches = [];
+    $removed_counts = ['unsafe' => 0, 'metadata' => 0];
+    foreach ((new \DOMXPath($document))->query('//processing-instruction()') as $instruction) {
+      $removable[] = $instruction;
+      $removed_counts['unsafe']++;
+    }
     foreach ($document->getElementsByTagName('*') as $element) {
       $tag_name = strtolower($element->localName ?? $element->nodeName);
-      if (in_array($tag_name, ['script', 'style', 'foreignobject', 'iframe', 'audio', 'video'], TRUE)) {
+      $is_svg = in_array($element->namespaceURI, [NULL, 'http://www.w3.org/2000/svg'], TRUE);
+      if (($is_svg && $tag_name === 'metadata')
+        || in_array($element->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
         $removable[] = $element;
+        $removed_counts['metadata']++;
+      }
+      elseif (!$is_svg || !in_array($tag_name, self::ALLOWED_SVG_ELEMENTS, TRUE)) {
+        $removable[] = $element;
+        $removed_counts['unsafe']++;
+      }
+      elseif ($tag_name === 'a') {
+        $links[] = $element;
+      }
+      elseif ($tag_name === 'switch') {
+        $switches[] = $element;
       }
     }
 
@@ -977,15 +1192,98 @@ SVG,
       }
     }
 
-    return count($removable);
+    foreach ($links as $element) {
+      if (!$element->parentNode) {
+        continue;
+      }
+      $replacement_name = 'g';
+      for ($ancestor = $element->parentNode; $ancestor instanceof \DOMElement; $ancestor = $ancestor->parentNode) {
+        if (in_array(strtolower($ancestor->localName ?? $ancestor->nodeName), ['text', 'tspan', 'textpath'], TRUE)) {
+          $replacement_name = 'tspan';
+          break;
+        }
+      }
+      $replacement = $document->createElementNS($element->namespaceURI, $replacement_name);
+      $removed_counts['unsafe'] += $this->copySvgAttributes($element, $replacement);
+      while ($element->firstChild) {
+        $replacement->appendChild($element->firstChild);
+      }
+      $element->parentNode->replaceChild($replacement, $element);
+    }
+
+    // Choose only after cleanup. Outer switches must see nested conditions
+    // before those nested wrappers are unwrapped later in document order.
+    foreach ($switches as $element) {
+      if (!$element->parentNode) {
+        continue;
+      }
+      $selected = NULL;
+      foreach ($element->childNodes as $child) {
+        if (!$child instanceof \DOMElement) {
+          continue;
+        }
+        $selected ??= $child;
+        if (!$child->hasAttribute('requiredExtensions') && !$child->hasAttribute('systemLanguage')) {
+          $selected = $child;
+          break;
+        }
+      }
+      if ($selected !== NULL) {
+        if ($element->hasAttributes()) {
+          $replacement = $document->createElementNS($element->namespaceURI, 'g');
+          $removed_counts['unsafe'] += $this->copySvgAttributes($element, $replacement);
+          $replacement->appendChild($selected);
+          $selected = $replacement;
+        }
+        $element->parentNode->insertBefore($selected, $element);
+      }
+      $element->parentNode->removeChild($element);
+    }
+
+    return $removed_counts;
+  }
+
+  /**
+   * Copies SVG attributes without changing their rendering semantics.
+   *
+   * @return int
+   *   The number of unsafe attributes that could not be copied.
+   */
+  private function copySvgAttributes(\DOMElement $source, \DOMElement $destination): int {
+    $removed_count = 0;
+    foreach ($source->attributes as $attribute) {
+      if ($destination->localName === 'tspan' && $attribute->namespaceURI === NULL
+        && in_array($attribute->nodeName, ['x', 'y', 'dx', 'dy', 'rotate', 'textLength', 'lengthAdjust'], TRUE)) {
+        // These attributes are inert on links but position text on spans.
+        continue;
+      }
+      try {
+        if ($attribute->namespaceURI === NULL && str_contains($attribute->nodeName, ':')) {
+          // Keep undeclared prefixes inert instead of promoting their names.
+          $destination->setAttribute($attribute->nodeName, $attribute->value);
+        }
+        else {
+          $destination->setAttributeNS($attribute->namespaceURI, $attribute->nodeName, $attribute->value);
+        }
+      }
+      catch (\DOMException) {
+        $removed_count++;
+      }
+    }
+
+    return $removed_count;
   }
 
   /**
    * Removes unsafe attributes and external references from SVG elements.
+   *
+   * @return array{unsafe: int, metadata: int}
+   *   Separate counts for security diagnostics and silent editor cleanup.
    */
-  private function stripDisallowedSvgAttributes(\DOMDocument $document): int {
-    $removed_count = 0;
+  private function stripDisallowedSvgAttributes(\DOMDocument $document): array {
+    $removed_counts = ['unsafe' => 0, 'metadata' => 0];
     foreach ($document->getElementsByTagName('*') as $element) {
+      $is_link = strtolower($element->localName ?? $element->nodeName) === 'a';
       $attributes = [];
       if ($element->hasAttributes()) {
         foreach ($element->attributes as $attribute) {
@@ -994,29 +1292,67 @@ SVG,
       }
 
       foreach ($attributes as $attribute) {
-        $name = strtolower($attribute->nodeName);
+        // DOM can keep undeclared prefixes in localName; inspect the last part.
+        $name_parts = explode(':', strtolower($attribute->nodeName));
+        $name = end($name_parts);
         $value = trim((string) $attribute->nodeValue);
 
-        if (str_starts_with($name, 'on')) {
+        if (str_starts_with($name, 'on')
+          || ($attribute->namespaceURI === 'http://www.w3.org/XML/1998/namespace' && $attribute->localName === 'base')) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
           continue;
         }
 
-        if ($name === 'style' || $this->svgAttributeContainsCssImport($value) || $this->svgAttributeHasUnsafeCssUrl($value)) {
+        $css_value = $this->decodeSvgCssEscapes($value);
+        if ($name === 'style' || $this->svgAttributeContainsCssImport($css_value)
+          || $this->svgAttributeContainsCssImageFunction($css_value) || $this->svgAttributeHasUnsafeCssUrl($css_value)) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
           continue;
         }
 
-        if (in_array($name, ['href', 'xlink:href'], TRUE) && !$this->isSafeSvgHref($value)) {
+        if ($name === 'href' && !$this->isSafeSvgHref($value)) {
           $element->removeAttributeNode($attribute);
-          $removed_count++;
+          $removed_counts['unsafe']++;
+          continue;
+        }
+
+        if (in_array($attribute->namespaceURI, self::SVG_METADATA_NAMESPACES, TRUE)) {
+          $element->removeAttributeNode($attribute);
+          $removed_counts['metadata']++;
+          continue;
+        }
+
+        if ($is_link && in_array($name, [
+          'href', 'target', 'download', 'ping', 'rel', 'hreflang', 'type', 'referrerpolicy',
+        ], TRUE)) {
+          $element->removeAttributeNode($attribute);
         }
       }
     }
 
-    return $removed_count;
+    return $removed_counts;
+  }
+
+  /**
+   * Decodes CSS escapes for checks without rewriting safe attribute values.
+   */
+  private function decodeSvgCssEscapes(string $value): string {
+    return preg_replace_callback(
+      '/\\\\(?:([0-9a-f]{1,6})(?:\r\n|[ \t\r\n\f])?|([^\r\n\f])|\r\n|[\r\n\f])/i',
+      static function (array $matches): string {
+        if (($matches[1] ?? '') === '') {
+          return $matches[2] ?? '';
+        }
+        $codepoint = (int) hexdec($matches[1]);
+        if ($codepoint === 0 || $codepoint > 0x10FFFF || ($codepoint >= 0xD800 && $codepoint <= 0xDFFF)) {
+          return "\u{FFFD}";
+        }
+        return mb_chr($codepoint, 'UTF-8');
+      },
+      $value,
+    ) ?? $value;
   }
 
   /**
@@ -1028,7 +1364,7 @@ SVG,
     }
 
     if (str_starts_with($href, 'data:')) {
-      return (bool) preg_match('/^data:image\/(png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+\/]+=*$/', $href);
+      return (bool) preg_match('/^data:image\/(png|gif|jpe?g|webp);base64,[A-Za-z0-9+\/]+=*$/', $href);
     }
 
     return FALSE;
@@ -1042,18 +1378,24 @@ SVG,
   }
 
   /**
+   * Checks for CSS image functions that can fetch resources without url().
+   */
+  private function svgAttributeContainsCssImageFunction(string $value): bool {
+    return (bool) preg_match('/(?<![a-z0-9-])(?:image-set|-webkit-image-set|image|cross-fade|-webkit-cross-fade|src)\(/i', $value);
+  }
+
+  /**
    * Checks whether CSS url() references leave the current SVG document.
    */
   private function svgAttributeHasUnsafeCssUrl(string $value): bool {
-    if (!preg_match_all('/url\(\s*([^)]+?)\s*\)/i', $value, $matches)) {
+    if (!preg_match_all('/url\(\s*([^)]*)(?:\)|$)/i', $value, $matches)) {
       return FALSE;
     }
 
     foreach ($matches[1] as $raw_target) {
       $target = trim((string) $raw_target, " \t\n\r\0\x0B\"'");
-      $target = html_entity_decode($target, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-      if ($target === '' || !str_starts_with($target, '#')) {
+      if ($target !== '' && !str_starts_with($target, '#')) {
         return TRUE;
       }
     }
@@ -1065,11 +1407,18 @@ SVG,
    * Renders a source asset into a square PNG with padding.
    */
   private function renderPng(string $mime_type, string $source_data, int $size, string $background_color, int $padding): string {
-    $source_image = $this->createSourceImage($mime_type, $source_data, $size);
+    return $this->renderRectangularPng($mime_type, $source_data, $size, $size, $background_color, $padding);
+  }
+
+  /**
+   * Renders centered artwork with padding measured from the canvas height.
+   */
+  private function renderRectangularPng(string $mime_type, string $source_data, int $width, int $height, string $background_color, int $padding): string {
+    $source_image = $this->createSourceImage($mime_type, $source_data, max($width, $height));
     $source_width = imagesx($source_image);
     $source_height = imagesy($source_image);
 
-    $canvas = imagecreatetruecolor($size, $size);
+    $canvas = imagecreatetruecolor($width, $height);
     if ($canvas === FALSE) {
       throw new \RuntimeException('Unable to allocate the favicon canvas.');
     }
@@ -1078,16 +1427,16 @@ SVG,
     imagesavealpha($canvas, TRUE);
     [$red, $green, $blue] = $this->hexToRgb($background_color);
     $background = imagecolorallocatealpha($canvas, $red, $green, $blue, 0);
-    imagefilledrectangle($canvas, 0, 0, $size, $size, $background);
+    imagefilledrectangle($canvas, 0, 0, $width, $height, $background);
 
-    // All raster outputs share the same centering and padding rules so the
-    // browser, iOS, and Android assets stay visually aligned.
-    $inner_size = max(1, $size - (2 * (int) round($size * ($padding / 100))));
-    $scale = min($inner_size / $source_width, $inner_size / $source_height);
+    $inset = (int) round($height * ($padding / 100));
+    $inner_width = max(1, $width - (2 * $inset));
+    $inner_height = max(1, $height - (2 * $inset));
+    $scale = min($inner_width / $source_width, $inner_height / $source_height);
     $target_width = max(1, (int) round($source_width * $scale));
     $target_height = max(1, (int) round($source_height * $scale));
-    $target_x = (int) floor(($size - $target_width) / 2);
-    $target_y = (int) floor(($size - $target_height) / 2);
+    $target_x = (int) floor(($width - $target_width) / 2);
+    $target_y = (int) floor(($height - $target_height) / 2);
 
     imagealphablending($source_image, TRUE);
     imagecopyresampled(
@@ -1121,17 +1470,64 @@ SVG,
         throw new \RuntimeException($this->getMissingImagickMessage());
       }
 
+      // Bound the raster viewport, not the density in DPI. Keep the viewBox so
+      // source coordinates and proportions survive in the raster-only copy.
+      $document = $this->loadSvgDocument($source_data);
+      $raster_size = min($target_size * 4, 2048);
+      $document->documentElement->setAttribute('width', (string) $raster_size);
+      $document->documentElement->setAttribute('height', (string) $raster_size);
+
+      // These limits are process-wide. Preserve stricter host limits and
+      // restore them after releasing the pixel caches, including on failure.
+      $limits = [
+        \Imagick::RESOURCETYPE_MEMORY => 64 * 1024 * 1024,
+        \Imagick::RESOURCETYPE_AREA => 2048 * 2048,
+        \Imagick::RESOURCETYPE_WIDTH => 2048,
+        \Imagick::RESOURCETYPE_HEIGHT => 2048,
+      ];
+      $previous_limits = [];
       $image = new \Imagick();
-      $image->setBackgroundColor(new \ImagickPixel('transparent'));
-      $image->setResolution($target_size * 4, $target_size * 4);
-      $image->readImageBlob($source_data);
-      $merged = $image->mergeImageLayers(\Imagick::LAYERMETHOD_MERGE);
-      $merged->setImageFormat('png32');
-      $source_data = (string) $merged->getImageBlob();
-      $merged->clear();
-      $merged->destroy();
-      $image->clear();
-      $image->destroy();
+      $merged = NULL;
+      $failure = NULL;
+      try {
+        foreach ($limits as $resource => $limit) {
+          $previous_limits[$resource] = \Imagick::getResourceLimit($resource);
+          $previous = $previous_limits[$resource];
+          $effective = $previous <= 0 ? $limit : min($previous, $limit);
+          \Imagick::setResourceLimit($resource, $effective);
+        }
+        $image->setBackgroundColor(new \ImagickPixel('transparent'));
+        $image->setResolution(96, 96);
+        $image->readImageBlob($document->saveXML($document->documentElement));
+        $merged = $image->mergeImageLayers(\Imagick::LAYERMETHOD_MERGE);
+        $merged->setImageFormat('png32');
+        $source_data = (string) $merged->getImageBlob();
+      }
+      catch (\Throwable $exception) {
+        $failure = $exception;
+      }
+      finally {
+        // Attempt every cleanup operation without masking the original error.
+        foreach ([$merged, $image] as $raster_image) {
+          try {
+            $raster_image?->clear();
+          }
+          catch (\Throwable $exception) {
+            $failure ??= $exception;
+          }
+        }
+        foreach ($previous_limits as $resource => $limit) {
+          try {
+            \Imagick::setResourceLimit($resource, $limit);
+          }
+          catch (\Throwable $exception) {
+            $failure ??= $exception;
+          }
+        }
+      }
+      if ($failure !== NULL) {
+        throw $failure;
+      }
     }
 
     $image = imagecreatefromstring($source_data);

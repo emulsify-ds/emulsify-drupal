@@ -45,6 +45,19 @@ npm run storybook-build
 The component inspector may return an empty report when the project has no
 components; a successful empty report is valid.
 
+For a JSON audit report, silence npm's command banner and pass Core's options
+after `--`:
+
+```bash
+npm run audit --silent -- --json --fail-on warn
+npm run audit:twig-stories --silent -- --json --fail-on-found
+```
+
+The generated wrappers keep JSON on stdout, their documentation footer on
+stderr, and Core's exit status. Updating Core alone does not replace scripts
+already copied into a theme. When comparing starter versions, preserve these
+behaviors and the quoted `"$@"` argument forwarding.
+
 Also enable and render the theme in the project's supported Drupal environment when Drupal metadata, Twig templates, components, or library declarations changed.
 
 ## Preserve source history

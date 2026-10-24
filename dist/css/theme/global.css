@@ -1,0 +1,1 @@
+:where(.emulsify-branding-link,.emulsify-local-task>a,.pager__item>a,[data-drupal-messages] a[href^=\#]){min-block-size:24px;min-inline-size:24px;display:inline-block}
