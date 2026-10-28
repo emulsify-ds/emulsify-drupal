@@ -17,8 +17,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 - An independent **Social share image** section accepts uploaded or existing
   local JPG, PNG, WebP, and GIF images, with alternative text and actual image
   dimensions in sharing metadata. It works with favicon generation disabled.
-  Facebook, X/Twitter, LinkedIn, and Pinterest previews offer desktop/mobile
-  layouts and local preview text controls. Existing `og:image`,
+  Optional saved title, description, and page URL defaults fill missing metadata;
+  a live confirmation table shows the fallback tags and values while editing.
+  Facebook, X/Twitter, LinkedIn, and Pinterest previews offer distinct platform
+  layouts and desktop/mobile widths. Existing `og:image`,
   `twitter:image`, `twitter:card`, and their supported image URL aliases take
   precedence, including metadata supplied by Metatag. See
   [social share images](./social-share-images.md).

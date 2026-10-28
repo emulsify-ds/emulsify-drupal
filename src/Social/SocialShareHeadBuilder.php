@@ -21,75 +21,74 @@ final class SocialShareHeadBuilder {
   ) {}
 
   /**
-   * Applies the configured theme-wide fallback image.
+   * Applies configured fallbacks without replacing page-specific metadata.
    */
-  public function apply(array &$attachments, array $settings, string $theme_name, string $site_name): void {
+  public function apply(array &$attachments, array $settings, string $theme_name, string $site_name, string $page_url = ''): void {
     if (empty($settings['social_share_image_enabled'])) {
       return;
     }
+    $existing = [];
     foreach ($attachments['#attached']['html_head'] ?? [] as $item) {
       $attributes = $item[0]['#attributes'] ?? [];
       if (!is_array($attributes)) {
         continue;
       }
       foreach ($attributes as $attribute => $value) {
-        if (in_array(strtolower((string) $attribute), ['name', 'property'], TRUE)
-          && is_scalar($value) && in_array(strtolower(trim((string) $value)), [
-            'og:image', 'og:image:url', 'og:image:secure_url',
-            'twitter:image', 'twitter:image:src', 'twitter:card',
-          ], TRUE)) {
-          return;
+        if (in_array(strtolower((string) $attribute), ['name', 'property'], TRUE) && is_scalar($value)) {
+          $existing[strtolower(trim((string) $value))] = TRUE;
         }
       }
     }
-    try {
-      $image = $this->imageResolver->resolve($settings);
-    }
-    catch (\InvalidArgumentException) {
-      return;
-    }
-    if ($image === []) {
-      return;
-    }
+    $has_page_image = array_intersect(array_keys($existing), [
+      'og:image', 'og:image:url', 'og:image:secure_url',
+      'twitter:image', 'twitter:image:src', 'twitter:card',
+    ]) !== [];
     $cache = CacheableMetadata::createFromRenderArray($attachments)
       ->addCacheTags(['config:' . $theme_name . '.settings', 'config:system.site'])
       ->addCacheContexts(['url.site']);
-    if ($image['file']) {
-      $access = $image['file']->access('download', NULL, TRUE);
-      $cache->addCacheableDependency($image['file'])->addCacheableDependency($access);
-      $cache->applyTo($attachments);
-      if (!$access->isAllowed()) {
-        return;
+    $image = [];
+    if (!$has_page_image) {
+      try {
+        $image = $this->imageResolver->resolve($settings);
+        if (!empty($image['file'])) {
+          $access = $image['file']->access('download', NULL, TRUE);
+          $cache->addCacheableDependency($image['file'])->addCacheableDependency($access);
+          $cache->applyTo($attachments);
+          if (!$access->isAllowed()) {
+            $image = [];
+          }
+        }
+        $image = $this->imageResolver->display($image);
+      }
+      catch (\InvalidArgumentException) {
+        $image = [];
       }
     }
-    try {
-      $image = $this->imageResolver->display($image);
-    }
-    catch (\InvalidArgumentException) {
-      return;
-    }
-    if ($image === []) {
-      return;
-    }
-    $url = $this->fileUrlGenerator->generateAbsoluteString($image['uri']);
-    $alt = trim((string) ($settings['social_share_image_alt'] ?? '')) ?: $site_name;
-    foreach ([
-      ['property', 'og:image', $url],
-      ['property', 'og:image:type', $image['info']['mime']],
-      ['property', 'og:image:width', (string) $image['info']['width']],
-      ['property', 'og:image:height', (string) $image['info']['height']],
-      ['property', 'og:image:alt', $alt],
-      ['name', 'twitter:card', 'summary_large_image'],
-      ['name', 'twitter:image', $url],
-      ['name', 'twitter:image:alt', $alt],
-    ] as [$attribute, $name, $content]) {
+    $url = $image === [] ? '' : $this->fileUrlGenerator->generateAbsoluteString($image['uri']);
+    $values = SocialShareMetadata::values($settings, $url, $image['info'] ?? [], $site_name, $page_url);
+    $added = FALSE;
+    foreach ($values as $name => $content) {
+      // X falls back to Open Graph text, so a theme-wide Twitter default must
+      // never mask a more specific page's Open Graph title or description.
+      $page_open_graph_text = in_array($name, ['twitter:title', 'twitter:description'], TRUE)
+        && isset($existing[str_replace('twitter:', 'og:', $name)]);
+      if ($content === '' || isset($existing[$name]) || $page_open_graph_text) {
+        continue;
+      }
+      $attribute = str_starts_with($name, 'og:') ? 'property' : 'name';
       $attachments['#attached']['html_head'][] = [[
         '#tag' => 'meta',
         '#attributes' => [$attribute => $name, 'content' => $content],
       ], 'emulsify_social_share_' . str_replace(':', '_', $name),
       ];
+      $added = TRUE;
     }
-    $cache->applyTo($attachments);
+    if ($added) {
+      if (!SocialShareMetadata::isValidUrl(trim((string) ($settings['social_share_image_url'] ?? ''))) && ($values['og:url'] ?? '') !== '' && !isset($existing['og:url'])) {
+        $cache->addCacheContexts(['url.path', 'url.query_args']);
+      }
+      $cache->applyTo($attachments);
+    }
   }
 
 }

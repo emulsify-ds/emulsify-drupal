@@ -145,6 +145,9 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
       return;
     }
     $settings = SocialShareSettings::normalize($form_state->getValues());
+    if ($settings['social_share_image_url'] !== '' && !SocialShareMetadata::isValidUrl($settings['social_share_image_url'])) {
+      $form_state->setErrorByName('social_share_image_url', $this->t('Enter an absolute HTTP or HTTPS page URL without a username or password, or leave it blank to use each page\'s canonical URL.'));
+    }
     $old = $form_state->get('emulsify_social_share_existing') ?? SocialShareSettings::DEFAULTS;
     $new_upload = $settings['social_share_image_fid'] !== [] && $settings['social_share_image_fid'] !== $old['social_share_image_fid'];
     if ($new_upload) {

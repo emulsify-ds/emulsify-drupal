@@ -100,6 +100,30 @@ try {
   $attributes = array_column(array_column($tags, 0), '#attributes');
   emulsify_social_image_assert(count($tags) === 8 && count(array_unique(array_column($tags, 1))) === 8, 'An enabled social image must attach eight distinct fallback tags without any favicon settings.');
   emulsify_social_image_assert($attributes[1]['content'] === 'image/png' && $attributes[2]['content'] === '1200' && $attributes[3]['content'] === '630' && $attributes[4]['content'] === 'Fixture site', 'Fallback tags must use actual image metadata and site-name alt fallback.');
+  $defaults = array_replace($settings, ['social_share_image_title' => 'Default title', 'social_share_image_description' => 'Default description', 'social_share_image_url' => 'https://example.test/fallback']);
+  $text = [];
+  $head->apply($text, $defaults, 'emulsify', 'Fixture site');
+  $text_values = [];
+  foreach ($text['#attached']['html_head'] as [$element]) {
+    $meta = $element['#attributes'];
+    $text_values[$meta['property'] ?? $meta['name']] = $meta['content'];
+  }
+  emulsify_social_image_assert(count($text_values) === 13 && $text_values['og:title'] === 'Default title' && $text_values['twitter:title'] === 'Default title' && $text_values['og:description'] === 'Default description' && $text_values['twitter:description'] === 'Default description' && $text_values['og:url'] === 'https://example.test/fallback', 'Configured defaults must emit the declared text and URL tags alongside the image metadata.');
+  $page_metadata = ['#attached' => ['html_head' => []]];
+  foreach (['og:image' => 'https://example.test/page.png', 'og:title' => 'Page title', 'og:description' => 'Page description', 'og:url' => 'https://example.test/page'] as $name => $value) {
+    $page_metadata['#attached']['html_head'][] = [['#tag' => 'meta', '#attributes' => ['property' => $name, 'content' => $value]], 'fixture_' . $name];
+  }
+  $page_original = $page_metadata;
+  $head->apply($page_metadata, $defaults, 'emulsify', 'Fixture site');
+  emulsify_social_image_assert($page_metadata === $page_original, 'Page-specific Open Graph metadata must remain authoritative, including X Open Graph fallback without generic Twitter text masking it.');
+  $per_field = ['#attached' => ['html_head' => [[['#tag' => 'meta', '#attributes' => ['name' => 'twitter:title', 'content' => 'Page X title']], 'fixture_x_title']]]];
+  $head->apply($per_field, $defaults, 'emulsify', 'Fixture site');
+  $per_field_values = [];
+  foreach ($per_field['#attached']['html_head'] as [$element]) {
+    $meta = $element['#attributes'];
+    $per_field_values[$meta['property'] ?? $meta['name']] = $meta['content'];
+  }
+  emulsify_social_image_assert($per_field_values['twitter:title'] === 'Page X title' && $per_field_values['og:title'] === 'Default title' && $per_field_values['og:description'] === 'Default description', 'Each existing tag must win without suppressing unrelated missing defaults.');
   emulsify_social_image_assert(in_array(parse_url($attributes[0]['content'], PHP_URL_SCHEME), ['http', 'https'], TRUE) && parse_url($attributes[0]['content'], PHP_URL_HOST), 'Social image URLs must be absolute.');
   emulsify_social_image_assert(array_diff(['fixture:existing', 'config:emulsify.settings', 'config:system.site'], $attachments['#cache']['tags']) === [] && in_array('url.site', $attachments['#cache']['contexts'], TRUE) && $attachments['#cache']['max-age'] === 600, 'Fallbacks must preserve and extend cache metadata.');
   foreach (['name', 'property', 'PROPERTY'] as $attribute) {
@@ -113,11 +137,17 @@ try {
   $file = File::create(['uri' => $uri, 'status' => 1]);
   $file->save();
   $managed = [];
-  $head->apply($managed, array_replace($settings, ['social_share_image_fid' => [$file->id()], 'social_share_image_alt' => '"><img src=x onerror=alert(1)>']), 'emulsify', 'Fixture site');
+  $hostile = '"><img src=x onerror=alert(1)>';
+  $head->apply($managed, array_replace($settings, ['social_share_image_fid' => [$file->id()], 'social_share_image_alt' => $hostile, 'social_share_image_title' => $hostile, 'social_share_image_description' => $hostile]), 'emulsify', 'Fixture site');
   emulsify_social_image_assert(in_array('file:' . $file->id(), $managed['#cache']['tags'], TRUE), 'Managed image metadata must depend on its file entity and download access.');
   $element = $managed['#attached']['html_head'][4][0] + ['#type' => 'html_tag'];
   $rendered = (string) \Drupal::service('renderer')->renderInIsolation($element);
   emulsify_social_image_assert(!str_contains($rendered, '<img') && str_contains($rendered, '&lt;img'), 'Drupal must escape alternative text inside metadata attributes.');
+  foreach (array_slice($managed['#attached']['html_head'], 8) as [$element]) {
+    $element['#type'] = 'html_tag';
+    $rendered = (string) \Drupal::service('renderer')->renderInIsolation($element);
+    emulsify_social_image_assert(!str_contains($rendered, '<img') && str_contains($rendered, '&lt;img'), 'Drupal must escape saved default titles and descriptions inside metadata attributes.');
+  }
   $disabled = [];
   $head->apply($disabled, SocialShareSettings::DEFAULTS, 'emulsify', 'Fixture site');
   emulsify_social_image_assert($disabled === [], 'Disabled social images must produce no metadata.');

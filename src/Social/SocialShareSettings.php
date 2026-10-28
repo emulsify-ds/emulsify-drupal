@@ -16,6 +16,9 @@ final class SocialShareSettings {
     'social_share_image_path' => '',
     'social_share_image_fid' => [],
     'social_share_image_alt' => '',
+    'social_share_image_title' => '',
+    'social_share_image_description' => '',
+    'social_share_image_url' => '',
   ];
 
   /**
@@ -24,7 +27,7 @@ final class SocialShareSettings {
   public static function normalize(array $settings): array {
     $settings = array_intersect_key($settings, self::DEFAULTS) + self::DEFAULTS;
     $settings['social_share_image_enabled'] = (bool) $settings['social_share_image_enabled'];
-    foreach (['social_share_image_path', 'social_share_image_alt'] as $key) {
+    foreach (['social_share_image_path', 'social_share_image_alt', 'social_share_image_title', 'social_share_image_description', 'social_share_image_url'] as $key) {
       $settings[$key] = is_scalar($settings[$key]) ? trim((string) $settings[$key]) : '';
     }
     $ids = (array) $settings['social_share_image_fid'];

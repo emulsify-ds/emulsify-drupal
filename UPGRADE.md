@@ -349,10 +349,14 @@ Alternative text defaults to the site name when blank. Existing `og:image`, `og:
 `og:image:secure_url`, `twitter:image`, `twitter:image:src`, or `twitter:card`
 metadata takes precedence case-insensitively, including images set through
 Metatag. Social sites cache previews, so deployed changes may take time to
-appear. Approximate Facebook, X/Twitter, LinkedIn, and Pinterest previews offer
-desktop/mobile widths and local title, description, and URL controls; these
-controls do not change page metadata. Deploy the image with the site's public
-files or theme assets. See [social share images](./docs/social-share-images.md).
+appear. Optional title, description, and page URL defaults fill missing page
+metadata after saving; existing page-specific tags take priority. Blank text
+defaults emit no title or description tags. A blank URL uses the page's canonical
+URL, falling back to the current URL without its query string. A live table
+shows the fallback tag names and values while editing. Approximate Facebook,
+X/Twitter, LinkedIn, and Pinterest previews offer distinct platform layouts and
+desktop/mobile widths. Deploy the image with the site's public files or theme
+assets. See [social share images](./docs/social-share-images.md).
 
 Existing generated themes inherit the feature through parent defaults. To
 describe its settings in config exports, optionally add these entries to the
@@ -373,6 +377,15 @@ describe its settings in config exports, optionally add these entries to the
     social_share_image_alt:
       type: string
       label: 'Social share image alternative text'
+    social_share_image_title:
+      type: string
+      label: 'Default social share title'
+    social_share_image_description:
+      type: text
+      label: 'Default social share description'
+    social_share_image_url:
+      type: string
+      label: 'Default social share page URL'
 ```
 
 ### Optional media embed privacy and click to load

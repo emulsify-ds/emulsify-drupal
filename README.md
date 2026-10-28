@@ -330,8 +330,10 @@ Upload a JPG, PNG, WebP, or GIF, or enter a path to an existing public image.
 The feature works independently of favicon generation and preserves existing
 social metadata, including Metatag images. Saved images have approximate
 Facebook, X/Twitter, LinkedIn, and Pinterest previews with desktop/mobile
-layouts. See [social share images](./docs/social-share-images.md) for supported
-paths, preview controls, and deployment.
+layouts. Optional title, description, and page URL defaults fill missing page
+metadata; a live table confirms their tag names and values before saving.
+See [social share images](./docs/social-share-images.md) for supported paths,
+preview controls, and deployment.
 
 ## Contributing
 

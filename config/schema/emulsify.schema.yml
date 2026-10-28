@@ -97,6 +97,15 @@ emulsify.settings:
     social_share_image_alt:
       type: string
       label: 'Social share image alternative text'
+    social_share_image_title:
+      type: string
+      label: 'Default social share title'
+    social_share_image_description:
+      type: text
+      label: 'Default social share description'
+    social_share_image_url:
+      type: string
+      label: 'Default social share page URL'
     media_embed_privacy_mode:
       type: boolean
       label: 'Reduce YouTube and Vimeo player tracking'

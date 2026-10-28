@@ -30,7 +30,7 @@ function emulsify_social_settings_assert(bool $condition, string $message): void
  * Submits through the actual core form and returns any validation errors.
  */
 function emulsify_social_settings_submit(array $values): FormState {
-  $preview_values = array_combine(SocialSharePreviewBuilder::FORM_KEYS, ['pinterest', 'mobile', 'Preview title', 'Preview description', 'https://preview.example.test/']);
+  $preview_values = ['emulsify_social_preview_platform' => 'pinterest', 'emulsify_social_preview_device' => 'mobile'];
   $state = (new FormState())->setValues($values + ['default_logo' => TRUE, 'favicon_package_enabled' => FALSE] + $preview_values);
   \Drupal::formBuilder()->submitForm(ThemeSettingsForm::class, $state, 'emulsify');
   \Drupal::configFactory()->reset('emulsify.settings');
@@ -75,7 +75,11 @@ try {
   }
   $state = emulsify_social_settings_submit(['social_share_image_enabled' => TRUE]);
   emulsify_social_settings_assert(isset($state->getErrors()['social_share_image_path']), 'Enabling without an image must report a connected form error.');
-  $values = ['social_share_image_enabled' => TRUE, 'social_share_image_path' => 'https://example.com/ignored.png', 'social_share_image_fid' => ['fids' => (string) $file->id()], 'social_share_image_alt' => 'A shared scene'];
+  foreach (['javascript:alert(1)', '//example.com/page', 'https://name:secret@example.com/page'] as $url) {
+    $state = emulsify_social_settings_submit(['social_share_image_enabled' => NULL, 'social_share_image_url' => $url]);
+    emulsify_social_settings_assert(isset($state->getErrors()['social_share_image_url']), 'Invalid or credential-bearing fallback URLs must produce a connected form error.');
+  }
+  $values = ['social_share_image_enabled' => TRUE, 'social_share_image_path' => 'https://example.com/ignored.png', 'social_share_image_fid' => ['fids' => (string) $file->id()], 'social_share_image_alt' => 'A shared scene', 'social_share_image_title' => 'Default share title', 'social_share_image_description' => 'Default share description', 'social_share_image_url' => 'https://example.test/default-share'];
   $state = emulsify_social_settings_submit($values);
   emulsify_social_settings_assert($state->getErrors() === [], 'A managed raster upload must save through the actual core form: ' . json_encode($state->getErrors()));
   $saved = \Drupal::config('emulsify.settings');
@@ -83,6 +87,9 @@ try {
     emulsify_social_settings_assert(!array_key_exists($key, $saved->getRawData()), 'Preview options must never be exported as theme settings: ' . $key);
   }
   emulsify_social_settings_assert($saved->get('social_share_image_path') === $uri && $saved->get('social_share_image_fid') === [(int) $file->id()] && $saved->get('social_share_image_alt') === 'A shared scene' && $saved->get('favicon_package_enabled') === FALSE, 'New uploads must take precedence over the path and save independently of favicon generation.');
+  foreach (['social_share_image_title', 'social_share_image_description', 'social_share_image_url'] as $key) {
+    emulsify_social_settings_assert($saved->get($key) === $values[$key], 'Sharing defaults must persist through the actual core form: ' . $key);
+  }
   $resolver = new SocialShareImageResolver($fs);
   $display = $resolver->display($resolver->resolve(SocialShareSettings::normalize($saved->getRawData())));
   $processed_uri = $display['uri'] ?? '';
@@ -93,7 +100,35 @@ try {
   emulsify_social_settings_assert($file->isPermanent() && (int) ($usage['emulsify']['social_share_image']['emulsify'] ?? 0) === 1, 'Saving must retain a managed upload with one file usage: ' . json_encode([$file->isPermanent(), $usage]));
   $attachments = [];
   \Drupal::service('class_resolver')->getInstanceFromDefinition(SocialShareHooks::class)->pageAttachmentsAlter($attachments);
-  emulsify_social_settings_assert(count($attachments['#attached']['html_head'] ?? []) === 8, 'The real social hook must attach metadata while generated favicons are disabled.');
+  emulsify_social_settings_assert(count($attachments['#attached']['html_head'] ?? []) === 13, 'The real social hook must attach image and saved sharing defaults while generated favicons are disabled.');
+  $tag_values = [];
+  foreach ($attachments['#attached']['html_head'] as [$element]) {
+    $attributes = $element['#attributes'];
+    $tag_values[$attributes['property'] ?? $attributes['name']] = $attributes['content'];
+  }
+  emulsify_social_settings_assert($tag_values['og:title'] === $values['social_share_image_title'] && $tag_values['twitter:title'] === $values['social_share_image_title'] && $tag_values['og:description'] === $values['social_share_image_description'] && $tag_values['twitter:description'] === $values['social_share_image_description'] && $tag_values['og:url'] === $values['social_share_image_url'], 'Saved sharing defaults must populate their declared Open Graph and X tags.');
+  $config = \Drupal::configFactory()->getEditable('emulsify.settings');
+  $config->set('social_share_image_url', '')->save();
+  $canonical = ['#attached' => ['html_head_link' => [[['rel' => 'canonical', 'href' => 'https://example.test/canonical-page'], FALSE]]]];
+  \Drupal::service('class_resolver')->getInstanceFromDefinition(SocialShareHooks::class)->pageAttachmentsAlter($canonical);
+  $canonical_url = array_values(array_filter($canonical['#attached']['html_head'], static fn (array $item): bool => ($item[0]['#attributes']['property'] ?? '') === 'og:url'));
+  emulsify_social_settings_assert($canonical_url[0][0]['#attributes']['content'] === 'https://example.test/canonical-page' && array_diff(['url.path', 'url.query_args'], $canonical['#cache']['contexts']) === [], 'A blank default URL must use the current page canonical link with path- and query-aware cache metadata.');
+  $canonical = ['#attached' => ['html_head' => [[['#tag' => 'link', '#attributes' => ['rel' => 'canonical', 'href' => 'https://alternate.example.test/canonical-page?page=2']], 'fixture_canonical']]]];
+  \Drupal::service('class_resolver')->getInstanceFromDefinition(SocialShareHooks::class)->pageAttachmentsAlter($canonical);
+  $canonical_url = array_values(array_filter($canonical['#attached']['html_head'], static fn (array $item): bool => ($item[0]['#attributes']['property'] ?? '') === 'og:url'));
+  emulsify_social_settings_assert($canonical_url[0][0]['#attributes']['content'] === 'https://alternate.example.test/canonical-page?page=2' && array_diff(['url.path', 'url.query_args'], $canonical['#cache']['contexts']) === [], 'Metatag-style canonical head elements must retain their exact URL and query-aware cache metadata.');
+  $request_stack = \Drupal::service('request_stack');
+  $request_stack->push(\Symfony\Component\HttpFoundation\Request::create('https://example.test/current-page?tracking=ignored'));
+  try {
+    $current = [];
+    \Drupal::service('class_resolver')->getInstanceFromDefinition(SocialShareHooks::class)->pageAttachmentsAlter($current);
+    $current_url = array_values(array_filter($current['#attached']['html_head'], static fn (array $item): bool => ($item[0]['#attributes']['property'] ?? '') === 'og:url'));
+    emulsify_social_settings_assert($current_url[0][0]['#attributes']['content'] === 'https://example.test/current-page', 'Without a canonical link, blank defaults must use the current page URL without tracking query parameters.');
+  }
+  finally {
+    $request_stack->pop();
+  }
+  $config->set('social_share_image_url', $values['social_share_image_url'])->save();
   $form = \Drupal::formBuilder()->getForm(ThemeSettingsForm::class, 'emulsify');
   $preview = $form['emulsify_social_share_image']['settings']['preview'] ?? [];
   $markup = (string) \Drupal::service('renderer')->renderInIsolation($preview);
@@ -101,7 +136,10 @@ try {
   $document = new DOMDocument();
   $document->loadHTML('<html><body>' . $markup . '</body></html>', LIBXML_NOERROR | LIBXML_NOWARNING);
   $xpath = new DOMXPath($document);
-  emulsify_social_settings_assert($xpath->query('//select[contains(@class,"form-select")]')->length === 2 && $xpath->query('//input[contains(@class,"form-text")]')->length === 2 && $xpath->query('//textarea[contains(@class,"form-textarea")]')->length === 1, 'Preview controls must use the standard themed Form API select, textfield, and textarea elements.');
+  emulsify_social_settings_assert($xpath->query('//select[contains(@class,"form-select")]')->length >= 2 && $xpath->query('//input[contains(@class,"form-text")]')->length === 2 && $xpath->query('//textarea[contains(@class,"form-textarea")]')->length === 1, 'Sharing controls must use the standard themed Form API select, textfield, and textarea elements.');
+  foreach (['social_share_image_title', 'social_share_image_description', 'social_share_image_url'] as $key) {
+    emulsify_social_settings_assert($xpath->query('//*[@name="' . $key . '"]')->length === 1, 'Every saved sharing default must render through Form API: ' . $key);
+  }
   foreach (SocialSharePreviewBuilder::FORM_KEYS as $key) {
     emulsify_social_settings_assert($xpath->query('//*[@name="' . $key . '"]')->length === 1, 'Every local preview control must render through Form API: ' . $key);
   }
