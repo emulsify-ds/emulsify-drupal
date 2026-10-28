@@ -3,11 +3,12 @@
 
   Drupal.behaviors.emulsifySocialSharePreview = {
     attach(context) {
-      once(
-        'emulsify-social-share-preview',
-        '[data-social-share-preview]',
-        context,
-      ).forEach((preview) => {
+      const selector = '[data-social-share-preview]';
+      const previews = Array.from(context.querySelectorAll(selector));
+      if (context.matches && context.matches(selector)) {
+        previews.unshift(context);
+      }
+      once('emulsify-social-share-preview', previews).forEach((preview) => {
         const controls = {};
         preview
           .querySelectorAll('[data-social-preview-control]')
@@ -36,6 +37,12 @@
         Object.values(controls).forEach((control) => {
           control.addEventListener('input', refresh);
           control.addEventListener('change', refresh);
+          // Existing site enhancements can emit jQuery-only change events.
+          if (globalThis.jQuery) {
+            globalThis
+              .jQuery(control)
+              .on('change.emulsifySocialPreview', refresh);
+          }
         });
         refresh();
       });

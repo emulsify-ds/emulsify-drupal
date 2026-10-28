@@ -62,6 +62,15 @@ final class SocialShareHeadBuilder {
         return;
       }
     }
+    try {
+      $image = $this->imageResolver->display($image);
+    }
+    catch (\InvalidArgumentException) {
+      return;
+    }
+    if ($image === []) {
+      return;
+    }
     $url = $this->fileUrlGenerator->generateAbsoluteString($image['uri']);
     $alt = trim((string) ($settings['social_share_image_alt'] ?? '')) ?: $site_name;
     foreach ([

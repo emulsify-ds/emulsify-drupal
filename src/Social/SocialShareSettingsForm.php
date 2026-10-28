@@ -60,6 +60,9 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
     $form['#attached']['library'][] = 'emulsify/social_share_admin';
     $form['#validate'][] = [self::class, 'validateSocialShareSettings'];
     $form['#submit'][] = [self::class, 'submitSocialShareSettings'];
+    foreach (SocialSharePreviewBuilder::FORM_KEYS as $key) {
+      $form_state->addCleanValueKey($key);
+    }
     $form['emulsify_social_share_image'] = [
       '#type' => 'details',
       '#title' => $this->t('Social share image'),
@@ -101,7 +104,8 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
       '#description' => $this->t('Describe the image for people who cannot see it. Leave blank to use the site name.'),
     ];
     try {
-      $image = (new SocialShareImageResolver($this->fileSystem))->resolve($settings);
+      $resolver = new SocialShareImageResolver($this->fileSystem);
+      $image = $resolver->display($resolver->resolve($settings), TRUE);
     }
     catch (\InvalidArgumentException) {
       $image = [];
@@ -155,10 +159,12 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
     $check_previous_upload = $old['social_share_image_fid'] !== [] && $settings['social_share_image_fid'] === [] && $settings['social_share_image_path'] !== '';
     if ($settings['social_share_image_enabled'] || $new_upload || $check_previous_upload) {
       try {
-        $image = (new SocialShareImageResolver($this->fileSystem))->resolve($settings);
+        $resolver = new SocialShareImageResolver($this->fileSystem);
+        $image = $resolver->resolve($settings);
         if ($image === []) {
           throw new \InvalidArgumentException('Upload an image or enter a valid image path before enabling the social share image.');
         }
+        $resolver->display($image, TRUE);
         $settings['social_share_image_path'] = $image['uri'];
         if ($check_previous_upload) {
           $previous = File::load($old['social_share_image_fid'][0]);

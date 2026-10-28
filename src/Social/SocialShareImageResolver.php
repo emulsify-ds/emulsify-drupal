@@ -74,4 +74,11 @@ final class SocialShareImageResolver {
     ];
   }
 
+  /**
+   * Returns the bounded display image, optionally preparing it in the admin UI.
+   */
+  public function display(array $source, bool $create = FALSE): array {
+    return (new SocialShareImageProcessor($this->fileSystem, \Drupal::service('image.factory'), \Drupal::cache('data')))->display($source, $create);
+  }
+
 }

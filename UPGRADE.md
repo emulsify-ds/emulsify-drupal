@@ -318,6 +318,11 @@ config exports, optionally copy these entries into the `mapping` under
 
 ### Optional social share image
 
+Social images larger than 1200 × 1500 pixels now receive a proportional resized
+copy for previews and sharing metadata. Open the theme settings once after
+updating to prepare a copy for an existing large image. Keep the processed
+public files with the source uploads when deploying.
+
 The independent **Social share image** settings accept an uploaded JPG, PNG,
 WebP, or GIF, or a path to a public local image. This works with favicon
 generation disabled and is off by default. Emulsify uses the original image

@@ -48,6 +48,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Fixed
 
+- Social preview platform/device controls update immediately with native or
+  existing jQuery select enhancements. Preview controls use Form API styling
+  from the administration theme, and large social images are scaled within
+  1200 × 1500 pixels without cropping, preserving their original source files.
 - SVG icons using `currentColor` now retain their artwork in iOS, Android, and
   ICO output. Regenerate affected packages after updating; their new hashes
   prevent reuse of cached blank PNGs.

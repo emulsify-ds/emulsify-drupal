@@ -25,32 +25,70 @@ namespace Drupal\Core\StringTranslation {
 namespace {
   require $argv[1];
   $builder = new \Drupal\emulsify\Social\SocialSharePreviewBuilder();
-  echo $builder->build(
+  echo json_encode($builder->build(
     ['social_share_image_alt' => 'Artwork "alt" <script>bad()</script>'],
     $argv[2],
     ['width' => 1200, 'height' => 630],
     'Site <strong>name</strong>',
     'Description & details',
     'https://example.test/page',
-  )['#markup'];
+  ), JSON_THROW_ON_ERROR);
 }`;
 
-function previewMarkup(imageUrl = 'https://example.test/saved.png?name="image"') {
+function previewDefinition(imageUrl = 'https://example.test/saved.png?name="image"') {
   const result = spawnSync('php', ['-r', fixture, path.join(root, 'src/Social/SocialSharePreviewBuilder.php'), imageUrl], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
-  return result.stdout;
+  return JSON.parse(result.stdout);
 }
 
-test('preview controls stay local and user values cannot inject markup', () => {
-  const { document } = new JSDOM(previewMarkup()).window;
-  assert.equal(document.querySelectorAll('script, [onerror], strong').length, 0);
+// Behavior tests use native controls from the Form API definition. The Drupal
+// smoke test separately verifies their actual themed rendering and config saves.
+function previewMarkup(imageUrl) {
+  const definition = previewDefinition(imageUrl);
+  const { document } = new JSDOM().window;
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('data-social-share-preview', '');
+  const addControls = (element) => {
+    if (element['#attributes']?.['data-social-preview-control']) {
+      const control = document.createElement(element['#type'] === 'textfield' ? 'input' : element['#type']);
+      control.dataset.socialPreviewControl = element['#attributes']['data-social-preview-control'];
+      for (const [value, text] of Object.entries(element['#options'] ?? {})) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        control.appendChild(option);
+      }
+      control.value = element['#default_value'];
+      wrapper.appendChild(control);
+    }
+    for (const [name, child] of Object.entries(element)) {
+      if (!name.startsWith('#') && child && typeof child === 'object') addControls(child);
+    }
+  };
+  addControls(definition.options);
+  wrapper.insertAdjacentHTML('beforeend', definition.card['#markup']);
+  return wrapper.outerHTML;
+}
+
+test('preview controls use Form API elements so the administration theme owns their styling', () => {
+  const preview = previewDefinition();
+  assert.equal(preview['#type'], 'container');
+  assert.equal(preview.options['#type'], 'fieldset');
+  assert.equal(preview.options['#title'], 'Preview options');
+  const controls = [
+    preview.options.selectors.emulsify_social_preview_platform,
+    preview.options.selectors.emulsify_social_preview_device,
+    preview.options.emulsify_social_preview_title,
+    preview.options.emulsify_social_preview_description,
+    preview.options.emulsify_social_preview_url,
+  ];
+  assert.deepEqual(controls.map(element => element['#type']), ['select', 'select', 'textfield', 'textarea', 'textfield']);
+  for (const element of controls) assert(element['#title'], 'Every control needs a themed label');
+  const { document } = new JSDOM(preview.card['#markup']).window;
+  assert.equal(document.querySelectorAll('script, [onerror], strong, input, textarea, select').length, 0);
   assert.equal(document.querySelector('img').getAttribute('alt'), 'Artwork "alt" <script>bad()</script>');
   assert.equal(document.querySelector('img').getAttribute('width'), '1200');
   assert.equal(document.querySelector('[data-social-preview-title]').textContent, 'Site <strong>name</strong>');
-  assert.equal(document.querySelectorAll('input[name], textarea[name], select[name]').length, 0, 'Mock metadata must never be saved with theme settings');
-  for (const control of document.querySelectorAll('input, textarea, select')) {
-    assert(control.closest('label'), 'Every native preview control needs a visible label');
-  }
 });
 
 test('an unconfigured image has a useful empty state without an empty image request', () => {
@@ -65,14 +103,28 @@ for (const relativePath of ['assets/admin/social-share-preview.js', 'dist/js/adm
     const { document } = window;
     const attached = new WeakSet();
     window.Drupal = { behaviors: {} };
-    window.once = (id, selector, context) => [...context.querySelectorAll(selector)].filter((element) => {
+    window.once = (id, elements) => [...elements].filter((element) => {
       if (attached.has(element)) return false;
       attached.add(element);
       return true;
     });
     window.fetch = () => { throw new Error('The preview must not fetch remote metadata'); };
     window.eval(fs.readFileSync(path.join(root, relativePath), 'utf8'));
-    const attach = () => window.Drupal.behaviors.emulsifySocialSharePreview.attach(document);
+    const handlers = new WeakMap();
+    window.jQuery = (element) => ({
+      on(events, listener) {
+        for (const event of events.split(' ')) {
+          const name = event.split('.')[0];
+          const registered = handlers.get(element) ?? {};
+          registered[name] = listener;
+          handlers.set(element, registered);
+        }
+      },
+      trigger(event) {
+        handlers.get(element)?.[event]?.();
+      },
+    });
+    const attach = (context = document) => window.Drupal.behaviors.emulsifySocialSharePreview.attach(context);
     const change = (name, value) => {
       const control = document.querySelector(`[data-social-preview-control="${name}"]`);
       control.value = value;
@@ -96,7 +148,15 @@ for (const relativePath of ['assets/admin/social-share-preview.js', 'dist/js/adm
     assert.equal(document.querySelector('[data-social-preview-domain]').textContent, '<script>bad()</script>');
     assert.equal(document.querySelectorAll('script, [onerror]').length, 0);
     assert.equal(document.querySelector('img').outerHTML, originalImage);
-    attach();
+    const platform = document.querySelector('[data-social-preview-control="platform"]');
+    platform.value = 'pinterest';
+    window.jQuery(platform).trigger('change');
+    assert.equal(document.querySelector('[data-social-preview-card]').dataset.platform, 'pinterest', 'Existing site enhancements may emit only a jQuery change event');
+    const device = document.querySelector('[data-social-preview-control="device"]');
+    device.value = 'desktop';
+    window.jQuery(device).trigger('change');
+    assert.equal(document.querySelector('[data-social-preview-card]').dataset.device, 'desktop');
+    attach(document.querySelector('[data-social-share-preview]'));
     change('device', 'desktop');
     assert.equal(document.querySelector('[data-social-preview-card]').dataset.device, 'desktop');
     window.close();

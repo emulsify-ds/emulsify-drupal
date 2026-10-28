@@ -2,36 +2,6 @@
   max-width: 44rem;
   margin-top: 1rem;
 
-  &__controls {
-    margin: 1rem 0;
-    padding: 1rem;
-    border: 1px solid currentcolor;
-    border-radius: 0.25rem;
-  }
-
-  &__controls label {
-    display: block;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-  }
-
-  &__controls input,
-  &__controls textarea,
-  &__controls select {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    margin-top: 0.25rem;
-    font: inherit;
-    font-weight: normal;
-  }
-
-  &__controls :focus-visible {
-    outline: 3px solid currentcolor;
-    outline-offset: 2px;
-  }
-
   &__selectors {
     display: grid;
     gap: 1rem;
@@ -125,6 +95,10 @@
   &__card[data-platform='pinterest'] {
     max-width: 20rem;
     border-radius: 1rem;
+  }
+
+  &__card[data-platform='pinterest'][data-device='mobile'] {
+    max-width: 16rem;
   }
 
   &__card[data-platform='pinterest'] &__image {

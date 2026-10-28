@@ -32,6 +32,7 @@ $resolver = new SocialShareImageResolver($fs);
 $head = new SocialShareHeadBuilder(\Drupal::service('file_url_generator'), $resolver);
 $settings = SocialShareSettings::normalize(['social_share_image_enabled' => TRUE, 'social_share_image_path' => $uri]);
 $file = NULL;
+$processed = [];
 
 try {
   $resolved = $resolver->resolve($settings);
@@ -39,6 +40,48 @@ try {
   $relative = substr($fs->realpath($uri), strlen(DRUPAL_ROOT) + 1);
   foreach ([$uri, $relative, '/' . $relative, basename($directory) . '/share.png'] as $path) {
     emulsify_social_image_assert($resolver->resolve(array_replace($settings, ['social_share_image_path' => $path]))['info'] === $resolved['info'], 'Public URIs, web-root paths, and public-relative paths must resolve.');
+  }
+  emulsify_social_image_assert($resolver->display($resolved, TRUE) === $resolved, 'Images within the display bounds must remain unchanged without upscaling.');
+  foreach (['landscape' => [3600, 1890, 1200, 630], 'portrait' => [3000, 4500, 1000, 1500]] as $label => [$width, $height, $expected_width, $expected_height]) {
+    $source_uri = $directory . '/' . $label . '.png';
+    $large = imagecreatetruecolor($width, $height);
+    $channels = [random_int(1, 254), random_int(1, 254), random_int(1, 254)];
+    imagefill($large, 0, 0, imagecolorallocate($large, ...$channels));
+    imagepng($large, $source_uri);
+    unset($large);
+    $source_hash = hash_file('sha256', $source_uri);
+    $large_settings = array_replace($settings, ['social_share_image_path' => $source_uri]);
+    $source = $resolver->resolve($large_settings);
+    emulsify_social_image_assert($resolver->display($source) === [], 'Page requests must not generate an absent derivative or fall back to the high-resolution source.');
+    $missing = [];
+    $head->apply($missing, $large_settings, 'emulsify', 'Fixture site');
+    emulsify_social_image_assert(empty($missing['#attached']['html_head']), 'An unprocessed high-resolution source must never be advertised to social platforms.');
+    $cache = \Drupal::cache('data');
+    $cache_id = 'social-share-derivative-smoke:' . bin2hex(random_bytes(8));
+    $cache->set($cache_id, 'Previously cached missing social metadata', \Drupal\Core\Cache\CacheBackendInterface::CACHE_PERMANENT, ['rendered']);
+    $display = $resolver->display($source, TRUE);
+    emulsify_social_image_assert($cache->get($cache_id) === FALSE, 'Creating a derivative must invalidate rendered pages that previously lacked sharing metadata.');
+    $cache->delete($cache_id);
+    $processed[] = $display['uri'];
+    emulsify_social_image_assert($display['uri'] !== $source['uri'] && str_starts_with($display['uri'], 'public://social-share-image/processed/'), 'Large images must use a separate public derivative.');
+    emulsify_social_image_assert($display['info'] === ['width' => $expected_width, 'height' => $expected_height, 'mime' => 'image/png'], 'Landscape and portrait derivatives must preserve aspect ratio within 1200 × 1500.');
+    emulsify_social_image_assert(hash_file('sha256', $source_uri) === $source_hash, 'Resizing must preserve the original source bytes.');
+    emulsify_social_image_assert($resolver->display($source) === $display && $resolver->display($source, TRUE) === $display, 'Prepared derivatives must be stable and usable without runtime generation.');
+    $large_attachments = [];
+    $head->apply($large_attachments, $large_settings, 'emulsify', 'Fixture site');
+    $large_attributes = array_column(array_column($large_attachments['#attached']['html_head'], 0), '#attributes');
+    emulsify_social_image_assert($large_attributes[0]['content'] === \Drupal::service('file_url_generator')->generateAbsoluteString($display['uri']) && $large_attributes[2]['content'] === (string) $expected_width && $large_attributes[3]['content'] === (string) $expected_height, 'Sharing metadata must use the processed URL and actual processed dimensions.');
+    if ($label === 'landscape') {
+      $large = imagecreatetruecolor($width, $height);
+      imagefill($large, 0, 0, imagecolorallocate($large, 255 - $channels[0], $channels[1], $channels[2]));
+      imagepng($large, $source_uri);
+      unset($large);
+      touch($source['realpath'], filemtime($source['realpath']) + 2);
+      clearstatcache(TRUE, $source['realpath']);
+      $changed = $resolver->display($resolver->resolve($large_settings), TRUE);
+      $processed[] = $changed['uri'];
+      emulsify_social_image_assert($changed['uri'] !== $display['uri'], 'Changed source content must receive a new derivative URL.');
+    }
   }
   file_put_contents($directory . '/fake.jpg', 'This is not an image.');
   file_put_contents($directory . '/unsafe.svg', '<svg xmlns="http://www.w3.org/2000/svg"/>');
@@ -78,11 +121,14 @@ try {
   $disabled = [];
   $head->apply($disabled, SocialShareSettings::DEFAULTS, 'emulsify', 'Fixture site');
   emulsify_social_image_assert($disabled === [], 'Disabled social images must produce no metadata.');
-  fwrite(STDOUT, "PASS Independent social images: public/local paths, actual dimensions/MIME, raster validation, absolute fallback metadata, Metatag precedence, file/access/cache dependencies, and escaped alt text.\n");
+  fwrite(STDOUT, "PASS Independent social images: public/local paths, bounded landscape/portrait derivatives without cropping/upscaling or runtime generation, source preservation and new-content URLs, actual dimensions/MIME, fallback metadata, Metatag precedence, file/access/cache dependencies, and escaped alt text.\n");
 }
 finally {
   if ($file) {
     $file->delete();
+  }
+  foreach (array_unique($processed) as $processed_uri) {
+    $fs->delete($processed_uri);
   }
   $fs->deleteRecursive($directory);
 }

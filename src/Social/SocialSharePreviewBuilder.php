@@ -16,6 +16,17 @@ final class SocialSharePreviewBuilder {
   use StringTranslationTrait;
 
   /**
+   * Local preview values that the theme settings form must not persist.
+   */
+  public const FORM_KEYS = [
+    'emulsify_social_preview_platform',
+    'emulsify_social_preview_device',
+    'emulsify_social_preview_title',
+    'emulsify_social_preview_description',
+    'emulsify_social_preview_url',
+  ];
+
+  /**
    * Builds approximate platform cards from an already resolved local image.
    */
   public function build(array $settings, string $image_url, array $image_info, string $site_name, string $site_slogan = '', string $site_url = ''): array {
@@ -26,10 +37,6 @@ final class SocialSharePreviewBuilder {
       'linkedin' => $this->t('LinkedIn'),
       'pinterest' => $this->t('Pinterest'),
     ];
-    $options = '';
-    foreach ($platforms as $value => $label) {
-      $options .= '<option value="' . $value . '">' . $escape((string) $label) . '</option>';
-    }
     $alt = trim((string) ($settings['social_share_image_alt'] ?? '')) ?: $site_name;
     $width = max(1, (int) ($image_info['width'] ?? 1200));
     $height = max(1, (int) ($image_info['height'] ?? 630));
@@ -39,19 +46,7 @@ final class SocialSharePreviewBuilder {
     $dimensions = $image_url === '' ? '' : $escape((string) $this->t('@width × @height pixels', ['@width' => $width, '@height' => $height]));
     $domain = parse_url($site_url, PHP_URL_HOST) ?: $site_url;
 
-    $markup = '<div class="emulsify-social-preview" data-social-share-preview>'
-      . '<p>' . $escape($this->t('Try the saved image in different social cards. These are approximate layouts; platforms may crop images differently and cache previous metadata.')) . '</p>'
-      . '<fieldset class="emulsify-social-preview__controls"><legend>' . $escape($this->t('Preview options')) . '</legend>'
-      . '<div class="emulsify-social-preview__selectors">'
-      . '<label>' . $escape($this->t('Platform')) . '<select data-social-preview-control="platform">' . $options . '</select></label>'
-      . '<label>' . $escape($this->t('Device')) . '<select data-social-preview-control="device"><option value="desktop">' . $escape($this->t('Desktop')) . '</option><option value="mobile">' . $escape($this->t('Mobile')) . '</option></select></label>'
-      . '</div>'
-      . '<label>' . $escape($this->t('Preview title')) . '<input type="text" maxlength="200" value="' . $escape($site_name) . '" data-social-preview-control="title" /></label>'
-      . '<label>' . $escape($this->t('Preview description')) . '<textarea rows="2" maxlength="500" data-social-preview-control="description">' . $escape($site_slogan) . '</textarea></label>'
-      . '<label>' . $escape($this->t('Preview page URL')) . '<input type="text" inputmode="url" maxlength="2048" value="' . $escape($site_url) . '" data-social-preview-control="url" /></label>'
-      . '<p class="emulsify-social-preview__help">' . $escape($this->t('Preview text stays in this browser and does not change page metadata or fetch the page URL. Save image changes to update the preview image.')) . '</p>'
-      . '</fieldset>'
-      . '<p class="emulsify-social-preview__platform" data-social-preview-platform>' . $escape((string) $platforms['facebook']) . '</p>'
+    $markup = '<p class="emulsify-social-preview__platform" data-social-preview-platform>' . $escape((string) $platforms['facebook']) . '</p>'
       . '<article class="emulsify-social-preview__card" data-social-preview-card data-platform="facebook" data-device="desktop">'
       . '<div class="emulsify-social-preview__image">' . $image . '</div>'
       . '<div class="emulsify-social-preview__body">'
@@ -59,10 +54,63 @@ final class SocialSharePreviewBuilder {
       . '<div class="emulsify-social-preview__title" data-social-preview-title>' . $escape($site_name) . '</div>'
       . '<div class="emulsify-social-preview__description" data-social-preview-description>' . $escape($site_slogan) . '</div>'
       . '</div></article>'
-      . '<p class="emulsify-social-preview__help">' . $dimensions . '</p>'
-      . '</div>';
+      . '<p class="emulsify-social-preview__help">' . $dimensions . '</p>';
 
-    return ['#markup' => Markup::create($markup)];
+    return [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['emulsify-social-preview'], 'data-social-share-preview' => TRUE],
+      'intro' => [
+        '#markup' => '<p>' . $escape($this->t('Try the saved image in different social cards. These are approximate layouts; platforms may crop images differently and cache previous metadata.')) . '</p>',
+      ],
+      'options' => [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Preview options'),
+        'selectors' => [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['emulsify-social-preview__selectors']],
+          'emulsify_social_preview_platform' => [
+            '#type' => 'select',
+            '#title' => $this->t('Platform'),
+            '#options' => $platforms,
+            '#default_value' => 'facebook',
+            '#attributes' => ['data-social-preview-control' => 'platform'],
+          ],
+          'emulsify_social_preview_device' => [
+            '#type' => 'select',
+            '#title' => $this->t('Device'),
+            '#options' => ['desktop' => $this->t('Desktop'), 'mobile' => $this->t('Mobile')],
+            '#default_value' => 'desktop',
+            '#attributes' => ['data-social-preview-control' => 'device'],
+          ],
+        ],
+        'emulsify_social_preview_title' => [
+          '#type' => 'textfield',
+          '#title' => $this->t('Preview title'),
+          '#default_value' => $site_name,
+          '#maxlength' => 200,
+          '#attributes' => ['data-social-preview-control' => 'title'],
+        ],
+        'emulsify_social_preview_description' => [
+          '#type' => 'textarea',
+          '#title' => $this->t('Preview description'),
+          '#default_value' => $site_slogan,
+          '#rows' => 2,
+          '#maxlength' => 500,
+          '#attributes' => ['data-social-preview-control' => 'description'],
+        ],
+        'emulsify_social_preview_url' => [
+          '#type' => 'textfield',
+          '#title' => $this->t('Preview page URL'),
+          '#default_value' => $site_url,
+          '#maxlength' => 2048,
+          '#attributes' => ['data-social-preview-control' => 'url', 'inputmode' => 'url'],
+        ],
+        'help' => [
+          '#markup' => '<p class="emulsify-social-preview__help">' . $escape($this->t('Preview text stays in this browser and does not change page metadata or fetch the page URL. Save image changes to update the preview image.')) . '</p>',
+        ],
+      ],
+      'card' => ['#markup' => Markup::create($markup)],
+    ];
   }
 
 }

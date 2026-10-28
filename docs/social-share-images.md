@@ -25,8 +25,10 @@ unused-file cleanup cannot delete it. Uploads are stored under
 Save the form to update the image preview and metadata.
 
 A 1200 × 630 image is a useful starting point for large social cards. Emulsify
-uses the selected image unchanged and reports its actual width, height, and
-MIME type. It does not resize the image or derive one from the favicon. Describe
+scales larger images proportionally within 1200 × 1500 pixels, covering wide
+cards and portrait previews without cropping or upscaling. The original file
+and configured source path are retained. Preview and sharing metadata use the
+resized copy and its actual width, height, and MIME type. Describe
 the image in **Image alternative text**; leaving it blank uses the current
 site name.
 
@@ -42,6 +44,11 @@ They are not saved as settings, do not change page metadata, and do not fetch
 the entered URL. The image continues to show the saved configuration until
 image changes are saved. A page-specific Metatag image may differ from the
 theme-wide image shown here.
+
+Platform and device selections update immediately, including when a site's
+existing select enhancement emits jQuery change events. The controls use Drupal
+Form API elements so the active administration theme supplies their styling.
+Emulsify does not include Chosen or require a select enhancement.
 
 ## Metadata precedence
 
@@ -75,3 +82,11 @@ moving content between environments, or configure a `public://` path without
 an upload reference on the destination. Unlike the portable favicon SVG,
 social image bytes are not stored in configuration and cannot be regenerated
 by the favicon Drush commands.
+
+Large-image derivatives are stored in
+`public://social-share-image/processed/`, keyed by source content and resize
+settings. They are prepared when opening or saving theme settings; public page
+requests only read existing derivatives. Deploy these public files with the
+source images, or open and save the theme settings on the destination to
+prepare them. After adopting resizing, open the settings once to prepare any
+previously configured large image.
