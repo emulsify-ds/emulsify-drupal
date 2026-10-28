@@ -325,8 +325,8 @@ public files with the source uploads when deploying.
 
 The independent **Social share image** settings accept an uploaded JPG, PNG,
 WebP, or GIF, or a path to a public local image. This works with favicon
-generation disabled and is off by default. Emulsify uses the original image
-and its actual dimensions; a 1200 × 630 image works well for large cards.
+generation disabled and is off by default. Emulsify uses the resized copy when
+needed and reports its actual dimensions; a 1200 × 630 image works well for large cards.
 Alternative text defaults to the site name when blank. Existing `og:image`, `og:image:url`,
 `og:image:secure_url`, `twitter:image`, `twitter:image:src`, or `twitter:card`
 metadata takes precedence case-insensitively, including images set through
