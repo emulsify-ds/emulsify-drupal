@@ -56,9 +56,9 @@ final class SocialSharePreviewBuilder {
       . '</div></article>'
       . '<p class="emulsify-social-preview__help">' . $dimensions . '</p>';
 
-    return [
+    $preview = [
       '#type' => 'container',
-      '#attributes' => ['class' => ['emulsify-social-preview'], 'data-social-share-preview' => TRUE, 'data-social-preview-example-url' => $site_url, 'data-social-preview-default-alt' => $site_name, 'data-social-preview-image-alt' => $alt],
+      '#attributes' => ['class' => ['emulsify-social-preview']],
       'intro' => [
         '#markup' => '<p>' . $escape($this->t('Try the saved image in different social cards. Platform layouts differ: X overlays the headline, LinkedIn uses compact link details, and Pinterest uses a portrait pin. These are representative previews; platforms may crop images differently and cache previous metadata.')) . '</p>',
       ],
@@ -97,7 +97,6 @@ final class SocialSharePreviewBuilder {
           '#markup' => '<p class="emulsify-social-preview__help">' . $escape($this->t('The card and tag values update as you type. Save the form to publish these fallback defaults. Existing page-specific metadata takes priority. Image URLs and dimensions describe the saved resized image until image changes are saved. Platform and device only affect this preview; no page URL is fetched.')) . '</p>',
         ],
       ],
-      'metadata' => $this->buildMetadataTable($settings, $image_url, $image_info, $site_name, $site_url),
       'options' => [
         '#type' => 'fieldset',
         '#title' => $this->t('Preview options'),
@@ -121,6 +120,20 @@ final class SocialSharePreviewBuilder {
         ],
       ],
       'card' => ['#markup' => Markup::create($markup)],
+      'metadata' => [
+        '#type' => 'details',
+        '#title' => $this->t('Fallback metadata after saving'),
+        '#open' => FALSE,
+        'table' => $this->buildMetadataTable($settings, $image_url, $image_info, $site_name, $site_url),
+      ],
+    ];
+    $fields = ['#type' => 'container', 'defaults' => $preview['defaults']];
+    unset($preview['defaults']);
+    return [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['emulsify-social-share'], 'data-social-share-preview' => TRUE, 'data-social-preview-example-url' => $site_url, 'data-social-preview-default-alt' => $site_name, 'data-social-preview-image-alt' => $alt],
+      'fields' => $fields,
+      'preview' => $preview,
     ];
   }
 
@@ -143,6 +156,7 @@ final class SocialSharePreviewBuilder {
     }
     return [
       '#type' => 'table',
+      '#input' => FALSE,
       '#caption' => $this->t('Fallback metadata after saving'),
       '#header' => [$this->t('Meta tag'), $this->t('Default value')],
       '#rows' => $rows,

@@ -1,11 +1,24 @@
+.emulsify-social-share {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 75rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .emulsify-social-preview {
   max-width: 44rem;
-  margin-top: 1rem;
 
   &__selectors {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
   }
 
   &__help {
@@ -18,7 +31,9 @@
   }
 
   &__metadata code {
-    white-space: nowrap;
+    @media (min-width: 35rem) {
+      white-space: nowrap;
+    }
   }
 
   &__platform {

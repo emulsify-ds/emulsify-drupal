@@ -64,14 +64,16 @@ try {
   $config->setData(array_replace($original, SocialShareSettings::DEFAULTS))->save();
   $form = \Drupal::formBuilder()->getForm(ThemeSettingsForm::class, 'emulsify');
   $section = $form['emulsify_social_share_image'];
-  emulsify_social_settings_assert(isset($section['social_share_image_enabled'], $section['settings']['social_share_image_path'], $section['settings']['social_share_image_fid'], $section['settings']['social_share_image_alt']), 'Social sharing must have its own enable checkbox, path, upload, and alt inputs.');
+  $fields = $section['settings']['fields'];
+  emulsify_social_settings_assert(isset($section['social_share_image_enabled'], $fields['social_share_image_path'], $fields['social_share_image_fid'], $fields['social_share_image_alt']), 'Social sharing must have its own enable checkbox, path, upload, and alt inputs.');
   emulsify_social_settings_assert(isset($section['settings']['#states']['visible'][':input[name="social_share_image_enabled"]']) && $section['social_share_image_enabled']['#default_value'] === FALSE, 'Social image inputs must be opt-in and hidden while disabled.');
-  emulsify_social_settings_assert(isset($section['settings']['social_share_image_fid']['#upload_validators']['FileIsImage']) && !str_contains($section['settings']['social_share_image_fid']['#upload_validators']['FileExtension']['extensions'], 'svg'), 'Uploads must validate raster images and exclude SVG.');
+  emulsify_social_settings_assert(isset($fields['social_share_image_fid']['#upload_validators']['FileIsImage']) && !str_contains($fields['social_share_image_fid']['#upload_validators']['FileExtension']['extensions'], 'svg'), 'Uploads must validate raster images and exclude SVG.');
   emulsify_social_settings_assert(isset($section['settings']['preview']), 'The empty preview must offer its local options before an image is saved.');
   foreach (['upload_button', 'remove_button'] as $button) {
-    $ajax_state = (new FormState())->setValues(['social_share_image_enabled' => TRUE])->setTriggeringElement(['#array_parents' => ['emulsify_social_share_image', 'settings', 'social_share_image_fid', $button]]);
+    $ajax_state = (new FormState())->setValues(['social_share_image_enabled' => TRUE])->setTriggeringElement(['#array_parents' => [...$fields['social_share_image_fid']['#array_parents'], $button]]);
     SocialShareSettingsForm::validateSocialShareSettings($form, $ajax_state);
     emulsify_social_settings_assert($ajax_state->getErrors() === [], 'Managed-file upload/remove rebuilds must not prematurely require a saved image.');
+    emulsify_social_settings_assert(array_diff(SocialSharePreviewBuilder::FORM_KEYS, $ajax_state->getCleanValueKeys()) === [], 'Validation must register display-only cleanup even when cached forms do not rerun the alter hook.');
   }
   $state = emulsify_social_settings_submit(['social_share_image_enabled' => TRUE]);
   emulsify_social_settings_assert(isset($state->getErrors()['social_share_image_path']), 'Enabling without an image must report a connected form error.');
@@ -130,13 +132,13 @@ try {
   }
   $config->set('social_share_image_url', $values['social_share_image_url'])->save();
   $form = \Drupal::formBuilder()->getForm(ThemeSettingsForm::class, 'emulsify');
-  $preview = $form['emulsify_social_share_image']['settings']['preview'] ?? [];
+  $preview = $form['emulsify_social_share_image']['settings'] ?? [];
   $markup = (string) \Drupal::service('renderer')->renderInIsolation($preview);
   emulsify_social_settings_assert(str_contains($markup, 'data-social-share-preview') && str_contains($markup, 'A shared scene'), 'The saved image must produce the standalone social preview.');
   $document = new DOMDocument();
   $document->loadHTML('<html><body>' . $markup . '</body></html>', LIBXML_NOERROR | LIBXML_NOWARNING);
   $xpath = new DOMXPath($document);
-  emulsify_social_settings_assert($xpath->query('//select[contains(@class,"form-select")]')->length >= 2 && $xpath->query('//input[contains(@class,"form-text")]')->length === 2 && $xpath->query('//textarea[contains(@class,"form-textarea")]')->length === 1, 'Sharing controls must use the standard themed Form API select, textfield, and textarea elements.');
+  emulsify_social_settings_assert($xpath->query('//select[contains(@class,"form-select")]')->length >= 2 && $xpath->query('//input[contains(@class,"form-text")]')->length === 4 && $xpath->query('//textarea[contains(@class,"form-textarea")]')->length === 1, 'Sharing controls must use the standard themed Form API select, textfield, and textarea elements.');
   foreach (['social_share_image_title', 'social_share_image_description', 'social_share_image_url'] as $key) {
     emulsify_social_settings_assert($xpath->query('//*[@name="' . $key . '"]')->length === 1, 'Every saved sharing default must render through Form API: ' . $key);
   }
@@ -166,7 +168,7 @@ try {
   emulsify_social_settings_assert($state->getErrors() === [] && \Drupal::config('emulsify.settings')->get('social_share_image_fid') === [] && \Drupal::config('emulsify.settings')->get('social_share_image_path') === '', 'Removing the saved upload must clear its mirrored path.');
   $hostile = '\"><script>alert(1)</script>';
   $preview = (new SocialSharePreviewBuilder())->build(['social_share_image_alt' => $hostile], 'https://example.test/share.png', ['width' => 1200, 'height' => 630], $hostile, $hostile, $hostile);
-  $markup = (string) \Drupal::service('renderer')->renderInIsolation($preview['card']);
+  $markup = (string) \Drupal::service('renderer')->renderInIsolation($preview['preview']['card']);
   $document = new DOMDocument();
   $document->loadHTML('<html><body>' . $markup . '</body></html>', LIBXML_NOERROR | LIBXML_NOWARNING);
   $xpath = new DOMXPath($document);

@@ -48,7 +48,7 @@
           const alt = altControl
             ? altControl.value.trim() || preview.dataset.socialPreviewDefaultAlt
             : preview.dataset.socialPreviewImageAlt;
-          preview.querySelectorAll('img').forEach((image) => {
+          card.querySelectorAll('img').forEach((image) => {
             image.alt = alt;
           });
           const metadata = {
@@ -57,8 +57,8 @@
             'og:description': controls.description.value.trim(),
             'twitter:description': controls.description.value.trim(),
             'og:url': controls.url.value.trim(),
-            'og:image:alt': preview.querySelector('img') ? alt : '',
-            'twitter:image:alt': preview.querySelector('img') ? alt : '',
+            'og:image:alt': card.querySelector('img') ? alt : '',
+            'twitter:image:alt': card.querySelector('img') ? alt : '',
           };
           preview
             .querySelectorAll('[data-social-meta-value]')

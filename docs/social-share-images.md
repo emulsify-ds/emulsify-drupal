@@ -40,8 +40,9 @@ page's canonical URL, falling back to its current URL without tracking query
 parameters. An explicit URL is a theme-wide fallback; leave it blank when each
 page should identify itself.
 
-The live confirmation table identifies the tags and their fallback values
-after saving:
+On larger screens, image and metadata fields appear to the left of the preview;
+smaller screens stack the preview below the fields. Expand **Fallback metadata
+after saving** below the preview to inspect the live confirmation table:
 
 | Setting or source | Tags |
 | --- | --- |

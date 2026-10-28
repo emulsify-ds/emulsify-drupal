@@ -60,9 +60,6 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
     $form['#attached']['library'][] = 'emulsify/social_share_admin';
     $form['#validate'][] = [self::class, 'validateSocialShareSettings'];
     $form['#submit'][] = [self::class, 'submitSocialShareSettings'];
-    foreach (SocialSharePreviewBuilder::FORM_KEYS as $key) {
-      $form_state->addCleanValueKey($key);
-    }
     $form['emulsify_social_share_image'] = [
       '#type' => 'details',
       '#title' => $this->t('Social share image'),
@@ -75,11 +72,7 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
       '#title' => $this->t('Enable social share image'),
       '#default_value' => $settings['social_share_image_enabled'],
     ];
-    $section['settings'] = [
-      '#type' => 'container',
-      '#states' => ['visible' => [':input[name="social_share_image_enabled"]' => ['checked' => TRUE]]],
-    ];
-    $fields = &$section['settings'];
+    $fields = [];
     $fields['social_share_image_path'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Path to social share image'),
@@ -112,7 +105,7 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
     }
     $site = $this->configFactory->get('system.site');
     $request = $this->requestStack->getCurrentRequest();
-    $fields['preview'] = (new SocialSharePreviewBuilder())->build(
+    $section['settings'] = (new SocialSharePreviewBuilder())->build(
       $settings,
       $image === [] ? '' : $this->fileUrlGenerator->generateAbsoluteString($image['uri']),
       $image['info'] ?? [],
@@ -120,6 +113,8 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
       (string) $site->get('slogan'),
       $request ? $request->getSchemeAndHttpHost() . $request->getBasePath() : '',
     );
+    $section['settings']['#states'] = ['visible' => [':input[name="social_share_image_enabled"]' => ['checked' => TRUE]]];
+    $section['settings']['fields'] = $fields + $section['settings']['fields'];
   }
 
   /**
@@ -140,6 +135,10 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
    * Resolves upload/path precedence and reports errors on the selected input.
    */
   private function validate(FormStateInterface $form_state): void {
+    // Form cache does not retain clean-value keys registered during alter().
+    foreach (SocialSharePreviewBuilder::FORM_KEYS as $key) {
+      $form_state->addCleanValueKey($key);
+    }
     $parents = $form_state->getTriggeringElement()['#array_parents'] ?? [];
     if (in_array('social_share_image_fid', $parents, TRUE) && in_array(end($parents), ['upload_button', 'remove_button'], TRUE)) {
       return;
@@ -209,6 +208,14 @@ final class SocialShareSettingsForm implements ContainerInjectionInterface {
       if ($old_file) {
         $this->fileUsage->delete($old_file, 'emulsify', 'social_share_image', $theme, 0);
       }
+    }
+    $config = $this->configFactory->getEditable($theme . '.settings');
+    $preview_keys = array_intersect(SocialSharePreviewBuilder::FORM_KEYS, array_keys($config->getRawData()));
+    if ($preview_keys !== []) {
+      foreach ($preview_keys as $key) {
+        $config->clear($key);
+      }
+      $config->save();
     }
   }
 

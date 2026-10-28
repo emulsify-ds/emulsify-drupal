@@ -58,12 +58,17 @@ function previewMarkup(imageUrl, settings = savedSettings) {
   const alt = document.createElement('input');
   alt.name = 'social_share_image_alt';
   alt.defaultValue = settings.social_share_image_alt ?? '';
-  form.appendChild(alt);
   const wrapper = document.createElement('div');
   for (const [name, value] of Object.entries(definition['#attributes'])) {
     wrapper.setAttribute(name, Array.isArray(value) ? value.join(' ') : value === true ? '' : value);
   }
-  const addControls = (element) => {
+  const fields = document.createElement('div');
+  fields.appendChild(alt);
+  wrapper.appendChild(fields);
+  const preview = document.createElement('div');
+  preview.className = definition.preview['#attributes'].class.join(' ');
+  wrapper.appendChild(preview);
+  const addControls = (element, parent) => {
     if (element['#attributes']?.['data-social-preview-control']) {
       const control = document.createElement(element['#type'] === 'textfield' ? 'input' : element['#type']);
       control.dataset.socialPreviewControl = element['#attributes']['data-social-preview-control'];
@@ -76,16 +81,17 @@ function previewMarkup(imageUrl, settings = savedSettings) {
       }
       control.value = element['#default_value'];
       if (element['#type'] !== 'select') control.defaultValue = element['#default_value'];
-      wrapper.appendChild(control);
+      parent.appendChild(control);
     }
     for (const [name, child] of Object.entries(element)) {
-      if (!name.startsWith('#') && child && typeof child === 'object') addControls(child);
+      if (!name.startsWith('#') && child && typeof child === 'object') addControls(child, parent);
     }
   };
-  addControls(definition.defaults);
-  addControls(definition.options);
-  const rows = definition.metadata['#rows'].map(row => `<tr>${row.map(cell => `<td>${cell.data['#markup']}</td>`).join('')}</tr>`).join('');
-  wrapper.insertAdjacentHTML('beforeend', `<table><caption>${definition.metadata['#caption']}</caption><tbody>${rows}</tbody></table>${definition.card['#markup']}`);
+  addControls(definition.fields.defaults, fields);
+  addControls(definition.preview.options, preview);
+  const metadata = definition.preview.metadata;
+  const rows = metadata.table['#rows'].map(row => `<tr>${row.map(cell => `<td>${cell.data['#markup']}</td>`).join('')}</tr>`).join('');
+  preview.insertAdjacentHTML('beforeend', `${definition.preview.card['#markup']}<details><summary>${metadata['#title']}</summary><table><tbody>${rows}</tbody></table></details>`);
   form.appendChild(wrapper);
   return form.outerHTML;
 }
@@ -131,21 +137,23 @@ function attachBehavior(relativePath, markup = previewMarkup()) {
 test('saved defaults and local preview options use administration-themed Form API controls', () => {
   const preview = previewDefinition();
   assert.equal(preview['#type'], 'container');
-  assert.equal(preview.defaults['#type'], 'fieldset');
-  assert.equal(preview.defaults['#title'], 'Default sharing metadata');
-  assert.equal(preview.options['#type'], 'fieldset');
-  assert.equal(preview.options['#title'], 'Preview options');
+  assert.equal(preview.fields.defaults['#type'], 'fieldset');
+  assert.equal(preview.fields.defaults['#title'], 'Default sharing metadata');
+  assert.equal(preview.preview.options['#type'], 'fieldset');
+  assert.equal(preview.preview.options['#title'], 'Preview options');
   const controls = [
-    preview.options.selectors.emulsify_social_preview_platform,
-    preview.options.selectors.emulsify_social_preview_device,
-    preview.defaults.social_share_image_title,
-    preview.defaults.social_share_image_description,
-    preview.defaults.social_share_image_url,
+    preview.preview.options.selectors.emulsify_social_preview_platform,
+    preview.preview.options.selectors.emulsify_social_preview_device,
+    preview.fields.defaults.social_share_image_title,
+    preview.fields.defaults.social_share_image_description,
+    preview.fields.defaults.social_share_image_url,
   ];
   assert.deepEqual(controls.map(element => element['#type']), ['select', 'select', 'textfield', 'textarea', 'textfield']);
   for (const element of controls) assert(element['#title'], 'Every control needs a themed label');
-  assert.equal(preview.metadata['#type'], 'table');
-  assert.equal(preview.metadata['#caption'], 'Fallback metadata after saving');
+  assert.equal(preview.preview.metadata['#type'], 'details');
+  assert.equal(preview.preview.metadata['#title'], 'Fallback metadata after saving');
+  assert.equal(preview.preview.metadata['#open'], false);
+  assert.equal(preview.preview.metadata.table['#type'], 'table');
   const { document } = new JSDOM(previewMarkup()).window;
   assert.equal(document.querySelectorAll('script, [onerror], strong').length, 0);
   assert.equal(document.querySelector('img').getAttribute('alt'), savedSettings.social_share_image_alt);
@@ -161,10 +169,10 @@ test('saved defaults and local preview options use administration-themed Form AP
 
 test('unconfigured metadata stays blank with placeholders and a clearly labeled canonical URL example', () => {
   const preview = previewDefinition('', {});
-  assert.equal(preview.defaults.social_share_image_title['#default_value'], '');
-  assert.equal(preview.defaults.social_share_image_title['#placeholder'], 'Site <strong>name</strong>');
-  assert.equal(preview.defaults.social_share_image_description['#default_value'], '');
-  assert.equal(preview.defaults.social_share_image_url['#default_value'], '');
+  assert.equal(preview.fields.defaults.social_share_image_title['#default_value'], '');
+  assert.equal(preview.fields.defaults.social_share_image_title['#placeholder'], 'Site <strong>name</strong>');
+  assert.equal(preview.fields.defaults.social_share_image_description['#default_value'], '');
+  assert.equal(preview.fields.defaults.social_share_image_url['#default_value'], '');
   const { document } = new JSDOM(previewMarkup('', {})).window;
   assert.equal(document.querySelector('img'), null);
   assert.match(document.querySelector('.emulsify-social-preview__empty').textContent, /Save an image path or upload an image/);
