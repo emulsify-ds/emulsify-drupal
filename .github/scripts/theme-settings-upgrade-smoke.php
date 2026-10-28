@@ -27,12 +27,14 @@ $original = $config->getRawData();
 $parent_settings = \Drupal::config('emulsify.settings')->getRawData();
 $theme_manager = \Drupal::theme();
 $original_theme = $theme_manager->getActiveTheme();
+$admin_theme = (string) \Drupal::config('system.theme')->get('admin');
+emulsify_settings_upgrade_assert($admin_theme !== '' && \Drupal::service('theme_handler')->themeExists($admin_theme), 'The fixture must configure an installed administration theme.');
 
 try {
   // Exercise the separate administration theme used by real settings routes.
-  $theme_manager->setActiveTheme(\Drupal::service('theme.initialization')->getActiveThemeByName('claro'));
+  $theme_manager->setActiveTheme(\Drupal::service('theme.initialization')->getActiveThemeByName($admin_theme));
   $form = \Drupal::formBuilder()->getForm(ThemeSettingsForm::class, $theme);
-  emulsify_settings_upgrade_assert($theme_manager->getActiveTheme()->getName() === 'claro', 'Building child settings must restore the administrator theme.');
+  emulsify_settings_upgrade_assert($theme_manager->getActiveTheme()->getName() === $admin_theme, 'Building child settings must restore the configured administrator theme.');
   emulsify_settings_upgrade_assert(isset($form['emulsify_media_embeds']['media_embed_privacy_mode'], $form['emulsify_media_embeds']['media_embed_click_to_load']), 'Legacy children must inherit current media embed controls under an admin theme.');
   emulsify_settings_upgrade_assert($form['emulsify_media_embeds']['#open'] === FALSE, 'Media embeds must be available in its collapsed section.');
   $favicon = $form['emulsify_favicon'];
@@ -61,7 +63,7 @@ try {
     emulsify_settings_upgrade_assert($saved->get($key) === $values[$key], "The child must save {$key} through the real core form.");
   }
   emulsify_settings_upgrade_assert(\Drupal::config('emulsify.settings')->getRawData() === $parent_settings, 'Saving child settings must preserve parent settings.');
-  fwrite(STDOUT, "PASS 7.0/7.1 child settings/schema inherit current controls under Claro, opt-in defaults, conditional favicon controls, and real child-only config saves.\n");
+  fwrite(STDOUT, "PASS 7.0/7.1 child settings/schema inherit current controls under {$admin_theme}, opt-in defaults, conditional favicon controls, and real child-only config saves.\n");
 }
 finally {
   $config->setData($original)->save();
