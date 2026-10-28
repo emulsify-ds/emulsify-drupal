@@ -59,9 +59,6 @@ final class SocialSharePreviewBuilder {
     $preview = [
       '#type' => 'container',
       '#attributes' => ['class' => ['emulsify-social-preview']],
-      'intro' => [
-        '#markup' => '<p>' . $escape($this->t('Try the saved image in different social cards. Platform layouts differ: X overlays the headline, LinkedIn uses compact link details, and Pinterest uses a portrait pin. These are representative previews; platforms may crop images differently and cache previous metadata.')) . '</p>',
-      ],
       'defaults' => [
         '#type' => 'fieldset',
         '#title' => $this->t('Default sharing metadata'),
@@ -92,9 +89,6 @@ final class SocialSharePreviewBuilder {
           '#description' => $this->t('Supplies og:url when page-specific metadata does not already provide it. Leave blank to use each page’s canonical URL.'),
           '#maxlength' => 2048,
           '#attributes' => ['data-social-preview-control' => 'url', 'inputmode' => 'url'],
-        ],
-        'help' => [
-          '#markup' => '<p class="emulsify-social-preview__help">' . $escape($this->t('The card and tag values update as you type. Save the form to publish these fallback defaults. Existing page-specific metadata takes priority. Image URLs and dimensions describe the saved resized image until image changes are saved. Platform and device only affect this preview; no page URL is fetched.')) . '</p>',
         ],
       ],
       'options' => [
