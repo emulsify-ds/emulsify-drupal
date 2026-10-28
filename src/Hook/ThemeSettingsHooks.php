@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\emulsify\Favicon\FaviconSettingsForm;
 use Drupal\emulsify\Media\MediaEmbedSettingsForm;
+use Drupal\emulsify\Social\SocialShareSettingsForm;
 
 /**
  * Theme settings hook entrypoint.
@@ -29,6 +30,7 @@ final class ThemeSettingsHooks {
   public function formSystemThemeSettingsAlter(array &$form, FormStateInterface $form_state): void {
     $this->faviconSettingsForm()->alter($form, $form_state);
     $this->mediaEmbedSettingsForm()->alter($form, $form_state);
+    $this->classResolver->getInstanceFromDefinition(SocialShareSettingsForm::class)->alter($form, $form_state);
   }
 
   /**

@@ -141,6 +141,39 @@ function emulsify_favicon_save_generated_state(string $theme_name, array $settin
 }
 
 /**
+ * Checks currentColor cache invalidation and the generated package payload.
+ */
+function emulsify_favicon_assert_current_color(FaviconPackageGenerator $generator): void {
+  $settings = FaviconSettings::normalize([], (string) \Drupal::config('system.site')->get('name'));
+  $theme = 'emulsify_color_' . bin2hex(random_bytes(4));
+  $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"><path d="M0 0h16v16H0z" fill="currentColor"/></svg>';
+  $legacy_hash = new ReflectionMethod(FaviconPackageGenerator::class, 'buildPackageHash');
+  foreach (['explicit color' => str_replace('currentColor', '#000000', $svg), 'currentColor' => $svg] as $label => $source) {
+    $analysis = $generator->validateSourceSvg($source, FALSE);
+    $definition = $generator->getPackageDefinition($theme, $settings, $source);
+    $previous_hash = $legacy_hash->invoke($generator, $settings, $analysis['source_hash'], FALSE);
+    emulsify_favicon_assert(($definition['hash'] === $previous_hash) === ($label === 'explicit color'), "$label: only currentColor artwork must receive a new renderer cache key.");
+  }
+  try {
+    $definition = $generator->getPackageDefinition($theme, $settings, $svg);
+    $result = $generator->generateFromSvg($theme, $svg, $settings);
+    emulsify_favicon_assert($result['hash'] === $definition['hash'], 'Definition and generation must agree on the currentColor cache key.');
+    $metadata = $generator->readPackageMetadata($result['path']);
+    emulsify_favicon_assert($metadata['files'] === ['favicon.svg', 'favicon.ico', 'favicon-96x96.png', 'apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png', 'web-app-manifest-512x512-maskable.png', 'site.webmanifest'], 'Resolving currentColor must preserve the favicon package file contract.');
+    foreach (['apple-touch-icon.png', 'web-app-manifest-192x192.png', 'web-app-manifest-512x512-maskable.png'] as $filename) {
+      $image = imagecreatefrompng($result['path'] . '/' . $filename);
+      emulsify_favicon_assert((imagecolorat($image, intdiv(imagesx($image), 2), intdiv(imagesy($image), 2)) & 0xffffff) === 0, "$filename must contain black currentColor artwork, not a blank background.");
+      unset($image);
+    }
+    $browser_svg = (string) file_get_contents($result['path'] . '/favicon.svg');
+    emulsify_favicon_assert(str_contains($browser_svg, base64_encode($svg)), 'Raster color resolution must preserve the portable source embedded in browser SVGs.');
+  }
+  finally {
+    \Drupal::service('file_system')->deleteRecursive('public://favicon-package/' . $theme);
+  }
+}
+
+/**
  * Exercises the SVG sanitizer allow/strip/reject matrix.
  */
 function emulsify_favicon_run_sanitizer_matrix(FaviconPackageGenerator $generator): void {
@@ -658,6 +691,11 @@ SVG;
 $generator = emulsify_favicon_generator();
 
 switch ($mode) {
+  case 'assert-current-color':
+    emulsify_favicon_assert_current_color($generator);
+    fwrite(STDOUT, "PASS currentColor package cache keys, generated icon pixels, metadata files, and unchanged browser SVG source.\n");
+    return;
+
   case 'prepare':
     // Store every portable setting needed to regenerate the package from config
     // alone, then clear package metadata so generate must create fresh files.
@@ -752,6 +790,7 @@ switch ($mode) {
     emulsify_favicon_assert(($metadata['hash'] ?? '') === $definition['hash'], 'metadata.json should preserve the deterministic package hash.');
     emulsify_favicon_assert(($metadata['source']['filename'] ?? '') === 'portable-release-check.svg', 'metadata.json should preserve the source filename.');
 
+    emulsify_favicon_assert_current_color($generator);
     emulsify_favicon_run_sanitizer_matrix($generator);
     fwrite(STDOUT, "Verified portable favicon regeneration and sanitizer coverage for {$theme_name}.\n");
     return;

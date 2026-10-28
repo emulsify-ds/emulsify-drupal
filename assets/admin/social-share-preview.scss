@@ -1,0 +1,143 @@
+.emulsify-social-preview {
+  max-width: 44rem;
+  margin-top: 1rem;
+
+  &__controls {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid currentcolor;
+    border-radius: 0.25rem;
+  }
+
+  &__controls label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  &__controls input,
+  &__controls textarea,
+  &__controls select {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0.25rem;
+    font: inherit;
+    font-weight: normal;
+  }
+
+  &__controls :focus-visible {
+    outline: 3px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  &__selectors {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
+  &__help {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+  }
+
+  &__platform {
+    margin: 1rem 0 0.5rem;
+    font-weight: 700;
+  }
+
+  &__card {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 32.5rem;
+    overflow: hidden;
+    border: 1px solid #aeb3b8;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #202124;
+    font-family: Arial, sans-serif;
+    color-scheme: light;
+    overflow-wrap: anywhere;
+  }
+
+  &__card[data-device='mobile'] {
+    max-width: 20rem;
+  }
+
+  &__image {
+    display: grid;
+    aspect-ratio: 1.91 / 1;
+    place-items: center;
+    overflow: hidden;
+    background: #eef0f2;
+  }
+
+  &__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__empty {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  &__body {
+    padding: 0.75rem 1rem;
+    background: #f2f3f5;
+  }
+
+  &__domain {
+    margin-bottom: 0.25rem;
+    color: #4b525b;
+    font-size: 0.75rem;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  &__description {
+    margin-top: 0.25rem;
+    color: #4b525b;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  &__card[data-platform='x'] {
+    border-radius: 1rem;
+  }
+
+  &__card[data-platform='x'] &__image {
+    aspect-ratio: 2 / 1;
+  }
+
+  &__card[data-platform='linkedin'] &__body {
+    background: #eef3f8;
+  }
+
+  &__card[data-platform='pinterest'] {
+    max-width: 20rem;
+    border-radius: 1rem;
+  }
+
+  &__card[data-platform='pinterest'] &__image {
+    aspect-ratio: 2 / 3;
+  }
+
+  &__card[data-platform='pinterest'] &__body {
+    background: #fff;
+  }
+
+  @media (forced-colors: active) {
+    &__card {
+      border-color: CanvasText;
+    }
+  }
+}

@@ -17,3 +17,13 @@ oembed_poster:
   css:
     theme:
       dist/css/media/oembed-poster.css: { minified: true }
+
+social_share_admin:
+  css:
+    theme:
+      dist/css/admin/social-share-preview.css: { minified: true }
+  js:
+    dist/js/admin/social-share-preview.js: { minified: true }
+  dependencies:
+    - core/drupal
+    - core/once

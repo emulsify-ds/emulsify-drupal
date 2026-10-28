@@ -93,7 +93,6 @@ try {
 
   $variants = [
     'background only' => ['favicon_dark_background_color' => '#112233'],
-    'theme color only' => ['favicon_dark_theme_color' => '#445566'],
     'invert' => ['favicon_dark_mode' => 'invert'],
     'alternate' => ['favicon_dark_mode' => 'alternate', 'favicon_dark_source_svg' => $dark_source],
     'invert with background' => ['favicon_dark_mode' => 'invert', 'favicon_dark_background_color' => '#112233'],
@@ -101,7 +100,6 @@ try {
       'favicon_dark_mode' => 'alternate',
       'favicon_dark_source_svg' => $dark_source,
       'favicon_dark_background_color' => '#112233',
-      'favicon_dark_theme_color' => '#445566',
     ],
   ];
   $raster_files = [
@@ -189,15 +187,7 @@ try {
 
     $attachments = [];
     $head->apply($attachments, array_replace($configured, ['favicon_package_path' => $baseline['result']['path']]));
-    if ($configured['favicon_dark_theme_color'] === '') {
-      emulsify_dark_assert($attachments === $baseline_head, "$label must preserve legacy head attachments without a dark theme color.");
-      continue;
-    }
-    emulsify_dark_assert($attachments['#attached']['html_head_link'] === $baseline_head['#attached']['html_head_link'], 'Dark theme color must preserve all icon links.');
-    $metas = array_values(array_filter($attachments['#attached']['html_head'], static fn(array $item): bool => ($item[0]['#attributes']['name'] ?? '') === 'theme-color'));
-    emulsify_dark_assert(count($metas) === 2 && $metas[0][1] !== $metas[1][1], 'Light and dark theme colors must have distinct attachment keys.');
-    emulsify_dark_assert($metas[0][0]['#attributes'] === ['name' => 'theme-color', 'content' => '#654321', 'media' => '(prefers-color-scheme: light)'], 'Light theme color must retain the Android color and gain its media query.');
-    emulsify_dark_assert($metas[1][0]['#attributes'] === ['name' => 'theme-color', 'content' => $configured['favicon_dark_theme_color'], 'media' => '(prefers-color-scheme: dark)'], 'Dark theme color must have its matching media query.');
+    emulsify_dark_assert($attachments === $baseline_head, "$label must preserve the Android-derived browser theme color.");
   }
 
   // Fixed expected colors catch inversion of the complete tile, rather than
@@ -219,7 +209,7 @@ try {
     }
   }
 
-  $invalid = array_replace($settings, ['favicon_dark_background_color' => '#fff;}</style>', 'favicon_dark_theme_color' => 'url(https://example.com)']);
+  $invalid = array_replace($settings, ['favicon_dark_background_color' => '#fff;}</style>']);
   emulsify_dark_assert($generator->getPackageDefinition($theme, $invalid, $source)['hash'] === $baseline_hash, 'Invalid dark colors must not activate output or inject CSS.');
   try {
     $generator->getPackageDefinition($theme, array_replace($settings, ['favicon_dark_mode' => 'alternate']), $source);
@@ -228,7 +218,7 @@ try {
   catch (InvalidArgumentException $exception) {
     emulsify_dark_assert(str_contains($exception->getMessage(), 'dark-mode SVG source'), 'Missing alternate artwork must have a clear validation error.');
   }
-  fwrite(STDOUT, "PASS Favicon dark mode: inactive byte identity, active hashes, responsive/fixed SVGs, inverted tile backgrounds and explicit overrides, unchanged raster/manifest output, sanitized alternate artwork, and media-aware head tags.\n");
+  fwrite(STDOUT, "PASS Favicon dark mode: inactive byte identity, active hashes, responsive/fixed SVGs, inverted tile backgrounds and explicit overrides, unchanged raster/manifest output, sanitized alternate artwork, and unchanged head tags.\n");
 }
 finally {
   \Drupal::service('file_system')->deleteRecursive('public://favicon-package/' . $theme);

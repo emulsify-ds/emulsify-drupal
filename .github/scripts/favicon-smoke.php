@@ -112,7 +112,7 @@ $generator = new FaviconPackageGenerator(
   \Drupal::service('lock'),
 );
 $settings = emulsify_favicon_smoke_load_settings($theme_name, $site_name);
-emulsify_favicon_smoke_assert($settings['favicon_share_image_enabled'] === FALSE, 'Existing favicon settings must keep social share image generation disabled by default.');
+emulsify_favicon_smoke_assert(!array_key_exists('favicon_share_image_enabled', $settings), 'Social images must be independent of favicon package settings.');
 $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
 $realpath = \Drupal::service('file_system')->realpath($definition['path']);
 if ($realpath && is_dir($realpath)) {

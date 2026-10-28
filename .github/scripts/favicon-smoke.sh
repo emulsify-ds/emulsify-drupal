@@ -14,7 +14,8 @@ theme_name="${2:-emulsify}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 php "$script_dir/favicon-resource-limits.test.php"
-node --test "$script_dir/favicon-preview.test.cjs"
+php "$script_dir/favicon-current-color.test.php"
+node --test "$script_dir/favicon-preview.test.cjs" "$script_dir/social-share-preview.test.cjs"
 
 (
   cd "$fixture_dir"
@@ -25,6 +26,8 @@ node --test "$script_dir/favicon-preview.test.cjs"
   ./vendor/bin/drush theme:enable legacy_settings -y
   ./vendor/bin/drush cr -y
   ./vendor/bin/drush php:script "$script_dir/theme-settings-upgrade-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/social-share-settings-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/social-share-image-smoke.php"
 
   EMULSIFY_FAVICON_THEME="$theme_name" \
     ./vendor/bin/drush php:eval "require '${script_dir}/favicon-smoke.php';"
@@ -49,13 +52,4 @@ node --test "$script_dir/favicon-preview.test.cjs"
   EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_DARK_SETTINGS_MODE=assert-tools \
     ./vendor/bin/drush php:script "$script_dir/favicon-dark-settings-smoke.php"
 
-  ./vendor/bin/drush php:script "$script_dir/favicon-share-image-smoke.php"
-  EMULSIFY_FAVICON_THEME="$theme_name" \
-    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
-  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_SHARE_SETTINGS_MODE=prepare-tools \
-    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
-  ./vendor/bin/drush emulsify_tools:favicon-generate "$theme_name"
-  ./vendor/bin/drush emulsify_tools:favicon-status "$theme_name"
-  EMULSIFY_FAVICON_THEME="$theme_name" EMULSIFY_FAVICON_SHARE_SETTINGS_MODE=assert-tools \
-    ./vendor/bin/drush php:script "$script_dir/favicon-share-settings-smoke.php"
 )

@@ -36,18 +36,18 @@ try {
   emulsify_settings_upgrade_assert(isset($form['emulsify_media_embeds']['media_embed_privacy_mode'], $form['emulsify_media_embeds']['media_embed_click_to_load']), 'Legacy children must inherit current media embed controls under an admin theme.');
   emulsify_settings_upgrade_assert($form['emulsify_media_embeds']['#open'] === FALSE, 'Media embeds must be available in its collapsed section.');
   $favicon = $form['emulsify_favicon'];
-  emulsify_settings_upgrade_assert(isset($favicon['browser']['dark_mode']['favicon_dark_mode'], $favicon['share']['favicon_share_image_enabled']), 'Legacy children must inherit dark-mode and social-image favicon controls.');
+  emulsify_settings_upgrade_assert(isset($favicon['browser']['dark_mode']['favicon_dark_mode'], $form['emulsify_social_share_image']), 'Legacy children must inherit dark-mode and independent social-image controls.');
+  emulsify_settings_upgrade_assert(!isset($favicon['share']), 'Social image controls must be independent of the favicon fieldset.');
   emulsify_settings_upgrade_assert($favicon['favicon_package_enabled']['#default_value'] === FALSE, 'An older child must retain its disabled favicon package default.');
   emulsify_settings_upgrade_assert(isset($favicon['browser']['#states']['visible'][':input[name="favicon_package_enabled"]']), 'Favicon platform settings must appear when the package checkbox is enabled.');
   emulsify_settings_upgrade_assert(!isset($form['favicon']), 'The parent must replace the core legacy favicon form.');
-  emulsify_settings_upgrade_assert($favicon['browser']['dark_mode']['favicon_dark_mode']['#default_value'] === 'none' && $favicon['share']['favicon_share_image_enabled']['#default_value'] === FALSE, 'Missing settings in old config must receive opt-in defaults.');
+  emulsify_settings_upgrade_assert($favicon['browser']['dark_mode']['favicon_dark_mode']['#default_value'] === 'none', 'Missing dark-mode settings must receive opt-in defaults.');
 
   // Core saves the new flat fields despite the child's older copied schema.
   $values = array_replace($original, [
     'default_logo' => TRUE,
     'favicon_ios_padding' => 11,
     'favicon_dark_mode' => 'invert',
-    'favicon_share_image_padding' => 8,
     'media_embed_privacy_mode' => TRUE,
     'media_embed_click_to_load' => TRUE,
     'media_embed_poster' => 'neutral',
@@ -57,7 +57,7 @@ try {
   emulsify_settings_upgrade_assert($state->getErrors() === [], 'A legacy child must accept current settings without replacing its schema or regenerating the theme.');
   \Drupal::configFactory()->reset($theme . '.settings');
   $saved = \Drupal::config($theme . '.settings');
-  foreach (['favicon_ios_padding', 'favicon_dark_mode', 'favicon_share_image_padding', 'media_embed_privacy_mode', 'media_embed_click_to_load', 'media_embed_poster'] as $key) {
+  foreach (['favicon_ios_padding', 'favicon_dark_mode', 'media_embed_privacy_mode', 'media_embed_click_to_load', 'media_embed_poster'] as $key) {
     emulsify_settings_upgrade_assert($saved->get($key) === $values[$key], "The child must save {$key} through the real core form.");
   }
   emulsify_settings_upgrade_assert(\Drupal::config('emulsify.settings')->getRawData() === $parent_settings, 'Saving child settings must preserve parent settings.');

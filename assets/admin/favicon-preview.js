@@ -19,15 +19,9 @@
     'favicon_dark_mode',
     'favicon_dark_background_enabled',
     'favicon_dark_background_color',
-    'favicon_dark_theme_color_enabled',
-    'favicon_dark_theme_color',
     'favicon_dark_source_fid[fids]',
     'favicon_dark_source_svg',
     'favicon_dark_source_filename',
-    'favicon_share_image_enabled',
-    'favicon_share_image_background_color',
-    'favicon_share_image_padding',
-    'favicon_share_image_alt',
   ];
 
   /**

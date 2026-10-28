@@ -46,7 +46,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'generation_hint',
     'dirty_state',
     'favicon_dark_background_enabled',
-    'favicon_dark_theme_color_enabled',
     'emulsify_tools_apply_admin_theme_favicon',
   ];
 
@@ -60,14 +59,9 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'favicon_source_filename',
     'favicon_dark_mode',
     'favicon_dark_background_color',
-    'favicon_dark_theme_color',
     'favicon_dark_source_fid',
     'favicon_dark_source_svg',
     'favicon_dark_source_filename',
-    'favicon_share_image_enabled',
-    'favicon_share_image_background_color',
-    'favicon_share_image_padding',
-    'favicon_share_image_alt',
     'favicon_background_color',
     'favicon_theme_color',
     'favicon_ios_background_color',
@@ -326,21 +320,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         ],
       ],
     ];
-    $dark_mode['favicon_dark_theme_color_enabled'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Set a dark-mode browser theme color'),
-      '#default_value' => $settings['favicon_dark_theme_color'] !== '',
-    ];
-    $dark_mode['favicon_dark_theme_color'] = [
-      '#type' => 'color',
-      '#title' => $this->t('Dark-mode browser theme color'),
-      '#default_value' => $settings['favicon_dark_theme_color'] ?: '#000000',
-      '#states' => [
-        'visible' => [
-          ':input[name="favicon_dark_theme_color_enabled"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
     $dark_mode['dark_source'] = [
       '#type' => 'container',
       '#states' => [
@@ -427,56 +406,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     ];
     if ($has_preview_source) {
       $form['emulsify_favicon']['android']['preview'] = $this->previewBuilder->buildAndroidPreview($settings);
-    }
-
-    $form['emulsify_favicon']['share'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Social share image'),
-      '#open' => FALSE,
-      '#description' => $this->t('Provides a default share image when Metatag has not already set one. Social sites cache images, so changes can take time to appear. Changing the image creates a new URL; changing only its alternative text does not.'),
-      '#states' => [
-        'visible' => [
-          ':input[name="favicon_package_enabled"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
-    $share = &$form['emulsify_favicon']['share'];
-    $share['favicon_share_image_enabled'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Generate a social share image'),
-      '#default_value' => $settings['favicon_share_image_enabled'],
-      '#description' => $this->t('Uses the main SVG icon to create a 1200 by 630 pixel PNG.'),
-    ];
-    $share['settings'] = [
-      '#type' => 'container',
-      '#states' => [
-        'visible' => [
-          ':input[name="favicon_share_image_enabled"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
-    $share['settings']['favicon_share_image_background_color'] = [
-      '#type' => 'color',
-      '#title' => $this->t('Image background color'),
-      '#default_value' => $settings['favicon_share_image_background_color'],
-    ];
-    $share['settings']['favicon_share_image_padding'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Image padding'),
-      '#default_value' => $settings['favicon_share_image_padding'],
-      '#min' => 0,
-      '#max' => 40,
-      '#description' => $this->t('Percentage of the image height kept clear on every edge. For this 630-pixel-high image, 20% leaves 126 pixels clear on each edge.'),
-    ];
-    $share['settings']['favicon_share_image_alt'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Image alternative text'),
-      '#default_value' => $settings['favicon_share_image_alt'],
-      '#maxlength' => 200,
-      '#description' => $this->t('Describe the image. Leave blank to use the site name.'),
-    ];
-    if ($has_preview_source) {
-      $share['preview'] = $this->previewBuilder->buildSharePreview($settings);
     }
 
     if ($package_status['source_available'] || $has_generated_package) {
@@ -624,7 +553,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
   private function normalizeSubmittedSettings(FormStateInterface $form_state): array {
     foreach ([
       'favicon_dark_background_color' => 'favicon_dark_background_enabled',
-      'favicon_dark_theme_color' => 'favicon_dark_theme_color_enabled',
     ] as $color => $checkbox) {
       if (!$form_state->getValue($checkbox)) {
         $form_state->setValue($color, '');
@@ -633,11 +561,6 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
     foreach ([
       'favicon_dark_background_color',
-      'favicon_dark_theme_color',
-      'favicon_share_image_enabled',
-      'favicon_share_image_background_color',
-      'favicon_share_image_padding',
-      'favicon_share_image_alt',
     ] as $key) {
       $form_state->setValue($key, $settings[$key]);
     }

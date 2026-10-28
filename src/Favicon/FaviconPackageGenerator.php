@@ -174,7 +174,7 @@ final class FaviconPackageGenerator {
       (string) $this->configFactory->get('system.site')->get('name'),
     );
     $analysis = $this->validateSourceSvg($source_data, FALSE);
-    $package_hash = $this->buildPackageHash($normalized, (string) $analysis['source_hash']);
+    $package_hash = $this->buildPackageHash($normalized, (string) $analysis['source_hash'], $analysis['uses_current_color']);
 
     return [
       'hash' => $package_hash,
@@ -421,38 +421,15 @@ final class FaviconPackageGenerator {
         $package_directory . '/site.webmanifest',
         $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
       );
-      if ($normalized['favicon_share_image_enabled']) {
-        $this->writeBytes(
-          $package_directory . '/share-image.png',
-          $this->renderRectangularPng(
-            'image/svg+xml',
-            $source_svg,
-            1200,
-            630,
-            $normalized['favicon_share_image_background_color'],
-            $normalized['favicon_share_image_padding'],
-          ),
-        );
-      }
-
       $metadata_settings = $normalized;
       if (!$has_dark_appearance) {
         // Preserve the exact legacy metadata when dark mode is not configured.
         unset(
           $metadata_settings['favicon_dark_mode'],
           $metadata_settings['favicon_dark_background_color'],
-          $metadata_settings['favicon_dark_theme_color'],
           $metadata_settings['favicon_dark_source_fid'],
           $metadata_settings['favicon_dark_source_svg'],
           $metadata_settings['favicon_dark_source_filename'],
-        );
-      }
-      if (!$normalized['favicon_share_image_enabled']) {
-        unset(
-          $metadata_settings['favicon_share_image_enabled'],
-          $metadata_settings['favicon_share_image_background_color'],
-          $metadata_settings['favicon_share_image_padding'],
-          $metadata_settings['favicon_share_image_alt'],
         );
       }
       $metadata = [
@@ -475,9 +452,6 @@ final class FaviconPackageGenerator {
       ];
       if ($has_dark_appearance) {
         $metadata['files'][] = 'favicon-dark.svg';
-      }
-      if ($normalized['favicon_share_image_enabled']) {
-        $metadata['files'][] = 'share-image.png';
       }
       if ($dark_analysis !== NULL) {
         $metadata['warnings'] = array_values(array_unique(array_merge($metadata['warnings'], $dark_analysis['warnings'])));
@@ -648,7 +622,7 @@ final class FaviconPackageGenerator {
   /**
    * Builds the deterministic package hash from source and settings.
    */
-  private function buildPackageHash(array $settings, string $source_hash): string {
+  private function buildPackageHash(array $settings, string $source_hash, bool $uses_current_color): string {
     $hash_settings = $settings;
     // File IDs, stored source copies, and human-facing labels do not change the
     // rendered package output, so exclude them from the deterministic hash.
@@ -663,30 +637,26 @@ final class FaviconPackageGenerator {
       $hash_settings['favicon_dark_source_fid'],
       $hash_settings['favicon_dark_source_svg'],
       $hash_settings['favicon_dark_source_filename'],
-      $hash_settings['favicon_share_image_alt'],
     );
-    if (!$settings['favicon_share_image_enabled']) {
-      unset(
-        $hash_settings['favicon_share_image_enabled'],
-        $hash_settings['favicon_share_image_background_color'],
-        $hash_settings['favicon_share_image_padding'],
-      );
-    }
     if (!$this->hasDarkAppearance($settings)) {
       unset(
         $hash_settings['favicon_dark_mode'],
         $hash_settings['favicon_dark_background_color'],
-        $hash_settings['favicon_dark_theme_color'],
       );
     }
     elseif ($settings['favicon_dark_mode'] === 'alternate') {
       $hash_settings['favicon_dark_source_hash'] = $this->getDarkSourceAnalysis($settings)['source_hash'];
     }
 
-    return substr(hash('sha256', $this->encodeJson([
+    $payload = [
       'source_hash' => $source_hash,
       'settings' => $hash_settings,
-    ])), 0, 12);
+    ];
+    if ($uses_current_color) {
+      // Do not reuse blank PNGs generated before currentColor was resolved.
+      $payload['rasterizer'] = 'current-color-v1';
+    }
+    return substr(hash('sha256', $this->encodeJson($payload)), 0, 12);
   }
 
   /**
@@ -789,8 +759,7 @@ SVG,
    */
   private function hasDarkAppearance(array $settings): bool {
     return ($settings['favicon_dark_mode'] ?? 'none') !== 'none'
-      || ($settings['favicon_dark_background_color'] ?? '') !== ''
-      || ($settings['favicon_dark_theme_color'] ?? '') !== '';
+      || ($settings['favicon_dark_background_color'] ?? '') !== '';
   }
 
   /**
@@ -938,6 +907,7 @@ SVG,
       'declared_dimensions' => $declared_dimensions,
       'uses_transparency' => $uses_transparency,
       'has_embedded_raster_images' => $has_embedded_raster_images,
+      'uses_current_color' => stripos($sanitized, 'currentColor') !== FALSE,
       // Ordinary editor cleanup is silent and separate from security warnings.
       'removed_unsafe_count' => $removed_unsafe_count,
       'removed_metadata_count' => $removed_metadata_count,
@@ -1476,6 +1446,9 @@ SVG,
       $raster_size = min($target_size * 4, 2048);
       $document->documentElement->setAttribute('width', (string) $raster_size);
       $document->documentElement->setAttribute('height', (string) $raster_size);
+      // ImageMagick's native SVG decoder can treat currentColor as transparent.
+      // Resolve it only in the raster copy; stored and browser SVGs stay intact.
+      $this->resolveSvgCurrentColor($document->documentElement);
 
       // These limits are process-wide. Preserve stricter host limits and
       // restore them after releasing the pixel caches, including on failure.
@@ -1536,6 +1509,34 @@ SVG,
     }
 
     return $image;
+  }
+
+  /**
+   * Resolves inherited SVG color values for rasterizers without currentColor.
+   */
+  private function resolveSvgCurrentColor(\DOMElement $element, string $color = '#000000', array $paints = []): void {
+    $declared_color = trim($element->getAttribute('color'));
+    if ($declared_color !== '' && !in_array(strtolower($declared_color), ['currentcolor', 'inherit', 'unset', 'revert', 'revert-layer'], TRUE)) {
+      $color = strtolower($declared_color) === 'initial' ? '#000000' : $declared_color;
+    }
+
+    foreach (['fill', 'stroke', 'stop-color', 'flood-color', 'lighting-color'] as $attribute) {
+      $inherited = in_array($attribute, ['fill', 'stroke'], TRUE) ? ($paints[$attribute] ?? '') : '';
+      $value = $element->hasAttribute($attribute) ? trim($element->getAttribute($attribute)) : $inherited;
+      if (strtolower($value) === 'inherit' || (strtolower($value) === 'unset' && in_array($attribute, ['fill', 'stroke'], TRUE))) {
+        $value = $paints[$attribute] ?? '';
+      }
+      // Retain the inherited paint token so a child's color override can apply.
+      $paints[$attribute] = $value;
+      if (strcasecmp($value, 'currentColor') === 0) {
+        $element->setAttribute($attribute, $color);
+      }
+    }
+    foreach ($element->childNodes as $child) {
+      if ($child instanceof \DOMElement) {
+        $this->resolveSvgCurrentColor($child, $color, $paints);
+      }
+    }
   }
 
   /**

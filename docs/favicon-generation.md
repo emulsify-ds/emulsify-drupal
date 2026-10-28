@@ -11,6 +11,11 @@ Generated PNG and ICO assets require both PHP extensions:
 
 The uploaded source must be an SVG file with a `viewBox`. Non-square sources are centered on a square canvas before package generation so the original aspect ratio is preserved across browser, iOS, and Android assets. The generator accepts embedded raster image data inside the SVG, but the theme settings UI warns that fully vector sources usually scale more cleanly.
 
+SVG artwork using `currentColor` is resolved to its inherited color for PNG and
+ICO output. Earlier packages could show only a background in their iOS and
+Android previews. After updating, regenerate the package once; affected artwork
+receives a new package URL so cached blank icons are replaced.
+
 Source uploads are limited to 5 MB. The sanitized portable SVG copy is stored in theme config for portability; copies larger than 256 KB are allowed but flagged as review noise because they make config exports harder to inspect.
 
 The sanitizer supports static SVG drawing elements, including shapes, groups,
@@ -49,7 +54,6 @@ Each generated package contains:
 
 - `favicon.svg`
 - `favicon-dark.svg` (only when a dark-mode option is enabled)
-- `share-image.png` (only when the social share image is enabled)
 - `favicon.ico`
 - `favicon-96x96.png`
 - `apple-touch-icon.png`
@@ -77,19 +81,17 @@ In **Browser favicon settings → Dark mode**, choose one of these treatments:
   `public://favicon-source/<theme_name>/dark`.
 
 Optionally enable **Use a different background in dark mode** and choose its
-color, or **Set a dark-mode browser theme color** and choose that color. An
-unchecked color option saves an empty value; it does not change the existing
-light color. A dark browser theme color emits separate light and dark
-`theme-color` metadata with matching color-scheme media attributes. The web app
-manifest continues to use the Android background color.
+color. An unchecked background option saves an empty value; it does not change
+the existing light color. Browser `theme-color` metadata and the web app
+manifest use the Android background color.
 
 These options store `favicon_dark_mode`, `favicon_dark_background_color`,
-`favicon_dark_theme_color`, `favicon_dark_source_fid`,
+`favicon_dark_source_fid`,
 `favicon_dark_source_svg`, and `favicon_dark_source_filename`. All are off or
 empty by default. Older generated themes receive these defaults from the
 parent even when their copied config schema predates these settings.
 
-Enabling a treatment or either dark color adds a generated
+Enabling a treatment or a dark background adds a generated
 `@media (prefers-color-scheme: dark)` rule to `favicon.svg` and writes
 `favicon-dark.svg`, which always shows the dark appearance. Chromium-based
 browsers and Firefox apply the SVG's dark-mode rule; other browsers show the
@@ -101,40 +103,10 @@ clears the dark options and alternate icon.
 
 ## Default social share image
 
-Enable **Social share image** in the favicon settings to generate a branded
-1200 × 630 PNG from the main sanitized SVG. Choose a background color and
-padding from 0–40%; padding is the percentage of the image's height kept clear
-on every edge. The icon stays centered and keeps its aspect ratio. Alternative
-text describes the image; leave it blank to use the current site name.
-
-The settings are `favicon_share_image_enabled` (off by default),
-`favicon_share_image_background_color` (white), `favicon_share_image_padding`
-(20%), and `favicon_share_image_alt` (empty). Enabling the feature adds
-`share-image.png` to the hashed package and its metadata file list. The source,
-background, and padding determine its URL; changing alternative text does not
-change the image or its hash. With the feature off, existing favicon output and
-head tags stay unchanged.
-
-For an enabled, existing favicon package containing that PNG, Emulsify adds:
-
-- Open Graph properties: `og:image`, `og:image:type`, `og:image:width`,
-  `og:image:height`, and `og:image:alt`.
-- X/Twitter metadata: `twitter:card` (`summary_large_image`), `twitter:image`,
-  and `twitter:image:alt`.
-
-Image URLs are absolute. These tags supply a default image for link previews
-on LinkedIn, Slack, Facebook, and X. If any module or other earlier attachment
-already supplies `og:image`, `og:image:url`, `og:image:secure_url`,
-`twitter:image`, `twitter:image:src`, or `twitter:card` (case-insensitively),
-Emulsify adds none of these sharing tags and leaves the existing sharing
-metadata intact.
-Sites whose Metatag configuration sets an image keep it.
-
-Social sites cache images, so changes can take a while to appear. Each image
-change creates a new package URL, but external caches may still need a refresh.
-After deploying to a public environment, check a page with
-[LinkedIn's Post Inspector](https://www.linkedin.com/post-inspector/) and
-[Facebook's Sharing Debugger](https://developers.facebook.com/tools/debug/).
+**Social share image** is a separate theme settings section. It uses an uploaded
+or existing raster image and works with favicon generation disabled. See
+[social share images](./social-share-images.md) for setup, platform previews,
+metadata precedence, and deployment.
 
 ## Saved package previews
 
@@ -157,11 +129,6 @@ from the saved manifest's package; the launcher label comes from that manifest.
 The generated files already contain their configured background and padding,
 so the preview adds no second layer of either. Tab chrome and launcher masks
 provide viewing context; they are not additional favicon output.
-
-The social link-card preview shows the saved `share-image.png`, site name, and
-domain only when that enabled package contains the image. It represents the
-theme's default image; a social site may use a page-specific Metatag image
-instead.
 
 Changing unsaved colors, padding, labels, or the source upload leaves those
 previews unchanged. The pending-changes notice and generation controls indicate

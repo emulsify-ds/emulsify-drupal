@@ -14,13 +14,16 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
   focus visible over thumbnails. See [media embeds](./media-embeds.md) for privacy
   caveats, settings scope, CSP requirements, and the contract for child template
   overrides.
-- An optional default social share image uses the configured favicon SVG to
-  generate a branded 1200 × 630 PNG and sharing metadata. Existing `og:image`,
+- An independent **Social share image** section accepts uploaded or existing
+  local JPG, PNG, WebP, and GIF images, with alternative text and actual image
+  dimensions in sharing metadata. It works with favicon generation disabled.
+  Facebook, X/Twitter, LinkedIn, and Pinterest previews offer desktop/mobile
+  layouts and local preview text controls. Existing `og:image`,
   `twitter:image`, `twitter:card`, and their supported image URL aliases take
   precedence, including metadata supplied by Metatag. See
-  [favicon generation](./favicon-generation.md#default-social-share-image).
+  [social share images](./social-share-images.md).
 - Optional dark-mode favicons offer inverted or alternate SVG artwork, with
-  separate dark background and browser theme colors. Invert also reverses the
+  a separate dark background. Invert also reverses the
   light background unless a dark background is chosen. Settings default to off,
   preserving existing output. Saved Light tab and Dark tab previews show their
   respective appearances independently of the administrator's color scheme.
@@ -45,6 +48,9 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Fixed
 
+- SVG icons using `currentColor` now retain their artwork in iOS, Android, and
+  ICO output. Regenerate affected packages after updating; their new hashes
+  prevent reuse of cached blank PNGs.
 - The root npm version now records the planned 7.3.0 release. Semantic Release
   automatically commits its calculated version to both npm metadata files before
   tagging future releases; generated child theme versions and lineage remain

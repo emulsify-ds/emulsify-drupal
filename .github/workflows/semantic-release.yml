@@ -47,7 +47,7 @@ jobs:
         run: npm run lint:js && npm run lint:styles
 
       - name: Test parent theme assets
-        run: node --test .github/scripts/parent-assets.test.cjs .github/scripts/favicon-preview.test.cjs
+        run: node --test .github/scripts/parent-assets.test.cjs .github/scripts/favicon-preview.test.cjs .github/scripts/social-share-preview.test.cjs
 
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev

@@ -35,6 +35,7 @@ currently documents the pre-7.x Webpack-based tooling and is being rewritten.
 10. [Twig hook variables and template suggestion precedence](./docs/twig-hook-contract.md)
 11. [Extend parent templates](./docs/template-extension.md)
 12. [Privacy and click-to-load media embeds](./docs/media-embeds.md)
+13. [Default social share images](./docs/social-share-images.md)
 
 ## Demo
 
@@ -322,6 +323,16 @@ The theme settings UI surfaces the current portable-source and package status. P
 
 See [docs/favicon-generation.md](./docs/favicon-generation.md) for generated files, package location, generator limits, and deployment expectations.
 
+### Configure a default social share image
+
+Open the child theme's settings, expand **Social share image**, and enable it.
+Upload a JPG, PNG, WebP, or GIF, or enter a path to an existing public image.
+The feature works independently of favicon generation and preserves existing
+social metadata, including Metatag images. Saved images have approximate
+Facebook, X/Twitter, LinkedIn, and Pinterest previews with desktop/mobile
+layouts. See [social share images](./docs/social-share-images.md) for supported
+paths, preview controls, and deployment.
+
 ## Contributing
 
 ### [Code of Conduct](https://github.com/emulsify-ds/emulsify-drupal/blob/main/CODE_OF_CONDUCT.md)
@@ -341,7 +352,7 @@ Please also follow the issue template and pull request templates provided. See b
 
 ### Build the parent theme assets
 
-The parent theme's global styles and favicon settings UI are authored in
+The parent theme's global styles and settings previews are authored in
 `assets/` and built with `@emulsify/core`. Run these commands from this repository
 root using Node.js 24.15 or newer:
 
@@ -360,12 +371,15 @@ restore minified production output without maps.
 | `assets/theme/global.scss` | `dist/css/theme/global.css` |
 | `assets/admin/favicon-preview.scss` | `dist/css/admin/favicon-preview.css` |
 | `assets/admin/favicon-preview.js` | `dist/js/admin/favicon-preview.js` |
+| `assets/admin/social-share-preview.scss` | `dist/css/admin/social-share-preview.css` |
+| `assets/admin/social-share-preview.js` | `dist/js/admin/social-share-preview.js` |
 
 Edit the sources, then include the rebuilt `dist/` files in the same change.
 Production assets are committed so Composer installations do not require Node
 or an asset build. CI rebuilds them and checks that they match the committed
 output. The existing `emulsify/global` and `emulsify/favicon_admin` library names
-remain the attachment points.
+remain the attachment points; `emulsify/social_share_admin` supplies the social
+image preview.
 
 `project.emulsify.json` restricts Core's source discovery to `assets/`, keeping
 the Drupal PHP classes in `src/` outside the frontend build. Root linting covers

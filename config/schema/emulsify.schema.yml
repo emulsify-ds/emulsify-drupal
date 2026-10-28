@@ -24,9 +24,6 @@ emulsify.settings:
     favicon_dark_background_color:
       type: string
       label: 'Optional dark-mode icon background color'
-    favicon_dark_theme_color:
-      type: string
-      label: 'Optional dark-mode browser theme color'
     favicon_dark_source_fid:
       type: sequence
       label: 'Dark-mode icon file IDs'
@@ -38,18 +35,6 @@ emulsify.settings:
     favicon_dark_source_filename:
       type: string
       label: 'Dark-mode source SVG filename'
-    favicon_share_image_enabled:
-      type: boolean
-      label: 'Enable generated social share image'
-    favicon_share_image_background_color:
-      type: string
-      label: 'Social share image background color'
-    favicon_share_image_padding:
-      type: integer
-      label: 'Social share image padding'
-    favicon_share_image_alt:
-      type: string
-      label: 'Social share image alternative text'
     favicon_background_color:
       type: string
       label: 'Icon background color'
@@ -92,6 +77,20 @@ emulsify.settings:
     favicon_package_generated_at:
       type: integer
       label: 'Generated favicon package timestamp'
+    social_share_image_enabled:
+      type: boolean
+      label: 'Enable default social share image'
+    social_share_image_path:
+      type: string
+      label: 'Social share image path'
+    social_share_image_fid:
+      type: sequence
+      label: 'Social share image file IDs'
+      sequence:
+        type: integer
+    social_share_image_alt:
+      type: string
+      label: 'Social share image alternative text'
     media_embed_privacy_mode:
       type: boolean
       label: 'Reduce YouTube and Vimeo player tracking'

@@ -190,9 +190,10 @@ For sites with the generated favicon package enabled:
 3. Deploy as usual, regenerating environment-local package files after config
    import.
 
-Generation saves all favicon defaults, including 7.3's ten new keys, and the
+Generation saves all favicon defaults, including 7.3's dark-mode keys, and the
 stricter SVG cleanup can change the package hash and directory for
-editor-exported sources. Exporting once records the new keys and current
+editor-exported sources. Icons using `currentColor` also receive a new hash so
+their corrected PNGs replace previously cached blank icons. Exporting once records the new keys and current
 package hash; with the same source and effective settings, only
 `favicon_package_generated_at` can still differ between environments that
 rebuild the files, as in 7.2.
@@ -281,8 +282,8 @@ Sites without the generated favicon package need no action.
 
 ### Optional dark-mode favicons
 
-The parent theme settings now offer an inverted or alternate SVG icon, a
-separate dark background, and a dark browser theme color. Invert reverses the
+The parent theme settings now offer an inverted or alternate SVG icon and a
+separate dark background. Invert reverses the
 mark and light background together unless a dark background is chosen.
 Everything is off by default, preserving existing packages and head tags.
 Enable the desired options under **Browser favicon settings → Dark mode** and
@@ -302,9 +303,6 @@ config exports, optionally copy these entries into the `mapping` under
     favicon_dark_background_color:
       type: string
       label: 'Optional dark-mode icon background color'
-    favicon_dark_theme_color:
-      type: string
-      label: 'Optional dark-mode browser theme color'
     favicon_dark_source_fid:
       type: sequence
       label: 'Dark-mode icon file IDs'
@@ -320,14 +318,18 @@ config exports, optionally copy these entries into the `mapping` under
 
 ### Optional social share image
 
-The favicon settings can also generate a default 1200 × 630 social share image
-from the main SVG, with its own background, padding, and alternative text.
-This is off by default. Existing `og:image`, `og:image:url`,
+The independent **Social share image** settings accept an uploaded JPG, PNG,
+WebP, or GIF, or a path to a public local image. This works with favicon
+generation disabled and is off by default. Emulsify uses the original image
+and its actual dimensions; a 1200 × 630 image works well for large cards.
+Alternative text defaults to the site name when blank. Existing `og:image`, `og:image:url`,
 `og:image:secure_url`, `twitter:image`, `twitter:image:src`, or `twitter:card`
 metadata takes precedence case-insensitively, including images set through
 Metatag. Social sites cache previews, so deployed changes may take time to
-appear. See
-[default social share images](./docs/favicon-generation.md#default-social-share-image).
+appear. Approximate Facebook, X/Twitter, LinkedIn, and Pinterest previews offer
+desktop/mobile widths and local title, description, and URL controls; these
+controls do not change page metadata. Deploy the image with the site's public
+files or theme assets. See [social share images](./docs/social-share-images.md).
 
 Existing generated themes inherit the feature through parent defaults. To
 describe its settings in config exports, optionally add these entries to the
@@ -335,16 +337,17 @@ describe its settings in config exports, optionally add these entries to the
 `config/schema/<your_theme>.schema.yml`:
 
 ```yaml
-    favicon_share_image_enabled:
+    social_share_image_enabled:
       type: boolean
-      label: 'Enable generated social share image'
-    favicon_share_image_background_color:
+      label: 'Enable default social share image'
+    social_share_image_path:
       type: string
-      label: 'Social share image background color'
-    favicon_share_image_padding:
-      type: integer
-      label: 'Social share image padding'
-    favicon_share_image_alt:
+      label: 'Social share image path'
+    social_share_image_fid:
+      type: sequence
+      label: 'Social share image file IDs'
+      sequence: { type: integer }
+    social_share_image_alt:
       type: string
       label: 'Social share image alternative text'
 ```
@@ -384,8 +387,9 @@ After updating the parent, rebuild Drupal caches and open
 `/admin/appearance/settings/<your_theme>` for the child theme the site uses.
 Expand **Media embeds** to see its privacy and click-to-load options. Under
 **Favicon**, check **Enable generated favicon package** to reveal the
-browser, dark-mode, and social share settings. When the package is disabled,
-these fields are hidden. Opening sections or checking the box does not persist
+browser and dark-mode settings. When the package is disabled,
+these fields are hidden. **Social share image** has its own section and enable
+checkbox, independent of the favicon package. Opening sections or checking a box does not persist
 changes until the form is saved.
 
 Themes generated with 7.0 or 7.1 inherit these controls from the parent; their

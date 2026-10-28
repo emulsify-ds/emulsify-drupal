@@ -1175,7 +1175,6 @@ function runStaticChecks() {
       'public://favicon-package/<theme_name>/<package_hash>',
       'favicon.svg',
       'favicon-dark.svg',
-      'share-image.png',
       'favicon.ico',
       'favicon-96x96.png',
       'apple-touch-icon.png',
@@ -1396,6 +1395,7 @@ function runStaticChecks() {
     for (const [source, className, prefix] of [
       ['src/Favicon/FaviconSettings.php', 'FaviconSettings', 'favicon_'],
       ['src/Media/MediaEmbedSettings.php', 'MediaEmbedSettings', 'media_embed_'],
+      ['src/Social/SocialShareSettings.php', 'SocialShareSettings', 'social_share_image_'],
     ]) {
       const defaults = { label: `${source}::DEFAULTS`, keys: extractSettingDefaultKeys(source, prefix, className) };
       for (const [theme, directory] of [['emulsify', ''], ['whisk', 'whisk/']]) {

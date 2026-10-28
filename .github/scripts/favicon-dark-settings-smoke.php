@@ -57,7 +57,6 @@ $dark_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x
 $dark_defaults = [
   'favicon_dark_mode' => 'none',
   'favicon_dark_background_color' => '',
-  'favicon_dark_theme_color' => '',
   'favicon_dark_source_fid' => [],
   'favicon_dark_source_svg' => '',
   'favicon_dark_source_filename' => '',
@@ -74,7 +73,6 @@ if ($mode === 'prepare-tools') {
     'favicon_dark_source_svg' => $dark_svg,
     'favicon_dark_source_filename' => 'dark-tools-smoke.svg',
     'favicon_dark_background_color' => '#112233',
-    'favicon_dark_theme_color' => '#223344',
   ]));
   fwrite(STDOUT, "Prepared portable alternate dark favicon config for published Tools.\n");
   return;
@@ -122,21 +120,19 @@ try {
   $normalized = FaviconSettings::normalize([
     'favicon_dark_mode' => 'invalid',
     'favicon_dark_background_color' => ' #AbC ',
-    'favicon_dark_theme_color' => 'invalid',
   ]);
-  emulsify_dark_settings_assert($normalized['favicon_dark_mode'] === 'none' && $normalized['favicon_dark_background_color'] === '#aabbcc' && $normalized['favicon_dark_theme_color'] === '', 'Dark settings should normalize mode and optional colors without inventing white overrides.');
+  emulsify_dark_settings_assert($normalized['favicon_dark_mode'] === 'none' && $normalized['favicon_dark_background_color'] === '#aabbcc', 'Dark settings should normalize mode and optional colors without inventing white overrides.');
 
-  [$state] = $validate(array_replace($base, [
+  [$state, $form] = $validate(array_replace($base, [
     'favicon_dark_mode' => 'invert',
     'favicon_dark_background_enabled' => FALSE,
     'favicon_dark_background_color' => '#123456',
-    'favicon_dark_theme_color_enabled' => FALSE,
-    'favicon_dark_theme_color' => '#654321',
   ]));
   emulsify_dark_settings_assert($state->getErrors() === [], 'Invert mode should not require an alternate upload.');
-  emulsify_dark_settings_assert($state->getValue('favicon_dark_background_color') === '' && $state->getValue('favicon_dark_theme_color') === '', 'Unchecked optional colors must clear their stored overrides.');
+  emulsify_dark_settings_assert(!isset($form['emulsify_favicon']['browser']['dark_mode']['favicon_dark_theme_color_enabled']), 'The retired browser theme-color option must not appear.');
+  emulsify_dark_settings_assert($state->getValue('favicon_dark_background_color') === '', 'Unchecked optional colors must clear their stored overrides.');
   $state->cleanValues();
-  emulsify_dark_settings_assert(!array_key_exists('favicon_dark_background_enabled', $state->getValues()) && !array_key_exists('favicon_dark_theme_color_enabled', $state->getValues()), 'Optional-color helper checkboxes must never be exported as theme settings.');
+  emulsify_dark_settings_assert(!array_key_exists('favicon_dark_background_enabled', $state->getValues()), 'Optional-color helper checkboxes must never be exported as theme settings.');
 
   foreach (['missing' => '', 'invalid' => '<svg>not valid'] as $label => $source) {
     [$state] = $validate(array_replace($base, ['favicon_dark_mode' => 'alternate', 'favicon_dark_source_svg' => $source]));
@@ -170,8 +166,6 @@ try {
     'favicon_dark_source_fid' => [(int) $file->id()],
     'favicon_dark_background_enabled' => TRUE,
     'favicon_dark_background_color' => '#112233',
-    'favicon_dark_theme_color_enabled' => TRUE,
-    'favicon_dark_theme_color' => '#223344',
   ]));
   emulsify_dark_settings_assert($state->getErrors() === [], 'A valid managed alternate source should validate.');
   $sanitized = $state->getValue('favicon_dark_source_svg');
