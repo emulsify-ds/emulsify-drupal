@@ -64,9 +64,11 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     'favicon_dark_source_filename',
     'favicon_background_color',
     'favicon_theme_color',
+    'favicon_ios_background_custom',
     'favicon_ios_background_color',
     'favicon_ios_padding',
     'favicon_ios_icon_name',
+    'favicon_android_background_custom',
     'favicon_android_background_color',
     'favicon_android_padding',
     'favicon_android_maskable_enabled',
@@ -342,11 +344,22 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         ],
       ],
     ];
+    $form['emulsify_favicon']['ios']['favicon_ios_background_custom'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use a different background color'),
+      '#default_value' => $settings['favicon_ios_background_custom'],
+      '#description' => $this->t('Leave unchecked to use the browser favicon background color.'),
+    ];
     $form['emulsify_favicon']['ios']['favicon_ios_background_color'] = [
       '#type' => 'color',
       '#title' => $this->t('Icon Background Color'),
       '#default_value' => $settings['favicon_ios_background_color'],
       '#description' => $this->t('Apple touch icons should use an opaque background.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_ios_background_custom"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
     $form['emulsify_favicon']['ios']['favicon_ios_padding'] = [
       '#type' => 'number',
@@ -378,11 +391,22 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
         ],
       ],
     ];
+    $form['emulsify_favicon']['android']['favicon_android_background_custom'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use a different background color'),
+      '#default_value' => $settings['favicon_android_background_custom'],
+      '#description' => $this->t('Leave unchecked to use the browser favicon background color.'),
+    ];
     $form['emulsify_favicon']['android']['favicon_android_background_color'] = [
       '#type' => 'color',
       '#title' => $this->t('Icon Background Color'),
       '#default_value' => $settings['favicon_android_background_color'],
       '#description' => $this->t('Used for the Android icon background and the generated theme-color metadata.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="favicon_android_background_custom"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
     $form['emulsify_favicon']['android']['favicon_android_padding'] = [
       '#type' => 'number',
@@ -561,6 +585,10 @@ final class FaviconSettingsForm implements ContainerInjectionInterface {
     $settings = FaviconSettings::normalize($form_state->getValues(), $this->getSiteName());
     foreach ([
       'favicon_dark_background_color',
+      'favicon_ios_background_custom',
+      'favicon_ios_background_color',
+      'favicon_android_background_custom',
+      'favicon_android_background_color',
     ] as $key) {
       $form_state->setValue($key, $settings[$key]);
     }

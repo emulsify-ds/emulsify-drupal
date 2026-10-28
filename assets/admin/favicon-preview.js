@@ -9,10 +9,12 @@
   const TRACKED_NAMES = [
     'favicon_package_enabled',
     'favicon_background_color',
+    'favicon_ios_background_custom',
     'favicon_ios_background_color',
     'favicon_ios_padding',
     'favicon_ios_icon_name',
     'favicon_manifest_short_name',
+    'favicon_android_background_custom',
     'favicon_android_background_color',
     'favicon_android_padding',
     'favicon_source_fid[fids]',
@@ -49,20 +51,37 @@
   }
 
   /**
-   * Keeps the hidden theme-color form value aligned with the Android color UI.
+   * Applies inherited platform colors and synchronizes Android theme metadata.
    *
    * @param {HTMLFormElement} form
    *   The theme settings form.
    */
-  function syncThemeColorValue(form) {
-    const source = form.querySelector(
-      '[name="favicon_android_background_color"]',
+  function syncBackgroundColors(form) {
+    const browserColor = inputValue(
+      form,
+      'favicon_background_color',
+      '#ffffff',
     );
+    ['ios', 'android'].forEach((platform) => {
+      const color = form.querySelector(
+        `[name="favicon_${platform}_background_color"]`,
+      );
+      if (
+        color &&
+        !inputValue(form, `favicon_${platform}_background_custom`, true)
+      ) {
+        color.value = browserColor;
+      }
+    });
     const target = form.querySelector('[name="favicon_theme_color"]');
-    if (source && target) {
+    if (target) {
       // The PHP layer treats the Android background color as the source of
       // truth for manifest theme-color metadata.
-      target.value = source.value || '#ffffff';
+      target.value = inputValue(
+        form,
+        'favicon_android_background_color',
+        browserColor,
+      );
     }
   }
 
@@ -189,7 +208,7 @@
   function refreshPreviews(form) {
     // Images, framing, and labels describe saved output. Unsaved changes only
     // update the generation controls and dirty-state notice.
-    syncThemeColorValue(form);
+    syncBackgroundColors(form);
     applyGenerationHint(form);
     applyDirtyState(form);
   }
@@ -202,35 +221,29 @@
      *   Drupal behavior context.
      */
     attach(context) {
-      once(
-        'emulsify-favicon-preview',
-        'form.system-theme-settings, form[data-drupal-selector="system-theme-settings"]',
-        context,
-      ).forEach((form) => {
+      const selector =
+        'form.system-theme-settings, form[data-drupal-selector="system-theme-settings"]';
+      const forms = Array.from(context.querySelectorAll(selector));
+      const parentForm = context.closest?.(selector);
+      if (parentForm) {
+        forms.push(parentForm);
+      }
+      once('emulsify-favicon-preview', forms).forEach((form) => {
         const refresh = () => refreshPreviews(form);
-
-        TRACKED_NAMES.forEach((name) => {
-          const input = form.querySelector(`[name="${name}"]`);
-          if (!input) {
-            return;
-          }
-          input.addEventListener('input', refresh);
-          input.addEventListener('change', refresh);
-        });
-
-        form
-          .querySelectorAll(
-            'input[type="file"][name^="files[favicon_source_fid"], input[type="file"][name^="files[favicon_dark_source_fid"]',
-          )
-          .forEach((input) => {
-            input.addEventListener('change', refresh);
-          });
+        // Delegation also handles managed-file inputs replaced through AJAX.
+        form.addEventListener('input', refresh);
+        form.addEventListener('change', refresh);
+        if (globalThis.jQuery) {
+          globalThis.jQuery(form).on('change.emulsifyFaviconPreview', refresh);
+        }
 
         // Capture the initial persisted values after listeners are attached so
         // dirty-state UI compares against the loaded form, not later edits.
+        syncBackgroundColors(form);
         form.emulsifyFaviconInitialState = captureTrackedState(form);
-        refreshPreviews(form);
       });
+      // An AJAX replacement can change file IDs without replacing the form.
+      forms.forEach(refreshPreviews);
     },
   };
 })(Drupal, once);

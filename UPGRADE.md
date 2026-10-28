@@ -280,6 +280,24 @@ Sites without the generated favicon package need no action.
   Rebuild Drupal caches after changing library overrides. Parent `dist/` assets
   are shipped with the theme; this migration does not require a frontend build.
 
+### Platform favicon backgrounds
+
+The iOS and Android backgrounds now follow the browser favicon background
+unless **Use a different background color** is enabled for that platform.
+Existing non-white platform colors retain their custom appearance. Older white
+defaults inherit; enable the override to keep an intentionally white icon.
+Save or regenerate the favicon package after changing these options. Existing
+child schemas can optionally describe the two flags under their settings mapping:
+
+```yaml
+    favicon_ios_background_custom:
+      type: boolean
+      label: 'Use a custom iOS icon background color'
+    favicon_android_background_custom:
+      type: boolean
+      label: 'Use a custom Android icon background color'
+```
+
 ### Optional dark-mode favicons
 
 The parent theme settings now offer an inverted or alternate SVG icon and a

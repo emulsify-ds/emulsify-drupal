@@ -26,6 +26,7 @@ node --test "$script_dir/favicon-preview.test.cjs" "$script_dir/social-share-pre
   ./vendor/bin/drush theme:enable legacy_settings -y
   ./vendor/bin/drush cr -y
   ./vendor/bin/drush php:script "$script_dir/theme-settings-upgrade-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/favicon-background-settings-smoke.php"
   ./vendor/bin/drush php:script "$script_dir/social-share-settings-smoke.php"
   ./vendor/bin/drush php:script "$script_dir/social-share-image-smoke.php"
 

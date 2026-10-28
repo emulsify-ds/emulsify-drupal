@@ -67,6 +67,23 @@ Each generated package contains:
 
 Do not manually edit generated package files. Change the source SVG or favicon settings, then regenerate the package so metadata, hash, and head attachments stay consistent.
 
+## Platform background colors
+
+The iOS and Android icon backgrounds use **Browser favicon settings → Icon
+Background Color** by default. Enable **Use a different background color** in
+either platform section to choose its own color, including white. Turn that
+option off to resume following the browser color. Android's effective color
+also supplies the manifest and browser `theme-color` metadata.
+
+Existing non-white platform colors are retained as custom colors. Older white
+defaults follow the browser color; enable the platform's custom-color option
+to keep a deliberately white background. The saved
+`favicon_ios_background_custom` and `favicon_android_background_custom` flags
+retain this choice across subsequent saves and Emulsify Tools generation.
+
+Save or regenerate the package to apply changed colors to its files. Previews
+continue to show the saved package until it is rebuilt.
+
 ## Dark-mode browser tabs
 
 In **Browser favicon settings → Dark mode**, choose one of these treatments:

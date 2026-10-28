@@ -422,6 +422,7 @@ final class FaviconPackageGenerator {
         $this->encodeJson($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
       );
       $metadata_settings = $normalized;
+      unset($metadata_settings['favicon_ios_background_custom'], $metadata_settings['favicon_android_background_custom']);
       if (!$has_dark_appearance) {
         // Preserve the exact legacy metadata when dark mode is not configured.
         unset(
@@ -637,6 +638,8 @@ final class FaviconPackageGenerator {
       $hash_settings['favicon_dark_source_fid'],
       $hash_settings['favicon_dark_source_svg'],
       $hash_settings['favicon_dark_source_filename'],
+      $hash_settings['favicon_ios_background_custom'],
+      $hash_settings['favicon_android_background_custom'],
     );
     if (!$this->hasDarkAppearance($settings)) {
       unset(

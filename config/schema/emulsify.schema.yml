@@ -41,6 +41,9 @@ emulsify.settings:
     favicon_theme_color:
       type: string
       label: 'Theme color metadata'
+    favicon_ios_background_custom:
+      type: boolean
+      label: 'Customize iOS icon background color'
     favicon_ios_background_color:
       type: string
       label: 'Icon background color'
@@ -50,6 +53,9 @@ emulsify.settings:
     favicon_ios_icon_name:
       type: string
       label: 'iOS icon name'
+    favicon_android_background_custom:
+      type: boolean
+      label: 'Customize Android icon background color'
     favicon_android_background_color:
       type: string
       label: 'Icon background color'

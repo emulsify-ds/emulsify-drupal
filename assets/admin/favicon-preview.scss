@@ -1,3 +1,9 @@
+// Admin form-actions styles can override the browser's native hidden rule.
+[data-favicon-dirty-state][hidden],
+[data-favicon-generation-hint][hidden] {
+  display: none !important;
+}
+
 .emulsify-favicon-preview {
   margin-top: 1rem;
   color: inherit;

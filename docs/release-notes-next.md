@@ -48,6 +48,11 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Fixed
 
+- iOS and Android favicon backgrounds follow the browser color unless a
+  platform-specific background is enabled. Saved custom colors remain explicit
+  across later saves and generation. The unsaved-changes warning stays hidden
+  on an unchanged form under Claro and Gin instead of being forced visible by
+  administration-theme action styling.
 - Social preview platform/device controls update immediately with native or
   existing jQuery select enhancements. Preview controls use Form API styling
   from the administration theme, and large social images are scaled within

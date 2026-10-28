@@ -76,6 +76,7 @@ SVG;
 $settings = FaviconSettings::normalize([
   'favicon_package_enabled' => TRUE,
   'favicon_background_color' => '#abcdef',
+  'favicon_android_background_custom' => TRUE,
   'favicon_android_background_color' => '#654321',
 ], (string) \Drupal::config('system.site')->get('name'));
 

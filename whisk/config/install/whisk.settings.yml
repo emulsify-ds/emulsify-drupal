@@ -9,9 +9,11 @@ favicon_dark_source_svg: ''
 favicon_dark_source_filename: ''
 favicon_background_color: '#ffffff'
 favicon_theme_color: '#ffffff'
+favicon_ios_background_custom: false
 favicon_ios_background_color: '#ffffff'
 favicon_ios_padding: 16
 favicon_ios_icon_name: ''
+favicon_android_background_custom: false
 favicon_android_background_color: '#ffffff'
 favicon_android_padding: 20
 favicon_android_maskable_enabled: true
