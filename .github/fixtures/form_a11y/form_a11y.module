@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Supports accessibility fixtures in the disposable readiness site.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_page_attachments().
+ */
+function form_a11y_page_attachments(array &$attachments): void {
+  $attachments['#attached']['library'][] = 'form_a11y/fixture';
+}

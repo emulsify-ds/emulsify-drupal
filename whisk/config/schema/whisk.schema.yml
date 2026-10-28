@@ -18,12 +18,32 @@ whisk.settings:
     favicon_source_filename:
       type: string
       label: 'Source SVG filename'
+    favicon_dark_mode:
+      type: string
+      label: 'Dark-mode icon treatment'
+    favicon_dark_background_color:
+      type: string
+      label: 'Optional dark-mode icon background color'
+    favicon_dark_source_fid:
+      type: sequence
+      label: 'Dark-mode icon file IDs'
+      sequence:
+        type: integer
+    favicon_dark_source_svg:
+      type: text
+      label: 'Portable dark-mode SVG source markup'
+    favicon_dark_source_filename:
+      type: string
+      label: 'Dark-mode source SVG filename'
     favicon_background_color:
       type: string
       label: 'Icon background color'
     favicon_theme_color:
       type: string
       label: 'Theme color metadata'
+    favicon_ios_background_custom:
+      type: boolean
+      label: 'Customize iOS icon background color'
     favicon_ios_background_color:
       type: string
       label: 'Icon background color'
@@ -33,6 +53,9 @@ whisk.settings:
     favicon_ios_icon_name:
       type: string
       label: 'iOS icon name'
+    favicon_android_background_custom:
+      type: boolean
+      label: 'Customize Android icon background color'
     favicon_android_background_color:
       type: string
       label: 'Icon background color'
@@ -60,3 +83,35 @@ whisk.settings:
     favicon_package_generated_at:
       type: integer
       label: 'Generated favicon package timestamp'
+    social_share_image_enabled:
+      type: boolean
+      label: 'Enable default social share image'
+    social_share_image_path:
+      type: string
+      label: 'Social share image path'
+    social_share_image_fid:
+      type: sequence
+      label: 'Social share image file IDs'
+      sequence:
+        type: integer
+    social_share_image_alt:
+      type: string
+      label: 'Social share image alternative text'
+    social_share_image_title:
+      type: string
+      label: 'Default social share title'
+    social_share_image_description:
+      type: text
+      label: 'Default social share description'
+    social_share_image_url:
+      type: string
+      label: 'Default social share page URL'
+    media_embed_privacy_mode:
+      type: boolean
+      label: 'Reduce YouTube and Vimeo player tracking'
+    media_embed_click_to_load:
+      type: boolean
+      label: 'Load video players only after a click'
+    media_embed_poster:
+      type: string
+      label: 'Video poster image source'

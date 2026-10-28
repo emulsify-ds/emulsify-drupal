@@ -8,6 +8,14 @@ const repoRoot = path.resolve(__dirname, '../..');
 const ROOT_CHECKS = [
   {
     relativePath: 'README.md',
+    heading: 'Build the parent theme assets',
+    packagePath: 'package.json',
+    packageLabel: 'the root project',
+    includeInlineCode: true,
+    expectedScripts: ['build', 'develop', 'lint'],
+  },
+  {
+    relativePath: 'README.md',
     heading: 'Generate a child theme',
     packagePath: 'whisk/package.json',
     packageLabel: 'generated child themes',
@@ -59,6 +67,16 @@ const ROOT_CHECKS = [
 ];
 
 const THEME_DOC_CHECKS = [
+  ...[
+    'AGENTS.md',
+    'docs/drupal-integration.md',
+    '.agents/skills/emulsify-drupal-integration/SKILL.md',
+  ].map((relativePath) => ({
+    relativePath,
+    packagePath: 'package.json',
+    packageLabel: 'the theme',
+    includeInlineCode: true,
+  })),
   {
     relativePath: 'README.md',
     packagePath: 'package.json',

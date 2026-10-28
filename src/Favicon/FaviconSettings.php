@@ -20,11 +20,18 @@ final class FaviconSettings {
     'favicon_source_fid' => [],
     'favicon_source_svg' => '',
     'favicon_source_filename' => '',
+    'favicon_dark_mode' => 'none',
+    'favicon_dark_background_color' => '',
+    'favicon_dark_source_fid' => [],
+    'favicon_dark_source_svg' => '',
+    'favicon_dark_source_filename' => '',
     'favicon_background_color' => '#ffffff',
     'favicon_theme_color' => '#ffffff',
+    'favicon_ios_background_custom' => FALSE,
     'favicon_ios_background_color' => '#ffffff',
     'favicon_ios_padding' => 16,
     'favicon_ios_icon_name' => '',
+    'favicon_android_background_custom' => FALSE,
     'favicon_android_background_color' => '#ffffff',
     'favicon_android_padding' => 20,
     'favicon_android_maskable_enabled' => TRUE,
@@ -65,12 +72,30 @@ final class FaviconSettings {
     $normalized['favicon_source_fid'] = self::normalizeFileIds($normalized['favicon_source_fid']);
     $normalized['favicon_source_svg'] = trim((string) $normalized['favicon_source_svg']);
     $normalized['favicon_source_filename'] = trim((string) $normalized['favicon_source_filename']);
+    $normalized['favicon_dark_mode'] = in_array($normalized['favicon_dark_mode'], ['none', 'invert', 'alternate'], TRUE)
+      ? $normalized['favicon_dark_mode']
+      : 'none';
+    $normalized['favicon_dark_background_color'] = self::normalizeOptionalColor($normalized['favicon_dark_background_color']);
+    $normalized['favicon_dark_source_fid'] = self::normalizeFileIds($normalized['favicon_dark_source_fid']);
+    $normalized['favicon_dark_source_svg'] = trim((string) $normalized['favicon_dark_source_svg']);
+    $normalized['favicon_dark_source_filename'] = trim((string) $normalized['favicon_dark_source_filename']);
     $normalized['favicon_ios_padding'] = self::clampPadding($normalized['favicon_ios_padding']);
     $normalized['favicon_android_padding'] = self::clampPadding($normalized['favicon_android_padding']);
     $normalized['favicon_background_color'] = self::normalizeColor($normalized['favicon_background_color']);
-    $normalized['favicon_ios_background_color'] = self::normalizeColor($normalized['favicon_ios_background_color']);
     $normalized['favicon_ios_icon_name'] = trim((string) $normalized['favicon_ios_icon_name']);
-    $normalized['favicon_android_background_color'] = self::normalizeColor($normalized['favicon_android_background_color']);
+    foreach (['ios', 'android'] as $platform) {
+      $custom_key = 'favicon_' . $platform . '_background_custom';
+      $color_key = 'favicon_' . $platform . '_background_color';
+      // Older themes saved white defaults without recording customization.
+      // Preserve non-default legacy colors, then retain explicit intent on save.
+      $legacy_color = self::normalizeOptionalColor($normalized[$color_key]);
+      $normalized[$custom_key] = isset($settings[$custom_key])
+        ? (bool) $settings[$custom_key]
+        : ($legacy_color !== '' && $legacy_color !== '#ffffff');
+      $normalized[$color_key] = $normalized[$custom_key]
+        ? self::normalizeColor($normalized[$color_key])
+        : $normalized['favicon_background_color'];
+    }
     // The Android background color also drives the manifest and theme-color
     // metadata so the UI only needs one color control for that platform.
     $normalized['favicon_theme_color'] = $normalized['favicon_android_background_color'];
@@ -200,6 +225,16 @@ final class FaviconSettings {
     }
 
     return '#ffffff';
+  }
+
+  /**
+   * Normalizes an optional hex color without enabling it for invalid input.
+   */
+  private static function normalizeOptionalColor(mixed $value): string {
+    $candidate = strtolower(trim((string) $value));
+    return preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/', $candidate)
+      ? self::normalizeColor($candidate)
+      : '';
   }
 
   /**

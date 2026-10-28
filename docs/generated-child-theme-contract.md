@@ -33,6 +33,12 @@ For each generated child theme, the checks verify:
   display name, machine name, description, source project, source version, and
   Emulsify Core range, and the guides document only npm commands that the
   generated `package.json` exposes.
+- `AGENTS.md`, `docs/drupal-integration.md`, and
+  `.agents/skills/emulsify-drupal-integration/SKILL.md` are present with valid
+  internal documentation links and skill discovery metadata. Token-free AI
+  guidance is copied byte-for-byte during generation, including the hidden
+  skills directory. Projects can customize it after generation; built-theme
+  validation permits those edits. Core and Drush generation must agree.
 - Frontend configuration resolves from the generated child theme or declared
   packages without requiring a starter-owned project asset source directory,
   entrypoint, or build output.
@@ -114,6 +120,9 @@ checks that did run.
   source token, lost project-specific metadata, or documents an npm command the
   generated package does not expose. Fix the Whisk documentation template or
   its generation-only post-processor.
+- **AI guidance:** A guidance file is missing, was changed by Starterkit
+  substitution, contains an invalid skill manifest, or links to a missing file.
+  Check the starter protection rules and the skill's theme-relative links.
 - **Build or Storybook:** Generation and static validation passed, but installed
   tooling could not produce the declared output. Inspect the named npm phase
   and its preserved log artifact.

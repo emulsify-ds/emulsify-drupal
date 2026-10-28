@@ -70,15 +70,17 @@ final class FaviconPreviewBuilder {
    */
   private function buildBrowserMarkup(array $settings, ?File $source_file): string {
     $source_url = Html::escape($this->resolvePreviewSourceUrl('browser', $settings, $source_file));
+    $dark_source_url = Html::escape($this->resolvePreviewSourceUrl('browser_dark', $settings, $source_file));
     $empty_class = $source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
+    $dark_empty_class = $dark_source_url === '' ? ' emulsify-favicon-preview__canvas--empty' : '';
 
     return sprintf(
       '<div class="emulsify-favicon-preview emulsify-favicon-preview--browser" data-favicon-preview-group="browser">'
       . '<p class="emulsify-favicon-preview__summary">Browser tabs use the generated SVG favicon and ICO. These previews show the saved generated assets. Save changes to update them.</p>'
       . '<div class="emulsify-favicon-preview__grid">'
-      . '<div class="emulsify-favicon-preview__card">'
+      . '<div class="emulsify-favicon-preview__card emulsify-favicon-preview__card--light">'
       . '<h4>Light tab</h4>'
-      . '<div class="emulsify-favicon-preview__tab">'
+      . '<div class="emulsify-favicon-preview__tab emulsify-favicon-preview__tab--light">'
       . '<span class="emulsify-favicon-preview__canvas emulsify-favicon-preview__canvas--browser%s" data-preview-canvas="browser" style="--preview-background:transparent; --preview-padding:0%%">'
       . '<span class="emulsify-favicon-preview__art"><img src="%s" alt="Browser favicon preview on a light tab" data-preview-image loading="lazy" /></span>'
       . '</span>'
@@ -98,8 +100,8 @@ final class FaviconPreviewBuilder {
       . '</div>',
       $empty_class,
       $source_url,
-      $empty_class,
-      $source_url,
+      $dark_empty_class,
+      $dark_source_url,
     );
   }
 
@@ -184,6 +186,7 @@ final class FaviconPreviewBuilder {
 
     $filename = match ($platform) {
       'browser' => 'favicon.svg',
+      'browser_dark' => is_file($package_path . '/favicon-dark.svg') ? 'favicon-dark.svg' : 'favicon.svg',
       'ios' => 'apple-touch-icon.png',
       'maskable' => 'web-app-manifest-512x512-maskable.png',
       default => 'web-app-manifest-192x192.png',
@@ -202,7 +205,11 @@ final class FaviconPreviewBuilder {
    * Reads the launcher label from the manifest referenced by the saved package.
    */
   private function resolveAndroidPreviewLabel(array $settings): string {
-    $manifest_path = ($settings['favicon_package_path'] ?? '') . '/site.webmanifest';
+    $package_path = (string) ($settings['favicon_package_path'] ?? '');
+    if (!FaviconPackageGenerator::isManagedPackagePath($package_path, basename(dirname($package_path)))) {
+      return '';
+    }
+    $manifest_path = $package_path . '/site.webmanifest';
     if (!is_readable($manifest_path)) {
       return '';
     }

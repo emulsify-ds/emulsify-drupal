@@ -69,6 +69,16 @@ if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetr
   emulsify_favicon_smoke_fail('GD is required for favicon smoke tests.');
 }
 
+// Pin the existing fixture's site identity, which normalize() uses for the
+// manifest name, and restore the caller's name even when an assertion fails.
+$site_config = \Drupal::configFactory()->getEditable('system.site');
+$original_site_name = $site_name;
+register_shutdown_function(static function () use ($site_config, $original_site_name): void {
+  $site_config->set('name', $original_site_name)->save();
+});
+$site_config->set('name', 'Drush Site-Install')->save();
+$site_name = (string) $site_config->get('name');
+
 // Reset package metadata before invoking the hook so this smoke proves page
 // requests do not create missing package files.
 $config = \Drupal::configFactory()->getEditable($theme_name . '.settings');
@@ -79,9 +89,11 @@ $config
   ->set('favicon_source_filename', 'release-check.svg')
   ->set('favicon_background_color', '#005b99')
   ->set('favicon_theme_color', '#005b99')
+  ->set('favicon_ios_background_custom', TRUE)
   ->set('favicon_ios_background_color', '#ffffff')
   ->set('favicon_ios_padding', 16)
   ->set('favicon_ios_icon_name', 'Emulsify')
+  ->set('favicon_android_background_custom', TRUE)
   ->set('favicon_android_background_color', '#005b99')
   ->set('favicon_android_padding', 20)
   ->set('favicon_android_maskable_enabled', TRUE)
@@ -102,6 +114,7 @@ $generator = new FaviconPackageGenerator(
   \Drupal::service('lock'),
 );
 $settings = emulsify_favicon_smoke_load_settings($theme_name, $site_name);
+emulsify_favicon_smoke_assert(!array_key_exists('favicon_share_image_enabled', $settings), 'Social images must be independent of favicon package settings.');
 $definition = $generator->getPackageDefinition($theme_name, $settings, $svg);
 $realpath = \Drupal::service('file_system')->realpath($definition['path']);
 if ($realpath && is_dir($realpath)) {
@@ -148,6 +161,8 @@ $config
 $realpath = \Drupal::service('file_system')->realpath($result['path']);
 
 emulsify_favicon_smoke_assert((bool) $realpath && is_dir($realpath), "Expected generated favicon package at {$result['path']}.");
+emulsify_favicon_smoke_assert($result['hash'] === 'd08bae75014b', 'The existing favicon fixture package hash changed.');
+emulsify_favicon_smoke_assert($result['path'] === "public://favicon-package/{$theme_name}/d08bae75014b", 'The existing favicon fixture package path changed.');
 
 $expected_files = [
   'favicon.svg',
@@ -164,12 +179,60 @@ foreach ($expected_files as $expected_file) {
   emulsify_favicon_smoke_assert(is_file($realpath . DIRECTORY_SEPARATOR . $expected_file), "Missing generated favicon asset {$expected_file}.");
 }
 
+$actual_files = array_values(array_diff(scandir($realpath), ['.', '..']));
+$sorted_expected_files = $expected_files;
+sort($sorted_expected_files);
+emulsify_favicon_smoke_assert($actual_files === $sorted_expected_files, 'The existing favicon fixture package file list changed.');
+
+$metadata = json_decode(file_get_contents($realpath . '/metadata.json'), TRUE, 512, JSON_THROW_ON_ERROR);
+emulsify_favicon_smoke_assert(($metadata['files'] ?? NULL) === array_slice($expected_files, 0, -1), 'The existing favicon fixture metadata file list changed.');
+emulsify_favicon_smoke_assert(!is_file($realpath . '/share-image.png'), 'The existing favicon fixture must not generate a social image without opting in.');
+emulsify_favicon_smoke_assert(hash_file('sha256', $realpath . '/favicon.svg') === '49e60516a43d2137b2d7e396fb242c3d69de7de012d0bbd47ecb3fe6c970e526', 'The existing favicon fixture SVG bytes changed.');
+
+// Raster bytes vary between GD/Imagick versions; their dimensions are stable.
+foreach ([
+  'favicon.ico' => 32,
+  'favicon-96x96.png' => 96,
+  'apple-touch-icon.png' => 180,
+  'web-app-manifest-192x192.png' => 192,
+  'web-app-manifest-512x512.png' => 512,
+  'web-app-manifest-512x512-maskable.png' => 512,
+] as $filename => $size) {
+  $dimensions = getimagesize($realpath . '/' . $filename);
+  emulsify_favicon_smoke_assert(is_array($dimensions) && $dimensions[0] === $size && $dimensions[1] === $size, "Expected {$filename} to be {$size}x{$size}.");
+}
+
 $manifest = file_get_contents($realpath . DIRECTORY_SEPARATOR . 'site.webmanifest');
 emulsify_favicon_smoke_assert(is_string($manifest), 'Unable to read generated site.webmanifest.');
-$manifest_data = json_decode($manifest, TRUE);
-emulsify_favicon_smoke_assert(is_array($manifest_data), 'Generated site.webmanifest is not valid JSON.');
-emulsify_favicon_smoke_assert(($manifest_data['display'] ?? '') === 'standalone', 'Generated site.webmanifest is missing the standalone display mode.');
-emulsify_favicon_smoke_assert(($manifest_data['theme_color'] ?? '') === '#005b99', 'Generated site.webmanifest is missing the expected theme color.');
+$package_url = \Drupal::service('file_url_generator')->generateString($result['path']);
+$expected_manifest = [
+  'name' => 'Drush Site-Install',
+  'short_name' => 'Emulsify',
+  'icons' => [
+    [
+      'src' => $package_url . '/web-app-manifest-192x192.png',
+      'sizes' => '192x192',
+      'type' => 'image/png',
+      'purpose' => 'any',
+    ],
+    [
+      'src' => $package_url . '/web-app-manifest-512x512.png',
+      'sizes' => '512x512',
+      'type' => 'image/png',
+      'purpose' => 'any',
+    ],
+    [
+      'src' => $package_url . '/web-app-manifest-512x512-maskable.png',
+      'sizes' => '512x512',
+      'type' => 'image/png',
+      'purpose' => 'maskable',
+    ],
+  ],
+  'theme_color' => '#005b99',
+  'background_color' => '#005b99',
+  'display' => 'standalone',
+];
+emulsify_favicon_smoke_assert($manifest === json_encode($expected_manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR), 'The existing favicon fixture manifest bytes changed.');
 
 $attachments = [
   '#attached' => [
@@ -179,26 +242,17 @@ $attachments = [
 ];
 $hook_handler->pageAttachmentsAlter($attachments);
 
-$rels = [];
-foreach ($attachments['#attached']['html_head_link'] as $item) {
-  $rel = $item[0]['rel'] ?? NULL;
-  if (is_string($rel)) {
-    $rels[] = $rel;
-  }
-}
-foreach (['icon', 'apple-touch-icon', 'manifest'] as $required_rel) {
-  emulsify_favicon_smoke_assert(in_array($required_rel, $rels, TRUE), "Missing {$required_rel} head attachment.");
-}
-
-$meta_names = [];
-foreach ($attachments['#attached']['html_head'] as $item) {
-  $name = $item[0]['#attributes']['name'] ?? NULL;
-  if (is_string($name)) {
-    $meta_names[] = $name;
-  }
-}
-foreach (['theme-color', 'apple-mobile-web-app-title'] as $required_meta) {
-  emulsify_favicon_smoke_assert(in_array($required_meta, $meta_names, TRUE), "Missing {$required_meta} meta tag.");
-}
+$expected_links = [
+  [['rel' => 'icon', 'href' => $package_url . '/favicon.ico', 'sizes' => 'any'], FALSE],
+  [['rel' => 'icon', 'type' => 'image/svg+xml', 'href' => $package_url . '/favicon.svg'], FALSE],
+  [['rel' => 'apple-touch-icon', 'href' => $package_url . '/apple-touch-icon.png'], FALSE],
+  [['rel' => 'manifest', 'href' => $package_url . '/site.webmanifest'], FALSE],
+];
+$expected_meta = [
+  [['#tag' => 'meta', '#attributes' => ['name' => 'theme-color', 'content' => '#005b99']], 'emulsify_favicon_theme_color'],
+  [['#tag' => 'meta', '#attributes' => ['name' => 'apple-mobile-web-app-title', 'content' => 'Emulsify']], 'emulsify_favicon_ios_title'],
+];
+emulsify_favicon_smoke_assert($attachments['#attached']['html_head_link'] === $expected_links, 'The existing favicon fixture head links changed.');
+emulsify_favicon_smoke_assert($attachments['#attached']['html_head'] === $expected_meta, 'The existing favicon fixture head metadata changed.');
 
 fwrite(STDOUT, "Verified favicon package attachment without runtime generation at {$realpath}.\n");

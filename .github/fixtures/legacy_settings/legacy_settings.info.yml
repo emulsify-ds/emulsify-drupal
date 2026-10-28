@@ -1,0 +1,7 @@
+name: Legacy settings fixture
+type: theme
+description: Tests the identical copied settings and schema from Whisk 7.0.0 and 7.1.0.
+base theme: emulsify
+core_version_requirement: '^11.3 || ^12'
+regions:
+  content: Content

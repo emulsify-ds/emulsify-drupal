@@ -29,12 +29,12 @@
 {% endif %}
 {{ content }}
 {% if errors %}
-  <div>
+  <div id="{{ element['#id'] }}--error" class="form-item--error-message">
     {{ errors }}
   </div>
 {% endif %}
 {% if description %}
-  <div{{ description_attributes }}>
+  <div{{ description_attributes.addClass('description') }}>
     {{ description }}
   </div>
 {% endif %}

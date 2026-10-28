@@ -1,0 +1,5 @@
+/* Fixture navigation needs usable targets even when the theme has no menu CSS. */
+[data-menu-fixture] {
+  display: inline-block;
+  min-height: 24px;
+}

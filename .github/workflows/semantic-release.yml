@@ -37,6 +37,18 @@ jobs:
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
 
+      - name: Build and verify parent theme assets
+        run: |
+          npm run build
+          git diff --exit-code -- dist
+          test -z "$(git status --porcelain --untracked-files=all -- dist)"
+
+      - name: Lint parent theme JavaScript and Sass
+        run: npm run lint:js && npm run lint:styles
+
+      - name: Test parent theme assets
+        run: node --test .github/scripts/parent-assets.test.cjs .github/scripts/favicon-preview.test.cjs .github/scripts/social-share-preview.test.cjs
+
       - name: Audit runtime npm dependencies
         run: npm audit --omit=dev
 
@@ -73,10 +85,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install release plugins from lockfile
+        run: npm ci --ignore-scripts
+
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
         with:
-          semantic_version: 25.0.3
+          semantic_version: 25.0.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: "0"

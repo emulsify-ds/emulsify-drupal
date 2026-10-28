@@ -1,0 +1,2623 @@
+{
+  "checkedAt": "2026-10-21T14:14:59.376Z",
+  "scope": "Fresh Whisk installation from the unchanged manifest, audited with --omit=dev",
+  "runtime": {
+    "node": "v24.19.0",
+    "npm": "11.17.0",
+    "nodeExecutable": "/Users/callinmullaney/.nvm/versions/node/v24.19.0/bin/node",
+    "npmCli": "/Users/callinmullaney/.nvm/versions/node/v24.19.0/lib/node_modules/npm/bin/npm-cli.js"
+  },
+  "manifest": {
+    "source": "whisk/package.json",
+    "sha256": "4447a61426e1df842974156f19974cc6a0c1b3477adce148dd067e84f44469e4",
+    "engines": {
+      "node": ">=24"
+    },
+    "dependencies": {
+      "@emulsify/core": "^4.5.0"
+    },
+    "overrides": {
+      "glob": "^13.0.6",
+      "locutus": "^3.0.36",
+      "minimatch@3.0.x": "^3.1.5"
+    },
+    "unchanged": true
+  },
+  "temporaryInstallation": {
+    "directory": "/private/tmp/emulsify-whisk-audit-2026-10-21-node24-JloWK4",
+    "copiedFilesAtStart": [
+      "package.json"
+    ],
+    "sourceNodeModulesCopied": false,
+    "sourceLockfileCopied": false,
+    "installCommand": "npm install --ignore-scripts",
+    "exactInstallCommand": [
+      "/Users/callinmullaney/.nvm/versions/node/v24.19.0/bin/node",
+      "/Users/callinmullaney/.nvm/versions/node/v24.19.0/lib/node_modules/npm/bin/npm-cli.js",
+      "install",
+      "--ignore-scripts"
+    ],
+    "exactAuditCommand": [
+      "/Users/callinmullaney/.nvm/versions/node/v24.19.0/bin/node",
+      "/Users/callinmullaney/.nvm/versions/node/v24.19.0/lib/node_modules/npm/bin/npm-cli.js",
+      "audit",
+      "--omit=dev",
+      "--json"
+    ],
+    "pathPrefix": "/Users/callinmullaney/.nvm/versions/node/v24.19.0/bin",
+    "installExitCode": 0,
+    "installStdout": "\nadded 1114 packages, and audited 1115 packages in 35s\n\n267 packages are looking for funding\n  run `npm fund` for details\n\n44 vulnerabilities (19 moderate, 23 high, 2 critical)\n\nTo address issues that do not require attention, run:\n  npm audit fix\n\nSome issues need review, and may require choosing\na different dependency.\n\nRun `npm audit` for details.\n",
+    "installStderr": "npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation\nnpm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.\n",
+    "runtimeEvidencePath": "/private/tmp/emulsify-whisk-audit-2026-10-21-node24-JloWK4/runtime.json",
+    "installResultEvidencePath": "/private/tmp/emulsify-whisk-audit-2026-10-21-node24-JloWK4/install-result.json",
+    "auditResultEvidencePath": "/private/tmp/emulsify-whisk-audit-2026-10-21-node24-JloWK4/audit-result.json",
+    "lockfile": {
+      "path": "/private/tmp/emulsify-whisk-audit-2026-10-21-node24-JloWK4/package-lock.json",
+      "sha256": "386e2fb8c08fc13e7e12c405a5d68ed409b0aa7e9bfc26857577b91a8326d84c",
+      "lockfileVersion": 3,
+      "bytes": 630906,
+      "retainedOutsideStarter": true
+    },
+    "networkNote": "The successful install and audit used approved registry network access. Both invoke the absolute Node 24.19.0 executable and its npm 11.17.0 CLI, with that Node bin directory first in PATH."
+  },
+  "audit": {
+    "command": "npm audit --omit=dev --json",
+    "exitCode": 1,
+    "stdout": "docs/evidence/dependency-audit-2026-10-21/whisk-npm.json",
+    "stdoutBytes": 21093,
+    "stderr": "",
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 19,
+        "high": 23,
+        "critical": 2,
+        "total": 44
+      },
+      "dependencies": {
+        "prod": 1101,
+        "dev": 0,
+        "optional": 137,
+        "peer": 5,
+        "peerOptional": 0,
+        "total": 1242
+      }
+    },
+    "uniqueAdvisoryCount": 9
+  },
+  "installedCore": {
+    "version": "4.5.0",
+    "engines": {
+      "node": ">=24.13.0"
+    },
+    "dependencies": {
+      "@babel/core": "^7.29.7",
+      "@babel/eslint-parser": "^7.29.7",
+      "@babel/parser": "^7.29.8",
+      "@babel/preset-env": "^7.29.7",
+      "@emulsify/cli": "^2.4.1",
+      "@eslint/js": "^9.39.5",
+      "@mlnop/vite-plugin-sass-glob-import": "^6.2.0",
+      "@storybook/addon-a11y": "^10.6.0",
+      "@storybook/addon-links": "^10.6.0",
+      "@storybook/addon-themes": "^10.6.0",
+      "@storybook/react": "^10.6.0",
+      "@storybook/react-vite": "^10.6.0",
+      "@vituum/vite-plugin-twig": "^2.0.1",
+      "autoprefixer": "^10.5.6",
+      "axe-core": "^4.13.0",
+      "babel-preset-minify": "^0.5.2",
+      "concurrently": "^10.0.5",
+      "eslint": "^9.39.5",
+      "eslint-config-prettier": "^10.1.8",
+      "eslint-plugin-import": "^2.32.0",
+      "eslint-plugin-jest": "^29.16.6",
+      "eslint-plugin-prettier": "^5.5.6",
+      "eslint-plugin-security": "^4.0.1",
+      "eslint-plugin-storybook": "^10.6.0",
+      "glob": "^13.0.6",
+      "jest": "^30.5.1",
+      "jest-environment-jsdom": "^30.5.1",
+      "js-yaml": "^5.4.1",
+      "normalize.css": "^8.0.1",
+      "open-cli": "^9.0.0",
+      "pa11y": "^9.1.1",
+      "postcss": "^8.5.28",
+      "postcss-scss": "^4.0.9",
+      "sass": "^1.104.0",
+      "storybook": "^10.6.0",
+      "stylelint": "^17.15.0",
+      "stylelint-config-standard-scss": "^17.0.0",
+      "stylelint-prettier": "^5.0.3",
+      "stylelint-selector-bem-pattern": "^5.0.0",
+      "twig": "^3.0.0",
+      "twig-drupal-filters": "^3.2.0",
+      "vite": "^8.3.0"
+    }
+  },
+  "installedVulnerablePackages": [
+    {
+      "name": "@emulsify/cli",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/@emulsify/cli",
+          "version": "2.4.1",
+          "engines": {
+            "node": ">=24"
+          },
+          "dependencies": {
+            "@inquirer/prompts": "^8.7.0",
+            "ajv": "^8.20.0",
+            "ajv-formats": "^3.0.1",
+            "boxen": "^8.0.1",
+            "colorette": "^2.0.20",
+            "commander": "^15.0.0",
+            "consola": "^3.4.2",
+            "fs-extra": "^11.4.0",
+            "progress": "^2.0.3",
+            "simple-git": "^3.36.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@emulsify/core",
+      "severity": "high",
+      "isDirect": true,
+      "auditRange": "*",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/@emulsify/core",
+          "version": "4.5.0",
+          "engines": {
+            "node": ">=24.13.0"
+          },
+          "dependencies": {
+            "@babel/core": "^7.29.7",
+            "@babel/eslint-parser": "^7.29.7",
+            "@babel/parser": "^7.29.8",
+            "@babel/preset-env": "^7.29.7",
+            "@emulsify/cli": "^2.4.1",
+            "@eslint/js": "^9.39.5",
+            "@mlnop/vite-plugin-sass-glob-import": "^6.2.0",
+            "@storybook/addon-a11y": "^10.6.0",
+            "@storybook/addon-links": "^10.6.0",
+            "@storybook/addon-themes": "^10.6.0",
+            "@storybook/react": "^10.6.0",
+            "@storybook/react-vite": "^10.6.0",
+            "@vituum/vite-plugin-twig": "^2.0.1",
+            "autoprefixer": "^10.5.6",
+            "axe-core": "^4.13.0",
+            "babel-preset-minify": "^0.5.2",
+            "concurrently": "^10.0.5",
+            "eslint": "^9.39.5",
+            "eslint-config-prettier": "^10.1.8",
+            "eslint-plugin-import": "^2.32.0",
+            "eslint-plugin-jest": "^29.16.6",
+            "eslint-plugin-prettier": "^5.5.6",
+            "eslint-plugin-security": "^4.0.1",
+            "eslint-plugin-storybook": "^10.6.0",
+            "glob": "^13.0.6",
+            "jest": "^30.5.1",
+            "jest-environment-jsdom": "^30.5.1",
+            "js-yaml": "^5.4.1",
+            "normalize.css": "^8.0.1",
+            "open-cli": "^9.0.0",
+            "pa11y": "^9.1.1",
+            "postcss": "^8.5.28",
+            "postcss-scss": "^4.0.9",
+            "sass": "^1.104.0",
+            "storybook": "^10.6.0",
+            "stylelint": "^17.15.0",
+            "stylelint-config-standard-scss": "^17.0.0",
+            "stylelint-prettier": "^5.0.3",
+            "stylelint-selector-bem-pattern": "^5.0.0",
+            "twig": "^3.0.0",
+            "twig-drupal-filters": "^3.2.0",
+            "vite": "^8.3.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "react": "^18.0.0 || ^19.0.0",
+            "react-dom": "^18.0.0 || ^19.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@istanbuljs/load-nyc-config",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@istanbuljs/load-nyc-config",
+          "version": "1.1.0",
+          "engines": {
+            "node": ">=8"
+          },
+          "dependencies": {
+            "camelcase": "^5.3.1",
+            "find-up": "^4.1.0",
+            "get-package-type": "^0.1.0",
+            "js-yaml": "^3.13.1",
+            "resolve-from": "^5.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@jest/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@jest/core",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/console": "30.5.2",
+            "@jest/pattern": "30.5.0",
+            "@jest/reporters": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/transform": "30.5.2",
+            "@jest/types": "30.5.1",
+            "@types/node": "*",
+            "ansi-escapes": "^4.3.2",
+            "chalk": "^4.1.2",
+            "ci-info": "^4.2.0",
+            "exit-x": "^0.2.2",
+            "fast-json-stable-stringify": "^2.1.0",
+            "graceful-fs": "^4.2.11",
+            "jest-changed-files": "30.5.1",
+            "jest-config": "30.5.2",
+            "jest-haste-map": "30.5.1",
+            "jest-message-util": "30.5.1",
+            "jest-regex-util": "30.5.0",
+            "jest-resolve": "30.5.1",
+            "jest-resolve-dependencies": "30.5.2",
+            "jest-runner": "30.5.2",
+            "jest-runtime": "30.5.2",
+            "jest-snapshot": "30.5.2",
+            "jest-util": "30.5.1",
+            "jest-validate": "30.5.1",
+            "jest-watcher": "30.5.2",
+            "pretty-format": "30.5.1",
+            "slash": "^3.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "node-notifier": "^8.0.1 || ^9.0.0 || ^10.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@jest/expect",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@jest/expect",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "expect": "30.5.2",
+            "jest-snapshot": "30.5.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@jest/globals",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=28.0.0-alpha.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@jest/globals",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/environment": "30.5.2",
+            "@jest/expect": "30.5.2",
+            "@jest/types": "30.5.1",
+            "jest-mock": "30.5.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@jest/reporters",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@jest/reporters",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@bcoe/v8-coverage": "^0.2.3",
+            "@jest/console": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/transform": "30.5.2",
+            "@jest/types": "30.5.1",
+            "@jridgewell/trace-mapping": "^0.3.31",
+            "@types/node": "*",
+            "chalk": "^4.1.2",
+            "collect-v8-coverage": "^1.0.2",
+            "exit-x": "^0.2.2",
+            "glob": "^13.0.6",
+            "graceful-fs": "^4.2.11",
+            "istanbul-lib-coverage": "^3.0.0",
+            "istanbul-lib-instrument": "^6.0.0",
+            "istanbul-lib-report": "^3.0.0",
+            "istanbul-lib-source-maps": "^5.0.0",
+            "istanbul-reports": "^3.1.3",
+            "jest-message-util": "30.5.1",
+            "jest-util": "30.5.1",
+            "jest-worker": "30.5.1",
+            "slash": "^3.0.0",
+            "string-length": "^4.0.2",
+            "v8-to-istanbul": "^9.0.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "node-notifier": "^8.0.1 || ^9.0.0 || ^10.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@jest/transform",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@jest/transform",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@babel/core": "^7.27.4",
+            "@jest/types": "30.5.1",
+            "@jridgewell/trace-mapping": "^0.3.31",
+            "babel-plugin-istanbul": "^8.0.0",
+            "chalk": "^4.1.2",
+            "convert-source-map": "^2.0.0",
+            "fast-json-stable-stringify": "^2.1.0",
+            "graceful-fs": "^4.2.11",
+            "jest-haste-map": "30.5.1",
+            "jest-regex-util": "30.5.0",
+            "jest-util": "30.5.1",
+            "pirates": "^4.0.7",
+            "slash": "^3.0.0",
+            "write-file-atomic": "^5.0.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@puppeteer/browsers",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@puppeteer/browsers",
+          "version": "2.13.2",
+          "engines": {
+            "node": ">=18"
+          },
+          "dependencies": {
+            "debug": "^4.4.3",
+            "extract-zip": "^2.0.1",
+            "progress": "^2.0.3",
+            "proxy-agent": "^6.5.0",
+            "tar-fs": "^3.1.1",
+            "yargs": "^17.7.2",
+            "semver": "^7.7.4"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "@simple-git/argv-parser",
+      "severity": "critical",
+      "isDirect": false,
+      "auditRange": "<2.0.1",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/@simple-git/argv-parser",
+          "version": "1.1.1",
+          "engines": {},
+          "dependencies": {
+            "@simple-git/args-pathspec": "^1.0.3"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "argparse",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": "1.0.0 - 1.0.10",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@istanbuljs/load-nyc-config/node_modules/argparse",
+          "version": "1.0.10",
+          "engines": {},
+          "dependencies": {
+            "sprintf-js": "~1.0.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "babel-jest",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/babel-jest",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/transform": "30.5.2",
+            "@types/babel__core": "^7.20.5",
+            "babel-plugin-istanbul": "^8.0.0",
+            "babel-preset-jest": "30.5.0",
+            "chalk": "^4.1.2",
+            "graceful-fs": "^4.2.11",
+            "slash": "^3.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "@babel/core": "^7.11.0 || ^8.0.0-0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "babel-plugin-istanbul",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=6.0.0-beta.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/babel-plugin-istanbul",
+          "version": "8.0.0",
+          "engines": {
+            "node": ">=18"
+          },
+          "dependencies": {
+            "@babel/helper-plugin-utils": "^7.0.0",
+            "@istanbuljs/load-nyc-config": "^1.0.0",
+            "@istanbuljs/schema": "^0.1.3",
+            "istanbul-lib-instrument": "^6.0.2",
+            "test-exclude": "^7.0.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "basic-ftp",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "<=6.2.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/basic-ftp",
+          "version": "5.3.1",
+          "engines": {
+            "node": ">=10.0.0"
+          },
+          "dependencies": {},
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/braces",
+          "version": "3.0.3",
+          "engines": {
+            "node": ">=8"
+          },
+          "dependencies": {
+            "fill-range": "^7.1.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "extract-zip",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/extract-zip",
+          "version": "2.0.1",
+          "engines": {
+            "node": ">= 10.17.0"
+          },
+          "dependencies": {
+            "debug": "^4.1.1",
+            "get-stream": "^5.1.0",
+            "yauzl": "^2.10.0"
+          },
+          "optionalDependencies": {
+            "@types/yauzl": "^2.9.1"
+          },
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/fast-glob",
+          "version": "3.3.3",
+          "engines": {
+            "node": ">=8.6.0"
+          },
+          "dependencies": {
+            "@nodelib/fs.stat": "^2.0.2",
+            "@nodelib/fs.walk": "^1.2.3",
+            "glob-parent": "^5.1.2",
+            "merge2": "^1.3.0",
+            "micromatch": "^4.0.8"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "get-uri",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=5.0.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/get-uri",
+          "version": "6.0.5",
+          "engines": {
+            "node": ">= 14"
+          },
+          "dependencies": {
+            "basic-ftp": "^5.0.2",
+            "data-uri-to-buffer": "^6.0.2",
+            "debug": "^4.3.4"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "globby",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=8.0.0",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/globby",
+          "version": "16.2.4",
+          "engines": {
+            "node": ">=20"
+          },
+          "dependencies": {
+            "@sindresorhus/merge-streams": "^4.0.0",
+            "fast-glob": "^3.3.3",
+            "ignore": "^7.0.5",
+            "is-path-inside": "^4.0.0",
+            "micromatch": "^4.0.8",
+            "slash": "^5.1.0",
+            "unicorn-magic": "^0.4.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "jest",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/core": "30.5.2",
+            "@jest/types": "30.5.1",
+            "import-local": "^3.2.0",
+            "jest-cli": "30.5.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "node-notifier": "^8.0.1 || ^9.0.0 || ^10.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "jest-circus",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.2.4",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-circus",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/environment": "30.5.2",
+            "@jest/expect": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/types": "30.5.1",
+            "@types/node": "*",
+            "chalk": "^4.1.2",
+            "co": "^4.6.0",
+            "dedent": "^1.6.0",
+            "is-generator-fn": "^2.1.0",
+            "jest-each": "30.5.2",
+            "jest-matcher-utils": "30.5.2",
+            "jest-message-util": "30.5.1",
+            "jest-runtime": "30.5.2",
+            "jest-snapshot": "30.5.2",
+            "jest-util": "30.5.1",
+            "p-limit": "^3.1.0",
+            "pretty-format": "30.5.1",
+            "pure-rand": "^7.0.0",
+            "slash": "^3.0.0",
+            "stack-utils": "^2.0.6"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "jest-cli",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-cli",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/core": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/types": "30.5.1",
+            "chalk": "^4.1.2",
+            "exit-x": "^0.2.2",
+            "import-local": "^3.2.0",
+            "jest-config": "30.5.2",
+            "jest-util": "30.5.1",
+            "jest-validate": "30.5.1",
+            "yargs": "^17.7.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "node-notifier": "^8.0.1 || ^9.0.0 || ^10.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "jest-config",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-config",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@babel/core": "^7.27.4",
+            "@jest/get-type": "30.5.0",
+            "@jest/pattern": "30.5.0",
+            "@jest/test-sequencer": "30.5.2",
+            "@jest/types": "30.5.1",
+            "babel-jest": "30.5.2",
+            "chalk": "^4.1.2",
+            "ci-info": "^4.2.0",
+            "deepmerge": "^4.3.1",
+            "glob": "^13.0.6",
+            "graceful-fs": "^4.2.11",
+            "jest-circus": "30.5.2",
+            "jest-docblock": "30.5.0",
+            "jest-environment-node": "30.5.2",
+            "jest-regex-util": "30.5.0",
+            "jest-resolve": "30.5.1",
+            "jest-runner": "30.5.2",
+            "jest-util": "30.5.1",
+            "jest-validate": "30.5.1",
+            "parse-json": "^5.2.0",
+            "pretty-format": "30.5.1",
+            "slash": "^3.0.0",
+            "strip-json-comments": "^3.1.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "@types/node": "*",
+            "esbuild-register": ">=3.4.0",
+            "ts-node": ">=9.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "jest-resolve-dependencies",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=27.0.0-next.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-resolve-dependencies",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "jest-regex-util": "30.5.0",
+            "jest-snapshot": "30.5.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "jest-runner",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-runner",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/console": "30.5.2",
+            "@jest/environment": "30.5.2",
+            "@jest/source-map": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/transform": "30.5.2",
+            "@jest/types": "30.5.1",
+            "@types/node": "*",
+            "chalk": "^4.1.2",
+            "emittery": "^0.13.1",
+            "exit-x": "^0.2.2",
+            "graceful-fs": "^4.2.11",
+            "jest-docblock": "30.5.0",
+            "jest-environment-node": "30.5.2",
+            "jest-haste-map": "30.5.1",
+            "jest-leak-detector": "30.5.1",
+            "jest-message-util": "30.5.1",
+            "jest-resolve": "30.5.1",
+            "jest-runtime": "30.5.2",
+            "jest-util": "30.5.1",
+            "jest-watcher": "30.5.2",
+            "jest-worker": "30.5.1",
+            "p-limit": "^3.1.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "jest-runtime",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=25.1.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-runtime",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@jest/environment": "30.5.2",
+            "@jest/fake-timers": "30.5.2",
+            "@jest/globals": "30.5.2",
+            "@jest/source-map": "30.5.2",
+            "@jest/test-result": "30.5.2",
+            "@jest/transform": "30.5.2",
+            "@jest/types": "30.5.1",
+            "@types/node": "*",
+            "chalk": "^4.1.2",
+            "cjs-module-lexer": "^2.2.0",
+            "collect-v8-coverage": "^1.0.2",
+            "es-module-lexer": "^2.1.0",
+            "glob": "^13.0.6",
+            "graceful-fs": "^4.2.11",
+            "jest-haste-map": "30.5.1",
+            "jest-message-util": "30.5.1",
+            "jest-mock": "30.5.2",
+            "jest-regex-util": "30.5.0",
+            "jest-resolve": "30.5.1",
+            "jest-snapshot": "30.5.2",
+            "jest-util": "30.5.1",
+            "slash": "^3.0.0",
+            "strip-bom": "^4.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "jest-snapshot",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": ">=27.0.0-next.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/jest-snapshot",
+          "version": "30.5.2",
+          "engines": {
+            "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+          },
+          "dependencies": {
+            "@babel/core": "^7.27.4",
+            "@babel/generator": "^7.27.5",
+            "@babel/plugin-syntax-jsx": "^7.27.1",
+            "@babel/plugin-syntax-typescript": "^7.27.1",
+            "@babel/types": "^7.27.3",
+            "@jest/expect-utils": "30.5.2",
+            "@jest/get-type": "30.5.0",
+            "@jest/snapshot-utils": "30.5.1",
+            "@jest/transform": "30.5.2",
+            "@jest/types": "30.5.1",
+            "babel-preset-current-node-syntax": "^1.2.0",
+            "chalk": "^4.1.2",
+            "expect": "30.5.2",
+            "graceful-fs": "^4.2.11",
+            "jest-diff": "30.5.2",
+            "jest-matcher-utils": "30.5.2",
+            "jest-message-util": "30.5.1",
+            "jest-util": "30.5.1",
+            "pretty-format": "30.5.1",
+            "semver": "^7.7.2",
+            "synckit": "^0.11.8"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "js-yaml",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": "3.2.7 - 3.15.2",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml",
+          "version": "3.15.2",
+          "engines": {},
+          "dependencies": {
+            "argparse": "^1.0.7",
+            "esprima": "^4.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=0.2.0",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/micromatch",
+          "version": "4.0.8",
+          "engines": {
+            "node": ">=8.6"
+          },
+          "dependencies": {
+            "braces": "^3.0.3",
+            "picomatch": "^2.3.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "pa11y",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "7.0.0 - 9.1.1",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/pa11y",
+          "version": "9.1.1",
+          "engines": {
+            "node": ">=20"
+          },
+          "dependencies": {
+            "@pa11y/html_codesniffer": "^2.6.0",
+            "axe-core": "~4.11.1",
+            "bfj": "~9.1.3",
+            "commander": "~14.0.3",
+            "envinfo": "~7.21.0",
+            "kleur": "~4.1.5",
+            "mustache": "~4.2.0",
+            "node.extend": "~2.0.3",
+            "puppeteer": "^24.37.5",
+            "semver": "~7.7.4"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "pac-proxy-agent",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=6.0.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/pac-proxy-agent",
+          "version": "7.2.0",
+          "engines": {
+            "node": ">= 14"
+          },
+          "dependencies": {
+            "@tootallnate/quickjs-emscripten": "^0.23.0",
+            "agent-base": "^7.1.2",
+            "debug": "^4.3.4",
+            "get-uri": "^6.0.1",
+            "http-proxy-agent": "^7.0.0",
+            "https-proxy-agent": "^7.0.6",
+            "pac-resolver": "^7.0.1",
+            "socks-proxy-agent": "^8.0.5"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "proxy-agent",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=6.0.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/proxy-agent",
+          "version": "6.5.0",
+          "engines": {
+            "node": ">= 14"
+          },
+          "dependencies": {
+            "agent-base": "^7.1.2",
+            "debug": "^4.3.4",
+            "http-proxy-agent": "^7.0.1",
+            "https-proxy-agent": "^7.0.6",
+            "lru-cache": "^7.14.1",
+            "pac-proxy-agent": "^7.1.0",
+            "proxy-from-env": "^1.1.0",
+            "socks-proxy-agent": "^8.0.5"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "puppeteer",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "19.8.1 - 24.43.1",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/puppeteer",
+          "version": "24.43.1",
+          "engines": {
+            "node": ">=18"
+          },
+          "dependencies": {
+            "@puppeteer/browsers": "2.13.2",
+            "chromium-bidi": "14.0.0",
+            "cosmiconfig": "^9.0.0",
+            "devtools-protocol": "0.0.1608973",
+            "puppeteer-core": "24.43.1",
+            "typed-query-selector": "^2.12.2"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "puppeteer-core",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "19.8.4 - 24.43.1",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/puppeteer-core",
+          "version": "24.43.1",
+          "engines": {
+            "node": ">=18"
+          },
+          "dependencies": {
+            "@puppeteer/browsers": "2.13.2",
+            "chromium-bidi": "14.0.0",
+            "debug": "^4.4.3",
+            "devtools-protocol": "0.0.1608973",
+            "typed-query-selector": "^2.12.2",
+            "webdriver-bidi-protocol": "0.4.1",
+            "ws": "^8.20.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "simple-git",
+      "severity": "critical",
+      "isDirect": false,
+      "auditRange": "<=4.0.1",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/simple-git",
+          "version": "3.36.0",
+          "engines": {},
+          "dependencies": {
+            "@kwsites/file-exists": "^1.1.1",
+            "@kwsites/promise-deferred": "^1.1.1",
+            "@simple-git/args-pathspec": "^1.0.3",
+            "@simple-git/argv-parser": "^1.1.0",
+            "debug": "^4.4.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/sprintf-js",
+          "version": "1.0.3",
+          "engines": {},
+          "dependencies": {},
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "stylelint",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=7.7.1",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/stylelint",
+          "version": "17.16.0",
+          "engines": {
+            "node": ">=20.19.0"
+          },
+          "dependencies": {
+            "@csstools/css-calc": "^3.3.0",
+            "@csstools/css-parser-algorithms": "^4.0.0",
+            "@csstools/css-syntax-patches-for-csstree": "^1.1.9",
+            "@csstools/css-tokenizer": "^4.0.0",
+            "@csstools/media-query-list-parser": "^5.0.0",
+            "@csstools/selector-resolve-nested": "^4.0.1",
+            "@csstools/selector-specificity": "^6.0.0",
+            "colord": "^2.10.0",
+            "cosmiconfig": "^9.0.2",
+            "css-functions-list": "^3.3.3",
+            "css-tree": "^3.2.1",
+            "debug": "^4.4.3",
+            "fast-glob": "^3.3.3",
+            "fastest-levenshtein": "^1.0.16",
+            "file-entry-cache": "^11.1.5",
+            "global-modules": "^2.0.0",
+            "globby": "^16.2.4",
+            "globjoin": "^0.1.4",
+            "html-tags": "^5.1.0",
+            "ignore": "^7.0.6",
+            "import-meta-resolve": "^4.2.0",
+            "mathml-tag-names": "^4.0.0",
+            "meow": "^14.1.0",
+            "micromatch": "^4.0.8",
+            "normalize-path": "^3.0.0",
+            "picocolors": "^1.1.1",
+            "postcss": "^8.5.26",
+            "postcss-safe-parser": "^7.0.1",
+            "postcss-selector-parser": "^7.1.5",
+            "postcss-value-parser": "^4.2.0",
+            "string-width": "^8.2.2",
+            "supports-hyperlinks": "^4.5.0",
+            "svg-tags": "^1.0.0",
+            "table": "^6.9.0",
+            "write-file-atomic": "^7.0.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {}
+        }
+      ]
+    },
+    {
+      "name": "stylelint-config-recommended",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-config-recommended",
+          "version": "18.0.0",
+          "engines": {
+            "node": ">=20.19.0"
+          },
+          "dependencies": {},
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "stylelint": "^17.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-config-recommended-scss",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-config-recommended-scss",
+          "version": "17.0.1",
+          "engines": {
+            "node": ">=20"
+          },
+          "dependencies": {
+            "postcss-scss": "^4.0.9",
+            "stylelint-config-recommended": "^18.0.0",
+            "stylelint-scss": "^7.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "postcss": "^8.3.3",
+            "stylelint": "^17.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-config-standard",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=16.0.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-config-standard",
+          "version": "40.0.0",
+          "engines": {
+            "node": ">=20.19.0"
+          },
+          "dependencies": {
+            "stylelint-config-recommended": "^18.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "stylelint": "^17.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-config-standard-scss",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": "*",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-config-standard-scss",
+          "version": "17.0.0",
+          "engines": {
+            "node": ">=20"
+          },
+          "dependencies": {
+            "stylelint-config-recommended-scss": "^17.0.0",
+            "stylelint-config-standard": "^40.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "postcss": "^8.3.3",
+            "stylelint": "^17.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-prettier",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=1.0.7",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-prettier",
+          "version": "5.0.3",
+          "engines": {
+            "node": ">=18.12.0"
+          },
+          "dependencies": {
+            "prettier-linter-helpers": "^1.0.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "prettier": ">=3.0.0",
+            "stylelint": ">=16.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-scss",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=2.0.0",
+      "fixAvailable": true,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-scss",
+          "version": "7.3.0",
+          "engines": {
+            "node": ">=20.19.0"
+          },
+          "dependencies": {
+            "@csstools/css-calc": "^3.3.0",
+            "@csstools/css-parser-algorithms": "^4.0.0",
+            "@csstools/css-syntax-patches-for-csstree": "^1.1.8",
+            "@csstools/css-tokenizer": "^4.0.0",
+            "css-tree": "^3.2.1",
+            "is-plain-object": "^5.1.0",
+            "known-css-properties": "^0.37.0",
+            "postcss-media-query-parser": "^0.2.3",
+            "postcss-resolve-nested-selector": "^0.1.6",
+            "postcss-selector-parser": "^7.1.6",
+            "postcss-value-parser": "^4.2.0"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "stylelint": "^16.8.2 || ^17.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "stylelint-selector-bem-pattern",
+      "severity": "high",
+      "isDirect": false,
+      "auditRange": ">=2.1.1",
+      "fixAvailable": false,
+      "installations": [
+        {
+          "path": "node_modules/stylelint-selector-bem-pattern",
+          "version": "5.0.0",
+          "engines": {
+            "node": ">=24.13.0"
+          },
+          "dependencies": {
+            "postcss": "^8.5.6",
+            "postcss-bem-linter": "^4.0.1"
+          },
+          "optionalDependencies": {},
+          "peerDependencies": {
+            "stylelint": "^17.0.0"
+          }
+        }
+      ]
+    }
+  ],
+  "advisories": [
+    {
+      "source": 1241198,
+      "name": "@simple-git/argv-parser",
+      "dependency": "@simple-git/argv-parser",
+      "title": "simple-git: `VISUAL` editor environment variable is omitted from unsafe editor detection",
+      "url": "https://github.com/advisories/GHSA-v5rq-49vh-5v5c",
+      "severity": "critical",
+      "cwe": [
+        "CWE-78",
+        "CWE-184"
+      ],
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "range": "<2.0.1"
+    },
+    {
+      "source": 1240853,
+      "name": "basic-ftp",
+      "dependency": "basic-ftp",
+      "title": "basic-ftp: Quadratic-time CPU denial of service in Client.list() Unix directory-listing parser (RE_LINE backtracking)",
+      "url": "https://github.com/advisories/GHSA-c475-qrg2-pj4r",
+      "severity": "high",
+      "cwe": [
+        "CWE-1333"
+      ],
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "range": "<=6.2.0"
+    },
+    {
+      "source": 1240992,
+      "name": "braces",
+      "dependency": "braces",
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "severity": "high",
+      "cwe": [
+        "CWE-674"
+      ],
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+      },
+      "range": "<=3.0.3"
+    },
+    {
+      "source": 1139346,
+      "name": "extract-zip",
+      "dependency": "extract-zip",
+      "title": "extract-zip unvalidated symlink path traversal",
+      "url": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv",
+      "severity": "high",
+      "cwe": [
+        "CWE-22"
+      ],
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N"
+      },
+      "range": "<=2.0.1"
+    },
+    {
+      "source": 1193685,
+      "name": "extract-zip",
+      "dependency": "extract-zip",
+      "title": "extract-zip allows arbitrary file writes through symlink archive entries",
+      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3",
+      "severity": "high",
+      "cwe": [
+        "CWE-22"
+      ],
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:H"
+      },
+      "range": "<=2.0.1"
+    },
+    {
+      "source": 1241199,
+      "name": "simple-git",
+      "dependency": "simple-git",
+      "title": "simple-git unsafe-operation guard does not block trailer command configuration",
+      "url": "https://github.com/advisories/GHSA-x6jw-m9v5-85vh",
+      "severity": "critical",
+      "cwe": [
+        "CWE-78",
+        "CWE-184"
+      ],
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "range": ">=3.15.0 <4.0.1"
+    },
+    {
+      "source": 1241200,
+      "name": "simple-git",
+      "dependency": "simple-git",
+      "title": "simple-git allows command execution through unblocked Git configuration includes",
+      "url": "https://github.com/advisories/GHSA-g4wm-2vf7-vfgr",
+      "severity": "high",
+      "cwe": [
+        "CWE-77",
+        "CWE-78"
+      ],
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "range": "<=3.36.0"
+    },
+    {
+      "source": 1242216,
+      "name": "simple-git",
+      "dependency": "simple-git",
+      "title": "simple-git: unsafe-operations plugin bypass via git long-option abbreviation (--receive-p/--exe) -> command execution (residual of CVE-2026-28291)",
+      "url": "https://github.com/advisories/GHSA-858h-whjf-mvg5",
+      "severity": "high",
+      "cwe": [
+        "CWE-77",
+        "CWE-88"
+      ],
+      "cvss": {
+        "score": 8.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "range": "<=3.36.0"
+    },
+    {
+      "source": 1241202,
+      "name": "sprintf-js",
+      "dependency": "sprintf-js",
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+      "severity": "moderate",
+      "cwe": [
+        "CWE-1284"
+      ],
+      "cvss": {
+        "score": 5.3,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+      },
+      "range": "<=1.1.3"
+    }
+  ],
+  "causalGroups": [
+    {
+      "name": "Git commands",
+      "packages": [
+        "@emulsify/cli",
+        "@emulsify/core",
+        "@simple-git/argv-parser",
+        "simple-git"
+      ],
+      "advisoryPackages": [
+        "@simple-git/argv-parser",
+        "simple-git"
+      ],
+      "blocker": "@emulsify/cli 2.4.1 requires simple-git ^3.36.0; registry latest simple-git 4.0.2 uses patched @simple-git/argv-parser 2.0.1. CLI needs an upstream release accepting the fixed major or a compatible backport."
+    },
+    {
+      "name": "Browser archive extraction",
+      "packages": [
+        "@emulsify/core",
+        "@puppeteer/browsers",
+        "extract-zip",
+        "pa11y",
+        "puppeteer",
+        "puppeteer-core"
+      ],
+      "advisoryPackages": [
+        "extract-zip"
+      ],
+      "blocker": "extract-zip latest 2.0.1 has no patched release for either recorded advisory. A compatible extract-zip fix or an upstream @puppeteer/browsers/Puppeteer/Pa11y/Core dependency migration is needed."
+    },
+    {
+      "name": "Browser proxy FTP support",
+      "packages": [
+        "@emulsify/core",
+        "@puppeteer/browsers",
+        "basic-ftp",
+        "get-uri",
+        "pa11y",
+        "pac-proxy-agent",
+        "proxy-agent",
+        "puppeteer",
+        "puppeteer-core"
+      ],
+      "advisoryPackages": [
+        "basic-ftp"
+      ],
+      "blocker": "basic-ftp is fixed in 6.2.1 and latest is 6.2.3, but installed get-uri 6.0.5 requires ^5.0.2. An upstream get-uri/proxy/browser update accepting the fixed major, or a compatible 5.x backport, is needed."
+    },
+    {
+      "name": "Lint glob patterns",
+      "packages": [
+        "@emulsify/core",
+        "braces",
+        "fast-glob",
+        "globby",
+        "micromatch",
+        "stylelint",
+        "stylelint-config-recommended",
+        "stylelint-config-recommended-scss",
+        "stylelint-config-standard",
+        "stylelint-config-standard-scss",
+        "stylelint-prettier",
+        "stylelint-scss",
+        "stylelint-selector-bem-pattern"
+      ],
+      "advisoryPackages": [
+        "braces"
+      ],
+      "blocker": "braces latest 3.0.3 remains affected and has no patched release. A braces fix or upstream micromatch/glob/Stylelint migration is needed."
+    },
+    {
+      "name": "Jest coverage configuration",
+      "packages": [
+        "@emulsify/core",
+        "@istanbuljs/load-nyc-config",
+        "@jest/core",
+        "@jest/expect",
+        "@jest/globals",
+        "@jest/reporters",
+        "@jest/transform",
+        "argparse",
+        "babel-jest",
+        "babel-plugin-istanbul",
+        "jest",
+        "jest-circus",
+        "jest-cli",
+        "jest-config",
+        "jest-resolve-dependencies",
+        "jest-runner",
+        "jest-runtime",
+        "jest-snapshot",
+        "js-yaml",
+        "sprintf-js"
+      ],
+      "advisoryPackages": [
+        "sprintf-js"
+      ],
+      "blocker": "sprintf-js latest 1.1.3 remains affected. A compatible sprintf-js fix or an upstream @istanbuljs/load-nyc-config release replacing its js-yaml 3 -> argparse 1 -> sprintf-js chain is needed."
+    }
+  ],
+  "upstreamRegistry": {
+    "queriedAt": "2026-10-21T14:08:29.069Z",
+    "commandPattern": "npm view <package>@latest version engines dependencies dist-tags --json",
+    "packages": {
+      "@simple-git/argv-parser": {
+        "version": "2.0.1",
+        "dependencies": {
+          "@simple-git/args-pathspec": "^1.0.4"
+        },
+        "dist-tags": {
+          "latest": "2.0.1"
+        }
+      },
+      "simple-git": {
+        "version": "4.0.2",
+        "dependencies": {
+          "debug": "^4.4.0",
+          "@kwsites/file-exists": "^1.1.1",
+          "@simple-git/argv-parser": "2.0.1",
+          "@kwsites/promise-deferred": "^1.1.1",
+          "@simple-git/args-pathspec": "1.0.4"
+        },
+        "dist-tags": {
+          "canary": "3.0.2",
+          "latest": "4.0.2"
+        }
+      },
+      "basic-ftp": {
+        "version": "6.2.3",
+        "engines": {
+          "node": ">=10.0.0"
+        },
+        "dist-tags": {
+          "latest": "6.2.3"
+        }
+      },
+      "braces": {
+        "version": "3.0.3",
+        "engines": {
+          "node": ">=8"
+        },
+        "dependencies": {
+          "fill-range": "^7.1.1"
+        },
+        "dist-tags": {
+          "latest": "3.0.3"
+        }
+      },
+      "extract-zip": {
+        "version": "2.0.1",
+        "engines": {
+          "node": ">= 10.17.0"
+        },
+        "dependencies": {
+          "debug": "^4.1.1",
+          "get-stream": "^5.1.0",
+          "yauzl": "^2.10.0",
+          "@types/yauzl": "^2.9.1"
+        },
+        "dist-tags": {
+          "latest": "2.0.1"
+        }
+      },
+      "sprintf-js": {
+        "version": "1.1.3",
+        "dist-tags": {
+          "latest": "1.1.3"
+        }
+      },
+      "@emulsify/cli": {
+        "version": "2.4.1",
+        "engines": {
+          "node": ">=24"
+        },
+        "dependencies": {
+          "@inquirer/prompts": "^8.7.0",
+          "ajv": "^8.20.0",
+          "ajv-formats": "^3.0.1",
+          "boxen": "^8.0.1",
+          "colorette": "^2.0.20",
+          "commander": "^15.0.0",
+          "consola": "^3.4.2",
+          "fs-extra": "^11.4.0",
+          "progress": "^2.0.3",
+          "simple-git": "^3.36.0"
+        },
+        "dist-tags": {
+          "latest": "2.4.1"
+        }
+      },
+      "@emulsify/core": {
+        "version": "4.5.0",
+        "engines": {
+          "node": ">=24.13.0"
+        },
+        "dependencies": {
+          "glob": "^13.0.6",
+          "jest": "^30.5.1",
+          "sass": "^1.104.0",
+          "twig": "^3.0.0",
+          "vite": "^8.3.0",
+          "pa11y": "^9.1.1",
+          "eslint": "^9.39.5",
+          "js-yaml": "^5.4.1",
+          "postcss": "^8.5.28",
+          "axe-core": "^4.13.0",
+          "open-cli": "^9.0.0",
+          "storybook": "^10.6.0",
+          "stylelint": "^17.15.0",
+          "@eslint/js": "^9.39.5",
+          "@babel/core": "^7.29.7",
+          "autoprefixer": "^10.5.6",
+          "concurrently": "^10.0.5",
+          "postcss-scss": "^4.0.9",
+          "@babel/parser": "^7.29.8",
+          "@emulsify/cli": "^2.4.1",
+          "normalize.css": "^8.0.1",
+          "@storybook/react": "^10.6.0",
+          "@babel/preset-env": "^7.29.7",
+          "eslint-plugin-jest": "^29.16.6",
+          "stylelint-prettier": "^5.0.3",
+          "babel-preset-minify": "^0.5.2",
+          "twig-drupal-filters": "^3.2.0",
+          "@babel/eslint-parser": "^7.29.7",
+          "eslint-plugin-import": "^2.32.0",
+          "@storybook/addon-a11y": "^10.6.0",
+          "@storybook/react-vite": "^10.6.0",
+          "@storybook/addon-links": "^10.6.0",
+          "eslint-config-prettier": "^10.1.8",
+          "eslint-plugin-prettier": "^5.5.6",
+          "eslint-plugin-security": "^4.0.1",
+          "jest-environment-jsdom": "^30.5.1",
+          "@storybook/addon-themes": "^10.6.0",
+          "eslint-plugin-storybook": "^10.6.0",
+          "@vituum/vite-plugin-twig": "^2.0.1",
+          "stylelint-config-standard-scss": "^17.0.0",
+          "stylelint-selector-bem-pattern": "^5.0.0",
+          "@mlnop/vite-plugin-sass-glob-import": "^6.2.0"
+        },
+        "dist-tags": {
+          "latest": "4.5.0"
+        }
+      },
+      "@puppeteer/browsers": {
+        "version": "3.2.5",
+        "engines": {
+          "node": ">=22.12.0"
+        },
+        "dependencies": {
+          "yargs": "^18.0.0",
+          "modern-tar": "^0.8.5"
+        },
+        "dist-tags": {
+          "latest": "3.2.5"
+        }
+      },
+      "puppeteer": {
+        "version": "25.15.0",
+        "engines": {
+          "node": ">=22.12.0"
+        },
+        "dependencies": {
+          "lilconfig": "^3.1.3",
+          "chromium-bidi": "157.0.8090-0",
+          "puppeteer-core": "25.15.0",
+          "devtools-protocol": "0.0.1696802",
+          "@puppeteer/browsers": "3.2.5",
+          "typed-query-selector": "^2.12.3"
+        },
+        "dist-tags": {
+          "chrome-65": "1.0.0",
+          "chrome-66": "1.1.1",
+          "chrome-67": "1.3.0",
+          "chrome-68": "1.4.0",
+          "chrome-69": "1.6.2",
+          "chrome-70": "1.7.0",
+          "chrome-71": "1.9.0",
+          "chrome-72": "1.11.0",
+          "chrome-73": "1.12.2",
+          "chrome-74": "1.13.0",
+          "chrome-75": "1.15.0",
+          "chrome-76": "1.17.0",
+          "chrome-77": "1.19.0",
+          "chrome-78": "1.20.0",
+          "chrome-79": "2.0.0",
+          "chrome-80": "2.1.0",
+          "chrome-81": "3.0.0",
+          "chrome-83": "3.1.0",
+          "chrome-84": "5.1.0",
+          "chrome-85": "5.2.1",
+          "chrome-86": "5.3.1",
+          "latest": "25.15.0"
+        }
+      },
+      "puppeteer-core": {
+        "version": "25.15.0",
+        "engines": {
+          "node": ">=22.12.0"
+        },
+        "dependencies": {
+          "ws": "^8.22.0",
+          "chromium-bidi": "157.0.8090-0",
+          "devtools-protocol": "0.0.1696802",
+          "@puppeteer/browsers": "3.2.5",
+          "typed-query-selector": "^2.12.3",
+          "webdriver-bidi-protocol": "1.0.1"
+        },
+        "dist-tags": {
+          "chrome-70": "1.7.0",
+          "chrome-71": "1.9.0",
+          "chrome-72": "1.11.0",
+          "chrome-73": "1.12.2",
+          "chrome-74": "1.13.0",
+          "chrome-75": "1.15.0",
+          "chrome-76": "1.17.0",
+          "chrome-77": "1.19.0",
+          "chrome-78": "1.20.0",
+          "chrome-79": "2.0.0",
+          "chrome-80": "2.1.0",
+          "chrome-81": "3.0.0",
+          "chrome-83": "3.1.0",
+          "chrome-84": "5.1.0",
+          "chrome-85": "5.2.1",
+          "chrome-86": "5.3.1",
+          "latest": "25.15.0"
+        }
+      },
+      "pa11y": {
+        "version": "10.0.0",
+        "engines": {
+          "node": "^22.13.0 || >=24"
+        },
+        "dependencies": {
+          "bfj": "~9.1.3",
+          "semver": "~7.8.0",
+          "envinfo": "~7.21.0",
+          "axe-core": "~4.13.0",
+          "mustache": "~4.2.0",
+          "commander": "~15.0.0",
+          "puppeteer": "^25.9.0",
+          "node.extend": "~2.0.3",
+          "@pa11y/html_codesniffer": "^2.6.0"
+        },
+        "dist-tags": {
+          "latest": "10.0.0"
+        }
+      },
+      "proxy-agent": {
+        "version": "8.0.2",
+        "engines": {
+          "node": ">= 20"
+        },
+        "dependencies": {
+          "debug": "^4.3.4",
+          "lru-cache": "^7.14.1",
+          "proxy-from-env": "^2.0.0",
+          "agent-base": "9.0.0",
+          "http-proxy-agent": "9.1.0",
+          "https-proxy-agent": "9.1.0",
+          "pac-proxy-agent": "9.1.0",
+          "socks-proxy-agent": "10.1.0"
+        },
+        "dist-tags": {
+          "latest": "8.0.2"
+        }
+      },
+      "pac-proxy-agent": {
+        "version": "9.1.0",
+        "engines": {
+          "node": ">= 20"
+        },
+        "dependencies": {
+          "debug": "^4.3.4",
+          "quickjs-wasi": "^2.2.0",
+          "agent-base": "9.0.0",
+          "get-uri": "8.0.1",
+          "pac-resolver": "9.0.1",
+          "https-proxy-agent": "9.1.0",
+          "http-proxy-agent": "9.1.0",
+          "socks-proxy-agent": "10.1.0"
+        },
+        "dist-tags": {
+          "latest": "9.1.0"
+        }
+      },
+      "get-uri": {
+        "version": "8.0.1",
+        "engines": {
+          "node": ">= 20"
+        },
+        "dependencies": {
+          "basic-ftp": "^5.3.1",
+          "debug": "^4.3.4",
+          "data-uri-to-buffer": "8.0.0"
+        },
+        "dist-tags": {
+          "latest": "8.0.1"
+        }
+      },
+      "micromatch": {
+        "version": "4.0.8",
+        "engines": {
+          "node": ">=8.6"
+        },
+        "dependencies": {
+          "braces": "^3.0.3",
+          "picomatch": "^2.3.1"
+        },
+        "dist-tags": {
+          "latest": "4.0.8"
+        }
+      },
+      "fast-glob": {
+        "version": "3.3.3",
+        "engines": {
+          "node": ">=8.6.0"
+        },
+        "dependencies": {
+          "@nodelib/fs.stat": "^2.0.2",
+          "@nodelib/fs.walk": "^1.2.3",
+          "glob-parent": "^5.1.2",
+          "merge2": "^1.3.0",
+          "micromatch": "^4.0.8"
+        },
+        "dist-tags": {
+          "next": "2.0.2",
+          "beta": "3.2.1-beta.1",
+          "latest": "3.3.3"
+        }
+      },
+      "globby": {
+        "version": "16.2.4",
+        "engines": {
+          "node": ">=20"
+        },
+        "dependencies": {
+          "slash": "^5.1.0",
+          "ignore": "^7.0.5",
+          "fast-glob": "^3.3.3",
+          "micromatch": "^4.0.8",
+          "unicorn-magic": "^0.4.0",
+          "is-path-inside": "^4.0.0",
+          "@sindresorhus/merge-streams": "^4.0.0"
+        },
+        "dist-tags": {
+          "version11": "11.1.0",
+          "latest": "16.2.4"
+        }
+      },
+      "stylelint": {
+        "version": "17.16.0",
+        "engines": {
+          "node": ">=20.19.0"
+        },
+        "dependencies": {
+          "meow": "^14.1.0",
+          "debug": "^4.4.3",
+          "table": "^6.9.0",
+          "colord": "^2.10.0",
+          "globby": "^16.2.4",
+          "ignore": "^7.0.6",
+          "postcss": "^8.5.26",
+          "css-tree": "^3.2.1",
+          "globjoin": "^0.1.4",
+          "svg-tags": "^1.0.0",
+          "fast-glob": "^3.3.3",
+          "html-tags": "^5.1.0",
+          "micromatch": "^4.0.8",
+          "picocolors": "^1.1.1",
+          "cosmiconfig": "^9.0.2",
+          "string-width": "^8.2.2",
+          "global-modules": "^2.0.0",
+          "normalize-path": "^3.0.0",
+          "file-entry-cache": "^11.1.5",
+          "mathml-tag-names": "^4.0.0",
+          "write-file-atomic": "^7.0.1",
+          "@csstools/css-calc": "^3.3.0",
+          "css-functions-list": "^3.3.3",
+          "fastest-levenshtein": "^1.0.16",
+          "import-meta-resolve": "^4.2.0",
+          "postcss-safe-parser": "^7.0.1",
+          "supports-hyperlinks": "^4.5.0",
+          "postcss-value-parser": "^4.2.0",
+          "@csstools/css-tokenizer": "^4.0.0",
+          "postcss-selector-parser": "^7.1.5",
+          "@csstools/selector-specificity": "^6.0.0",
+          "@csstools/css-parser-algorithms": "^4.0.0",
+          "@csstools/media-query-list-parser": "^5.0.0",
+          "@csstools/selector-resolve-nested": "^4.0.1",
+          "@csstools/css-syntax-patches-for-csstree": "^1.1.9"
+        },
+        "dist-tags": {
+          "latest": "17.16.0"
+        }
+      },
+      "@istanbuljs/load-nyc-config": {
+        "version": "1.1.0",
+        "engines": {
+          "node": ">=8"
+        },
+        "dependencies": {
+          "camelcase": "^5.3.1",
+          "find-up": "^4.1.0",
+          "get-package-type": "^0.1.0",
+          "js-yaml": "^3.13.1",
+          "resolve-from": "^5.0.0"
+        },
+        "dist-tags": {
+          "latest": "1.1.0"
+        }
+      },
+      "babel-plugin-istanbul": {
+        "version": "8.0.0",
+        "engines": {
+          "node": ">=18"
+        },
+        "dependencies": {
+          "@babel/helper-plugin-utils": "^7.0.0",
+          "@istanbuljs/load-nyc-config": "^1.0.0",
+          "@istanbuljs/schema": "^0.1.3",
+          "istanbul-lib-instrument": "^6.0.2",
+          "test-exclude": "^7.0.1"
+        },
+        "dist-tags": {
+          "latest": "8.0.0"
+        }
+      },
+      "jest": {
+        "version": "30.5.2",
+        "engines": {
+          "node": "^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0"
+        },
+        "dependencies": {
+          "jest-cli": "30.5.2",
+          "@jest/core": "30.5.2",
+          "@jest/types": "30.5.1",
+          "import-local": "^3.2.0"
+        },
+        "dist-tags": {
+          "next": "30.0.0-rc.1",
+          "latest": "30.5.2"
+        }
+      },
+      "js-yaml": {
+        "version": "5.5.0",
+        "dependencies": {
+          "argparse": "^3.0.3"
+        },
+        "dist-tags": {
+          "v4-legacy": "4.3.2",
+          "v3-legacy": "3.15.2",
+          "latest": "5.5.0"
+        }
+      },
+      "argparse": {
+        "version": "3.0.3",
+        "dist-tags": {
+          "latest": "3.0.3"
+        }
+      }
+    },
+    "runtime": {
+      "node": "v26.12.0",
+      "npm": "11.20.0",
+      "nodeExecutable": "/opt/homebrew/Cellar/node/26.12.0/bin/node",
+      "note": "Separate registry metadata reads; the fresh installed tree and audit documented above were repeated with the explicit Node 24/npm 11 paths."
+    }
+  },
+  "primaryAdvisoryReview": [
+    {
+      "url": "https://github.com/advisories/GHSA-v5rq-49vh-5v5c",
+      "affectedRange": "<2.0.1",
+      "package": "@simple-git/argv-parser",
+      "patchedVersions": [
+        "2.0.1"
+      ]
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-c475-qrg2-pj4r",
+      "affectedRange": "<=6.2.0",
+      "package": "basic-ftp",
+      "patchedVersions": [
+        "6.2.1"
+      ]
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "affectedRange": "<=3.0.3",
+      "package": "braces",
+      "patchedVersions": []
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv",
+      "affectedRange": "<=2.0.1",
+      "package": "extract-zip",
+      "patchedVersions": []
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3",
+      "affectedRange": "<=2.0.1",
+      "package": "extract-zip",
+      "patchedVersions": []
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-x6jw-m9v5-85vh",
+      "affectedRange": ">=3.15.0 <4.0.1",
+      "package": "simple-git",
+      "patchedVersions": [
+        "4.0.1"
+      ]
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-g4wm-2vf7-vfgr",
+      "affectedRange": "<=3.36.0",
+      "package": "simple-git",
+      "patchedVersions": [
+        "4.0.0"
+      ]
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-858h-whjf-mvg5",
+      "affectedRange": "<=3.36.0",
+      "package": "simple-git",
+      "patchedVersions": [
+        "4.0.0"
+      ]
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+      "affectedRange": "<=1.1.3",
+      "package": "sprintf-js",
+      "patchedVersions": []
+    }
+  ],
+  "selectedNonvulnerableInstalledPackages": {
+    "fast-uri": [
+      {
+        "path": "node_modules/fast-uri",
+        "version": "3.1.9",
+        "parents": [
+          {
+            "name": "ajv",
+            "version": "8.20.0",
+            "path": "node_modules/ajv",
+            "kind": "dependencies",
+            "range": "^3.0.1"
+          }
+        ]
+      }
+    ],
+    "ip-address": [
+      {
+        "path": "node_modules/ip-address",
+        "version": "10.7.4",
+        "parents": [
+          {
+            "name": "socks",
+            "version": "2.8.10",
+            "path": "node_modules/socks",
+            "kind": "dependencies",
+            "range": "^10.1.1"
+          }
+        ]
+      }
+    ],
+    "brace-expansion": [
+      {
+        "path": "node_modules/@eslint/config-array/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/@eslint/config-array/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/@eslint/eslintrc/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/@eslint/eslintrc/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/brace-expansion",
+        "version": "5.0.12",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "10.2.6",
+            "path": "node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^5.0.8"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/eslint-plugin-import/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/eslint-plugin-import/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/eslint/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/eslint/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/postcss-bem-linter/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/postcss-bem-linter/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/twig-drupal-filters/node_modules/brace-expansion",
+        "version": "1.1.21",
+        "parents": [
+          {
+            "name": "minimatch",
+            "version": "3.1.5",
+            "path": "node_modules/twig-drupal-filters/node_modules/minimatch",
+            "kind": "dependencies",
+            "range": "^1.1.7"
+          }
+        ]
+      }
+    ],
+    "source-map-js": [
+      {
+        "path": "node_modules/source-map-js",
+        "version": "1.2.2",
+        "parents": [
+          {
+            "name": "css-tree",
+            "version": "3.2.1",
+            "path": "node_modules/css-tree",
+            "kind": "dependencies",
+            "range": "^1.2.1"
+          },
+          {
+            "name": "postcss",
+            "version": "8.5.31",
+            "path": "node_modules/postcss",
+            "kind": "dependencies",
+            "range": "^1.2.2"
+          },
+          {
+            "name": "sass",
+            "version": "1.106.0",
+            "path": "node_modules/sass",
+            "kind": "dependencies",
+            "range": ">=0.6.2 <2.0.0"
+          }
+        ]
+      }
+    ],
+    "vite": [
+      {
+        "path": "node_modules/vite",
+        "version": "8.3.5",
+        "parents": [
+          {
+            "name": "@emulsify/core",
+            "version": "4.5.0",
+            "path": "node_modules/@emulsify/core",
+            "kind": "dependencies",
+            "range": "^8.3.0"
+          },
+          {
+            "name": "@joshwooding/vite-plugin-react-docgen-typescript",
+            "version": "0.7.0",
+            "path": "node_modules/@joshwooding/vite-plugin-react-docgen-typescript",
+            "kind": "peerDependencies",
+            "range": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+          },
+          {
+            "name": "@mlnop/vite-plugin-sass-glob-import",
+            "version": "6.2.0",
+            "path": "node_modules/@mlnop/vite-plugin-sass-glob-import",
+            "kind": "peerDependencies",
+            "range": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+          },
+          {
+            "name": "@storybook/builder-vite",
+            "version": "10.6.3",
+            "path": "node_modules/@storybook/builder-vite",
+            "kind": "peerDependencies",
+            "range": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+          },
+          {
+            "name": "@storybook/react-vite",
+            "version": "10.6.3",
+            "path": "node_modules/@storybook/react-vite",
+            "kind": "peerDependencies",
+            "range": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+          },
+          {
+            "name": "@vituum/vite-plugin-twig",
+            "version": "2.0.1",
+            "path": "node_modules/@vituum/vite-plugin-twig",
+            "kind": "peerDependencies",
+            "range": "^8.0"
+          },
+          {
+            "name": "vituum",
+            "version": "2.0.2",
+            "path": "node_modules/vituum",
+            "kind": "dependencies",
+            "range": "^8.0"
+          }
+        ]
+      }
+    ],
+    "concurrently": [
+      {
+        "path": "node_modules/concurrently",
+        "version": "10.0.6",
+        "parents": [
+          {
+            "name": "@emulsify/core",
+            "version": "4.5.0",
+            "path": "node_modules/@emulsify/core",
+            "kind": "dependencies",
+            "range": "^10.0.5"
+          }
+        ]
+      }
+    ],
+    "shell-quote": [
+      {
+        "path": "node_modules/shell-quote",
+        "version": "1.12.0",
+        "parents": [
+          {
+            "name": "concurrently",
+            "version": "10.0.6",
+            "path": "node_modules/concurrently",
+            "kind": "dependencies",
+            "range": "1.12.0"
+          }
+        ]
+      }
+    ],
+    "locutus": [
+      {
+        "path": "node_modules/locutus",
+        "version": "3.0.36",
+        "parents": [
+          {
+            "name": "twig",
+            "version": "2.0.0",
+            "path": "node_modules/@vituum/vite-plugin-twig/node_modules/twig",
+            "kind": "dependencies",
+            "range": "^3.0.9"
+          },
+          {
+            "name": "twig",
+            "version": "3.0.0",
+            "path": "node_modules/twig",
+            "kind": "dependencies",
+            "range": "^3.0.9"
+          },
+          {
+            "name": "twig",
+            "version": "1.17.1",
+            "path": "node_modules/twig-drupal-filters/node_modules/twig",
+            "kind": "dependencies",
+            "range": "^2.0.11"
+          }
+        ]
+      }
+    ],
+    "minimatch": [
+      {
+        "path": "node_modules/@eslint/config-array/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "@eslint/config-array",
+            "version": "0.21.2",
+            "path": "node_modules/@eslint/config-array",
+            "kind": "dependencies",
+            "range": "^3.1.5"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/@eslint/eslintrc/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "@eslint/eslintrc",
+            "version": "3.3.7",
+            "path": "node_modules/@eslint/eslintrc",
+            "kind": "dependencies",
+            "range": "^3.1.5"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/eslint-plugin-import/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "eslint-plugin-import",
+            "version": "2.32.0",
+            "path": "node_modules/eslint-plugin-import",
+            "kind": "dependencies",
+            "range": "^3.1.2"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/eslint/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "eslint",
+            "version": "9.39.5",
+            "path": "node_modules/eslint",
+            "kind": "dependencies",
+            "range": "^3.1.5"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/minimatch",
+        "version": "10.2.6",
+        "parents": [
+          {
+            "name": "@mlnop/vite-plugin-sass-glob-import",
+            "version": "6.2.0",
+            "path": "node_modules/@mlnop/vite-plugin-sass-glob-import",
+            "kind": "dependencies",
+            "range": "^10.2.5"
+          },
+          {
+            "name": "@typescript-eslint/typescript-estree",
+            "version": "8.72.0",
+            "path": "node_modules/@typescript-eslint/typescript-estree",
+            "kind": "dependencies",
+            "range": "^10.2.2"
+          },
+          {
+            "name": "twig",
+            "version": "2.0.0",
+            "path": "node_modules/@vituum/vite-plugin-twig/node_modules/twig",
+            "kind": "dependencies",
+            "range": "^10"
+          },
+          {
+            "name": "glob",
+            "version": "13.0.6",
+            "path": "node_modules/glob",
+            "kind": "dependencies",
+            "range": "^10.2.2"
+          },
+          {
+            "name": "test-exclude",
+            "version": "7.0.2",
+            "path": "node_modules/test-exclude",
+            "kind": "dependencies",
+            "range": "^10.2.2"
+          },
+          {
+            "name": "twig",
+            "version": "3.0.0",
+            "path": "node_modules/twig",
+            "kind": "dependencies",
+            "range": "^10"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/postcss-bem-linter/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "postcss-bem-linter",
+            "version": "4.0.1",
+            "path": "node_modules/postcss-bem-linter",
+            "kind": "dependencies",
+            "range": "^3.1.2"
+          }
+        ]
+      },
+      {
+        "path": "node_modules/twig-drupal-filters/node_modules/minimatch",
+        "version": "3.1.5",
+        "parents": [
+          {
+            "name": "twig",
+            "version": "1.17.1",
+            "path": "node_modules/twig-drupal-filters/node_modules/twig",
+            "kind": "dependencies",
+            "range": "3.0.x"
+          }
+        ]
+      }
+    ]
+  },
+  "selectedNonvulnerableInstalledPackagesNote": "All installed copies of the selected packages, with parent manifests whose declared dependency/optional/peer range resolves to that exact installed path. None is an npm audit vulnerable package entry in this fresh Whisk tree."
+}

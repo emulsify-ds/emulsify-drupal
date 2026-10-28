@@ -20,6 +20,11 @@ final class FieldHooks {
    */
   #[Hook('preprocess_field')]
   public function preprocessField(array &$variables): void {
+    if (($variables['element']['#formatter'] ?? '') === 'oembed') {
+      \Drupal::service('class_resolver')
+        ->getInstanceFromDefinition(MediaEmbedHooks::class)
+        ->preprocessField($variables);
+    }
     if (
       $variables['field_type'] === 'entity_reference_revisions'
       && $variables['element']['#items']->getItemDefinition()->getSetting('target_type') === 'paragraph'

@@ -44,6 +44,24 @@ jobs:
             drupal-version: '11.3.*'
             php-version: '8.5'
             experimental: false
+          - label: Drupal 11.4
+            artifact-suffix: drupal-11-4-php-8-3
+            drupal-version: '11.4.*'
+            php-version: '8.3'
+            experimental: false
+          # Keep the next Drupal 11 minor advisory alongside stable 11.4.
+          - label: Drupal 11.5 Beta
+            artifact-suffix: drupal-11-5-beta-php-8-3
+            drupal-version: '>=11.5.0-beta1 <11.5.0-RC1@beta'
+            php-version: '8.3'
+            experimental: true
+          # Beta readiness is verified and blocking on PHP 8.5. Keep the
+          # development branch advisory and use a bounded Composer beta range.
+          - label: Drupal 12 Beta
+            artifact-suffix: drupal-12-beta-php-8-5
+            drupal-version: '>=12.0.0-beta1 <12.0.0-RC1@beta'
+            php-version: '8.5'
+            experimental: false
           - label: Drupal Dev Branch
             artifact-suffix: drupal-dev-main-php-8-5
             drupal-version: 'dev-main'
@@ -74,6 +92,15 @@ jobs:
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
 
+      - name: Build and verify parent theme assets
+        run: |
+          npm run build
+          git diff --exit-code -- dist
+          test -z "$(git status --porcelain --untracked-files=all -- dist)"
+
+      - name: Lint parent theme JavaScript and Sass
+        run: npm run lint:js && npm run lint:styles
+
       - name: Test validation and release guards
         run: node --test .github/scripts/*.test.cjs
 
@@ -95,13 +122,23 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
+      - name: Verify parent theme library and breakpoint contract
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        working-directory: /tmp/emulsify-fixture
+        run: |
+          ./vendor/bin/drush en breakpoint -y
+          ./vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/verify-published-theme.php"
+
       - name: Characterize published PHP Twig helpers
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
         continue-on-error: ${{ matrix.experimental }}
         run: php .github/scripts/twig-helper-contract.php /tmp/emulsify-fixture
 
+      # Published Paragraphs 1.23 supports Drupal 11, so keep this optional
+      # characterization on stable Drupal 11 legs.
       - name: Characterize Drupal hooks with test-only Paragraphs
-        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && matrix.drupal-version != 'dev-main' }}
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && !matrix.experimental && startsWith(matrix.drupal-version, '11.') }}
         working-directory: /tmp/emulsify-fixture
         run: |
           composer require --dev --no-interaction --with-all-dependencies 'drupal/paragraphs:^1.23'
@@ -116,7 +153,7 @@ jobs:
 
       - name: Upload stable9 parity report
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: stable9-template-parity-${{ matrix.artifact-suffix }}
           path: ${{ runner.temp }}/emulsify-template-parity.md
@@ -149,6 +186,13 @@ jobs:
         continue-on-error: ${{ matrix.experimental }}
         timeout-minutes: 3
         run: bash .github/scripts/starterkit-smoke.sh /tmp/emulsify-fixture "${{ runner.temp }}/emulsify-generated-theme" enable
+
+      - name: Verify Twig template extension contract
+        if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}
+        continue-on-error: ${{ matrix.experimental }}
+        timeout-minutes: 3
+        working-directory: /tmp/emulsify-fixture
+        run: ./vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/template-extension-smoke.php"
 
       - name: 'Generated child theme: render Drupal pages'
         id: starterkit_render
@@ -192,7 +236,7 @@ jobs:
 
       - name: Upload generated child theme smoke artifacts
         if: ${{ !cancelled() && steps.build_fixture.outcome == 'success' && (steps.starterkit_generate.outcome == 'failure' || steps.starterkit_enable.outcome == 'failure' || steps.starterkit_render.outcome == 'failure' || steps.starterkit_frontend_install.outcome == 'failure' || steps.starterkit_frontend_inspect.outcome == 'failure' || steps.starterkit_frontend_build.outcome == 'failure' || steps.starterkit_frontend_test.outcome == 'failure') }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "generated-child-theme-smoke-${{ matrix.artifact-suffix }}"
           if-no-files-found: warn
@@ -201,6 +245,11 @@ jobs:
   generated-child-theme-extended:
     name: Generated Child Theme Storybook and Accessibility
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - drupal-version: '11.4.*'
+            php-version: '8.3'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -210,7 +259,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: "8.3"
+          php-version: ${{ matrix.php-version }}
           tools: composer:v2
           extensions: gd, imagick
 
@@ -220,12 +269,20 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Cache Composer downloads and browser
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - name: Select and verify runner Chrome
+        timeout-minutes: 1
+        run: |
+          # Ubuntu's AppArmor profile permits the installed Google Chrome.
+          # Verify it launches with its sandbox before either Puppeteer audit.
+          chrome_path="$(command -v google-chrome)"
+          "$chrome_path" --version
+          "$chrome_path" --headless --dump-dom about:blank
+          printf 'PUPPETEER_EXECUTABLE_PATH=%s\n' "$chrome_path" >> "$GITHUB_ENV"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            ~/.cache/composer/files
-            ~/.cache/puppeteer
+          path: ~/.cache/composer/files
           key: ${{ runner.os }}-emulsify-consumer-${{ hashFiles('composer.json', 'whisk/package.json', 'whisk/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-emulsify-consumer-
@@ -233,11 +290,17 @@ jobs:
       - name: Install root npm dependencies from lockfile
         run: npm ci --ignore-scripts
 
+      - name: Build and verify parent theme assets
+        run: |
+          npm run build
+          git diff --exit-code -- dist
+          test -z "$(git status --porcelain --untracked-files=all -- dist)"
+
       - name: Test validation and release guards
         run: node --test .github/scripts/*.test.cjs
 
       - name: Build fixture site
-        run: bash .github/scripts/setup-fixture-site.sh "11.4.6" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
+        run: bash .github/scripts/setup-fixture-site.sh "${{ matrix.drupal-version }}" /tmp/emulsify-fixture "$GITHUB_WORKSPACE"
 
       - name: Run generated child theme Storybook, test, and accessibility checks
         timeout-minutes: 30
@@ -248,7 +311,7 @@ jobs:
 
       - name: Upload generated child theme extended artifacts
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generated-child-theme-storybook-a11y
           if-no-files-found: warn

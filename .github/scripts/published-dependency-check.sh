@@ -30,13 +30,15 @@ if [ -e "$fixture_dir" ]; then
   echo "Fixture path already exists; provide a new disposable path: ${fixture_dir}" >&2
   exit 1
 fi
+php "${repo_root}/.github/scripts/published-package-metadata.test.php"
 mkdir -p "$fixture_dir" "$evidence_dir"
 fixture_dir="$(cd "$fixture_dir" && pwd)"
 evidence_dir="$(cd "$evidence_dir" && pwd)"
+cp "${repo_root}/.github/scripts/publication-skew.json" "${evidence_dir}/publication-skew.json"
 
 curl --fail --silent --show-error --location https://repo.packagist.org/p2/emulsify-ds/emulsify-drupal.json > "${evidence_dir}/packagist.json"
 curl --fail --silent --show-error --location https://packages.drupal.org/files/packages/8/p2/drupal/emulsify.json > "${evidence_dir}/drupalorg.json"
-theme_version="$(php "${repo_root}/.github/scripts/published-package-metadata.php" "$repo_root" "$evidence_dir")"
+theme_version="$(php "${repo_root}/.github/scripts/published-package-metadata.php" "$repo_root" "$evidence_dir" "$theme_package")"
 
 php -r '
 [$script, $dir, $core, $drush, $package, $version] = $argv;
@@ -70,7 +72,8 @@ file_put_contents("{$dir}/composer.json", json_encode($project, JSON_PRETTY_PRIN
 ' "$fixture_dir" "$core_constraint" "$drush_constraint" "$theme_package" "$theme_version"
 
 cd "$fixture_dir"
-"$composer_bin" update --no-interaction --prefer-dist 2>&1 | tee "${evidence_dir}/install.txt"
+# Keep a normal consumer requirement while resolving the exact observed release.
+"$composer_bin" update --with="${theme_package}:${theme_version}" --no-interaction --prefer-dist 2>&1 | tee "${evidence_dir}/install.txt"
 php -r '
 [$script, $package, $expected] = $argv;
 $lock = json_decode(file_get_contents("composer.lock"), TRUE, flags: JSON_THROW_ON_ERROR);

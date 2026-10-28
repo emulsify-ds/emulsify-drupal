@@ -63,15 +63,15 @@ final class FaviconHeadBuilder {
     ], FALSE,
     ];
 
+    $theme_color_attributes = [
+      'name' => 'theme-color',
+      'content' => $theme_color,
+    ];
     $attachments['#attached']['html_head'][] = [[
       '#tag' => 'meta',
-      '#attributes' => [
-        'name' => 'theme-color',
-        'content' => $theme_color,
-      ],
+      '#attributes' => $theme_color_attributes,
     ], 'emulsify_favicon_theme_color',
     ];
-
     if ($icon_name !== '') {
       $attachments['#attached']['html_head'][] = [[
         '#tag' => 'meta',

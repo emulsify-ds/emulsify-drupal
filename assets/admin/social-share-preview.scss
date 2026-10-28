@@ -1,0 +1,235 @@
+.emulsify-social-share {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+
+  > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 75rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.emulsify-social-preview {
+  max-width: 44rem;
+
+  &__selectors {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  }
+
+  &__help {
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+  }
+
+  &__metadata {
+    overflow-wrap: anywhere;
+  }
+
+  &__metadata code {
+    @media (min-width: 35rem) {
+      white-space: nowrap;
+    }
+  }
+
+  &__platform {
+    margin: 1rem 0 0.5rem;
+    font-weight: 700;
+  }
+
+  &__card {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 32.5rem;
+    overflow: hidden;
+    border: 1px solid #dadde1;
+    border-radius: 0;
+    background: #fff;
+    color: #1c1e21;
+    font-family: Arial, Helvetica, sans-serif;
+    color-scheme: light;
+    overflow-wrap: anywhere;
+  }
+
+  &__card[data-device='mobile'] {
+    max-width: 20rem;
+  }
+
+  &__image {
+    display: grid;
+    aspect-ratio: 1.91 / 1;
+    place-items: center;
+    overflow: hidden;
+    background: #eef0f2;
+  }
+
+  &__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__empty {
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.65rem 0.8rem;
+    border-top: 1px solid #dadde1;
+    background: #f2f3f5;
+  }
+
+  &__domain {
+    order: 0;
+    color: #606770;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    order: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  &__description {
+    order: 2;
+    overflow: hidden;
+    color: #606770;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__card[data-platform='facebook'] &__title {
+    max-height: 2.6em;
+    overflow: hidden;
+  }
+
+  &__card[data-platform='x'] {
+    border-color: #cfd9de;
+    border-radius: 1rem;
+  }
+
+  &__card[data-platform='x'] &__body {
+    position: absolute;
+    inset: auto 0.5rem 0.5rem;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  &__card[data-platform='x'] &__title {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    background: rgb(0 0 0 / 85%);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__card[data-platform='x'] &__domain,
+  &__card[data-platform='x'] &__description,
+  &__card[data-platform='linkedin'] &__description,
+  &__card[data-platform='pinterest'] &__description {
+    display: none;
+  }
+
+  &__card[data-platform='linkedin'] {
+    max-width: 34.5rem;
+    border-color: #c0c8ce;
+  }
+
+  &__card[data-platform='linkedin'][data-device='mobile'] {
+    max-width: 20rem;
+  }
+
+  &__card[data-platform='linkedin'] &__body {
+    gap: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    background: #eef3f8;
+  }
+
+  &__card[data-platform='linkedin'] &__title {
+    order: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  &__card[data-platform='linkedin'] &__domain {
+    order: 1;
+    color: #56687a;
+    font-size: 0.75rem;
+    text-transform: none;
+  }
+
+  &__card[data-platform='pinterest'] {
+    max-width: 20rem;
+    border: 0;
+    border-radius: 1rem;
+  }
+
+  &__card[data-platform='pinterest'][data-device='mobile'] {
+    max-width: 16rem;
+  }
+
+  &__card[data-platform='pinterest'] &__image {
+    aspect-ratio: 2 / 3;
+    border-radius: 1rem;
+  }
+
+  &__card[data-platform='pinterest'] &__body {
+    gap: 0.35rem;
+    padding: 0.7rem 0.5rem;
+    border: 0;
+    background: #fff;
+  }
+
+  &__card[data-platform='pinterest'] &__title {
+    order: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  &__card[data-platform='pinterest'] &__domain {
+    order: 1;
+    color: #4b4b4b;
+    font-size: 0.75rem;
+    text-transform: none;
+  }
+
+  &__card [hidden] {
+    display: none !important;
+  }
+
+  @media (forced-colors: active) {
+    &__card {
+      border-color: CanvasText;
+    }
+
+    &__card[data-platform='x'] &__title {
+      background: Canvas;
+      color: CanvasText;
+    }
+  }
+}

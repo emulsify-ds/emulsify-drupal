@@ -11,10 +11,29 @@ Use this checklist before publishing an Emulsify Drupal 7.x release.
 3. Run `npm ci --ignore-scripts`.
 4. Run `npm audit --omit=dev`.
 5. Run `npm audit` and triage any development-tool findings.
-6. Run `npm run lint:php`.
+6. Run `npm run build` and include the rebuilt parent `dist/` assets with any
+   source changes. Run `npm run lint` for PHP, JavaScript, and Sass, or
+   `npm run lint:php` for a PHP-only check.
 7. Run `npm run docs:check-commands` after documentation command example changes.
 8. Run `npm run release:check`.
 9. Run `npm run release:check -- --skip-smoke` after any release-guard edits.
+
+To check generated audit wrappers against a candidate Core tarball, use an
+installed Drupal Composer runtime (no database is needed):
+
+```bash
+EMULSIFY_CORE_TARBALL=/absolute/path/to/emulsify-core.tgz \
+EMULSIFY_DRUPAL_AUTOLOAD=/absolute/path/to/vendor/autoload.php \
+  npm run test:audit-wrappers
+```
+
+This opt-in test runs Drupal's actual `generate-theme` command and Whisk post
+processing, installs that tarball in the generated consumer, and compares both
+audit wrappers with the installed Core executables. It checks whole JSON
+stdout, stderr footers, exact exits 0/1/2, and arguments containing spaces.
+Deliberately broken wrappers must fail the same assertions. Without both input
+paths, the check reports a skip. Set `EMULSIFY_AUDIT_WRAPPER_EVIDENCE` to a file
+outside the repository to retain the tested scripts, tarball hash, and results.
 
 The runtime audit is blocking. The full dependency audit remains visible but
 advisory while the current Semantic Release toolchain depends on an npm package
@@ -29,7 +48,7 @@ a blocking check after upstream npm releases a clean bundle.
   the Drush generator must delegate to Drupal Starterkit. The `^2.2` requirement
   was introduced in Emulsify Drupal 7.2.1.
 - Confirm `LICENSE`, `package.json`, `composer.json`, and `whisk/package.json` all identify the project as `GPL-2.0-or-later`, matching Drupal.org Composer metadata guidance for hosted Drupal projects.
-- Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, and favicon package deployment expectations. PHP minimums are inherited from Drupal: 8.3 for Drupal 11 and 8.5 for Drupal 12. Whisk advertises Node.js `>=24`, Emulsify Core 4.3.1/4.4.0 require `>=24.13.0`, and release tooling requires `>=24.15`; preserve and document this distinction.
+- Confirm local README and upgrade notes describe the current Emulsify Drupal parent theme workflow, Drupal 11.3+ and Drupal 12 forward compatibility, and favicon package deployment expectations. PHP minimums are inherited from Drupal: 8.3 for Drupal 11 and 8.5 for Drupal 12. Whisk advertises Node.js `>=24`, Emulsify Core 4.5.0 requires `>=24.13.0`, and release tooling requires `>=24.15`; preserve and document this distinction.
 - Confirm the sister-project parity contract stays linked from the README and preserves the shared Emulsify Drupal/WordPress contract plus Drupal-specific generation, metadata, component include, and fixture readiness expectations.
 - Confirm the Whisk starter remains generation-only and generated child themes keep `emulsify` as their runtime parent theme; review the [generated child-theme contract](./generated-child-theme-contract.md) for generation guarantees and intentional exclusions.
 - Confirm both Drupal core and Drush generation retain `project.emulsify.json`
@@ -37,9 +56,13 @@ a blocking check after upstream npm releases a clean bundle.
   `singleDirectoryComponents`, `generatedFrom`, and `generatedFromVersion`
   support metadata.
 - Confirm generated child themes include a project-specific `README.md` plus `docs/development.md`, `docs/upgrading.md`, and `docs/support-information.md`; the shared documentation checker must validate their npm commands in both the Whisk source and real generated output.
+- Confirm generated `AGENTS.md`, the Drupal integration guide, and the
+  integration skill survive Core and Drush generation with valid links and
+  skill metadata. Keep the guidance library-neutral and document discovery
+  from both the theme directory and a Drupal project root.
 - Confirm generated guidance keeps the project component-library-neutral, distinguishes npm dependency updates from comparing a fresh newer starter, and reserves future automated Drupal diagnostics for Emulsify Tools.
-- Confirm `@emulsify/core` `4.3.1` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
-- Confirm the declared Whisk `@emulsify/core` range resolves to 4.3.1 or newer,
+- Confirm `@emulsify/core` `4.5.0` or newer has been published with the `emulsify-inspect-components` binary before merging or releasing this Emulsify Drupal feature.
+- Confirm the declared Whisk `@emulsify/core` range resolves to 4.5.0 or newer,
   exposes `npm run inspect:components`, and does not ship project asset source
   directories, entrypoints, or an attached global library before a component
   library is selected.
@@ -48,6 +71,14 @@ a blocking check after upstream npm releases a clean bundle.
 
 ## CI coverage
 
+- Blocking Theme Readiness legs cover Drupal 11.3 on PHP 8.3, 8.4, and 8.5,
+  Drupal 11.4 on PHP 8.3, and Drupal 12 beta on PHP 8.5. Drupal 11.5 beta on
+  PHP 8.3 and `dev-main` remain advisory. The optional Paragraphs
+  characterization runs only on stable
+  Drupal 11 legs because published Paragraphs 1.23 does not support Drupal 12.
+- Parent-theme assets are rebuilt with Emulsify Core, checked against committed
+  output, and tested through their Drupal library declarations and bundled
+  favicon behavior. JavaScript and Sass use Core's shared lint configurations.
 - Pull requests run Composer validation, `npm ci --ignore-scripts`, a blocking runtime npm audit, an advisory full dev-tool audit, PHP linting, static release checks, template parity, parent-theme render smoke, favicon smoke with GD and Imagick, and Whisk-starter generated child-theme build/test smoke, including byte-for-byte Drupal core/Drush generation parity and component inspection.
 - The semantic-release workflow runs a blocking release-readiness job before publishing from `main`. That job repeats Composer validation, clean npm install, the blocking runtime audit, the advisory full dev-tool audit, PHP linting, static release checks, and full `npm run release:check` smoke coverage with GD and Imagick.
 - Pull requests, pushes, scheduled runs, and manual Theme Readiness runs include a generated consumer job that builds Vite and Storybook, runs `npm run a11y`, and audits a real component plus Drupal pages against explicit WCAG 2.2 AA rules. The [consumer accessibility evidence](./consumer-accessibility.md) records current unsuppressed findings; a passing build alone does not make this gate pass.
@@ -69,13 +100,25 @@ Do not label fixes, tests, metadata cleanup, or documentation-only work as
 analyzer determines the version, and remove published changes after release.
 
 `@semantic-release/npm` owns the root npm version during release preparation.
-With `npmPublish: false` and no Git commit-back plugin, that version is not
-persisted to the release tag's tree. Do not hand-edit it to match a tag. The
-release guard checks the npm plugin policy and compares the committed npm
-version with the latest tag's metadata baseline; it also rejects draft release
+With `npmPublish: false`, it writes the calculated semantic release version
+without publishing an npm package. `@semantic-release/git` then commits
+`package.json` and `package-lock.json` before the release is tagged, keeping the
+branch and release archive in sync automatically. The release identity still
+comes from Git tags and Composer metadata; a release branch may prepare its
+next version before publication. The guard accepts the latest stable tag or an
+untagged next patch, minor, or major version and rejects draft release
 titles that name an existing tag. Run the guard in a full Git checkout with tags
 (CI uses `fetch-depth: 0`). Published tags and Composer package metadata identify
 the parent release; `generatedFromVersion` describes starter lineage only.
+
+`whisk/project.emulsify.json`'s `generatedFromVersion` identifies the starter
+baseline, separately from the installed parent version. Starterkit copies it
+into generated project metadata and `docs/upgrading.md`. Update it when
+establishing a new starter baseline, using a published stable tag or the
+untagged next patch, minor, or major version the release analyzer will publish.
+The guard permits published historical baselines so parent releases do not
+force lineage changes. Existing generated projects retain their original
+starter baseline.
 
 ## Manual follow-up
 

@@ -22,17 +22,28 @@
 } %}
 <div{{ add_attributes(page_attributes) }}>
 
+{% block page_header %}
   {{ page.header }}
   {{ page.status }}
+{% endblock %}
 
+{% block page_main %}
   <main class="section main" role="main">
     <a id="main-content" tabindex="-1"></a>
     {{ page.breadcrumb }}
+    {{ page.highlighted }}
     {{ page.content_top }}
+    {{ page.sidebar_first }}
+{% block page_content %}
     {{ page.content }}
+{% endblock %}
+    {{ page.sidebar_second }}
     {{ page.content_bottom }}
   </main>
+{% endblock %}
 
+{% block page_footer %}
   {{ page.footer }}
+{% endblock %}
 
 </div>{# /.layout-container #}

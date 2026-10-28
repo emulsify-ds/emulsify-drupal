@@ -6,23 +6,40 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 function validateReleaseVersions({
-  tags, latestTag, baselineVersion, rootPackage, rootLock, releaseConfig,
+  tags, latestTag, rootPackage, rootLock, releaseConfig,
   readme, draft, readiness, generatedFromVersion,
 }) {
   assert.ok(latestTag, 'No stable release tag is available; fetch the full Git history and tags.');
   const plugins = releaseConfig.plugins.map((plugin) => Array.isArray(plugin) ? plugin : [plugin, {}]);
   const npmPlugin = plugins.find(([name]) => name === '@semantic-release/npm');
   assert.equal(npmPlugin?.[1]?.npmPublish, false, 'The documented version policy requires @semantic-release/npm with npmPublish: false.');
-  assert.ok(!plugins.some(([name]) => name === '@semantic-release/git'), 'A Git commit-back plugin changes npm version ownership; update the documented policy and guard together.');
-  assert.equal(rootPackage.version, baselineVersion, 'Do not hand-edit the semantic-release-owned package.json version; it must match the latest tag\'s committed tooling metadata.');
-  assert.equal(rootLock.version, rootPackage.version, 'package-lock.json version must match package.json tooling metadata.');
-  assert.equal(rootLock.packages?.['']?.version, rootPackage.version, 'package-lock.json root package version must match package.json tooling metadata.');
-  assert.equal(generatedFromVersion, latestTag, 'Whisk generatedFromVersion must record the latest published starter source tag.');
+  const gitIndex = plugins.findIndex(([name]) => name === '@semantic-release/git');
+  assert.ok(gitIndex > plugins.indexOf(npmPlugin), 'The version policy requires @semantic-release/git after @semantic-release/npm so the calculated version is committed.');
+  assert.deepEqual(plugins[gitIndex][1]?.assets, ['package.json', 'package-lock.json'], 'The version policy requires committing package.json and package-lock.json release metadata.');
+  assert.equal(rootLock.version, rootPackage.version, 'package-lock.json version must match package.json release metadata.');
+  assert.equal(rootLock.packages?.['']?.version, rootPackage.version, 'package-lock.json root package version must match package.json release metadata.');
+  const releasedVersions = new Set(tags.map((tag) => tag.replace(/^v/, '')));
+  const [major, minor, patch] = latestTag.split('.').map(Number);
+  const nextVersions = [
+    `${major}.${minor}.${patch + 1}`,
+    `${major}.${minor + 1}.0`,
+    `${major + 1}.0.0`,
+  ];
+  for (const [name, version] of [['Root package.json version', rootPackage.version], ['Whisk generatedFromVersion', generatedFromVersion]]) {
+    assert.ok(typeof version === 'string' && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version), `${name} must use a stable x.y.z version.`);
+  }
+  assert.ok(
+    rootPackage.version === latestTag || (!releasedVersions.has(rootPackage.version) && nextVersions.includes(rootPackage.version)),
+    `Root package.json version must record the latest stable tag ${latestTag} or an untagged next patch, minor, or major version (${nextVersions.join(', ')}).`,
+  );
+  assert.ok(
+    releasedVersions.has(generatedFromVersion) || nextVersions.includes(generatedFromVersion),
+    `Whisk generatedFromVersion must record a published stable starter baseline or an untagged next patch, minor, or major version (${nextVersions.join(', ')}).`,
+  );
   assert.ok(readme.includes(`${latestTag.split('.')[0]}.x series`), 'README.md must describe the major series from the latest release tag.');
   assert.ok(readme.includes("Composer's installed package version is authoritative"), 'README.md must identify Composer installed metadata as the parent release authority.');
   assert.ok(readme.includes('version is owned by `@semantic-release/npm`'), 'README.md must explain semantic-release ownership of npm version metadata.');
 
-  const releasedVersions = new Set(tags.map((tag) => tag.replace(/^v/, '')));
   for (const line of draft.split(/\r?\n/)) {
     // Release titles are claims about this draft. Compatibility requirements and
     // links to historical releases in ordinary prose are not draft titles.
@@ -49,7 +66,6 @@ function checkReleaseVersions(repoRoot = path.resolve(__dirname, '../..')) {
   return validateReleaseVersions({
     tags,
     latestTag,
-    baselineVersion: JSON.parse(git('show', `${latestTag}:package.json`)).version,
     rootPackage: JSON.parse(read('package.json')),
     rootLock: JSON.parse(read('package-lock.json')),
     releaseConfig: require(path.join(repoRoot, 'release.config.js')),

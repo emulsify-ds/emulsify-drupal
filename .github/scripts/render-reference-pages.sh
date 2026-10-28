@@ -14,6 +14,14 @@ fi
 
 fixture_dir="$1"
 output_dir="$2"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+(
+  cd "$fixture_dir"
+  ./vendor/bin/drush php:script "$script_dir/select-options-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/menu-current-smoke.php"
+  ./vendor/bin/drush php:script "$script_dir/oembed-embed-smoke.php"
+)
 
 # Allow callers to reuse an existing server URL, but default to a random local
 # port so parallel matrix jobs do not collide on the same runner.
@@ -30,23 +38,24 @@ fi
 web_root="${fixture_dir}/web"
 server_log="${output_dir}/php-server.log"
 cookie_file="${output_dir}/cookies.txt"
-region_smoke_regions=(header content_top content content_bottom footer)
 region_smoke_label_prefix="Emulsify smoke region"
 
 # The output directory also stores transient server logs and cookies. Keeping
 # these beside the captured HTML makes failed CI artifacts easier to inspect.
 mkdir -p "$output_dir"
+region_smoke_file="$(cd "$output_dir" && pwd)/regions.txt"
 
 place_region_smoke_blocks() {
   (
     cd "$fixture_dir"
     # Use a core block plugin so region coverage does not depend on custom block
-    # content fixtures or external services.
+    # content fixtures or external services. Read the active theme metadata so
+    # parent and generated child themes verify every region they declare.
     ./vendor/bin/drush php:eval '
 use Drupal\block\Entity\Block;
 
 $theme = \Drupal::config("system.theme")->get("default");
-$regions = ["header", "content_top", "content", "content_bottom", "footer"];
+$regions = array_keys(\Drupal::service("extension.list.theme")->get($theme)->info["regions"]);
 
 foreach ($regions as $weight => $region) {
   $block_id = "emulsify_region_smoke_" . $theme . "_" . $region;
@@ -61,7 +70,7 @@ foreach ($regions as $weight => $region) {
   ];
   $settings = [
     "id" => "system_powered_by_block",
-    "label" => "Emulsify smoke region " . $region,
+    "label" => "Emulsify smoke region [" . $region . "]",
     "label_display" => "visible",
     "provider" => "system",
   ];
@@ -71,8 +80,9 @@ foreach ($regions as $weight => $region) {
   }
   $block->set("settings", $settings);
   $block->save();
+  echo $region . PHP_EOL;
 }
-'
+' >"$region_smoke_file"
     ./vendor/bin/drush cr -y
   )
 }
@@ -80,14 +90,20 @@ foreach ($regions as $weight => $region) {
 assert_region_smoke_markers() {
   local capture_file="${output_dir}/frontpage-view.html"
 
-  for region in "${region_smoke_regions[@]}"; do
-    local marker="${region_smoke_label_prefix} ${region}"
+  if [ ! -s "$region_smoke_file" ]; then
+    echo "The current default theme has no declared regions to verify." >&2
+    exit 1
+  fi
+
+  while IFS= read -r region; do
+    # Delimit the key so content cannot match the content_top marker.
+    local marker="${region_smoke_label_prefix} [${region}]"
     if ! grep -Fq "$marker" "$capture_file"; then
       echo "Missing region smoke marker '${marker}' in ${capture_file}." >&2
       echo "The current default theme must render blocks placed in the ${region} region." >&2
       exit 1
     fi
-  done
+  done <"$region_smoke_file"
 }
 
 place_region_smoke_blocks

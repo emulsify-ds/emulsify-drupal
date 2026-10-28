@@ -5,6 +5,7 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { checkReleaseVersions } = require('./release-version-contract.cjs');
+const { validateReadinessMatrix } = require('./readiness-matrix-contract.cjs');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const args = new Set(process.argv.slice(2));
@@ -143,8 +144,7 @@ function extractSupportedDrupalTestLines(constraint) {
 
 function mapDrupalLineToSmokeTarget(line) {
   if (line === '12.*') {
-    // Until Drupal 12 has tagged beta/stable recommended-project releases,
-    // dev-main is the only useful forward-compatibility smoke target.
+    // Keep development-branch coverage alongside the separate beta matrix leg.
     return 'dev-main';
   }
 
@@ -184,13 +184,24 @@ function runSmokeCheck(name, command, argsList, cwd, options = {}) {
     cwd,
     encoding: 'utf8',
     env: { ...process.env, ...(options.env || {}) },
-    stdio: 'inherit',
+    stdio: options.skipPrefix ? 'pipe' : 'inherit',
   });
+
+  if (options.skipPrefix) {
+    process.stdout.write(result.stdout || '');
+    process.stderr.write(result.stderr || '');
+  }
 
   if (result.status !== 0) {
     const status = options.warnOnly ? 'WARN' : 'FAIL';
     addResult(status, name, options.failMessage || `${command} ${argsList.join(' ')} exited with status ${result.status}.`);
     return false;
+  }
+
+  const skip = options.skipPrefix && result.stdout.split(/\r?\n/).find((line) => line.startsWith(options.skipPrefix));
+  if (skip) {
+    addResult('SKIP', name, skip.slice(options.skipPrefix.length));
+    return true;
   }
 
   addResult('PASS', name, options.passMessage || 'Completed successfully.');
@@ -360,17 +371,15 @@ function extractYamlDependencyConstraint(contents, packageName) {
   return match[1].trim();
 }
 
-const FAVICON_SETTING_PREFIX = 'favicon_';
-
 function uniqueSorted(keys) {
   return [...new Set(keys)].sort();
 }
 
-function filterFaviconSettingKeys(keys) {
-  return uniqueSorted(keys.filter((key) => key.startsWith(FAVICON_SETTING_PREFIX)));
+function filterSettingKeys(keys, prefix) {
+  return uniqueSorted(keys.filter((key) => key.startsWith(prefix)));
 }
 
-function extractFaviconSchemaKeys(relativePath, schemaName) {
+function extractSettingSchemaKeys(relativePath, schemaName, prefix) {
   const lines = readFile(relativePath).split(/\r?\n/);
   const keys = [];
   let foundSchema = false;
@@ -400,7 +409,7 @@ function extractFaviconSchemaKeys(relativePath, schemaName) {
     }
 
     const keyMatch = line.match(/^ {4}([a-z0-9_]+):\s*$/);
-    if (keyMatch && keyMatch[1].startsWith(FAVICON_SETTING_PREFIX)) {
+    if (keyMatch && keyMatch[1].startsWith(prefix)) {
       keys.push(keyMatch[1]);
     }
   }
@@ -410,17 +419,17 @@ function extractFaviconSchemaKeys(relativePath, schemaName) {
   return uniqueSorted(keys);
 }
 
-function extractFaviconInstallKeys(relativePath) {
-  return filterFaviconSettingKeys([...readFile(relativePath).matchAll(/^([a-z0-9_]+):/gm)].map((match) => match[1]));
+function extractSettingInstallKeys(relativePath, prefix) {
+  return filterSettingKeys([...readFile(relativePath).matchAll(/^([a-z0-9_]+):/gm)].map((match) => match[1]), prefix);
 }
 
-function extractFaviconDefaultKeys(relativePath) {
+function extractSettingDefaultKeys(relativePath, prefix, className) {
   const contents = readFile(relativePath);
   const block = contents.match(/public const DEFAULTS = \[(.*?)\n  \];/s);
-  ensure(block, 'Unable to find FaviconSettings::DEFAULTS.');
+  ensure(block, `Unable to find ${className}::DEFAULTS.`);
   const keys = [...block[1].matchAll(/'([^']+)'\s*=>/g)].map((match) => match[1]);
-  const nonFaviconKeys = keys.filter((key) => !key.startsWith(FAVICON_SETTING_PREFIX));
-  ensure(nonFaviconKeys.length === 0, `FaviconSettings::DEFAULTS should contain only ${FAVICON_SETTING_PREFIX} keys. Found: ${nonFaviconKeys.join(', ')}.`);
+  const unexpectedKeys = keys.filter((key) => !key.startsWith(prefix));
+  ensure(unexpectedKeys.length === 0, `${className}::DEFAULTS should contain only ${prefix} keys. Found: ${unexpectedKeys.join(', ')}.`);
   return uniqueSorted(keys);
 }
 
@@ -452,7 +461,7 @@ function twigOutputReferencesPageRegion(template, region) {
   return outputTags.some((outputTag) => regionReferencePatterns.some((pattern) => pattern.test(outputTag)));
 }
 
-function compareFaviconSettingKeySets(label, keySets) {
+function compareSettingKeySets(label, keySets) {
   const issues = [];
   const { defaults, install, schema } = keySets;
 
@@ -463,7 +472,7 @@ function compareFaviconSettingKeySets(label, keySets) {
 
   const installExtraDefaults = keyDifference(install.keys, defaults.keys);
   if (installExtraDefaults.length > 0) {
-    issues.push(`${install.label} has extra favicon keys not in ${defaults.label}: ${formatKeys(installExtraDefaults)}.`);
+    issues.push(`${install.label} has extra settings keys not in ${defaults.label}: ${formatKeys(installExtraDefaults)}.`);
   }
 
   const schemaMissingDefaults = keyDifference(defaults.keys, schema.keys);
@@ -478,16 +487,16 @@ function compareFaviconSettingKeySets(label, keySets) {
 
   const schemaExtraDefaults = keyDifference(schema.keys, defaults.keys);
   if (schemaExtraDefaults.length > 0) {
-    issues.push(`${schema.label} has extra favicon keys not in ${defaults.label}: ${formatKeys(schemaExtraDefaults)}.`);
+    issues.push(`${schema.label} has extra settings keys not in ${defaults.label}: ${formatKeys(schemaExtraDefaults)}.`);
   }
 
   const schemaExtraInstall = keyDifference(schema.keys, install.keys);
   if (schemaExtraInstall.length > 0) {
-    issues.push(`${schema.label} has extra favicon keys not in ${install.label}: ${formatKeys(schemaExtraInstall)}.`);
+    issues.push(`${schema.label} has extra settings keys not in ${install.label}: ${formatKeys(schemaExtraInstall)}.`);
   }
 
   ensure(issues.length === 0, [
-    `Favicon settings key drift detected for ${label}.`,
+    `Theme settings key drift detected for ${label}.`,
     ...issues,
   ].join('\n'));
 }
@@ -528,15 +537,8 @@ const MIGRATED_THEME_HOOK_FILES = [
   ],
 ];
 
-const DEPENDENCY_HEAVY_FAVICON_FORM_FILES = [
-  'src/Favicon/FaviconSettingsForm.php',
-];
-
 function getStrictTypeClassFiles() {
-  return [
-    ...listFilesRecursive('src/Favicon', (filePath) => filePath.endsWith('.php')),
-    ...listFilesRecursive('src/Hook', (filePath) => filePath.endsWith('.php')),
-  ].sort();
+  return listFilesRecursive('src', (filePath) => filePath.endsWith('.php')).sort();
 }
 
 function getStrictTypeScriptFiles() {
@@ -570,14 +572,6 @@ function ensureHookAttributeMigration(themeEntrypoint) {
   }
 }
 
-function ensureDependencyHeavyFaviconFormAutowiring() {
-  for (const formFilePath of DEPENDENCY_HEAVY_FAVICON_FORM_FILES) {
-    const formClass = readFile(formFilePath);
-    ensure(formClass.includes('use Symfony\\Component\\DependencyInjection\\Attribute\\Autowire;'), `${formFilePath} must import Symfony Autowire for constructor disambiguation.`);
-    ensure(formClass.includes("#[Autowire(service: 'lock')]\n    LockBackendInterface $lock"), `${formFilePath} must explicitly autowire the request lock service.`);
-  }
-}
-
 function ensureFaviconSettingsFormDelegation() {
   const themeSettingsHooks = readFile('src/Hook/ThemeSettingsHooks.php');
   const faviconSettingsForm = readFile('src/Favicon/FaviconSettingsForm.php');
@@ -588,6 +582,11 @@ function ensureFaviconSettingsFormDelegation() {
   ensure(faviconSettingsForm.includes('implements ContainerInjectionInterface'), 'FaviconSettingsForm must be container-creatable for Form API callbacks.');
   ensure(faviconSettingsForm.includes('public static function create(ContainerInterface $container): self'), 'FaviconSettingsForm must expose create() for class resolver construction.');
   ensure(faviconSettingsForm.includes("$container->get('lock')"), 'FaviconSettingsForm::create() must resolve the lock service explicitly.');
+  const mediaSettingsForm = readFile('src/Media/MediaEmbedSettingsForm.php');
+  ensure(themeSettingsHooks.includes('getInstanceFromDefinition(MediaEmbedSettingsForm::class)'), 'ThemeSettingsHooks must resolve MediaEmbedSettingsForm through the class resolver.');
+  ensure(!themeSettingsHooks.includes('private readonly MediaEmbedSettingsForm $'), 'ThemeSettingsHooks must not constructor-inject a non-service MediaEmbedSettingsForm.');
+  ensure(mediaSettingsForm.includes('implements ContainerInjectionInterface'), 'MediaEmbedSettingsForm must be container-creatable for Form API callbacks.');
+  ensure(mediaSettingsForm.includes('public static function create(ContainerInterface $container): self'), 'MediaEmbedSettingsForm must expose create() for class resolver construction.');
 }
 
 function ensureWhiskPackageScriptTargets(whiskPackage) {
@@ -712,13 +711,13 @@ function runStaticChecks() {
     ensure(emulsifyBreakpoints.includes('emulsify.xsmall:'), 'emulsify.breakpoints.yml should use parent-theme emulsify.* breakpoint keys.');
     ensure(!emulsifyBreakpoints.includes('whisk.xsmall:'), 'emulsify.breakpoints.yml should not use whisk.* breakpoint keys.');
     ensure(whiskBreakpoints.includes('whisk.xsmall:'), 'whisk/whisk.breakpoints.yml should keep whisk.* keys for starterkit replacement.');
-    for (const drupalTarget of supportedDrupalSmokeTargets) {
-      ensure(themeReadinessWorkflow.includes(`'${drupalTarget}'`), `theme-readiness.yml should smoke test Drupal ${drupalTarget}.`);
-    }
-    ensure(themeReadinessWorkflow.includes("'8.3'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
-    ensure(themeReadinessWorkflow.includes("'8.4'"), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    const readinessMatrix = validateReadinessMatrix(themeReadinessWorkflow, [...supportedDrupalSmokeTargets, '11.4.*', '>=11.5.0-beta1 <11.5.0-RC1@beta', '>=12.0.0-beta1 <12.0.0-RC1@beta']);
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '11.4.*' && entry.experimental === false), 'Drupal 11.4 readiness coverage must be blocking.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.3'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.3.');
+    ensure(readinessMatrix.some((entry) => entry['php-version'] === '8.4'), 'theme-readiness.yml should run readiness smoke checks on PHP 8.4.');
+    ensure(readinessMatrix.some((entry) => entry['drupal-version'] === '>=12.0.0-beta1 <12.0.0-RC1@beta' && entry['php-version'] === '8.5' && entry.experimental === false), 'Drupal 12 beta readiness coverage must be blocking on PHP 8.5.');
     if (supportedDrupalSmokeTargets.includes('dev-main')) {
-      ensure(themeReadinessWorkflow.includes("'8.5'"), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
+      ensure(readinessMatrix.some((entry) => entry['drupal-version'] === 'dev-main' && entry['php-version'] === '8.5' && entry.experimental === true), 'theme-readiness.yml should run advisory Drupal dev-branch smoke checks on PHP 8.5.');
     }
     ensure(themeReadinessWorkflow.includes('pull_request:'), 'theme-readiness.yml should run on pull requests.');
     ensure(themeReadinessWorkflow.includes('schedule:'), 'theme-readiness.yml should run scheduled release-readiness coverage.');
@@ -737,7 +736,7 @@ function runStaticChecks() {
     ensure(themeReadinessWorkflow.includes('github.event.pull_request.head.ref || github.ref_name'), 'theme-readiness.yml should group duplicate push/pull_request runs by head branch.');
     ensure(!themeReadinessWorkflow.includes('- 6.x'), 'theme-readiness.yml should not keep the retired 6.x release branch trigger.');
     ensure(setupFixture.includes('NodeType::create'), 'setup-fixture-site.sh should create the page node type when install profiles omit it.');
-    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')} via ${supportedDrupalSmokeTargets.join(', ')} smoke targets. Local smoke default: ${options.drupalVersion}.`;
+    return `Root and generated child theme metadata align to Drupal constraint lines ${supportedDrupalLines.join(', ')}; CI targets ${[...new Set(readinessMatrix.map((entry) => entry['drupal-version']))].join(', ')}. Local smoke default: ${options.drupalVersion}.`;
   });
 
   runStaticCheck('CI credentials and action pins', () => {
@@ -796,8 +795,13 @@ function runStaticChecks() {
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'semantic-release.yml should enable release-only generated Storybook build coverage.');
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'semantic-release.yml should enable generated child theme test coverage in full release checks.');
     ensure(/uses: cycjimmy\/semantic-release-action@[a-f0-9]{40} # v6\.\d+\.\d+$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should pin a semantic-release action version that supports semantic-release 25.');
-    ensure(semanticReleaseWorkflow.includes('semantic_version: 25.0.3'), 'semantic-release.yml should pin semantic-release 25.0.3 in CI.');
+    ensure(semanticReleaseWorkflow.includes(`semantic_version: ${rootPackage.devDependencies['semantic-release'].replace(/^\^/, '')}`), 'semantic-release.yml should pin the same semantic-release version declared by root tooling.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
+    const releaseSteps = require('js-yaml').load(semanticReleaseWorkflow).jobs.release.steps;
+    const publishIndex = releaseSteps.findIndex((step) => step.id === 'semantic');
+    const installIndex = releaseSteps.findIndex((step) => step.run === 'npm ci --ignore-scripts');
+    ensure(installIndex >= 0 && installIndex < publishIndex, 'The publishing job must install the locked release plugins before running semantic-release.');
+    ensure(releaseSteps[publishIndex].env.HUSKY === '0', 'Automated release commits must disable local developer hooks.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_REPO_URL'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('drupal-org'), 'semantic-release.yml should leave Drupal.org syncing manual.');
@@ -823,6 +827,7 @@ function runStaticChecks() {
     ensure(rootPackage.scripts['test:generated-theme'] === 'node --test .github/scripts/generated-theme-contract.test.cjs', 'package.json should expose the focused generated child theme contract tests.');
     ensure(rootPackage.scripts['release:check'], 'package.json should expose a release:check script.');
     ensure(rootPackage.devDependencies && rootPackage.devDependencies['js-yaml'], 'package.json should declare js-yaml directly for generated Drupal metadata validation.');
+    ensure(rootPackage.devDependencies && rootPackage.devDependencies.postcss, 'package.json should declare postcss directly because the asset tests require it.');
     const phpLintScript = rootPackage.scripts['lint:php'] || '';
     for (const prunedPath of ['./.git', './node_modules', './vendor', './whisk/node_modules']) {
       ensure(phpLintScript.includes(`-path '${prunedPath}'`), `package.json lint:php should prune ${prunedPath}.`);
@@ -913,7 +918,9 @@ function runStaticChecks() {
     ensure(readme.includes(`Drupal ${minCoreVersion}`), `README.md should mention Drupal ${minCoreVersion}.`);
     if (supportedDrupalLines.some((line) => line.startsWith('12'))) {
       ensure(readme.includes('Drupal 12 forward compatibility'), 'README.md should describe Drupal 12 as forward-compatible.');
-      ensure(readme.includes('development branch coverage is experimental'), 'README.md should describe Drupal core development branch coverage as experimental.');
+      ensure(readme.includes('Blocking CI verifies Drupal 11.3 on PHP 8.3, 8.4, and 8.5, and Drupal 11.4 on PHP 8.3.'), 'README.md should identify the blocking Drupal and PHP matrix coverage.');
+      ensure(readme.includes('Drupal 12 beta readiness is blocking on PHP 8.5.'), 'README.md should identify blocking Drupal 12 beta coverage on PHP 8.5.');
+      ensure(readme.includes('`dev-main` remains an advisory compatibility check.'), 'README.md should identify development branch checks as advisory.');
     }
     ensure(readme.includes('docs/design-token-integration.md'), 'README.md should link to the optional design-token integration example.');
     ensure(designTokenIntegrationDoc.toLowerCase().includes('optional'), 'docs/design-token-integration.md should describe design-token tooling as optional.');
@@ -922,7 +929,8 @@ function runStaticChecks() {
 
   runStaticCheck('Release language consistency', () => {
     for (const [label, text] of [
-      ['README.md', readme],
+      // Allow the explicit historical tooling caveat for the documentation site.
+      ['README.md', readme.replace('currently documents the pre-7.x Webpack-based tooling and is being rewritten.', '')],
       ['docs/release-readiness.md', releaseReadinessDoc],
       ['.github/workflows/theme-readiness.yml', themeReadinessWorkflow],
       ['.github/workflows/semantic-release.yml', semanticReleaseWorkflow],
@@ -1008,30 +1016,89 @@ function runStaticChecks() {
     return 'Emulsify owns its template layer without a stable9 parent theme fallback.';
   });
 
+  runStaticCheck('Unique Twig template basenames', () => {
+    const templates = listFilesRecursive('templates', (filePath) => filePath.endsWith('.twig'));
+    ensure(new Set(templates.map((filePath) => path.basename(filePath))).size === templates.length, 'Remove duplicate .twig basenames under templates/; Drupal registers templates by basename, so duplicates collide in the theme registry.');
+    return `Verified ${templates.length} unique Twig template basenames.`;
+  });
+
+  runStaticCheck('Form error target IDs', () => {
+    const errorId = `id="{{ element['#id'] }}--error"`;
+    const errorWrapper = new RegExp(`<div\\b[^>]*\\s${escapeRegExp(errorId)}[^>]*>\\s*\\{\\{-?\\s*errors\\s*-?\\}\\}\\s*</div>`);
+    for (const templatePath of [
+      'templates/form/form-element.html.twig',
+      'templates/form/fieldset.html.twig',
+      'templates/form/details.html.twig',
+      'templates/form/datetime-wrapper.html.twig',
+      'templates/admin/form-element--new-storage-type.html.twig',
+    ]) {
+      const template = stripTwigComments(readFile(templatePath)).replace(/<!--[\s\S]*?-->/g, '');
+      ensure(errorWrapper.test(template), `${templatePath} must render ${errorId} on the wrapper containing {{ errors }} so Inline Form Errors can target it.`);
+    }
+    return 'Verified matching Inline Form Errors target IDs on all five error wrappers.';
+  });
+
   runStaticCheck('Theme region rendering', () => {
     const checkedRegions = [
       { metadataPath: 'emulsify.info.yml', metadataContents: emulsifyInfo, templatePath: 'templates/layout/page.html.twig' },
-      { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'whisk/templates/layout/page.html.twig' },
-      { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'whisk/templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.yml', metadataContents: whiskInfo, templatePath: 'templates/layout/page.html.twig' },
+      { metadataPath: 'whisk/whisk.info.emulsify.yml', metadataContents: whiskInfoStarter, templatePath: 'templates/layout/page.html.twig' },
     ].map(ensureDeclaredRegionsRender);
-    const smokeRegions = ['header', 'content_top', 'content', 'content_bottom', 'footer'];
-    const smokeRegionsMatch = renderReferencePages.match(/^region_smoke_regions=\(([^)]+)\)$/m);
-    ensure(smokeRegionsMatch, 'render-reference-pages.sh should declare region_smoke_regions for block placement smoke coverage.');
-    const coveredSmokeRegions = smokeRegionsMatch[1].trim().split(/\s+/);
-
-    for (const region of smokeRegions) {
-      ensure(coveredSmokeRegions.includes(region), `render-reference-pages.sh should place and assert a region smoke marker for ${region}.`);
-    }
+    const yaml = require('js-yaml');
+    const regionMappings = [emulsifyInfo, whiskInfo, whiskInfoStarter].map((contents) => yaml.load(contents).regions);
+    ensure(regionMappings.every((regions) => JSON.stringify(regions) === JSON.stringify(regionMappings[0])), 'Parent and Whisk theme info files must declare identical region keys, labels, and order.');
+    ensure(!fs.existsSync(path.join(repoRoot, 'whisk/templates/layout/page.html.twig')), 'Whisk must inherit the parent page template instead of shipping a copy.');
+    ensure(renderReferencePages.includes('$regions = array_keys(\\Drupal::service("extension.list.theme")->get($theme)->info["regions"]);'), 'render-reference-pages.sh should discover every region from the default theme info.');
+    ensure(renderReferencePages.includes('echo $region . PHP_EOL;') && renderReferencePages.includes('\' >"$region_smoke_file"'), 'render-reference-pages.sh should record every placed region for smoke assertions.');
+    ensure(renderReferencePages.includes('while IFS= read -r region; do') && renderReferencePages.includes('done <"$region_smoke_file"'), 'render-reference-pages.sh should assert a rendered marker for every placed region.');
     ensure(renderReferencePages.includes('assert_region_smoke_markers'), 'render-reference-pages.sh should fail when placed region smoke blocks do not render.');
 
-    return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} declared region references across parent and Whisk page templates.`;
+    return `Verified ${checkedRegions.reduce((total, regions) => total + regions.length, 0)} parent and Whisk region declarations against the inherited parent page template.`;
+  });
+
+  runStaticCheck('Twig template extension contract', () => {
+    const templateBlocks = {
+      'templates/layout/page.html.twig': ['page_header', 'page_main', 'page_content', 'page_footer'],
+      'templates/layout/html.html.twig': ['head', 'body_content'],
+      'templates/layout/region.html.twig': ['region_content'],
+      'templates/block/block.html.twig': ['title', 'block_attributes', 'content'],
+    };
+    for (const [templatePath, expectedBlocks] of Object.entries(templateBlocks)) {
+      const blocks = [...stripTwigComments(readFile(templatePath)).matchAll(/\{%-?\s*block\s+(\w+)\s*-?%\}/g)].map((match) => match[1]);
+      for (const block of expectedBlocks) {
+        ensure(blocks.includes(block), `${templatePath} must expose the ${block} Twig block for child theme extension.`);
+      }
+    }
+    ensure(readme.includes('(./docs/template-extension.md)'), 'README.md should link to the parent template extension guide.');
+    ensure(fs.existsSync(path.join(repoRoot, 'docs/template-extension.md')), 'The parent template extension guide must exist.');
+    ensure(fs.existsSync(path.join(repoRoot, '.github/scripts/template-extension-smoke.php')), 'The rendered template extension contract smoke script must exist.');
+
+    const steps = require('js-yaml').load(themeReadinessWorkflow).jobs['theme-readiness'].steps;
+    const stepIndex = steps.findIndex((step) => step.name === 'Verify Twig template extension contract');
+    const enableIndex = steps.findIndex((step) => step.id === 'starterkit_enable');
+    ensure(enableIndex >= 0 && stepIndex > enableIndex, 'The Twig extension contract must run after generated child theme enablement.');
+    const step = steps[stepIndex];
+    ensure(step.run === './vendor/bin/drush php:script "$GITHUB_WORKSPACE/.github/scripts/template-extension-smoke.php"', 'The Twig extension workflow step must invoke the rendered contract smoke script.');
+    ensure(step['working-directory'] === '/tmp/emulsify-fixture', 'The Twig extension contract must run against the working-tree Drupal fixture.');
+    ensure(step.if === "${{ !cancelled() && steps.build_fixture.outcome == 'success' && steps.starterkit_enable.outcome == 'success' }}", 'The Twig extension contract must require a successful fixture and enabled generated child theme.');
+    ensure(step['continue-on-error'] === '${{ matrix.experimental }}', 'The Twig extension contract must block stable matrix legs and remain advisory for experimental legs.');
+    return 'Verified nine new extension blocks, the existing content block, documentation, and the rendered CI contract step.';
   });
 
   runStaticCheck('Hook attribute migration', () => {
     ensureHookAttributeMigration(themeEntrypoint);
-    ensureDependencyHeavyFaviconFormAutowiring();
     ensureFaviconSettingsFormDelegation();
     return 'Legacy procedural hook includes are absent and migrated hooks are implemented with attributes.';
+  });
+
+  runStaticCheck('Inline form error render callback', () => {
+    const hooks = readFile('src/Hook/FormErrorHooks.php');
+    const renderer = readFile('src/Render/FormErrorRenderer.php');
+    ensure(hooks.includes("[FormErrorRenderer::class, 'preRenderErrors']"), 'FormErrorHooks must register the dedicated inline error render callback.');
+    ensure(!hooks.includes('function preRenderErrors('), 'Inline error rendering must live outside the hook handler.');
+    ensure(renderer.includes('implements TrustedCallbackInterface'), 'FormErrorRenderer must use the trusted callback interface fast path.');
+    ensure(renderer.includes("return ['preRenderErrors'];"), 'FormErrorRenderer must trust only its preRenderErrors callback.');
+    return 'Inline form errors use a dedicated interface-trusted render callback.';
   });
 
   runStaticCheck('PHP strict typing', () => {
@@ -1045,6 +1112,48 @@ function runStaticChecks() {
     ensure(!faviconSettings.includes('function hasExportableSource('), 'FaviconSettings should not keep the deprecated hasExportableSource() alias in 7.x.');
     ensure(!faviconSettings.includes('@todo Remove in Emulsify 8.x'), 'FaviconSettings should not introduce deprecated 7.x-only aliases.');
     return 'Favicon settings expose the 7.x portable source method names only.';
+  });
+
+  runStaticCheck('Emulsify Tools 2.2 favicon API', () => {
+    // Published Tools releases call these APIs directly, including constructing
+    // the theme manager with positional arguments.
+    const faviconThemeManager = readFile('src/Favicon/FaviconThemeManager.php');
+    const constructor = faviconThemeManager.match(/^[ \t]*public\s+function\s+__construct\s*\(([^)]*)\)/m);
+    ensure(constructor, 'FaviconThemeManager must keep its public constructor for Emulsify Tools 2.2.');
+    const parameters = constructor[1].split(',')
+      .map((parameter) => parameter.trim().replace(/\b(public|protected|private|readonly)\s+/g, '').replace(/\s+/g, ' '))
+      .filter(Boolean);
+    const expectedParameters = [
+      'ThemeSettingsProvider $themeSettingsProvider',
+      'ConfigFactoryInterface $configFactory',
+      'FileSystemInterface $fileSystem',
+      'CacheTagsInvalidatorInterface $cacheTagsInvalidator',
+      'FileUrlGeneratorInterface $fileUrlGenerator',
+      'TimeInterface $time',
+      'LockBackendInterface $lock',
+    ];
+    ensure(JSON.stringify(parameters) === JSON.stringify(expectedParameters), `FaviconThemeManager constructor parameters must retain the Emulsify Tools 2.2 order: ${expectedParameters.join(', ')}.`);
+
+    for (const [className, methods, staticModifier] of [
+      ['FaviconThemeManager', [
+        'loadThemeSettings',
+        'generatePackage',
+        'writeThemeSettings',
+        'resetThemeSettings',
+        'resolveStoredSourceFile',
+        'buildPackageStatus',
+        'getRuntimeDependencyStatus',
+      ], ''],
+      ['FaviconPackageGenerator', ['validateSourceFile'], ''],
+      ['FaviconSettings', ['normalize', 'getSourceFileId'], 'static\\s+'],
+    ]) {
+      const source = readFile(`src/Favicon/${className}.php`);
+      for (const method of methods) {
+        ensure(new RegExp(`^[ \\t]*public\\s+${staticModifier}function\\s+${method}\\s*\\(`, 'm').test(source), `${className}::${method}() must remain public${staticModifier ? ' and static' : ''} for Emulsify Tools 2.2.`);
+      }
+    }
+    ensure(/^[ \t]*public\s+const\s+DEFAULTS\s*=/m.test(readFile('src/Favicon/FaviconSettings.php')), 'FaviconSettings::DEFAULTS must remain public for Emulsify Tools 2.2.');
+    return 'Verified the public favicon APIs and constructor parameter order used by published Emulsify Tools 2.2 releases.';
   });
 
   runStaticCheck('Favicon runtime behavior', () => {
@@ -1065,6 +1174,7 @@ function runStaticChecks() {
       'Imagick',
       'public://favicon-package/<theme_name>/<package_hash>',
       'favicon.svg',
+      'favicon-dark.svg',
       'favicon.ico',
       'favicon-96x96.png',
       'apple-touch-icon.png',
@@ -1281,25 +1391,25 @@ function runStaticChecks() {
   });
 
   runStaticCheck('Schema validity', () => {
-    const defaults = {
-      label: 'src/Favicon/FaviconSettings.php::DEFAULTS',
-      keys: extractFaviconDefaultKeys('src/Favicon/FaviconSettings.php'),
-    };
-
-    compareFaviconSettingKeySets('emulsify.settings', {
-      defaults,
-      install: { label: 'config/install/emulsify.settings.yml', keys: extractFaviconInstallKeys('config/install/emulsify.settings.yml') },
-      schema: { label: 'config/schema/emulsify.schema.yml emulsify.settings.mapping', keys: extractFaviconSchemaKeys('config/schema/emulsify.schema.yml', 'emulsify.settings') },
-    });
-
-    compareFaviconSettingKeySets('whisk.settings', {
-      defaults,
-      install: { label: 'whisk/config/install/whisk.settings.yml', keys: extractFaviconInstallKeys('whisk/config/install/whisk.settings.yml') },
-      schema: { label: 'whisk/config/schema/whisk.schema.yml whisk.settings.mapping', keys: extractFaviconSchemaKeys('whisk/config/schema/whisk.schema.yml', 'whisk.settings') },
-    });
-
-    const defaultKeys = defaults.keys;
-    return `Validated ${defaultKeys.length} favicon settings keys across defaults, install config, and schema files.`;
+    const counts = [];
+    for (const [source, className, prefix] of [
+      ['src/Favicon/FaviconSettings.php', 'FaviconSettings', 'favicon_'],
+      ['src/Media/MediaEmbedSettings.php', 'MediaEmbedSettings', 'media_embed_'],
+      ['src/Social/SocialShareSettings.php', 'SocialShareSettings', 'social_share_image_'],
+    ]) {
+      const defaults = { label: `${source}::DEFAULTS`, keys: extractSettingDefaultKeys(source, prefix, className) };
+      for (const [theme, directory] of [['emulsify', ''], ['whisk', 'whisk/']]) {
+        const install = `${directory}config/install/${theme}.settings.yml`;
+        const schema = `${directory}config/schema/${theme}.schema.yml`;
+        compareSettingKeySets(`${theme}.settings (${prefix})`, {
+          defaults,
+          install: { label: install, keys: extractSettingInstallKeys(install, prefix) },
+          schema: { label: `${schema} ${theme}.settings.mapping`, keys: extractSettingSchemaKeys(schema, `${theme}.settings`, prefix) },
+        });
+      }
+      counts.push(`${defaults.keys.length} ${prefix} settings keys`);
+    }
+    return `Validated ${counts.join(' and ')} across defaults, install config, and schema files.`;
   });
 }
 
@@ -1366,7 +1476,10 @@ function runSmokeChecks() {
     'bash',
     [path.join(repoRoot, '.github/scripts/template-parity.sh'), baseFixture, repoRoot],
     repoRoot,
-    { passMessage: 'Verified that Emulsify ships every stable9 template path without declaring stable9 as the parent theme.' },
+    {
+      skipPrefix: 'SKIP Stable9 template parity: ',
+      passMessage: 'Verified that Emulsify covers every stable9 template basename without declaring stable9 as the parent theme.',
+    },
   );
 
   runSmokeCheck(

@@ -85,12 +85,7 @@
           class: bem('item', [], 'pager', [current == key ? 'is-active' : null]),
         } %}
         <li{{ add_attributes(pager_item_attributes) }}>
-          {% if current == key %}
-            {% set title = 'Current page'|t %}
-          {% else %}
-            {% set title = 'Go to page @key'|t({'@key': key}) %}
-          {% endif %}
-          <a href="{{ item.href }}" title="{{ title }}"{{ item.attributes|without('href', 'title') }}>
+          <a href="{{ item.href }}"{% if current == key %} aria-current="page"{% endif %}{{ item.attributes|without('href', 'title', 'aria-current') }}>
             <span class="visually-hidden">
               {{ 'Page'|t }}
             </span>
