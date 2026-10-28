@@ -100,22 +100,25 @@ Do not label fixes, tests, metadata cleanup, or documentation-only work as
 analyzer determines the version, and remove published changes after release.
 
 `@semantic-release/npm` owns the root npm version during release preparation.
-With `npmPublish: false` and no Git commit-back plugin, that version is not
-persisted to the release tag's tree. Do not hand-edit it to match a tag. The
-release guard checks the npm plugin policy and compares the committed npm
-version with the latest tag's metadata baseline; it also rejects draft release
+With `npmPublish: false`, it writes the calculated semantic release version
+without publishing an npm package. `@semantic-release/git` then commits
+`package.json` and `package-lock.json` before the release is tagged, keeping the
+branch and release archive in sync automatically. The release identity still
+comes from Git tags and Composer metadata; a release branch may prepare its
+next version before publication. The guard accepts the latest stable tag or an
+untagged next patch, minor, or major version and rejects draft release
 titles that name an existing tag. Run the guard in a full Git checkout with tags
 (CI uses `fetch-depth: 0`). Published tags and Composer package metadata identify
 the parent release; `generatedFromVersion` describes starter lineage only.
 
-In a release PR, set `whisk/project.emulsify.json`'s `generatedFromVersion` to
-the version the release analyzer will publish. Starterkit copies that value
-into generated project metadata and `docs/upgrading.md`, so it must identify
-the release supplying the starter rather than the previous release. The guard
-accepts the latest stable tag or its immediate next patch, minor, or major
-version while that version is untagged. This lets the release PR pass before
-publication and keeps checks passing after the new tag becomes the latest.
-Existing generated projects retain their original starter baseline.
+`whisk/project.emulsify.json`'s `generatedFromVersion` identifies the starter
+baseline, separately from the installed parent version. Starterkit copies it
+into generated project metadata and `docs/upgrading.md`. Update it when
+establishing a new starter baseline, using a published stable tag or the
+untagged next patch, minor, or major version the release analyzer will publish.
+The guard permits published historical baselines so parent releases do not
+force lineage changes. Existing generated projects retain their original
+starter baseline.
 
 ## Manual follow-up
 

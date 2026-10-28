@@ -45,6 +45,10 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Fixed
 
+- The root npm version now records the planned 7.3.0 release. Semantic Release
+  automatically commits its calculated version to both npm metadata files before
+  tagging future releases; generated child theme versions and lineage remain
+  project-owned.
 - Whisk no longer ships a page copy that hides future parent fixes. Fresh
   generated children inherit the parent template, and parity checks reject
   divergent files under the starter's template directory.
@@ -79,6 +83,11 @@ fixes from 7.2.2, which was deliberately not published to Drupal.org.
 
 ## Compatibility and validation
 
+- Root npm tooling uses the latest compatible stable direct dependencies,
+  including Semantic Release 25.0.9 in CI, with refreshed transitive resolutions.
+  Whisk's Core 4.5.0 dependency and existing compatibility overrides are already
+  current within their supported major versions. No new overrides or patches
+  were introduced for these updates.
 - Parent assets moved to `dist/`; update child `libraries-override` path keys.
   See the [asset migration and global-rule opt-out guidance](../UPGRADE.md#parent-changes-inherited-after-the-update).
 - Newly generated themes use Emulsify Core `^4.5.0`, which requires Node

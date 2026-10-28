@@ -113,11 +113,13 @@ consumer actions in [UPGRADE.md](./UPGRADE.md). The
 
 The root `package.json` version is owned by `@semantic-release/npm`. That plugin
 writes the calculated version during release preparation, with `npmPublish: false`;
-the workflow does not commit that generated metadata back to Git.
-Consequently, the checked-in npm version is tooling metadata, not an installed
-Emulsify Drupal release identifier. Do not bump it manually. The release guard
-checks this ownership policy and the unchanged metadata baseline from the latest
-tag. The generated child theme's npm version belongs to that child project;
+`@semantic-release/git` then commits `package.json` and `package-lock.json` before
+the release is tagged. The checked-in version tracks the latest release or the
+next planned release while it is being prepared; Composer's installed version
+and source reference remain authoritative for an installed site. Future release
+versions are synchronized automatically. The release guard checks plugin order,
+committed files, and matching npm version metadata. The generated child theme's
+npm version belongs to that child project;
 `generatedFromVersion` records its starter lineage, not the currently installed
 parent theme version.
 

@@ -795,8 +795,13 @@ function runStaticChecks() {
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_STORYBOOK_BUILD'), 'semantic-release.yml should enable release-only generated Storybook build coverage.');
     ensure(semanticReleaseWorkflow.includes('EMULSIFY_STARTERKIT_TEST'), 'semantic-release.yml should enable generated child theme test coverage in full release checks.');
     ensure(/uses: cycjimmy\/semantic-release-action@[a-f0-9]{40} # v6\.\d+\.\d+$/m.test(semanticReleaseWorkflow), 'semantic-release.yml should pin a semantic-release action version that supports semantic-release 25.');
-    ensure(semanticReleaseWorkflow.includes('semantic_version: 25.0.3'), 'semantic-release.yml should pin semantic-release 25.0.3 in CI.');
+    ensure(semanticReleaseWorkflow.includes(`semantic_version: ${rootPackage.devDependencies['semantic-release'].replace(/^\^/, '')}`), 'semantic-release.yml should pin the same semantic-release version declared by root tooling.');
     ensure(semanticReleaseWorkflow.includes('id: semantic'), 'semantic-release.yml must expose semantic-release action outputs as steps.semantic.');
+    const releaseSteps = require('js-yaml').load(semanticReleaseWorkflow).jobs.release.steps;
+    const publishIndex = releaseSteps.findIndex((step) => step.id === 'semantic');
+    const installIndex = releaseSteps.findIndex((step) => step.run === 'npm ci --ignore-scripts');
+    ensure(installIndex >= 0 && installIndex < publishIndex, 'The publishing job must install the locked release plugins before running semantic-release.');
+    ensure(releaseSteps[publishIndex].env.HUSKY === '0', 'Automated release commits must disable local developer hooks.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_ORG_SSH_KEY'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('DRUPAL_REPO_URL'), 'semantic-release.yml should leave Drupal.org syncing manual.');
     ensure(!semanticReleaseWorkflow.includes('drupal-org'), 'semantic-release.yml should leave Drupal.org syncing manual.');

@@ -3,13 +3,17 @@ const test = require('node:test');
 const { validateReleaseVersions } = require('./release-version-contract.cjs');
 
 function fixture(overrides = {}) {
+  const version = overrides.latestTag || '7.2.1';
   return {
     tags: ['v1.0.0-beta.4', '7.2.1', '7.2.0'],
     latestTag: '7.2.1',
-    baselineVersion: '7.0.0',
-    rootPackage: { version: '7.0.0' },
-    rootLock: { version: '7.0.0', packages: { '': { version: '7.0.0' } } },
-    releaseConfig: { plugins: [['@semantic-release/npm', { npmPublish: false }], '@semantic-release/github'] },
+    rootPackage: { version },
+    rootLock: { version, packages: { '': { version } } },
+    releaseConfig: { plugins: [
+      ['@semantic-release/npm', { npmPublish: false }],
+      ['@semantic-release/git', { assets: ['package.json', 'package-lock.json'] }],
+      '@semantic-release/github',
+    ] },
     readme: "The 7.x series. Composer's installed package version is authoritative. The root version is owned by `@semantic-release/npm`.",
     draft: '# Unreleased changes\n\nRequires Emulsify Core 4.3.1.\n',
     readiness: 'Review commits since the latest tag.',
@@ -18,12 +22,23 @@ function fixture(overrides = {}) {
   };
 }
 
-test('accepts release-owned npm tooling metadata that differs from the release tag', () => {
+test('accepts npm release metadata matching the latest tag', () => {
   assert.equal(validateReleaseVersions(fixture()), '7.2.1');
 });
 
-test('rejects a manual npm version correction to the current release', () => {
-  assert.throws(() => validateReleaseVersions(fixture({ rootPackage: { version: '7.2.1' } })), /Do not hand-edit/);
+test('accepts a prepared next npm version and rejects stale or skipped versions', () => {
+  for (const version of ['7.2.2', '7.3.0', '8.0.0', '7.0.0', '7.2.3', '7.4.0']) {
+    const check = () => validateReleaseVersions(fixture({
+      rootPackage: { version },
+      rootLock: { version, packages: { '': { version } } },
+    }));
+    if (['7.2.2', '7.3.0', '8.0.0'].includes(version)) {
+      assert.equal(check(), '7.2.1');
+    }
+    else {
+      assert.throws(check, /Root package.json version/);
+    }
+  }
 });
 
 test('rejects package-lock version drift in either metadata location', () => {
@@ -56,18 +71,21 @@ test('rejects a stale latest release claim without rejecting historical notes', 
   assert.equal(validateReleaseVersions(fixture({ readiness: 'Tools ^2.2 became required in 7.2.1.' })), '7.2.1');
 });
 
-test('rejects version ownership changes until the policy is reviewed', () => {
+test('requires npm prepare before the Git plugin and both version files in the release commit', () => {
   for (const plugins of [
     ['@semantic-release/github'],
     [['@semantic-release/npm', { npmPublish: true }]],
+    [['@semantic-release/npm', { npmPublish: false }]],
     [['@semantic-release/npm', { npmPublish: false }], '@semantic-release/git'],
+    [['@semantic-release/git', { assets: ['package.json', 'package-lock.json'] }], ['@semantic-release/npm', { npmPublish: false }]],
+    [['@semantic-release/npm', { npmPublish: false }], ['@semantic-release/git', { assets: ['package.json'] }]],
   ]) {
-    assert.throws(() => validateReleaseVersions(fixture({ releaseConfig: { plugins } })), /policy|ownership/);
+    assert.throws(() => validateReleaseVersions(fixture({ releaseConfig: { plugins } })), /policy/);
   }
 });
 
-test('rejects stale starter lineage and missing release tags', () => {
-  assert.throws(() => validateReleaseVersions(fixture({ generatedFromVersion: '7.2.0' })), /generatedFromVersion/);
+test('rejects an unknown starter baseline and missing release tags', () => {
+  assert.throws(() => validateReleaseVersions(fixture({ generatedFromVersion: '7.1.5' })), /generatedFromVersion/);
   assert.throws(() => validateReleaseVersions(fixture({ latestTag: undefined })), /fetch the full Git history/);
 });
 
@@ -81,8 +99,8 @@ test('accepts the latest starter tag or an untagged next patch, minor, or major 
   }
 });
 
-test('rejects older starter lineage and skipped release increments', () => {
-  for (const generatedFromVersion of ['7.2.0', '7.2.1', '7.2.4', '7.3.1', '7.4.0', '8.0.1', '9.0.0']) {
+test('rejects unknown starter baselines and skipped release increments', () => {
+  for (const generatedFromVersion of ['7.2.0', '7.2.4', '7.3.1', '7.4.0', '8.0.1', '9.0.0']) {
     assert.throws(() => validateReleaseVersions(fixture({
       tags: ['7.2.2', '7.2.1'],
       latestTag: '7.2.2',
@@ -91,13 +109,13 @@ test('rejects older starter lineage and skipped release increments', () => {
   }
 });
 
-test('rejects next starter versions that are already tagged, including v aliases', () => {
-  for (const tag of ['7.2.3', 'v7.2.3', '7.3.0', 'v7.3.0', '8.0.0', 'v8.0.0']) {
-    assert.throws(() => validateReleaseVersions(fixture({
+test('accepts published historical starter baselines, including v aliases', () => {
+  for (const tag of ['7.2.0', 'v7.2.0', '7.2.1', 'v7.2.1']) {
+    assert.equal(validateReleaseVersions(fixture({
       tags: ['7.2.2', tag],
       latestTag: '7.2.2',
       generatedFromVersion: tag.replace(/^v/, ''),
-    })), /generatedFromVersion/);
+    })), '7.2.2');
   }
 });
 
@@ -119,5 +137,5 @@ test('keeps prepared starter lineage valid when its release tag is published', (
   })), '7.2.2');
   const published = fixture({ tags: ['7.3.0', '7.2.2', '7.2.1'], latestTag: '7.3.0', generatedFromVersion });
   assert.equal(validateReleaseVersions(published), '7.3.0');
-  assert.throws(() => validateReleaseVersions({ ...published, generatedFromVersion: '7.2.2' }), /generatedFromVersion/);
+  assert.equal(validateReleaseVersions({ ...published, generatedFromVersion: '7.2.2' }), '7.3.0');
 });

@@ -64,6 +64,8 @@ their prerequisites accurately. A component-neutral generated theme may have
 an empty inspector report; builds require library inputs and tests require
 project tests. Storybook alone does not verify Drupal rendering or PHP hooks.
 
-The root npm version is owned by release automation; do not bump it manually.
+Release automation calculates and commits the root npm version and lockfile
+metadata. A release branch may prepare its next planned semantic version;
+routine updates should leave versioning to the release workflow.
 Generated starter lineage records the original baseline, not the currently
 installed parent version. Preserve unrelated working-tree changes.

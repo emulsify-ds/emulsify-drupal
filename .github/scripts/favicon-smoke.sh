@@ -18,6 +18,14 @@ node --test "$script_dir/favicon-preview.test.cjs"
 
 (
   cd "$fixture_dir"
+  # Both 7.0 and 7.1 generated the same settings defaults and schema. Keep that
+  # copied baseline while exercising current parent hooks under an admin theme.
+  mkdir -p web/themes/custom/legacy_settings
+  rsync -a "${script_dir}/../fixtures/legacy_settings/" web/themes/custom/legacy_settings/
+  ./vendor/bin/drush theme:enable legacy_settings -y
+  ./vendor/bin/drush cr -y
+  ./vendor/bin/drush php:script "$script_dir/theme-settings-upgrade-smoke.php"
+
   EMULSIFY_FAVICON_THEME="$theme_name" \
     ./vendor/bin/drush php:eval "require '${script_dir}/favicon-smoke.php';"
   ./vendor/bin/drush php:script "$script_dir/favicon-preview-smoke.php"

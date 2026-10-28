@@ -378,6 +378,19 @@ document. Existing child schemas can optionally add these entries under the
       label: 'Video poster image source'
 ```
 
+### Finding the settings in an older child theme
+
+After updating the parent, rebuild Drupal caches and open
+`/admin/appearance/settings/<your_theme>` for the child theme the site uses.
+Expand **Media embeds** to see its privacy and click-to-load options. Under
+**Favicon**, check **Enable generated favicon package** to reveal the
+browser, dark-mode, and social share settings. When the package is disabled,
+these fields are hidden. Opening sections or checking the box does not persist
+changes until the form is saved.
+
+Themes generated with 7.0 or 7.1 inherit these controls from the parent; their
+older copied defaults and schema do not require replacement to display them.
+
 ### Container and form template suggestions
 
 The parent theme now adds container suggestions by class, structural form path,
