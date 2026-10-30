@@ -1,4 +1,11 @@
 {
+  "ignoreFiles": [
+    "../../dist/**",
+    "../../.out/**",
+    "../../.coverage/**",
+    "../../components/**",
+    "../../node_modules/**"
+  ],
   "extends": [
     "../../node_modules/@emulsify/core/config/.stylelintrc.json"
   ]

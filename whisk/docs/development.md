@@ -5,7 +5,7 @@ Run frontend commands from this theme directory.
 ## Prerequisites
 
 - An existing Drupal site with the Emulsify parent theme and this generated theme in `web/themes/custom/%%EMULSIFY_MACHINE_NAME%%` (or the equivalent custom-theme directory).
-- Node.js 24.13.0 or newer for Emulsify Core 4.5.0. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
+- Node.js 24.13.0 or newer for Emulsify Core 4.5. The theme advertises `>=24`, but Core requires `>=24.13.0`; `.nvmrc` selects the Node 24 line without pinning a minor version. Check the resolved Core package's `engines` after dependency updates.
 - nvm is optional but is used by the version-selection commands below.
 - npm, which is included with Node.js.
 
@@ -38,7 +38,7 @@ The starter does not prescribe asset source directories, Sass entrypoints, build
 
 The generated theme includes `%%EMULSIFY_MACHINE_NAME%%.libraries.yml` with commented generic CSS and JavaScript references, but it attaches no project asset library. Follow the selected component library's installation instructions, then replace and uncomment those examples to match its preferred structure and Drupal integration.
 
-The shared lint, formatting, and test defaults discover supported files across the project without requiring `src` or `components`. The selected component library may extend those project-owned commands and configuration when it needs more specific behavior.
+The shared lint, formatting, and test defaults discover supported authored files across the project. Lint skips `dist/`, `.out/`, `.coverage/`, and the generated `components/` mirror; keep authored components under the selected library's source directory. The selected component library may extend those project-owned commands and configuration when it needs more specific behavior.
 
 ## Component inspection
 
